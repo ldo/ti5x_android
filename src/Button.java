@@ -91,7 +91,7 @@ public class Button extends android.view.View
       )
       {
         setMeasuredDimension(60, 40);
-      } /*onMeasere*/
+      } /*onMeasure*/
 
     protected static Button ModifierButton
       (
