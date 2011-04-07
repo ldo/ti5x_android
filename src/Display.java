@@ -15,7 +15,10 @@ public class Display extends android.view.View
     static final float Slant = 0.1f; /* tangent of slant angle to right from vertical */
     static final float Size = 32.0f;
     static final int NrDigits = 12;
-    final int[] Showing;
+    int[] Showing;
+    int[] OtherShowing;
+    android.os.Handler Idler;
+    Runnable IdleTask = null;
 
     public Display
       (
@@ -29,6 +32,8 @@ public class Display extends android.view.View
           {
             Showing[i] = 0;
           } /*for*/
+        OtherShowing = Showing.clone();
+        Idler = new android.os.Handler();
       } /*Display*/
 
     /*
@@ -112,6 +117,7 @@ public class Display extends android.view.View
         int[] ToShow /* sequence of segment codes */
       )
       {
+        ClearShowingError();
         final int NrToShow = Math.min(ToShow.length, NrDigits);
         final int Offset = NrDigits - NrToShow;
         for (int i = NrToShow;;)
@@ -136,6 +142,7 @@ public class Display extends android.view.View
         String ToShow /* sequence of digits, possibly also minus signs and spaces */
       )
       {
+        ClearShowingError();
         int j = NrDigits;
         boolean Decrement = true;
         for (int i = ToShow.length();;)
@@ -158,6 +165,42 @@ public class Display extends android.view.View
           } /*while*/
         invalidate();
       } /*SetShowing*/
+
+    class Flashing implements Runnable
+      {
+        public void run()
+          {
+            final int[] SwapTemp = Showing;
+            Showing = OtherShowing;
+            OtherShowing = SwapTemp;
+            invalidate();
+            if (IdleTask != null)
+              {
+                Idler.postDelayed(IdleTask, 1000);
+              } /*if*/
+          } /*run*/
+      } /*Flashing*/
+
+    void ClearShowingError()
+      {
+        if (IdleTask != null)
+          {
+            Idler.removeCallbacks(IdleTask);
+            IdleTask = null;
+          } /*if*/
+      } /*ClearShowingError*/
+
+    public void SetShowingError()
+      {
+        ClearShowingError();
+        SetShowing(new int[] {SegmentCode('E'), SegmentCode('r'), SegmentCode('r'), SegmentCode('o'), SegmentCode('r')});
+        for (int i = 0; i < OtherShowing.length; ++i)
+          {
+            OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
+          } /*for*/
+        IdleTask = new Flashing();
+        Idler.postDelayed(IdleTask, 1000);
+      } /*SetShowingError*/
 
     static void RenderSegments
       (

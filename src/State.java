@@ -278,43 +278,50 @@ public class State
         int Exp;
         CurState = ResultState;
         X = NewX;
-        if
-          (
-                CurFormat == FORMAT_FIXED
-            &&
-                (Math.abs(X) < Math.pow(10.0, -7.0) || Math.abs(X) > Math.pow(10.0, 7.0))
-          )
+        if (!Double.isNaN(X) && !Double.isInfinite(X))
           {
-            CurFormat = FORMAT_FLOATING;
+            if
+              (
+                    CurFormat == FORMAT_FIXED
+                &&
+                    (Math.abs(X) < Math.pow(10.0, -7.0) || Math.abs(X) > Math.pow(10.0, 7.0))
+              )
+              {
+                CurFormat = FORMAT_FLOATING;
+              } /*if*/
+            switch (CurFormat)
+              {
+            case FORMAT_FIXED:
+            default:
+                Exp = 0;
+            break;
+            case FORMAT_FLOATING:
+                Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
+            break;
+            case FORMAT_ENG:
+                Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(1000.0)) * 3;
+            break;
+              } /*switch*/
+            CurDisplay = String.format("%.8f", X / Math.pow(10.0, Exp));
+            while (CurDisplay.length() != 0 && CurDisplay.charAt(CurDisplay.length() - 1) == '0')
+              {
+                CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
+              } /*while*/
+            if (CurDisplay.length() == 0)
+              {
+                CurDisplay = "0.";
+              } /*if*/
+          /* assume there will always be a decimal point? */
+            if (CurFormat != FORMAT_FIXED)
+              {
+                CurDisplay += (Exp < 0 ? "-" : " ") + String.format("%02d", Math.abs(Exp));
+              } /*if*/
+            TheDisplay.SetShowing(CurDisplay);
+          }
+        else
+          {
+            TheDisplay.SetShowingError();
           } /*if*/
-        switch (CurFormat)
-          {
-        case FORMAT_FIXED:
-        default:
-            Exp = 0;
-        break;
-        case FORMAT_FLOATING:
-            Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
-        break;
-        case FORMAT_ENG:
-            Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(1000.0)) * 3;
-        break;
-          } /*switch*/
-        CurDisplay = String.format("%.8f", X / Math.pow(10.0, Exp));
-        while (CurDisplay.length() != 0 && CurDisplay.charAt(CurDisplay.length() - 1) == '0')
-          {
-            CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
-          } /*while*/
-        if (CurDisplay.length() == 0)
-          {
-            CurDisplay = "0.";
-          } /*if*/
-      /* assume there will always be a decimal point? */
-        if (CurFormat != FORMAT_FIXED)
-          {
-            CurDisplay += (Exp < 0 ? "-" : " ") + String.format("%02d", Math.abs(Exp));
-          } /*if*/
-        TheDisplay.SetShowing(CurDisplay);
       } /*SetX*/
 
     public Runnable ChangeSign()
