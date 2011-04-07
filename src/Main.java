@@ -3,105 +3,100 @@ package nz.gen.geek_central.ti5x;
 public class Main extends android.app.Activity
   {
 
-  /* button functions, colours TBD */
+  /* button functions TBD */
     static class ButtonDef
       {
-        String Text, AltText;
+        final String Text, AltText;
+        final int TextColor, ButtonColor;
 
         public ButtonDef
           (
             String Text,
-            String AltText
+            String AltText,
+            int TextColor,
+            int ButtonColor
           )
           {
             this.Text = Text;
             this.AltText = AltText;
+            this.TextColor = TextColor;
+            this.ButtonColor = ButtonColor;
           } /*ButtonDef*/
-
-        public ButtonDef
-          (
-            String Text
-          )
-          {
-            this.Text = Text;
-            this.AltText = "";
-          } /*ButtonDef*/
-
       } /*ButtonDef*/
 
     static ButtonDef[][] ButtonDefs =
         {
             new ButtonDef[]
                 {
-                    new ButtonDef("A", "A'"),
-                    new ButtonDef("B", "B'"),
-                    new ButtonDef("C", "C'"),
-                    new ButtonDef("D", "D'"),
-                    new ButtonDef("E", "E'"),
+                    new ButtonDef("A", "A'", Button.White, Button.Brown),
+                    new ButtonDef("B", "B'", Button.White, Button.Brown),
+                    new ButtonDef("C", "C'", Button.White, Button.Brown),
+                    new ButtonDef("D", "D'", Button.White, Button.Brown),
+                    new ButtonDef("E", "E'", Button.White, Button.Brown),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("2nd"),
-                    new ButtonDef("INV"),
-                    new ButtonDef("lnx", "log"),
-                    new ButtonDef("CE", "CP"),
-                    new ButtonDef("CLR"),
+                    new ButtonDef("2nd", "", Button.Black, Button.Yellow),
+                    new ButtonDef("INV", "", Button.White, Button.Brown),
+                    new ButtonDef("lnx", "log", Button.White, Button.Brown),
+                    new ButtonDef("CE", "CP", Button.White, Button.Brown),
+                    new ButtonDef("CLR", "", Button.Black, Button.Yellow),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("LRN", "Pgm"),
-                    new ButtonDef("x⇄t", "P→R"),
-                    new ButtonDef("x²", "sin"),
-                    new ButtonDef("sqrt(x)", "cos"),
-                    new ButtonDef("1/x", "tan"),
+                    new ButtonDef("LRN", "Pgm", Button.White, Button.Brown),
+                    new ButtonDef("x⇄t", "P→R", Button.White, Button.Brown),
+                    new ButtonDef("x²", "sin", Button.White, Button.Brown),
+                    new ButtonDef("sqrt(x)", "cos", Button.White, Button.Brown),
+                    new ButtonDef("1/x", "tan", Button.White, Button.Brown),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("SST", "Ins"),
-                    new ButtonDef("STO", "CMs"),
-                    new ButtonDef("RCL", "Exc"),
-                    new ButtonDef("SUM", "Prd"),
-                    new ButtonDef("y**x", "Ind"),
+                    new ButtonDef("SST", "Ins", Button.White, Button.Brown),
+                    new ButtonDef("STO", "CMs", Button.White, Button.Brown),
+                    new ButtonDef("RCL", "Exc", Button.White, Button.Brown),
+                    new ButtonDef("SUM", "Prd", Button.White, Button.Brown),
+                    new ButtonDef("y**x", "Ind", Button.White, Button.Brown),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("BST", "Del"),
-                    new ButtonDef("EE", "Eng"),
-                    new ButtonDef("(", "Fix"),
-                    new ButtonDef(")", "Int"),
-                    new ButtonDef("÷", "|x|"),
+                    new ButtonDef("BST", "Del", Button.White, Button.Brown),
+                    new ButtonDef("EE", "Eng", Button.White, Button.Brown),
+                    new ButtonDef("(", "Fix", Button.White, Button.Brown),
+                    new ButtonDef(")", "Int", Button.White, Button.Brown),
+                    new ButtonDef("÷", "|x|", Button.Black, Button.Yellow),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("GTO", "Pause"),
-                    new ButtonDef("7", "x=t"),
-                    new ButtonDef("8", "Nop"),
-                    new ButtonDef("9", "Op"),
-                    new ButtonDef("×", "Deg"),
+                    new ButtonDef("GTO", "Pause", Button.White, Button.Brown),
+                    new ButtonDef("7", "x=t", Button.Black, Button.White),
+                    new ButtonDef("8", "Nop", Button.Black, Button.White),
+                    new ButtonDef("9", "Op", Button.Black, Button.White),
+                    new ButtonDef("×", "Deg", Button.Black, Button.Yellow),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("SBR", "Lbl"),
-                    new ButtonDef("4", "x≥t"),
-                    new ButtonDef("5", "∑x"),
-                    new ButtonDef("6", "mean(x)"),
-                    new ButtonDef("-", "Rad"),
+                    new ButtonDef("SBR", "Lbl", Button.White, Button.Brown),
+                    new ButtonDef("4", "x≥t", Button.Black, Button.White),
+                    new ButtonDef("5", "∑x", Button.Black, Button.White),
+                    new ButtonDef("6", "mean(x)", Button.Black, Button.White),
+                    new ButtonDef("-", "Rad", Button.Black, Button.Yellow),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("RST", "St flg"),
-                    new ButtonDef("1", "If flg"),
-                    new ButtonDef("2", "D.MS"),
-                    new ButtonDef("3", "π"),
-                    new ButtonDef("+", "Grad"),
+                    new ButtonDef("RST", "St flg", Button.White, Button.Brown),
+                    new ButtonDef("1", "If flg", Button.Black, Button.White),
+                    new ButtonDef("2", "D.MS", Button.Black, Button.White),
+                    new ButtonDef("3", "π", Button.Black, Button.White),
+                    new ButtonDef("+", "Grad", Button.Black, Button.Yellow),
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("R/S"),
-                    new ButtonDef("0", "Dsz"),
-                    new ButtonDef(".", "Adv"),
-                    new ButtonDef("+/-", "Prt"),
-                    new ButtonDef("=", "List"),
+                    new ButtonDef("R/S", "", Button.White, Button.Brown),
+                    new ButtonDef("0", "Dsz", Button.Black, Button.White),
+                    new ButtonDef(".", "Adv", Button.Black, Button.White),
+                    new ButtonDef("+/-", "Prt", Button.Black, Button.White),
+                    new ButtonDef("=", "List", Button.Black, Button.Yellow),
                 },
         };
 
@@ -115,13 +110,30 @@ public class Main extends android.app.Activity
         setContentView(R.layout.main);
         final android.widget.TableLayout Buttons =
             (android.widget.TableLayout)findViewById(R.id.buttons);
+        Buttons.setBackgroundColor(Button.Black);
         for (ButtonDef[] ThisDefRow : ButtonDefs)
           {
             final android.widget.TableRow ThisRow = new android.widget.TableRow(this);
             for (ButtonDef ThisButtonDef : ThisDefRow)
               {
-                final android.widget.Button ThisButton = new android.widget.Button(this);
-                ThisButton.setText(ThisButtonDef.Text);
+                final Button ThisButton = new Button
+                  (
+                    this,
+                    ThisButtonDef.Text,
+                    ThisButtonDef.AltText,
+                    ThisButtonDef.TextColor,
+                    ThisButtonDef.ButtonColor,
+                    new Runnable()
+                      {
+                        public void run()
+                          {
+                          /* do nothing for now */
+                          } /*run*/
+                      },
+                    null,
+                    null,
+                    null
+                  );
               /* AltText, colour TBD */
                 ThisRow.addView(ThisButton);
               } /*for*/
