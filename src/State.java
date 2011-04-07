@@ -89,7 +89,7 @@ public class State
             case ExponentEntryState:
                 HasExp = true;
                 Exp = Integer.parseInt(CurDisplay.substring(CurDisplay.length() - 2));
-                if (CurDisplay.charAt(CurDisplay.length() - 2) == '-')
+                if (CurDisplay.charAt(CurDisplay.length() - 3) == '-')
                   {
                     Exp = - Exp;
                   } /*if*/
@@ -284,24 +284,26 @@ public class State
               (
                     CurFormat == FORMAT_FIXED
                 &&
+                    X != 0
+                &&
                     (Math.abs(X) < Math.pow(10.0, -7.0) || Math.abs(X) > Math.pow(10.0, 7.0))
               )
               {
                 CurFormat = FORMAT_FLOATING;
               } /*if*/
-            switch (CurFormat)
+            Exp = 0;
+            if (X != 0.0)
               {
-            case FORMAT_FIXED:
-            default:
-                Exp = 0;
-            break;
-            case FORMAT_FLOATING:
-                Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
-            break;
-            case FORMAT_ENG:
-                Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(1000.0)) * 3;
-            break;
-              } /*switch*/
+                switch (CurFormat)
+                  {
+                case FORMAT_FLOATING:
+                    Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
+                break;
+                case FORMAT_ENG:
+                    Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(1000.0)) * 3;
+                break;
+                  } /*switch*/
+              } /*if*/
             CurDisplay = String.format("%.8f", X / Math.pow(10.0, Exp));
             while (CurDisplay.length() != 0 && CurDisplay.charAt(CurDisplay.length() - 1) == '0')
               {
