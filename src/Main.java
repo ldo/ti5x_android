@@ -111,6 +111,8 @@ public class Main extends android.app.Activity
         ButtonDefs[1][2].BaseAction = CurState.Log();
         ButtonDefs[1][3].BaseAction = CurState.ClearEntry();
         ButtonDefs[1][4].BaseAction = CurState.ClearAll();
+        ButtonDefs[2][1].BaseAction = CurState.SwapT();
+        ButtonDefs[2][1].AltAction = CurState.Polar();
         ButtonDefs[2][2].BaseAction = CurState.Square();
         ButtonDefs[2][2].AltAction = CurState.Sin();
         ButtonDefs[2][3].BaseAction = CurState.Sqrt();
@@ -123,6 +125,7 @@ public class Main extends android.app.Activity
         ButtonDefs[4][1].AltAction = CurState.new SetDisplayMode(CurState.FORMAT_ENG);
         ButtonDefs[4][2].BaseAction = CurState.LParen();
         ButtonDefs[4][2].AltAction = CurState.new SetDisplayMode(CurState.FORMAT_FIXED);
+          /* TBD this is wrong: need to accept a following digit in [0 .. 8] to specify how many decimal places to display */
         ButtonDefs[4][3].BaseAction = CurState.RParen();
         ButtonDefs[4][3].AltAction = CurState.Int();
         ButtonDefs[4][4].BaseAction = CurState.new Operator(CurState.STACKOP_DIV);

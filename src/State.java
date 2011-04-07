@@ -63,6 +63,8 @@ public class State
         this.TheDisplay = TheDisplay;
         Stack = new StackEntry[MaxStack];
         StackNext = 0;
+        X = 0.0;
+        T = 0.0;
         ResetEntry();
       } /*State*/
 
@@ -793,6 +795,57 @@ public class State
               } /*run*/
           };
       } /*Abs*/
+
+    public Runnable SwapT()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                final double SwapTemp = X;
+                SetX(T);
+                T = SwapTemp;
+              } /*run*/
+          };
+      } /*SwapT*/
+
+    public Runnable Polar()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                Double Scale, NewX, NewY;
+                switch (CurAng)
+                  {
+                case ANG_RAD:
+                default:
+                    Scale = 1.0;
+                break;
+                case ANG_DEG:
+                    Scale = 180.0 / Math.PI;
+                break;
+                case ANG_GRAD:
+                    Scale = 200.0 / Math.PI;
+                break;
+                  } /*CurAng*/
+                if (Button.InvState)
+                  {
+                    NewX = Math.sqrt(X * X + T * T);
+                    NewY = Math.atan2(X, T) * Scale;
+                  }
+                else
+                  {
+                    NewX = T * Math.cos(X / Scale);
+                    NewY = T * Math.sin(X / Scale);
+                  } /*if*/
+                T = NewX;
+                SetX(NewY);
+              } /*run*/
+          };
+      } /*Polar*/
 
   /* more TBD */
 
