@@ -44,7 +44,43 @@ public class Button extends android.view.View
         this.AltAction = AltAction != null ? AltAction : BaseAction;
         this.AltInvAction = AltInvAction != null ? AltInvAction : InvAction;
         this.IsModifier = false;
-        setClickable(true);
+        setOnTouchListener
+          (
+            new android.view.View.OnTouchListener()
+              {
+                public boolean onTouch
+                  (
+                    android.view.View TheView,
+                    android.view.MotionEvent TheEvent
+                  )
+                  {
+                    boolean Handled = false;
+                    final Button TheButton = (Button)TheView;
+                    switch (TheEvent.getAction())
+                      {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        System.err.println("Clicked button " + ((Button)TheView).Text); /* debug */
+                        TheView.setPressed(true);
+                        TheView.invalidate();
+                        Handled = true;
+                    break;
+                    case android.view.MotionEvent.ACTION_UP:
+                        TheButton.Invoke();
+                        TheView.setPressed(false);
+                        TheView.invalidate();
+                        Handled = true;
+                    break;
+                    case android.view.MotionEvent.ACTION_CANCEL:
+                        TheView.setPressed(false);
+                        TheView.invalidate();
+                        Handled = true;
+                    break;
+                      } /*switch*/
+                    return
+                        Handled;
+                  } /*onClick*/
+              }
+          );
       } /*Button*/
 
     @Override
