@@ -42,8 +42,8 @@ public class Main extends android.app.Activity
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("2nd", "", Button.Black, Button.Yellow),
-                    new ButtonDef("INV", "", Button.White, Button.Brown),
+                    new ButtonDef("2nd", null, Button.Black, Button.Yellow),
+                    new ButtonDef("INV", null, Button.White, Button.Brown),
                     new ButtonDef("lnx", "log", Button.White, Button.Brown),
                     new ButtonDef("CE", "CP", Button.White, Button.Brown),
                     new ButtonDef("CLR", "", Button.Black, Button.Yellow),
@@ -110,19 +110,30 @@ public class Main extends android.app.Activity
       {
         ButtonDefs[1][3].BaseAction = CurState.ClearEntry();
         ButtonDefs[1][4].BaseAction = CurState.ClearAll();
+        ButtonDefs[3][4].BaseAction = CurState.new Operator(CurState.STACKOP_EXP);
+        ButtonDefs[3][4].InvAction = CurState.new Operator(CurState.STACKOP_LOG);
         ButtonDefs[4][1].BaseAction = CurState.EnterExponent();
+        ButtonDefs[4][1].AltAction = CurState.new SetDisplayMode(CurState.FORMAT_ENG);
+        ButtonDefs[4][2].BaseAction = CurState.LParen();
+        ButtonDefs[4][2].AltAction = CurState.new SetDisplayMode(CurState.FORMAT_FIXED);
+        ButtonDefs[4][3].BaseAction = CurState.RParen();
+        ButtonDefs[4][4].BaseAction = CurState.new Operator(CurState.STACKOP_DIV);
         ButtonDefs[5][1].BaseAction = CurState.new Digit('7');
         ButtonDefs[5][2].BaseAction = CurState.new Digit('8');
         ButtonDefs[5][3].BaseAction = CurState.new Digit('9');
+        ButtonDefs[5][4].BaseAction = CurState.new Operator(CurState.STACKOP_MUL);
         ButtonDefs[6][1].BaseAction = CurState.new Digit('4');
         ButtonDefs[6][2].BaseAction = CurState.new Digit('5');
         ButtonDefs[6][3].BaseAction = CurState.new Digit('6');
+        ButtonDefs[6][4].BaseAction = CurState.new Operator(CurState.STACKOP_SUB);
         ButtonDefs[7][1].BaseAction = CurState.new Digit('1');
         ButtonDefs[7][2].BaseAction = CurState.new Digit('2');
         ButtonDefs[7][3].BaseAction = CurState.new Digit('3');
+        ButtonDefs[7][4].BaseAction = CurState.new Operator(CurState.STACKOP_ADD);
         ButtonDefs[8][1].BaseAction = CurState.new Digit('0');
         ButtonDefs[8][2].BaseAction = CurState.DecimalPoint();
         ButtonDefs[8][3].BaseAction = CurState.ChangeSign();
+        ButtonDefs[8][4].BaseAction = CurState.Equals();
       /* rest TBD -- fill in with noops for now */
         final Runnable NoOp = new Runnable()
           {
@@ -158,23 +169,53 @@ public class Main extends android.app.Activity
         Buttons.setBackgroundColor(Button.Black);
         CurState = new State((Display)findViewById(R.id.display));
         DefineActions();
+        boolean DidAlt = false;
         for (ButtonDef[] ThisDefRow : ButtonDefs)
           {
             final android.widget.TableRow ThisRow = new android.widget.TableRow(this);
             for (ButtonDef ThisButtonDef : ThisDefRow)
               {
-                final Button ThisButton = new Button
-                  (
-                    this,
-                    ThisButtonDef.Text,
-                    ThisButtonDef.AltText,
-                    ThisButtonDef.TextColor,
-                    ThisButtonDef.ButtonColor,
-                    ThisButtonDef.BaseAction,
-                    ThisButtonDef.InvAction,
-                    ThisButtonDef.AltAction,
-                    ThisButtonDef.AltInvAction
-                  );
+                Button ThisButton;
+                if (ThisButtonDef.AltText != null)
+                  {
+                    ThisButton = new Button
+                      (
+                        this,
+                        ThisButtonDef.Text,
+                        ThisButtonDef.AltText,
+                        ThisButtonDef.TextColor,
+                        ThisButtonDef.ButtonColor,
+                        ThisButtonDef.BaseAction,
+                        ThisButtonDef.InvAction,
+                        ThisButtonDef.AltAction,
+                        ThisButtonDef.AltInvAction
+                      );
+                  }
+                else
+                  {
+                    if (!DidAlt)
+                      {
+                        ThisButton = Button.AltButton
+                          (
+                            this,
+                            ThisButtonDef.Text,
+                            ThisButtonDef.TextColor,
+                            ThisButtonDef.ButtonColor
+                          );
+                        DidAlt = true;
+                      }
+                    else
+                      {
+                        ThisButton = Button.InvButton
+                          (
+                            this,
+                            ThisButtonDef.Text,
+                            ThisButtonDef.TextColor,
+                            ThisButtonDef.ButtonColor
+                          );
+                        DidAlt = true;
+                      } /*if*/
+                  } /*if*/
                 ThisRow.addView(ThisButton);
               } /*for*/
             Buttons.addView(ThisRow);

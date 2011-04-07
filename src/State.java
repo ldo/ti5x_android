@@ -24,11 +24,24 @@ public class State
     public final static int STACKOP_MUL = 3;
     public final static int STACKOP_DIV = 4;
     public final static int STACKOP_EXP = 5;
+    public final static int STACKOP_LOG = 6; /* extension! */
+    final static int STACKOP_PAREN = 99;
 
     class StackEntry
       {
         double Operand;
         int Operator;
+
+        public StackEntry
+          (
+            double Operand,
+            int Operator
+          )
+          {
+            this.Operand = Operand;
+            this.Operator = Operator;
+          } /*StackEntry*/
+
       } /*StackEntry*/
 
     final int MaxStack = 8;
@@ -63,6 +76,7 @@ public class State
       } /*ResetEntry*/
 
     public void Enter()
+      /* finishes the entry of the current number. */
       {
         if (CurState != ResultState)
           {
@@ -74,7 +88,7 @@ public class State
             case DecimalEntryStateExponential:
             case ExponentEntryState:
                 HasExp = true;
-                Exp = Integer.parseInt(CurDisplay.substring(CurDisplay.length() - 3));
+                Exp = Integer.parseInt(CurDisplay.substring(CurDisplay.length() - 2));
                 if (CurDisplay.charAt(CurDisplay.length() - 2) == '-')
                   {
                     Exp = - Exp;
@@ -161,7 +175,7 @@ public class State
                               (
                                 0,
                                 CurState == EntryStateExponential ?
-                                    CurDisplay.length() - 3
+                                    CurDisplay.length() - 4
                                 :
                                     CurDisplay.length() - 1
                               )
@@ -169,7 +183,7 @@ public class State
                             new String(new char[] {TheDigit})
                         +
                             (CurState == EntryStateExponential ?
-                                CurDisplay.substring(CurDisplay.length() - 3)
+                                CurDisplay.substring(CurDisplay.length() - 4)
                             :
                                 CurDisplay.substring(CurDisplay.length() - 1)
                             );
@@ -215,6 +229,10 @@ public class State
                 if (CurState == EntryState)
                   {
                     CurState = DecimalEntryState;
+                  }
+                else if (CurState == EntryStateExponential)
+                  {
+                    CurState = DecimalEntryStateExponential;
                   } /*if*/
                 /* otherwise ignore */
               } /*run*/
@@ -336,7 +354,195 @@ public class State
           };
       } /*ChangeSign*/
 
+    public class SetDisplayMode implements Runnable
+      {
+        final int NewMode;
+
+        public SetDisplayMode
+          (
+            int NewMode
+          )
+          {
+            this.NewMode = NewMode;
+          } /*SetDisplayMode*/
+
+        public void run()
+          {
+            if (CurFormat != NewMode)
+              {
+                Enter();
+                CurFormat = NewMode;
+                SetX(X);
+              } /*if*/
+          } /*run*/
+
+      } /*SetDisplayMode*/
+
+    void DoStackTop()
+      {
+        final StackEntry ThisOp = Stack[--StackNext];
+        switch (ThisOp.Operator)
+          {
+        case STACKOP_ADD:
+            X = ThisOp.Operand + X;
+        break;
+        case STACKOP_SUB:
+            X = ThisOp.Operand - X;
+        break;
+        case STACKOP_MUL:
+            X = ThisOp.Operand * X;
+        break;
+        case STACKOP_DIV:
+            X = ThisOp.Operand / X;
+        break;
+        case STACKOP_EXP:
+            X = Math.pow(ThisOp.Operand, X);
+        break;
+        case STACKOP_LOG:
+            X = Math.log(ThisOp.Operand) / Math.log(X);
+        break;
+        case STACKOP_PAREN:
+          /* no-op */
+        break;
+          } /*switch*/
+      /* leave it to caller to update display */
+      } /*DoStackTop*/
+
+    static int Precedence
+      (
+        int OpCode
+      )
+      {
+        int Result = -1;
+        switch (OpCode)
+          {
+        case STACKOP_ADD:
+        case STACKOP_SUB:
+            Result = 1;
+        break;
+        case STACKOP_MUL:
+        case STACKOP_DIV:
+            Result = 2;
+        break;
+        case STACKOP_EXP:
+        case STACKOP_LOG:
+            Result = 3;
+        break;
+        case STACKOP_PAREN:
+            Result = 0;
+        break;
+          } /*OpCode*/
+        return
+            Result;
+      } /*Precedence*/
+
+    void StackPush
+      (
+        int OpCode
+      )
+      {
+        if (StackNext == MaxStack)
+          {
+          /* overflow! lose bottom of stack */
+            for (int i = 0; i < MaxStack; ++i)
+              {
+                Stack[i - 1] = Stack[i];
+              } /*for*/
+            --StackNext;
+          } /*if*/
+        Stack[StackNext++] = new StackEntry(X, OpCode);
+      } /*StackPush*/
+
+    public class Operator implements Runnable
+      {
+        final int OpCode;
+
+        public Operator
+          (
+            int OpCode
+          )
+          {
+            this.OpCode = OpCode;
+          } /*Operator*/
+
+        public void run()
+          {
+            Enter();
+            boolean PoppedSomething = false;
+            for (;;)
+              {
+                if (StackNext == 0)
+                    break;
+                if (Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode))
+                    break;
+                DoStackTop();
+                PoppedSomething = true;
+              } /*for*/
+            if (PoppedSomething)
+              {
+                SetX(X);
+              } /*if*/
+            StackPush(OpCode);
+          } /*run*/
+
+      } /*Operator*/
+
+    public Runnable LParen()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                StackPush(STACKOP_PAREN);
+              } /*run*/
+          };
+      } /*LParen*/
+
+    public Runnable RParen()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                boolean PoppedSomething = false;
+                for (;;)
+                  {
+                    if (StackNext == 0)
+                        break;
+                    if (Stack[StackNext - 1].Operator == STACKOP_PAREN)
+                      {
+                        --StackNext;
+                        break;
+                      } /*if*/
+                    DoStackTop();
+                    PoppedSomething = true;
+                  } /*for*/
+                if (PoppedSomething)
+                  {
+                    SetX(X);
+                  } /*if*/
+              } /*run*/
+          };
+      } /*RParen*/
+
+    public Runnable Equals()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                while (StackNext != 0)
+                  {
+                    DoStackTop();
+                  } /*while*/
+                SetX(X);
+              } /*run*/
+          };
+      } /*Equals*/
+
   /* more TBD */
 
   } /*State*/
-

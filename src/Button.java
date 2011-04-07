@@ -64,7 +64,6 @@ public class Button extends android.view.View
                         Handled = true;
                     break;
                     case android.view.MotionEvent.ACTION_UP:
-                        System.err.println("Clicked button " + ((Button)TheView).Text); /* debug */
                         TheButton.Invoke();
                         TheView.setPressed(false);
                         TheView.invalidate();
