@@ -223,13 +223,13 @@ public class Button extends android.view.View
             TextPaint.setStyle(android.graphics.Paint.Style.FILL);
             TextPaint.setColor(AltTextColor);
             TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
-            TextPaint.setTextSize(TextPaint.getTextSize() * 0.8f);
+            TextPaint.setTextSize(TextPaint.getTextSize() * 0.9f);
             DrawCenteredText
               (
                 Draw,
                 AltText,
                 (AltTextBounds.left + AltTextBounds.right) / 2.0f,
-                (AltTextBounds.bottom + AltTextBounds.top) / 2.0f,
+                (AltTextBounds.bottom + AltTextBounds.top) / 2.0f + 2.0f,
                 TextPaint
               );
           }
