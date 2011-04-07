@@ -9,6 +9,7 @@ public class State
     final static int EntryStateExponential = 3;
     final static int DecimalEntryStateExponential = 4;
     final static int ResultState = 10;
+    final static int ErrorState = 11;
     int CurState = EntryState;
 
     Display TheDisplay;
@@ -83,7 +84,7 @@ public class State
     public void Enter()
       /* finishes the entry of the current number. */
       {
-        if (CurState != ResultState)
+        if (CurState != ResultState && CurState != ErrorState)
           {
             int Exp;
             boolean HasExp;
@@ -216,7 +217,10 @@ public class State
                         new String(new char[] {TheDigit});
             break;
               } /*switch*/
-            TheDisplay.SetShowing(CurDisplay);
+            if (CurState != ErrorState)
+              {
+                TheDisplay.SetShowing(CurDisplay);
+              } /*if*/
           } /*run*/
 
       } /*Digit*/
@@ -328,6 +332,7 @@ public class State
         else
           {
             TheDisplay.SetShowingError();
+            CurState = ErrorState;
           } /*if*/
       } /*SetX*/
 
