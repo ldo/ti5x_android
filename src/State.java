@@ -19,6 +19,11 @@ public class State
     public static final int FORMAT_ENG = 2;
     int CurFormat = FORMAT_FIXED;
 
+    public static final int ANG_RAD = 1;
+    public static final int ANG_DEG = 2;
+    public static final int ANG_GRAD = 3;
+    int CurAng = ANG_DEG;
+
     public final static int STACKOP_ADD = 1;
     public final static int STACKOP_SUB = 2;
     public final static int STACKOP_MUL = 3;
@@ -551,6 +556,127 @@ public class State
               } /*run*/
           };
       } /*Equals*/
+
+    public class SetAngMode implements Runnable
+      {
+        final int NewMode;
+
+        public SetAngMode
+          (
+            int NewMode
+          )
+          {
+            this.NewMode = NewMode;
+          } /*SetAngMode*/
+
+        public void run()
+          {
+            CurAng = NewMode;
+          } /*run*/
+
+      } /*SetAngMode*/
+
+    public Runnable Sin()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                Double Scale, NewValue;
+                switch (CurAng)
+                  {
+                case ANG_RAD:
+                default:
+                    Scale = 1.0;
+                break;
+                case ANG_DEG:
+                    Scale = 180.0 / Math.PI;
+                break;
+                case ANG_GRAD:
+                    Scale = 200.0 / Math.PI;
+                break;
+                  } /*CurAng*/
+                if (Button.InvState)
+                  {
+                    NewValue = Math.asin(X) * Scale;
+                  }
+                else
+                  {
+                    NewValue = Math.sin(X / Scale);
+                  } /*if*/
+                SetX(NewValue);
+              } /*run*/
+          };
+      } /*Sin*/
+
+    public Runnable Cos()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                Double Scale, NewValue;
+                switch (CurAng)
+                  {
+                case ANG_RAD:
+                default:
+                    Scale = 1.0;
+                break;
+                case ANG_DEG:
+                    Scale = 180.0 / Math.PI;
+                break;
+                case ANG_GRAD:
+                    Scale = 200.0 / Math.PI;
+                break;
+                  } /*CurAng*/
+                if (Button.InvState)
+                  {
+                    NewValue = Math.acos(X) * Scale;
+                  }
+                else
+                  {
+                    NewValue = Math.cos(X / Scale);
+                  } /*if*/
+                SetX(NewValue);
+              } /*run*/
+          };
+      } /*Cos*/
+
+    public Runnable Tan()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                Double Scale, NewValue;
+                switch (CurAng)
+                  {
+                case ANG_RAD:
+                default:
+                    Scale = 1.0;
+                break;
+                case ANG_DEG:
+                    Scale = 180.0 / Math.PI;
+                break;
+                case ANG_GRAD:
+                    Scale = 200.0 / Math.PI;
+                break;
+                  } /*CurAng*/
+                if (Button.InvState)
+                  {
+                    NewValue = Math.atan(X) * Scale;
+                  }
+                else
+                  {
+                    NewValue = Math.tan(X / Scale);
+                  } /*if*/
+                SetX(NewValue);
+              } /*run*/
+          };
+      } /*Tan*/
 
   /* more TBD */
 

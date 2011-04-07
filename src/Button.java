@@ -42,7 +42,7 @@ public class Button extends android.view.View
         this.BaseAction = BaseAction;
         this.InvAction = InvAction != null ? InvAction : BaseAction;
         this.AltAction = AltAction != null ? AltAction : BaseAction;
-        this.AltInvAction = AltInvAction != null ? AltInvAction : InvAction;
+        this.AltInvAction = AltInvAction != null ? AltInvAction : AltAction;
         this.IsModifier = false;
         setOnTouchListener
           (

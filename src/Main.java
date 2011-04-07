@@ -110,6 +110,9 @@ public class Main extends android.app.Activity
       {
         ButtonDefs[1][3].BaseAction = CurState.ClearEntry();
         ButtonDefs[1][4].BaseAction = CurState.ClearAll();
+        ButtonDefs[2][2].AltAction = CurState.Sin();
+        ButtonDefs[2][3].AltAction = CurState.Cos();
+        ButtonDefs[2][4].AltAction = CurState.Tan();
         ButtonDefs[3][4].BaseAction = CurState.new Operator(CurState.STACKOP_EXP);
         ButtonDefs[3][4].InvAction = CurState.new Operator(CurState.STACKOP_LOG);
         ButtonDefs[4][1].BaseAction = CurState.EnterExponent();
@@ -122,14 +125,17 @@ public class Main extends android.app.Activity
         ButtonDefs[5][2].BaseAction = CurState.new Digit('8');
         ButtonDefs[5][3].BaseAction = CurState.new Digit('9');
         ButtonDefs[5][4].BaseAction = CurState.new Operator(CurState.STACKOP_MUL);
+        ButtonDefs[5][4].AltAction = CurState.new SetAngMode(CurState.ANG_DEG);
         ButtonDefs[6][1].BaseAction = CurState.new Digit('4');
         ButtonDefs[6][2].BaseAction = CurState.new Digit('5');
         ButtonDefs[6][3].BaseAction = CurState.new Digit('6');
         ButtonDefs[6][4].BaseAction = CurState.new Operator(CurState.STACKOP_SUB);
+        ButtonDefs[6][4].AltAction = CurState.new SetAngMode(CurState.ANG_RAD);
         ButtonDefs[7][1].BaseAction = CurState.new Digit('1');
         ButtonDefs[7][2].BaseAction = CurState.new Digit('2');
         ButtonDefs[7][3].BaseAction = CurState.new Digit('3');
         ButtonDefs[7][4].BaseAction = CurState.new Operator(CurState.STACKOP_ADD);
+        ButtonDefs[7][4].AltAction = CurState.new SetAngMode(CurState.ANG_GRAD);
         ButtonDefs[8][1].BaseAction = CurState.new Digit('0');
         ButtonDefs[8][2].BaseAction = CurState.DecimalPoint();
         ButtonDefs[8][3].BaseAction = CurState.ChangeSign();
