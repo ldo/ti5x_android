@@ -187,6 +187,7 @@ public class Button extends android.view.View
             TextPaint.setStyle(android.graphics.Paint.Style.FILL);
             TextPaint.setColor(AltTextColor);
             TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
+            TextPaint.setTextSize(TextPaint.getTextSize() * 0.8f);
             DrawCenteredText
               (
                 Draw,
@@ -211,6 +212,8 @@ public class Button extends android.view.View
             Draw.drawRoundRect(ClickableBounds, 2.0f, 2.0f, UsePaint);
             UsePaint.setColor(isPressed() ? ButtonColor : TextColor);
             UsePaint.setTextAlign(android.graphics.Paint.Align.CENTER);
+            UsePaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            UsePaint.setTextSize(UsePaint.getTextSize() * 1.2f);
             DrawCenteredText
               (
                 Draw,
