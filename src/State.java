@@ -752,6 +752,48 @@ public class State
           };
       } /*Log*/
 
+    public Runnable Pi()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                SetX(Math.PI);
+              } /*run*/
+          };
+      } /*Pi*/
+
+    public Runnable Int()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                final Double IntPart = Math.floor(Math.abs(X));
+                if (Button.InvState)
+                  {
+                    SetX((Math.abs(X) - IntPart) * Math.signum(X));
+                  }
+                else
+                  {
+                    SetX(IntPart * Math.signum(X));
+                  } /*if*/
+              } /*run*/
+          };
+      } /*Int*/
+
+    public Runnable Abs()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                SetX(Math.abs(X));
+              } /*run*/
+          };
+      } /*Abs*/
+
   /* more TBD */
 
   } /*State*/

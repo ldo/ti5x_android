@@ -124,7 +124,9 @@ public class Main extends android.app.Activity
         ButtonDefs[4][2].BaseAction = CurState.LParen();
         ButtonDefs[4][2].AltAction = CurState.new SetDisplayMode(CurState.FORMAT_FIXED);
         ButtonDefs[4][3].BaseAction = CurState.RParen();
+        ButtonDefs[4][3].AltAction = CurState.Int();
         ButtonDefs[4][4].BaseAction = CurState.new Operator(CurState.STACKOP_DIV);
+        ButtonDefs[4][4].AltAction = CurState.Abs();
         ButtonDefs[5][1].BaseAction = CurState.new Digit('7');
         ButtonDefs[5][2].BaseAction = CurState.new Digit('8');
         ButtonDefs[5][3].BaseAction = CurState.new Digit('9');
@@ -138,6 +140,7 @@ public class Main extends android.app.Activity
         ButtonDefs[7][1].BaseAction = CurState.new Digit('1');
         ButtonDefs[7][2].BaseAction = CurState.new Digit('2');
         ButtonDefs[7][3].BaseAction = CurState.new Digit('3');
+        ButtonDefs[7][3].AltAction = CurState.Pi();
         ButtonDefs[7][4].BaseAction = CurState.new Operator(CurState.STACKOP_ADD);
         ButtonDefs[7][4].AltAction = CurState.new SetAngMode(CurState.ANG_GRAD);
         ButtonDefs[8][1].BaseAction = CurState.new Digit('0');
