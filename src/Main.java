@@ -142,6 +142,7 @@ public class Main extends android.app.Activity
         ButtonDefs[6][4].AltAction = CurState.new SetAngMode(CurState.ANG_RAD);
         ButtonDefs[7][1].BaseAction = CurState.new Digit('1');
         ButtonDefs[7][2].BaseAction = CurState.new Digit('2');
+        ButtonDefs[7][2].AltAction = CurState.D_MS();
         ButtonDefs[7][3].BaseAction = CurState.new Digit('3');
         ButtonDefs[7][3].AltAction = CurState.Pi();
         ButtonDefs[7][4].BaseAction = CurState.new Operator(CurState.STACKOP_ADD);

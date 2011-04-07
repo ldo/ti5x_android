@@ -847,6 +847,30 @@ public class State
           };
       } /*Polar*/
 
+    public Runnable D_MS()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                final Double Sign = Math.signum(X);
+                final Double Degrees = Math.floor(Math.abs(X));
+                final Double Fraction = Math.abs(X) - Degrees;
+                if (Button.InvState)
+                  {
+                    final double Minutes = Math.floor(Fraction * 60.0);
+                    SetX((Degrees + Minutes / 100.0 + (Fraction * 60.0 - Minutes) * 6 / 1000.0) * Sign);
+                  }
+                else
+                  {
+                    final Double Minutes = Math.floor(Fraction * 100.0);
+                    SetX((Degrees + Minutes / 60.0 + (Fraction * 100.0 - Minutes) / 36.0) * Sign);
+                  } /*if*/
+              } /*run*/
+          };
+      } /*D_MS*/
+
   /* more TBD */
 
   } /*State*/
