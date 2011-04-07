@@ -30,7 +30,7 @@ public class State
     public final static int STACKOP_MUL = 3;
     public final static int STACKOP_DIV = 4;
     public final static int STACKOP_EXP = 5;
-    public final static int STACKOP_LOG = 6; /* extension! */
+    public final static int STACKOP_LOG = 6;
     final static int STACKOP_PAREN = 99;
 
     class StackEntry
