@@ -28,11 +28,11 @@ public class Main extends android.app.Activity
         {
             new ButtonDef[]
                 {
-                    new ButtonDef("A", "A'", Button.White, Button.Brown),
-                    new ButtonDef("B", "B'", Button.White, Button.Brown),
-                    new ButtonDef("C", "C'", Button.White, Button.Brown),
-                    new ButtonDef("D", "D'", Button.White, Button.Brown),
-                    new ButtonDef("E", "E'", Button.White, Button.Brown),
+                    new ButtonDef("A", "A´", Button.White, Button.Brown),
+                    new ButtonDef("B", "B´", Button.White, Button.Brown),
+                    new ButtonDef("C", "C´", Button.White, Button.Brown),
+                    new ButtonDef("D", "D´", Button.White, Button.Brown),
+                    new ButtonDef("E", "E´", Button.White, Button.Brown),
                 },
             new ButtonDef[]
                 {
@@ -45,9 +45,9 @@ public class Main extends android.app.Activity
             new ButtonDef[]
                 {
                     new ButtonDef("LRN", "Pgm", Button.White, Button.Brown),
-                    new ButtonDef("x⇄t", "P→R", Button.White, Button.Brown),
+                    new ButtonDef("x⇌t", "P→R", Button.White, Button.Brown),
                     new ButtonDef("x²", "sin", Button.White, Button.Brown),
-                    new ButtonDef("sqrt(x)", "cos", Button.White, Button.Brown),
+                    new ButtonDef("√x", "cos", Button.White, Button.Brown),
                     new ButtonDef("1/x", "tan", Button.White, Button.Brown),
                 },
             new ButtonDef[]
