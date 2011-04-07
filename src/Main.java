@@ -108,10 +108,14 @@ public class Main extends android.app.Activity
 
     void DefineActions()
       {
+        ButtonDefs[1][2].BaseAction = CurState.Log();
         ButtonDefs[1][3].BaseAction = CurState.ClearEntry();
         ButtonDefs[1][4].BaseAction = CurState.ClearAll();
+        ButtonDefs[2][2].BaseAction = CurState.Square();
         ButtonDefs[2][2].AltAction = CurState.Sin();
+        ButtonDefs[2][3].BaseAction = CurState.Sqrt();
         ButtonDefs[2][3].AltAction = CurState.Cos();
+        ButtonDefs[2][4].BaseAction = CurState.Reciprocal();
         ButtonDefs[2][4].AltAction = CurState.Tan();
         ButtonDefs[3][4].BaseAction = CurState.new Operator(CurState.STACKOP_EXP);
         ButtonDefs[3][4].InvAction = CurState.new Operator(CurState.STACKOP_LOG);

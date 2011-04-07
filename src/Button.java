@@ -40,9 +40,9 @@ public class Button extends android.view.View
         this.AltTextColor = White;
         this.BGColor = Black;
         this.BaseAction = BaseAction;
-        this.InvAction = InvAction != null ? InvAction : BaseAction;
-        this.AltAction = AltAction != null ? AltAction : BaseAction;
-        this.AltInvAction = AltInvAction != null ? AltInvAction : AltAction;
+        this.InvAction = InvAction != null ? InvAction : this.BaseAction;
+        this.AltAction = AltAction != null ? AltAction : this.BaseAction;
+        this.AltInvAction = AltInvAction != null ? AltInvAction : this.AltAction;
         this.IsModifier = false;
         setOnTouchListener
           (
@@ -281,4 +281,3 @@ public class Button extends android.view.View
       } /*Invoke*/
 
   } /*Button*/
-

@@ -576,6 +576,42 @@ public class State
 
       } /*SetAngMode*/
 
+    public Runnable Square()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                SetX(X * X);
+              } /*run*/
+          };
+      } /*Square*/
+
+    public Runnable Sqrt()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                SetX(Math.sqrt(X));
+              } /*run*/
+          };
+      } /*Sqrt*/
+
+    public Runnable Reciprocal()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                SetX(1.0 / X);
+              } /*run*/
+          };
+      } /*Reciprocal*/
+
     public Runnable Sin()
       {
         return new Runnable()
@@ -677,6 +713,39 @@ public class State
               } /*run*/
           };
       } /*Tan*/
+
+    public Runnable Log()
+      {
+        return new Runnable()
+          {
+            public void run()
+              {
+                Enter();
+                if (Button.AltState)
+                  {
+                    if (Button.InvState)
+                      {
+                        SetX(Math.pow(10.0, X));
+                      }
+                    else
+                      {
+                        SetX(Math.log10(X));
+                      } /*if*/
+                  }
+                else
+                  {
+                    if (Button.InvState)
+                      {
+                        SetX(Math.exp(X));
+                      }
+                    else
+                      {
+                        SetX(Math.log(X));
+                      } /*if*/
+                  } /*if*/
+              } /*run*/
+          };
+      } /*Log*/
 
   /* more TBD */
 
