@@ -2,12 +2,14 @@ package nz.gen.geek_central.ti5x;
 
 public class Main extends android.app.Activity
   {
+    State CurState;
 
   /* button functions TBD */
-    static class ButtonDef
+    class ButtonDef
       {
         final String Text, AltText;
         final int TextColor, ButtonColor;
+        Runnable BaseAction, InvAction, AltAction, AltInvAction;
 
         public ButtonDef
           (
@@ -21,10 +23,14 @@ public class Main extends android.app.Activity
             this.AltText = AltText;
             this.TextColor = TextColor;
             this.ButtonColor = ButtonColor;
+            this.BaseAction = null;
+            this.InvAction = null;
+            this.AltAction = null;
+            this.AltInvAction = null;
           } /*ButtonDef*/
       } /*ButtonDef*/
 
-    static ButtonDef[][] ButtonDefs =
+    ButtonDef[][] ButtonDefs =
         {
             new ButtonDef[]
                 {
@@ -100,6 +106,45 @@ public class Main extends android.app.Activity
                 },
         };
 
+    void DefineActions()
+      {
+        ButtonDefs[1][3].BaseAction = CurState.ClearEntry();
+        ButtonDefs[1][4].BaseAction = CurState.ClearAll();
+        ButtonDefs[4][1].BaseAction = CurState.EnterExponent();
+        ButtonDefs[5][1].BaseAction = CurState.new Digit('7');
+        ButtonDefs[5][2].BaseAction = CurState.new Digit('8');
+        ButtonDefs[5][3].BaseAction = CurState.new Digit('9');
+        ButtonDefs[6][1].BaseAction = CurState.new Digit('4');
+        ButtonDefs[6][2].BaseAction = CurState.new Digit('5');
+        ButtonDefs[6][3].BaseAction = CurState.new Digit('6');
+        ButtonDefs[7][1].BaseAction = CurState.new Digit('1');
+        ButtonDefs[7][2].BaseAction = CurState.new Digit('2');
+        ButtonDefs[7][3].BaseAction = CurState.new Digit('3');
+        ButtonDefs[8][1].BaseAction = CurState.new Digit('0');
+        ButtonDefs[8][2].BaseAction = CurState.DecimalPoint();
+        ButtonDefs[8][3].BaseAction = CurState.ChangeSign();
+      /* rest TBD -- fill in with noops for now */
+        final Runnable NoOp = new Runnable()
+          {
+            public void run()
+              {
+              /* do nothing */
+              } /*run*/
+          };
+        for (int i = 0; i < ButtonDefs.length; ++i)
+          {
+            final ButtonDef[] ThisRow = ButtonDefs[i];
+            for (int j = 0; j < ThisRow.length; ++j)
+              {
+                final ButtonDef ThisButton = ThisRow[j];
+                if (ThisButton.BaseAction == null)
+                  {
+                    ThisButton.BaseAction = NoOp;
+                  } /*if*/
+              } /*for*/
+          } /*for*/
+      } /*DefineActions*/
+
     @Override
     public void onCreate
       (
@@ -111,6 +156,8 @@ public class Main extends android.app.Activity
         final android.widget.TableLayout Buttons =
             (android.widget.TableLayout)findViewById(R.id.buttons);
         Buttons.setBackgroundColor(Button.Black);
+        CurState = new State((Display)findViewById(R.id.display));
+        DefineActions();
         for (ButtonDef[] ThisDefRow : ButtonDefs)
           {
             final android.widget.TableRow ThisRow = new android.widget.TableRow(this);
@@ -123,18 +170,11 @@ public class Main extends android.app.Activity
                     ThisButtonDef.AltText,
                     ThisButtonDef.TextColor,
                     ThisButtonDef.ButtonColor,
-                    new Runnable()
-                      {
-                        public void run()
-                          {
-                          /* do nothing for now */
-                          } /*run*/
-                      },
-                    null,
-                    null,
-                    null
+                    ThisButtonDef.BaseAction,
+                    ThisButtonDef.InvAction,
+                    ThisButtonDef.AltAction,
+                    ThisButtonDef.AltInvAction
                   );
-              /* AltText, colour TBD */
                 ThisRow.addView(ThisButton);
               } /*for*/
             Buttons.addView(ThisRow);

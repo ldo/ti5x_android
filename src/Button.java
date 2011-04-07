@@ -59,12 +59,12 @@ public class Button extends android.view.View
                     switch (TheEvent.getAction())
                       {
                     case android.view.MotionEvent.ACTION_DOWN:
-                        System.err.println("Clicked button " + ((Button)TheView).Text); /* debug */
                         TheView.setPressed(true);
                         TheView.invalidate();
                         Handled = true;
                     break;
                     case android.view.MotionEvent.ACTION_UP:
+                        System.err.println("Clicked button " + ((Button)TheView).Text); /* debug */
                         TheButton.Invoke();
                         TheView.setPressed(false);
                         TheView.invalidate();

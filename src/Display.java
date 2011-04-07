@@ -27,10 +27,8 @@ public class Display extends android.view.View
         Showing = new int[NrDigits];
         for (int i = 0; i < NrDigits; ++i)
           {
-            Showing[i] = /* SegmentCode(' ')*/ SegmentCode((char)(i % 10 + 48)); /* debug */
+            Showing[i] = 0;
           } /*for*/
-        Showing[NrDigits - /*1*/2/*debug*/] = SegmentCode('0') | SegmentCode('.');
-        Showing[NrDigits - 1] = SegmentCode('E'); /* debug */
       } /*Display*/
 
     /*
@@ -81,7 +79,7 @@ public class Display extends android.view.View
             TheCode = 0x06F;
         break;
         case '-':
-            TheCode = 0x080;
+            TheCode = 0x008;
         break;
         case '.':
             TheCode = 0x100;
@@ -130,6 +128,34 @@ public class Display extends android.view.View
             --i;
             Showing[i] = SegmentCode(' ');
           } /*for*/
+        invalidate();
+      } /*SetShowing*/
+
+    public void SetShowing
+      (
+        String ToShow /* sequence of digits, possibly also minus signs and spaces */
+      )
+      {
+        int j = NrDigits;
+        boolean Decrement = true;
+        for (int i = ToShow.length();;)
+          {
+            if (i == 0 || Decrement && j == 0)
+                break;
+            --i;
+            final char ThisCh = ToShow.charAt(i);
+            if (Decrement)
+              {
+                --j;
+                Showing[j] = 0;
+              } /*if*/
+            Decrement = ThisCh != '.';
+            Showing[j] |= SegmentCode(ThisCh);
+          } /*for*/
+        while (j > 0)
+          {
+            Showing[--j] = 0;
+          } /*while*/
         invalidate();
       } /*SetShowing*/
 
