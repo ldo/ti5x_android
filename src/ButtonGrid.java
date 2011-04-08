@@ -163,7 +163,7 @@ public class ButtonGrid extends android.view.View
           } /*for*/
       }
 
-    final RectF ButtonRelMargins = new RectF(0.07f, 0.5f, 0.07f, 0.1f);
+    final RectF ButtonRelMargins = new RectF(0.07f, 0.5f, 0.07f, 0.05f);
       /* relative bounds of button within grid cell */
     final float CornerRoundness = 1.5f;
 
@@ -331,20 +331,60 @@ public class ButtonGrid extends android.view.View
                     CellBounds.top + (ButtonBounds.top - CellBounds.top) / 2.0f,
                     TextPaint
                   );
-                TextPaint.setColor
-                  (
-                    ThisButton.BaseCode == SelectedButton ?
-                        ThisButton.TextColor
-                    :
-                        ThisButton.ButtonColor
-                  );
-                Draw.drawRoundRect
-                  (
-                    ButtonBounds,
-                    CornerRoundness,
-                    CornerRoundness,
-                    TextPaint
-                  );
+                  {
+                    RectF DrawBounds;
+                    final int ButtonColor = 
+                        ThisButton.BaseCode == SelectedButton ?
+                            ThisButton.TextColor
+                        :
+                            ThisButton.ButtonColor;
+                    TextPaint.setColor
+                      (
+                            0xff000000
+                        |
+                            255 - (255 - (ButtonColor >> 16 & 255)) / 2 << 16
+                        |
+                            255 - (255 - (ButtonColor >> 8 & 255)) / 2 << 8
+                        |
+                            255 - (255 - (ButtonColor & 255)) / 2
+                      );
+                    DrawBounds = new RectF(ButtonBounds);
+                    DrawBounds.offset(-1.0f, -1.0f);
+                    Draw.drawRoundRect
+                      (
+                        DrawBounds,
+                        CornerRoundness,
+                        CornerRoundness,
+                        TextPaint
+                      );
+                    TextPaint.setColor
+                      (
+                            0xff000000
+                        |
+                            (ButtonColor >> 16 & 255) / 2 << 16
+                        |
+                            (ButtonColor >> 8 & 255) / 2 << 8
+                        |
+                            (ButtonColor & 255) / 2
+                      );
+                    DrawBounds = new RectF(ButtonBounds);
+                    DrawBounds.offset(1.0f, 1.0f);
+                    Draw.drawRoundRect
+                      (
+                        DrawBounds,
+                        CornerRoundness,
+                        CornerRoundness,
+                        TextPaint
+                      );
+                    TextPaint.setColor(ButtonColor);
+                    Draw.drawRoundRect
+                      (
+                        ButtonBounds,
+                        CornerRoundness,
+                        CornerRoundness,
+                        TextPaint
+                      );
+                  }
                 TextPaint.setColor
                   (
                     ThisButton.BaseCode == SelectedButton ?
