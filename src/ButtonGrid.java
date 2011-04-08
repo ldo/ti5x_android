@@ -738,13 +738,13 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 42, 43, 44 handled above */
                     case 45:
-                        CalcState.Operator(InvState ? CalcState.STACKOP_EXP : CalcState.STACKOP_LOG);
+                        CalcState.Operator(InvState ? CalcState.STACKOP_ROOT : CalcState.STACKOP_EXP);
                     break;
                     case 46:
                       /* ignore? */
                     break;
                     case 47:
-                      /* ignore? */
+                        CalcState.ClearMemories();
                     break;
                   /* 48, 49, 40 handled above */
                     case 51:

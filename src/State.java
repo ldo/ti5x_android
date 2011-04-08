@@ -31,7 +31,7 @@ public class State
     public final static int STACKOP_MUL = 3;
     public final static int STACKOP_DIV = 4;
     public final static int STACKOP_EXP = 5;
-    public final static int STACKOP_LOG = 6;
+    public final static int STACKOP_ROOT = 6;
     final static int STACKOP_PAREN = 99;
 
     class StackEntry
@@ -396,8 +396,8 @@ public class State
         case STACKOP_EXP:
             X = Math.pow(ThisOp.Operand, X);
         break;
-        case STACKOP_LOG:
-            X = Math.log(ThisOp.Operand) / Math.log(X);
+        case STACKOP_ROOT:
+            X = Math.pow(ThisOp.Operand, 1.0 / X);
         break;
         case STACKOP_PAREN:
           /* no-op */
@@ -423,7 +423,7 @@ public class State
             Result = 2;
         break;
         case STACKOP_EXP:
-        case STACKOP_LOG:
+        case STACKOP_ROOT:
             Result = 3;
         break;
         case STACKOP_PAREN:
@@ -735,6 +735,15 @@ public class State
             TheDisplay.SetShowing(CurDisplay);
           } /*if*/
       } /*SetProgMode*/
+
+    public void ClearMemories()
+      {
+        Enter(); /*?*/
+        for (int i = 0; i < MaxMemories; ++i)
+          {
+            Memory[i] = 0.0;
+          } /*for*/
+      } /*ClearMemories*/
 
     public void ClearProgram()
       {
