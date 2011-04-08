@@ -14,6 +14,11 @@ public class ButtonGrid extends android.view.View
     static final int NrButtonRows = 9;
     static final int NrButtonCols = 5;
 
+    android.media.SoundPool MakeNoise;
+  /* it appears SoundPool allocates loaded sound IDs starting from 1 */
+    int ButtonDown = 0;
+    int ButtonUp = 0;
+
     class ButtonDef
       /* defines appearance of a button */
       {
@@ -149,6 +154,12 @@ public class ButtonGrid extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        MakeNoise = new android.media.SoundPool(1, android.media.AudioManager.STREAM_MUSIC, 0);
+        if (MakeNoise != null)
+          {
+            ButtonDown = MakeNoise.load(TheContext, R.raw.button_down, 1);
+            ButtonUp = MakeNoise.load(TheContext, R.raw.button_up, 1);
+          } /*if*/
         setOnTouchListener
           (
             new android.view.View.OnTouchListener()
@@ -204,6 +215,10 @@ public class ButtonGrid extends android.view.View
                               } /*if*/
                             if (SelectedButton != NewSelectedButton)
                               {
+                                if (MakeNoise != null)
+                                  {
+                                    MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
+                                  } /*if*/
                                 SelectedButton = NewSelectedButton;
                                 System.err.println("New selected button: " + SelectedButton); /* debug */
                                 if (CalcState != null && CalcState.ProgRunning)
@@ -218,6 +233,10 @@ public class ButtonGrid extends android.view.View
                     case android.view.MotionEvent.ACTION_UP:
                         if (SelectedButton != -1)
                           {
+                            if (MakeNoise != null)
+                              {
+                                MakeNoise.play(ButtonUp, 1.0f, 1.0f, 0, 0, 1.0f);
+                              } /*if*/
                             if (SelectedButton == 66 && CalcState != null && CalcState.ProgRunning)
                               {
                                 CalcState.SetSlowExecution(false);
@@ -231,6 +250,10 @@ public class ButtonGrid extends android.view.View
                     case android.view.MotionEvent.ACTION_CANCEL:
                         if (SelectedButton != -1)
                           {
+                            if (MakeNoise != null)
+                              {
+                                MakeNoise.play(ButtonUp, 1.0f, 1.0f, 0, 0, 1.0f);
+                              } /*if*/
                             if (SelectedButton == 66 && CalcState != null && CalcState.ProgRunning)
                               {
                                 CalcState.SetSlowExecution(false);
