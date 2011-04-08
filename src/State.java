@@ -19,6 +19,7 @@ public class State
     public static final int FORMAT_FLOATING = 1;
     public static final int FORMAT_ENG = 2;
     int CurFormat = FORMAT_FIXED;
+    int CurNrDecimals = -1; /* TBD */
 
     public static final int ANG_RAD = 1;
     public static final int ANG_DEG = 2;
@@ -55,6 +56,17 @@ public class State
     StackEntry Stack[];
     int StackNext;
 
+    public boolean ProgMode = false;
+    public final int MaxMemories = 29; /* TBD make this configurable */
+    public final int MaxProgram = 459; /* TBD make this configurable */
+    public final int MaxFlags = 10;
+    final double[] Memory;
+    final byte[] Program;
+    final boolean[] Flag;
+    int PC;
+    public boolean ProgRunning = false;
+    public boolean ProgRunningSlowly = false;
+
     public State
       (
         Display TheDisplay
@@ -65,6 +77,10 @@ public class State
         StackNext = 0;
         X = 0.0;
         T = 0.0;
+        Memory = new double[MaxMemories];
+        Program = new byte[MaxProgram];
+        Flag = new boolean[MaxFlags];
+        PC = 0;
         ResetEntry();
       } /*State*/
 
@@ -123,161 +139,141 @@ public class State
           } /*if*/
       } /*Enter*/
 
-    public Runnable ClearAll()
+    public void SetErrorState()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                StackNext = 0;
-                ResetEntry();
-              } /*run*/
-          };
+        TheDisplay.SetShowingError();
+        CurState = ErrorState;
+      } /*SetErrorState*/
+
+    public boolean InErrorState()
+      {
+        return
+            CurState == ErrorState;
+      } /*InErrorState*/
+
+    public void ClearAll()
+      {
+        StackNext = 0;
+        ResetEntry();
       } /*ClearAll*/
 
-    public Runnable ClearEntry()
+    public void ClearEntry()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                ResetEntry();
-              } /*run*/
-          };
+        ResetEntry();
       } /*ClearEntry*/
 
-    public class Digit implements Runnable
+    public void Digit
+      (
+        char TheDigit
+      )
       {
-        char TheDigit;
-
-        public Digit
-          (
-            char TheDigit
-          )
+        if (CurState == ResultState)
           {
-            this.TheDigit = TheDigit;
-          } /*Digit*/
-
-        public void run()
+            ResetEntry();
+          } /*if*/
+        switch (CurState)
           {
-            if (CurState == ResultState)
+        case EntryState:
+        case EntryStateExponential:
+            if (CurDisplay.charAt(0) == '0')
               {
-                ResetEntry();
-              } /*if*/
-            switch (CurState)
+                CurDisplay = new String(new char[] {TheDigit}) + CurDisplay.substring(1);
+              }
+            else if (CurDisplay.charAt(0) == '-' && CurDisplay.charAt(1) == '0')
               {
-            case EntryState:
-            case EntryStateExponential:
-                if (CurDisplay.charAt(0) == '0')
-                  {
-                    CurDisplay = new String(new char[] {TheDigit}) + CurDisplay.substring(1);
-                  }
-                else if (CurDisplay.charAt(0) == '-' && CurDisplay.charAt(1) == '0')
-                  {
-                    CurDisplay = "-" + new String(new char[] {TheDigit}) + CurDisplay.substring(2);
-                  }
-                else
-                  {
-                    CurDisplay =
-                            CurDisplay.substring
-                              (
-                                0,
-                                CurState == EntryStateExponential ?
-                                    CurDisplay.length() - 4
-                                :
-                                    CurDisplay.length() - 1
-                              )
-                        +
-                            new String(new char[] {TheDigit})
-                        +
-                            (CurState == EntryStateExponential ?
-                                CurDisplay.substring(CurDisplay.length() - 4)
-                            :
-                                CurDisplay.substring(CurDisplay.length() - 1)
-                            );
-                  } /*if*/
-            break;
-            case DecimalEntryState:
-                CurDisplay = CurDisplay + new String(new char[] {TheDigit});
-            break;
-            case DecimalEntryStateExponential:
+                CurDisplay = "-" + new String(new char[] {TheDigit}) + CurDisplay.substring(2);
+              }
+            else
+              {
                 CurDisplay =
-                        CurDisplay.substring(0, CurDisplay.length() - 3)
+                        CurDisplay.substring
+                          (
+                            0,
+                            CurState == EntryStateExponential ?
+                                CurDisplay.length() - 4
+                            :
+                                CurDisplay.length() - 1
+                          )
                     +
                         new String(new char[] {TheDigit})
                     +
-                        CurDisplay.substring(CurDisplay.length() - 3);
-            break;
-            case ExponentEntryState:
-              /* old exponent units digit becomes tens digit, new digit
-                becomes units digit */
-                CurDisplay =
-                        CurDisplay.substring(0, CurDisplay.length() - 2)
-                    +
-                        CurDisplay.substring(CurDisplay.length() - 1)
-                    +
-                        new String(new char[] {TheDigit});
-            break;
-              } /*switch*/
-            if (CurState != ErrorState)
-              {
-                TheDisplay.SetShowing(CurDisplay);
+                        (CurState == EntryStateExponential ?
+                            CurDisplay.substring(CurDisplay.length() - 4)
+                        :
+                            CurDisplay.substring(CurDisplay.length() - 1)
+                        );
               } /*if*/
-          } /*run*/
-
+        break;
+        case DecimalEntryState:
+            CurDisplay = CurDisplay + new String(new char[] {TheDigit});
+        break;
+        case DecimalEntryStateExponential:
+            CurDisplay =
+                    CurDisplay.substring(0, CurDisplay.length() - 3)
+                +
+                    new String(new char[] {TheDigit})
+                +
+                    CurDisplay.substring(CurDisplay.length() - 3);
+        break;
+        case ExponentEntryState:
+          /* old exponent units digit becomes tens digit, new digit
+            becomes units digit */
+            CurDisplay =
+                    CurDisplay.substring(0, CurDisplay.length() - 2)
+                +
+                    CurDisplay.substring(CurDisplay.length() - 1)
+                +
+                    new String(new char[] {TheDigit});
+        break;
+          } /*switch*/
+        if (CurState != ErrorState)
+          {
+            TheDisplay.SetShowing(CurDisplay);
+          } /*if*/
       } /*Digit*/
 
-    public Runnable DecimalPoint()
+    public void DecimalPoint()
       {
-        return new Runnable()
+        if (CurState == ResultState)
           {
-            public void run()
-              {
-                if (CurState == ResultState)
-                  {
-                    ResetEntry();
-                  } /*if*/
-                if (CurState == EntryState)
-                  {
-                    CurState = DecimalEntryState;
-                  }
-                else if (CurState == EntryStateExponential)
-                  {
-                    CurState = DecimalEntryStateExponential;
-                  } /*if*/
-                /* otherwise ignore */
-              } /*run*/
-          };
+            ResetEntry();
+          } /*if*/
+        if (CurState == EntryState)
+          {
+            CurState = DecimalEntryState;
+          }
+        else if (CurState == EntryStateExponential)
+          {
+            CurState = DecimalEntryStateExponential;
+          } /*if*/
+        /* otherwise ignore */
       } /*DecimalPoint*/
 
-    public Runnable EnterExponent()
+    public void EnterExponent
+      (
+        boolean InvState /* TBD */
+      )
       {
-        return new Runnable()
+        switch (CurState)
           {
-            public void run()
+        case EntryState:
+        case DecimalEntryState:
+            CurDisplay = CurDisplay + " 00";
+            CurState = ExponentEntryState;
+            TheDisplay.SetShowing(CurDisplay);
+        break;
+        case EntryStateExponential:
+        case DecimalEntryStateExponential:
+            CurState = ExponentEntryState;
+        break;
+        case ResultState:
+            if (CurFormat != FORMAT_FLOATING)
               {
-                switch (CurState)
-                  {
-                case EntryState:
-                case DecimalEntryState:
-                    CurDisplay = CurDisplay + " 00";
-                    CurState = ExponentEntryState;
-                    TheDisplay.SetShowing(CurDisplay);
-                break;
-                case EntryStateExponential:
-                case DecimalEntryStateExponential:
-                    CurState = ExponentEntryState;
-                break;
-                case ResultState:
-                    if (CurFormat != FORMAT_FLOATING)
-                      {
-                        CurFormat = FORMAT_FLOATING;
-                        SetX(X); /* will cause redisplay */
-                      } /*if*/
-                break;
-                  } /*switch*/
-              } /*run*/
-          };
+                CurFormat = FORMAT_FLOATING;
+                SetX(X); /* will cause redisplay */
+              } /*if*/
+        break;
+          } /*switch*/
       } /*EnterExponent*/
 
     public void SetX
@@ -333,70 +329,51 @@ public class State
           }
         else
           {
-            TheDisplay.SetShowingError();
-            CurState = ErrorState;
+            SetErrorState();
           } /*if*/
       } /*SetX*/
 
-    public Runnable ChangeSign()
+    public void ChangeSign()
       {
-        return new Runnable()
+        switch (CurState)
           {
-            public void run()
+        case EntryState:
+        case DecimalEntryState:
+            if (CurDisplay.charAt(0) == '-')
               {
-                switch (CurState)
-                  {
-                case EntryState:
-                case DecimalEntryState:
-                    if (CurDisplay.charAt(0) == '-')
-                      {
-                        CurDisplay = CurDisplay.substring(1);
-                      }
-                    else
-                      {
-                        CurDisplay = "-" + CurDisplay;
-                      } /*if*/
-                    TheDisplay.SetShowing(CurDisplay);
-                break;
-                case ExponentEntryState:
-                    CurDisplay =
-                            CurDisplay.substring(0, CurDisplay.length() - 3)
-                        +
-                            (CurDisplay.charAt(CurDisplay.length() - 3) == '-' ? ' ' : '-')
-                        +
-                            CurDisplay.substring(CurDisplay.length() - 2);
-                    TheDisplay.SetShowing(CurDisplay);
-                break;
-                case ResultState:
-                    SetX(- X);
-                break;
-                  } /*switch*/
-              } /*run*/
-          };
+                CurDisplay = CurDisplay.substring(1);
+              }
+            else
+              {
+                CurDisplay = "-" + CurDisplay;
+              } /*if*/
+            TheDisplay.SetShowing(CurDisplay);
+        break;
+        case ExponentEntryState:
+            CurDisplay =
+                    CurDisplay.substring(0, CurDisplay.length() - 3)
+                +
+                    (CurDisplay.charAt(CurDisplay.length() - 3) == '-' ? ' ' : '-')
+                +
+                    CurDisplay.substring(CurDisplay.length() - 2);
+            TheDisplay.SetShowing(CurDisplay);
+        break;
+        case ResultState:
+            SetX(- X);
+        break;
+          } /*switch*/
       } /*ChangeSign*/
 
-    public class SetDisplayMode implements Runnable
+    public void SetDisplayMode
+      (
+        int NewMode,
+        int NewNrDecimals
+      )
       {
-        final int NewMode;
-
-        public SetDisplayMode
-          (
-            int NewMode
-          )
-          {
-            this.NewMode = NewMode;
-          } /*SetDisplayMode*/
-
-        public void run()
-          {
-            if (CurFormat != NewMode)
-              {
-                Enter();
-                CurFormat = NewMode;
-                SetX(X);
-              } /*if*/
-          } /*run*/
-
+        Enter();
+        CurFormat = NewMode;
+        CurNrDecimals = NewNrDecimals;
+        SetX(X);
       } /*SetDisplayMode*/
 
     void DoStackTop()
@@ -474,402 +451,490 @@ public class State
         Stack[StackNext++] = new StackEntry(X, OpCode);
       } /*StackPush*/
 
-    public class Operator implements Runnable
+    public void Operator
+      (
+        int OpCode
+      )
       {
-        final int OpCode;
-
-        public Operator
-          (
-            int OpCode
-          )
+        Enter();
+        boolean PoppedSomething = false;
+        for (;;)
           {
-            this.OpCode = OpCode;
-          } /*Operator*/
-
-        public void run()
+            if (StackNext == 0)
+                break;
+            if (Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode))
+                break;
+            DoStackTop();
+            PoppedSomething = true;
+          } /*for*/
+        if (PoppedSomething)
           {
-            Enter();
-            boolean PoppedSomething = false;
-            for (;;)
-              {
-                if (StackNext == 0)
-                    break;
-                if (Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode))
-                    break;
-                DoStackTop();
-                PoppedSomething = true;
-              } /*for*/
-            if (PoppedSomething)
-              {
-                SetX(X);
-              } /*if*/
-            StackPush(OpCode);
-          } /*run*/
-
+            SetX(X);
+          } /*if*/
+        StackPush(OpCode);
       } /*Operator*/
 
-    public Runnable LParen()
+    public void LParen()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                Enter();
-                StackPush(STACKOP_PAREN);
-              } /*run*/
-          };
+        Enter();
+        StackPush(STACKOP_PAREN);
       } /*LParen*/
 
-    public Runnable RParen()
+    public void RParen()
       {
-        return new Runnable()
+        Enter();
+        boolean PoppedSomething = false;
+        for (;;)
           {
-            public void run()
+            if (StackNext == 0)
+                break;
+            if (Stack[StackNext - 1].Operator == STACKOP_PAREN)
               {
-                Enter();
-                boolean PoppedSomething = false;
-                for (;;)
-                  {
-                    if (StackNext == 0)
-                        break;
-                    if (Stack[StackNext - 1].Operator == STACKOP_PAREN)
-                      {
-                        --StackNext;
-                        break;
-                      } /*if*/
-                    DoStackTop();
-                    PoppedSomething = true;
-                  } /*for*/
-                if (PoppedSomething)
-                  {
-                    SetX(X);
-                  } /*if*/
-              } /*run*/
-          };
+                --StackNext;
+                break;
+              } /*if*/
+            DoStackTop();
+            PoppedSomething = true;
+          } /*for*/
+        if (PoppedSomething)
+          {
+            SetX(X);
+          } /*if*/
       } /*RParen*/
 
-    public Runnable Equals()
+    public void Equals()
       {
-        return new Runnable()
+        Enter();
+        while (StackNext != 0)
           {
-            public void run()
-              {
-                Enter();
-                while (StackNext != 0)
-                  {
-                    DoStackTop();
-                  } /*while*/
-                SetX(X);
-              } /*run*/
-          };
+            DoStackTop();
+          } /*while*/
+        SetX(X);
       } /*Equals*/
 
-    public class SetAngMode implements Runnable
+    public void SetAngMode
+      (
+        int NewMode
+      )
       {
-        final int NewMode;
-
-        public SetAngMode
-          (
-            int NewMode
-          )
-          {
-            this.NewMode = NewMode;
-          } /*SetAngMode*/
-
-        public void run()
-          {
-            CurAng = NewMode;
-          } /*run*/
-
+        CurAng = NewMode;
       } /*SetAngMode*/
 
-    public Runnable Square()
+    public void Square()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                Enter();
-                SetX(X * X);
-              } /*run*/
-          };
+        Enter();
+        SetX(X * X);
       } /*Square*/
 
-    public Runnable Sqrt()
+    public void Sqrt()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                Enter();
-                SetX(Math.sqrt(X));
-              } /*run*/
-          };
+        Enter();
+        SetX(Math.sqrt(X));
       } /*Sqrt*/
 
-    public Runnable Reciprocal()
+    public void Reciprocal()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                Enter();
-                SetX(1.0 / X);
-              } /*run*/
-          };
+        Enter();
+        SetX(1.0 / X);
       } /*Reciprocal*/
 
-    public Runnable Sin()
+    double TrigScale()
       {
-        return new Runnable()
+        Double Scale = 0.0;
+        switch (CurAng)
           {
-            public void run()
-              {
-                Enter();
-                Double Scale, NewValue;
-                switch (CurAng)
-                  {
-                case ANG_RAD:
-                default:
-                    Scale = 1.0;
-                break;
-                case ANG_DEG:
-                    Scale = 180.0 / Math.PI;
-                break;
-                case ANG_GRAD:
-                    Scale = 200.0 / Math.PI;
-                break;
-                  } /*CurAng*/
-                if (Button.InvState)
-                  {
-                    NewValue = Math.asin(X) * Scale;
-                  }
-                else
-                  {
-                    NewValue = Math.sin(X / Scale);
-                  } /*if*/
-                SetX(NewValue);
-              } /*run*/
-          };
+        case ANG_RAD:
+            Scale = 1.0;
+        break;
+        case ANG_DEG:
+            Scale = 180.0 / Math.PI;
+        break;
+        case ANG_GRAD:
+            Scale = 200.0 / Math.PI;
+        break;
+          } /*CurAng*/
+        return
+            Scale;
+      } /*TrigScale*/
+
+    public void Sin
+      (
+        boolean InvState
+      )
+      {
+        Enter();
+        if (InvState)
+          {
+            SetX(Math.asin(X) * TrigScale());
+          }
+        else
+          {
+            SetX(Math.sin(X / TrigScale()));
+          } /*if*/
       } /*Sin*/
 
-    public Runnable Cos()
+    public void Cos
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                Double Scale, NewValue;
-                switch (CurAng)
-                  {
-                case ANG_RAD:
-                default:
-                    Scale = 1.0;
-                break;
-                case ANG_DEG:
-                    Scale = 180.0 / Math.PI;
-                break;
-                case ANG_GRAD:
-                    Scale = 200.0 / Math.PI;
-                break;
-                  } /*CurAng*/
-                if (Button.InvState)
-                  {
-                    NewValue = Math.acos(X) * Scale;
-                  }
-                else
-                  {
-                    NewValue = Math.cos(X / Scale);
-                  } /*if*/
-                SetX(NewValue);
-              } /*run*/
-          };
+            SetX(Math.acos(X) * TrigScale());
+          }
+        else
+          {
+            SetX(Math.cos(X / TrigScale()));
+          } /*if*/
       } /*Cos*/
 
-    public Runnable Tan()
+    public void Tan
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                Double Scale, NewValue;
-                switch (CurAng)
-                  {
-                case ANG_RAD:
-                default:
-                    Scale = 1.0;
-                break;
-                case ANG_DEG:
-                    Scale = 180.0 / Math.PI;
-                break;
-                case ANG_GRAD:
-                    Scale = 200.0 / Math.PI;
-                break;
-                  } /*CurAng*/
-                if (Button.InvState)
-                  {
-                    NewValue = Math.atan(X) * Scale;
-                  }
-                else
-                  {
-                    NewValue = Math.tan(X / Scale);
-                  } /*if*/
-                SetX(NewValue);
-              } /*run*/
-          };
+            SetX(Math.atan(X) * TrigScale());
+          }
+        else
+          {
+            SetX(Math.tan(X / TrigScale()));
+          } /*if*/
       } /*Tan*/
 
-    public Runnable Log()
+    public void Ln
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                if (Button.AltState)
-                  {
-                    if (Button.InvState)
-                      {
-                        SetX(Math.pow(10.0, X));
-                      }
-                    else
-                      {
-                        SetX(Math.log10(X));
-                      } /*if*/
-                  }
-                else
-                  {
-                    if (Button.InvState)
-                      {
-                        SetX(Math.exp(X));
-                      }
-                    else
-                      {
-                        SetX(Math.log(X));
-                      } /*if*/
-                  } /*if*/
-              } /*run*/
-          };
+            SetX(Math.exp(X));
+          }
+        else
+          {
+            SetX(Math.log(X));
+          } /*if*/
+      } /*Ln*/
+
+    public void Log
+      (
+        boolean InvState
+      )
+      {
+        Enter();
+        if (InvState)
+          {
+            SetX(Math.pow(10.0, X));
+          }
+        else
+          {
+            SetX(Math.log10(X));
+          } /*if*/
       } /*Log*/
 
-    public Runnable Pi()
+    public void Pi()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                SetX(Math.PI);
-              } /*run*/
-          };
+        SetX(Math.PI);
       } /*Pi*/
 
-    public Runnable Int()
+    public void Int
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        final Double IntPart = Math.floor(Math.abs(X));
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                final Double IntPart = Math.floor(Math.abs(X));
-                if (Button.InvState)
-                  {
-                    SetX((Math.abs(X) - IntPart) * Math.signum(X));
-                  }
-                else
-                  {
-                    SetX(IntPart * Math.signum(X));
-                  } /*if*/
-              } /*run*/
-          };
+            SetX((Math.abs(X) - IntPart) * Math.signum(X));
+          }
+        else
+          {
+            SetX(IntPart * Math.signum(X));
+          } /*if*/
       } /*Int*/
 
-    public Runnable Abs()
+    public void Abs()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                SetX(Math.abs(X));
-              } /*run*/
-          };
+        SetX(Math.abs(X));
       } /*Abs*/
 
-    public Runnable SwapT()
+    public void SwapT()
       {
-        return new Runnable()
-          {
-            public void run()
-              {
-                Enter();
-                final double SwapTemp = X;
-                SetX(T);
-                T = SwapTemp;
-              } /*run*/
-          };
+        Enter();
+        final double SwapTemp = X;
+        SetX(T);
+        T = SwapTemp;
       } /*SwapT*/
 
-    public Runnable Polar()
+    public void Polar
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        final Double Scale = TrigScale();
+        Double NewX, NewY;
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                Double Scale, NewX, NewY;
-                switch (CurAng)
-                  {
-                case ANG_RAD:
-                default:
-                    Scale = 1.0;
-                break;
-                case ANG_DEG:
-                    Scale = 180.0 / Math.PI;
-                break;
-                case ANG_GRAD:
-                    Scale = 200.0 / Math.PI;
-                break;
-                  } /*CurAng*/
-                if (Button.InvState)
-                  {
-                    NewX = Math.sqrt(X * X + T * T);
-                    NewY = Math.atan2(X, T) * Scale;
-                  }
-                else
-                  {
-                    NewX = T * Math.cos(X / Scale);
-                    NewY = T * Math.sin(X / Scale);
-                  } /*if*/
-                T = NewX;
-                SetX(NewY);
-              } /*run*/
-          };
+            NewX = Math.sqrt(X * X + T * T);
+            NewY = Math.atan2(X, T) * Scale;
+          }
+        else
+          {
+            NewX = T * Math.cos(X / Scale);
+            NewY = T * Math.sin(X / Scale);
+          } /*if*/
+        T = NewX;
+        SetX(NewY);
       } /*Polar*/
 
-    public Runnable D_MS()
+    public void D_MS
+      (
+        boolean InvState
+      )
       {
-        return new Runnable()
+        Enter();
+        final Double Sign = Math.signum(X);
+        final Double Degrees = Math.floor(Math.abs(X));
+        final Double Fraction = Math.abs(X) - Degrees;
+        if (InvState)
           {
-            public void run()
-              {
-                Enter();
-                final Double Sign = Math.signum(X);
-                final Double Degrees = Math.floor(Math.abs(X));
-                final Double Fraction = Math.abs(X) - Degrees;
-                if (Button.InvState)
-                  {
-                    final double Minutes = Math.floor(Fraction * 60.0);
-                    SetX((Degrees + Minutes / 100.0 + (Fraction * 60.0 - Minutes) * 6 / 1000.0) * Sign);
-                  }
-                else
-                  {
-                    final Double Minutes = Math.floor(Fraction * 100.0);
-                    SetX((Degrees + Minutes / 60.0 + (Fraction * 100.0 - Minutes) / 36.0) * Sign);
-                  } /*if*/
-              } /*run*/
-          };
+            final double Minutes = Math.floor(Fraction * 60.0);
+            SetX((Degrees + Minutes / 100.0 + (Fraction * 60.0 - Minutes) * 6 / 1000.0) * Sign);
+          }
+        else
+          {
+            final Double Minutes = Math.floor(Fraction * 100.0);
+            SetX((Degrees + Minutes / 60.0 + (Fraction * 100.0 - Minutes) / 36.0) * Sign);
+          } /*if*/
       } /*D_MS*/
+
+    void ShowCurProg()
+      {
+        TheDisplay.SetShowing(String.format("%03d %02d", PC, (int)Program[PC]));
+      } /*ShowCurProg*/
+
+    public void SetProgMode
+      (
+        boolean NewProgMode
+      )
+      {
+        ProgMode = NewProgMode;
+        if (ProgMode)
+          {
+            ShowCurProg();
+          }
+        else
+          {
+            TheDisplay.SetShowing(CurDisplay);
+          } /*if*/
+      } /*SetProgMode*/
+
+    public void ClearProgram()
+      {
+        Enter(); /*?*/
+        for (int i = 0; i < MaxProgram; ++i)
+          {
+            Program[i] = (byte)0;
+          } /*if*/
+        PC = 0;
+      } /*ClearProgram*/
+
+    public void SelectProgram
+      (
+        int ProgNr
+      )
+      {
+      /* TBD */
+      } /*SelectProgram*/
+
+    public static final int MEMOP_STO = 1;
+    public static final int MEMOP_RCL = 2;
+    public static final int MEMOP_ADD = 3;
+    public static final int MEMOP_SUB = 4;
+    public static final int MEMOP_MUL = 5;
+    public static final int MEMOP_DIV = 6;
+    public static final int MEMOP_EXC = 7;
+
+    public void MemoryOp
+      (
+        int Op,
+        int RegNr,
+        boolean Indirect
+      )
+      {
+        Enter();
+        boolean OK = false; /* to begin with */
+        do /*once*/
+          {
+            if (RegNr < 0 || RegNr >= MaxMemories)
+                break;
+            if (Indirect)
+              {
+                RegNr = (int)Math.round(Memory[RegNr]);
+                if (RegNr < 0 || RegNr >= MaxMemories)
+                    break;
+              } /*if*/
+            switch (Op)
+              {
+            case MEMOP_STO:
+                Memory[RegNr] = X;
+            break;
+            case MEMOP_RCL:
+                SetX(Memory[RegNr]);
+            break;
+            case MEMOP_ADD:
+                Memory[RegNr] += X;
+            break;
+            case MEMOP_SUB:
+                Memory[RegNr] -= X;
+            break;
+            case MEMOP_MUL:
+                Memory[RegNr] *= X;
+            break;
+            case MEMOP_DIV:
+                Memory[RegNr] /= X;
+            break;
+            case MEMOP_EXC:
+                final double Temp = Memory[RegNr];
+                Memory[RegNr] = X;
+                SetX(Temp);
+            break;
+              } /*switch*/
+          /* all done */
+            OK = true;
+          }
+        while (false);
+        if (!OK)
+          {
+            SetErrorState();
+          } /*if*/
+      } /*MemoryOp*/
+
+    public void Nop()
+      {
+        Enter();
+      } /*Nop*/
+
+    public void SpecialOp
+      (
+        int OpNr,
+        boolean Indirect
+      )
+      {
+      /* TBD */
+      } /*SpecialOp*/
+
+    public void StepPC
+      (
+        boolean Forward
+      )
+      {
+        if (Forward)
+          {
+            if (PC < MaxProgram - 1)
+              {
+                ++PC;
+                ShowCurProg();
+              }
+            else
+              {
+                SetErrorState();
+              } /*if*/
+          }
+        else
+          {
+            if (PC > 0)
+              {
+                --PC;
+                ShowCurProg();
+              }
+            else
+              {
+                SetErrorState();
+              } /*if*/
+          } /*if*/
+      } /*StepPC*/
+
+    public void StoreInstr
+      (
+        int Instr
+      )
+      {
+      /* TBD instruction merging */
+        Program[PC] = (byte)Instr;
+        if (PC < MaxProgram - 1)
+          {
+            ++PC;
+            ShowCurProg();
+          }
+        else
+          {
+            SetErrorState();
+          } /*if*/
+      } /*StoreInstr*/
+
+    public void InsertAtCurInstr()
+      {
+        for (int i = MaxProgram; i > PC + 1; --i)
+          {
+            Program[i - 1] = Program[i - 2];
+          } /*for*/
+        Program[PC] = (byte)0;
+        ShowCurProg();
+      } /*InsertAtCurInstr*/
+
+    public void DeleteCurInstr()
+      {
+        for (int i = PC; i < MaxProgram - 1; ++i)
+          {
+            Program[i] = Program[i + 1];
+          } /*for*/
+        Program[MaxProgram - 1] = (byte)0;
+        ShowCurProg();
+      } /*DeleteCurInstr*/
+
+    public void StepProgram()
+      {
+      /* TBD */
+      } /*StepProgram*/
+
+    public void StartProgram()
+      {
+      /* TBD */
+        ProgRunningSlowly = false; /* just in case */
+        ProgRunning = true;
+      } /*StartProgram*/
+
+    public void StopProgram()
+      {
+      /* TBD */
+        ProgRunning = false;
+      } /*StopProgram*/
+
+    public void SetSlowExecution
+      (
+        boolean Slow
+      )
+      {
+        ProgRunningSlowly = Slow;
+      /* more TBD? */
+      } /*SetSlowExecution*/
+
+    public void Reset()
+      {
+        for (int i = 0; i < MaxFlags; ++i)
+          {
+            Flag[i] = false;
+          } /*for*/
+        PC = 0;
+      } /*Reset*/
 
   /* more TBD */
 
