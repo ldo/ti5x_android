@@ -416,6 +416,12 @@ public class ButtonGrid extends android.view.View
                         Handled = false;
                       } /*if*/
                 break;
+                case 21:
+                case 26:
+                  /* needed for Ind */
+                    AltState = !AltState;
+                    WasModifier = true;
+                break;
                 case 62:
                     Digit = 7;
                 break;
@@ -465,9 +471,12 @@ public class ButtonGrid extends android.view.View
                       } /*if*/
                     AccumDigits = AccumDigits * 10 + Digit;
                   } /*if*/
-                if (Handled && !IsSymbolic)
+                if (Handled)
                   {
-                    --DigitsNeeded;
+                    if (Digit >= 0)
+                      {
+                        --DigitsNeeded;
+                      } /*if*/
                   }
                 else
                   {
