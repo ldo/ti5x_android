@@ -294,20 +294,22 @@ public class ButtonGrid extends android.view.View
                   );
                   {
                     RectF DrawBounds;
-                    final int ButtonColor = 
+                    final GraphicsUseful.HSVA ButtonColor = new GraphicsUseful.HSVA
+                      (
                         ThisButton.BaseCode == SelectedButton ?
                             ThisButton.TextColor
                         :
-                            ThisButton.ButtonColor;
+                            ThisButton.ButtonColor
+                      );
                     TextPaint.setColor
                       (
-                            0xff000000
-                        |
-                            255 - (255 - (ButtonColor >> 16 & 255)) / 2 << 16
-                        |
-                            255 - (255 - (ButtonColor >> 8 & 255)) / 2 << 8
-                        |
-                            255 - (255 - (ButtonColor & 255)) / 2
+                        new GraphicsUseful.HSVA
+                          (
+                            ButtonColor.H,
+                            ButtonColor.S,
+                            1.0f - (1.0f - ButtonColor.V) * 0.75f, /* lighten */
+                            ButtonColor.A
+                          ).ToRGB()
                       );
                     DrawBounds = new RectF(ButtonBounds);
                     DrawBounds.offset(-1.0f, -1.0f);
@@ -320,13 +322,13 @@ public class ButtonGrid extends android.view.View
                       );
                     TextPaint.setColor
                       (
-                            0xff000000
-                        |
-                            (ButtonColor >> 16 & 255) / 2 << 16
-                        |
-                            (ButtonColor >> 8 & 255) / 2 << 8
-                        |
-                            (ButtonColor & 255) / 2
+                        new GraphicsUseful.HSVA
+                          (
+                            ButtonColor.H,
+                            ButtonColor.S,
+                            ButtonColor.V / 2.0f, /* darken */
+                            ButtonColor.A
+                          ).ToRGB()
                       );
                     DrawBounds = new RectF(ButtonBounds);
                     DrawBounds.offset(1.0f, 1.0f);
@@ -337,7 +339,7 @@ public class ButtonGrid extends android.view.View
                         CornerRoundness,
                         TextPaint
                       );
-                    TextPaint.setColor(ButtonColor);
+                    TextPaint.setColor(ButtonColor.ToRGB());
                     Draw.drawRoundRect
                       (
                         ButtonBounds,
