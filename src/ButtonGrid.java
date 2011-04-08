@@ -893,11 +893,14 @@ public class ButtonGrid extends android.view.View
             if (!WasModifier)
               {
                 AltState = false;
-                InvState = false;
               } /*if*/
             if (CalcState.InErrorState())
               {
                 CollectingForFunction = -1; /* abandon */ /* is this necessar? */
+              } /*if*/
+            if (!WasModifier && CollectingForFunction < 0)
+              {
+                InvState = false;
               } /*if*/
           } /*if*/
       } /*Invoke*/
