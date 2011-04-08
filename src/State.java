@@ -851,10 +851,6 @@ public class State
               {
                 ++PC;
                 ShowCurProg();
-              }
-            else
-              {
-                SetErrorState();
               } /*if*/
           }
         else
@@ -863,10 +859,6 @@ public class State
               {
                 --PC;
                 ShowCurProg();
-              }
-            else
-              {
-                SetErrorState();
               } /*if*/
           } /*if*/
       } /*StepPC*/
