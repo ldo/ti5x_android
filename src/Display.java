@@ -213,9 +213,7 @@ public class Display extends android.view.View
       /* renders the specified combination of LED segments and dots at the specified
         size and position, in the specified colour, into the specified canvas. */
       {
-        final android.graphics.Paint UsePaint = new android.graphics.Paint();
-        UsePaint.setStyle(android.graphics.Paint.Style.FILL);
-        UsePaint.setColor(Color);
+        final android.graphics.Paint UsePaint = GraphicsUseful.FillWithColor(Color);
         XOrigin += Size * SegmentHalfWidth; /* so there is no overhang to the left */
         YOrigin -= Size * SegmentHalfWidth; /* so there is no overhang below */
         final PointF[] ControlPoint = new PointF[]
