@@ -221,32 +221,13 @@ public class ButtonGrid extends android.view.View
                                   } /*if*/
                                 SelectedButton = NewSelectedButton;
                                 System.err.println("New selected button: " + SelectedButton); /* debug */
-                                if (CalcState != null && CalcState.ProgRunning)
-                                  {
-                                    CalcState.SetSlowExecution(true);
-                                  } /*if*/
+                                Invoke();
                                 TheView.invalidate();
                               } /*if*/
                             Handled = true;
                           }
                     break;
                     case android.view.MotionEvent.ACTION_UP:
-                        if (SelectedButton != -1)
-                          {
-                            if (MakeNoise != null)
-                              {
-                                MakeNoise.play(ButtonUp, 1.0f, 1.0f, 0, 0, 1.0f);
-                              } /*if*/
-                            if (SelectedButton == 66 && CalcState != null && CalcState.ProgRunning)
-                              {
-                                CalcState.SetSlowExecution(false);
-                              } /*if*/
-                            Invoke();
-                            SelectedButton = -1;
-                            TheView.invalidate();
-                          } /*if*/
-                        Handled = true;
-                    break;
                     case android.view.MotionEvent.ACTION_CANCEL:
                         if (SelectedButton != -1)
                           {
@@ -254,7 +235,7 @@ public class ButtonGrid extends android.view.View
                               {
                                 MakeNoise.play(ButtonUp, 1.0f, 1.0f, 0, 0, 1.0f);
                               } /*if*/
-                            if (SelectedButton == 66 && CalcState != null && CalcState.ProgRunning)
+                            if (SelectedButton == 61 && CalcState != null && CalcState.ProgRunning)
                               {
                                 CalcState.SetSlowExecution(false);
                               } /*if*/
@@ -411,6 +392,10 @@ public class ButtonGrid extends android.view.View
               {
                 switch (ButtonCode)
                   {
+                case 61:
+                case 66: /*Pause, actually will always be 61 (GTO)*/
+                    CalcState.SetSlowExecution(true);
+                break;
                 case 91: /*R/S*/
                 case 96:
                     CalcState.StopProgram();
