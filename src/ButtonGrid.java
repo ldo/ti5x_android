@@ -213,13 +213,15 @@ public class ButtonGrid extends android.view.View
                               } /*if*/
                             if (SelectedButton != NewSelectedButton)
                               {
-                                if (MakeNoise != null)
-                                  {
-                                    MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
-                                  } /*if*/
                                 SelectedButton = NewSelectedButton;
-                                System.err.println("New selected button: " + SelectedButton); /* debug */
-                                Invoke();
+                                if (SelectedButton != -1)
+                                  {
+                                    if (MakeNoise != null)
+                                      {
+                                        MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
+                                      } /*if*/
+                                    Invoke();
+                                  } /*if*/
                                 TheView.invalidate();
                               } /*if*/
                             Handled = true;
