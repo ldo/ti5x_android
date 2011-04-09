@@ -6,7 +6,7 @@ public class ButtonGrid extends android.view.View
   /* display and interaction with calculator buttons */
   {
   /* colour scheme: */
-    public static final int Black = 0xff222424;
+    public static final int Dark = 0xff222424;
     public static final int Brown = 0xff4e4238;
     public static final int Yellow = 0xffcc9858;
     public static final int White = 0xffbdaa7d;
@@ -38,7 +38,7 @@ public class ButtonGrid extends android.view.View
             this.TextColor = TextColor;
             this.ButtonColor = ButtonColor;
             this.AltTextColor = White;
-            this.BGColor = Black;
+            this.BGColor = Dark;
           } /*ButtonDef*/
 
       } /*ButtonDef*/
@@ -55,11 +55,11 @@ public class ButtonGrid extends android.view.View
                 },
             new ButtonDef[]
                 {
-                    new ButtonDef("2nd", "", Black, Yellow),
+                    new ButtonDef("2nd", "", Dark, Yellow),
                     new ButtonDef("INV", "", White, Brown),
                     new ButtonDef("lnx", "log", White, Brown),
                     new ButtonDef("CE", "CP", White, Brown),
-                    new ButtonDef("CLR", "", Black, Yellow),
+                    new ButtonDef("CLR", "", Dark, Yellow),
                 },
             new ButtonDef[]
                 {
@@ -83,39 +83,39 @@ public class ButtonGrid extends android.view.View
                     new ButtonDef("EE", "Eng", White, Brown),
                     new ButtonDef("(", "Fix", White, Brown),
                     new ButtonDef(")", "Int", White, Brown),
-                    new ButtonDef("÷", "|x|", Black, Yellow),
+                    new ButtonDef("÷", "|x|", Dark, Yellow),
                 },
             new ButtonDef[]
                 {
                     new ButtonDef("GTO", "Pause", White, Brown),
-                    new ButtonDef("7", "x=t", Black, White),
-                    new ButtonDef("8", "Nop", Black, White),
-                    new ButtonDef("9", "Op", Black, White),
-                    new ButtonDef("×", "Deg", Black, Yellow),
+                    new ButtonDef("7", "x=t", Dark, White),
+                    new ButtonDef("8", "Nop", Dark, White),
+                    new ButtonDef("9", "Op", Dark, White),
+                    new ButtonDef("×", "Deg", Dark, Yellow),
                 },
             new ButtonDef[]
                 {
                     new ButtonDef("SBR", "Lbl", White, Brown),
-                    new ButtonDef("4", "x≥t", Black, White),
-                    new ButtonDef("5", "∑x", Black, White),
-                    new ButtonDef("6", "mean(x)", Black, White),
-                    new ButtonDef("-", "Rad", Black, Yellow),
+                    new ButtonDef("4", "x≥t", Dark, White),
+                    new ButtonDef("5", "∑x", Dark, White),
+                    new ButtonDef("6", "mean(x)", Dark, White),
+                    new ButtonDef("-", "Rad", Dark, Yellow),
                 },
             new ButtonDef[]
                 {
                     new ButtonDef("RST", "St flg", White, Brown),
-                    new ButtonDef("1", "If flg", Black, White),
-                    new ButtonDef("2", "D.MS", Black, White),
-                    new ButtonDef("3", "π", Black, White),
-                    new ButtonDef("+", "Grad", Black, Yellow),
+                    new ButtonDef("1", "If flg", Dark, White),
+                    new ButtonDef("2", "D.MS", Dark, White),
+                    new ButtonDef("3", "π", Dark, White),
+                    new ButtonDef("+", "Grad", Dark, Yellow),
                 },
             new ButtonDef[]
                 {
                     new ButtonDef("R/S", "", White, Brown),
-                    new ButtonDef("0", "Dsz", Black, White),
-                    new ButtonDef(".", "Adv", Black, White),
-                    new ButtonDef("+/-", "Prt", Black, White),
-                    new ButtonDef("=", "List", Black, Yellow),
+                    new ButtonDef("0", "Dsz", Dark, White),
+                    new ButtonDef(".", "Adv", Dark, White),
+                    new ButtonDef("+/-", "Prt", Dark, White),
+                    new ButtonDef("=", "List", Dark, Yellow),
                 },
         };
       {
@@ -319,18 +319,21 @@ public class ButtonGrid extends android.view.View
                         CornerRoundness,
                         TextPaint
                       );
-                    TextPaint.setColor
-                      (
-                        new GraphicsUseful.HSVA
+                      {
+                        final GraphicsUseful.HSVA Darken = new GraphicsUseful.HSVA(Dark);
+                        TextPaint.setColor
                           (
-                            ButtonColor.H,
-                            ButtonColor.S,
-                            ButtonColor.V / 2.0f, /* darken */
-                            ButtonColor.A
-                          ).ToRGB()
-                      );
+                            new GraphicsUseful.HSVA
+                              (
+                                Darken.H,
+                                Darken.S,
+                                Darken.V / 2.0f, /* darken */
+                                Darken.A
+                              ).ToRGB()
+                          );
+                      }
                     DrawBounds = new RectF(ButtonBounds);
-                    DrawBounds.offset(1.0f, 1.0f);
+                    DrawBounds.offset(2.0f, 2.0f);
                     Draw.drawRoundRect
                       (
                         DrawBounds,
