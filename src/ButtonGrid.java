@@ -187,7 +187,6 @@ public class ButtonGrid extends android.view.View
                                     Math.max(0, Math.min((int)Math.floor(ClickWhere.x / CellWidth), NrButtonCols - 1)),
                                     Math.max(0, Math.min((int)Math.floor(ClickWhere.y / CellHeight), NrButtonRows - 1))
                                   );
-                            System.err.printf("Click at (%.2f, %.2f) => cell (%d, %d)\n", ClickWhere.x, ClickWhere.y, ClickedCell.x, ClickedCell.y); /* debug */
                             final RectF CellBounds = new RectF
                               (
                                 GridBounds.left + CellWidth * ClickedCell.x,
