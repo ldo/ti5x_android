@@ -56,8 +56,8 @@ public class State
     int StackNext;
 
     public boolean ProgMode = false;
-    public final int MaxMemories = 29; /* TBD make this configurable */
-    public final int MaxProgram = 459; /* TBD make this configurable */
+    public final int MaxMemories = 30; /* TBD make this configurable */ /* can't be zero */
+    public final int MaxProgram = 460; /* TBD make this configurable */
     public final int MaxFlags = 10;
     final double[] Memory;
     final byte[] Program;
@@ -876,8 +876,172 @@ public class State
         boolean Indirect
       )
       {
-      /* TBD */
+        Enter();
+        boolean OK = false;
+        do /*once*/
+          {
+            if (Indirect)
+              {
+                if (OpNr >= MaxMemories)
+                    break;
+                OpNr = (int)Math.round(Memory[OpNr]);
+              } /*if*/
+            if (OpNr >= 20 && OpNr < 30)
+              {
+                Memory[OpNr - 20] += 1.0;
+                OK = true;
+                break;
+              } /*if*/
+            if (OpNr >= 30 && OpNr < 40)
+              {
+                Memory[OpNr - 30] -= 1.0;
+                OK = true;
+                break;
+              } /*if*/
+            switch (OpNr)
+              {
+          /* more TBD */
+            case 10:
+                SetX(Math.signum(X));
+                OK = true;
+            break;
+            case 11:
+              /* sample variance */
+                T = Memory[5] / Memory[3] - Memory[4] * Memory[4] / (Memory[3] * Memory[3]);
+                SetX(Memory[2] / Memory[3] - Memory[1] * Memory[1] / (Memory[3] * Memory[3]));
+                OK = true;
+            break;
+            case 12:
+              /* slope and intercept */
+                T =
+                        (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                    /
+                        (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                SetX
+                  (
+                    (Memory[1] - T * Memory[4]) / Memory[3]
+                  );
+                OK = true;
+            break;
+            case 13:
+              /* correlation coefficient */
+                SetX
+                  (
+                        (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                    /
+                        (Memory[5] - Memory[4] * Memory[4] / Memory[3])
+                    *
+                        Math.sqrt
+                          (
+                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0)
+                          )
+                    /
+                        Math.sqrt
+                          (
+                            (Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0)
+                          )
+                  );
+                OK = true;
+            break;
+            case 14:
+              /* estimated y from x */
+                  {
+                    final double m =
+                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                        /
+                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                    SetX
+                      (
+                            m * X
+                        +
+                            (Memory[1] - m * Memory[4]) / Memory[3]
+                      );
+                  }
+                OK = true;
+            break;
+            case 15:
+              /* estimated x from y */
+                  {
+                    final double m =
+                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                        /
+                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                    SetX
+                      (
+                            ((Memory[1] - m * Memory[4]) / Memory[3] - X)
+                        /
+                            m
+                      );
+                  }
+                OK = true;
+            break;
+            case 16:
+                SetX(MaxProgram - 1.0 + (MaxMemories - 1.0) / 100.0);
+                OK = true;
+            break;
+          /* more TBD */
+          /* 20-39 handled above */
+              } /*switch*/
+          }
+        while (false);
+        if (!OK)
+          {
+            SetErrorState();
+          } /*if*/
       } /*SpecialOp*/
+
+    public void StatsSum
+      (
+        boolean InvState
+      )
+      {
+        Enter();
+        if (InvState)
+          {
+          /* remove sample */
+            Memory[1] -= X;
+            Memory[2] -= X * X;
+            Memory[3] -= 1.0;
+            Memory[4] -= T;
+            Memory[5] -= T * T;
+            Memory[6] -= X * T;
+            T -= 1.0;
+          }
+        else
+          {
+          /* accumulate sample */
+            Memory[1] += X;
+            Memory[2] += X * X;
+            Memory[3] += 1.0;
+            Memory[4] += T;
+            Memory[5] += T * T;
+            Memory[6] += X * T;
+            T += 1.0;
+          } /*if*/
+        SetX(Memory[3]);
+      } /*StatsSum*/
+
+    public void StatsResult
+      (
+        boolean InvState
+      )
+      {
+        if (InvState)
+          {
+          /* population standard deviation */
+            T = Math.sqrt((Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0));
+            SetX
+              (
+                Math.sqrt((Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0))
+              );
+          }
+        else
+          {
+          /* sample mean */
+            T = Memory[4] / Memory[3];
+            SetX(Memory[1] / Memory[3]);
+          } /*if*/
+      } /*StatsResult*/
 
     public void StepPC
       (

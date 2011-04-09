@@ -836,10 +836,10 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 77 handled above */
                     case 78:
-                      /* TBD */
+                        CalcState.StatsSum(InvState);
                     break;
                     case 79:
-                      /* TBD */
+                        CalcState.StatsResult(InvState);
                     break;
                     case 70:
                         CalcState.SetAngMode(CalcState.ANG_RAD);
