@@ -7,7 +7,7 @@ public class ButtonGrid extends android.view.View
   {
   /* colour scheme: */
     public static final int Dark = 0xff222424;
-    public static final int Brown = 0xff4e4238;
+    public static final int Brown = 0xff4e3836;
     public static final int Yellow = 0xffcc9858;
     public static final int White = 0xffbdaa7d;
 
