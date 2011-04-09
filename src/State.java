@@ -171,6 +171,7 @@ public class State
         String SaveExponent = "";
         switch (CurState)
           {
+        case EntryState:
         case DecimalEntryState:
             if (ExponentEntered)
               {
