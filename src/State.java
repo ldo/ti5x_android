@@ -1,7 +1,7 @@
 package nz.gen.geek_central.ti5x;
 
 public class State
-  /* the calculation state */
+  /* the calculation state and number entry */
   {
     final static int EntryState = 0;
     final static int DecimalEntryState = 1;
@@ -19,7 +19,7 @@ public class State
     public static final int FORMAT_FLOATING = 1;
     public static final int FORMAT_ENG = 2;
     int CurFormat = FORMAT_FIXED;
-    int CurNrDecimals = -1; /* TBD */
+    int CurNrDecimals = -1;
 
     public static final int ANG_RAD = 1;
     public static final int ANG_DEG = 2;
@@ -282,7 +282,8 @@ public class State
       )
       /* sets the display to show the specified value. */
       {
-        int Exp;
+        int UseFormat = CurFormat;
+        int Exp, BeforeDecimal;
         CurState = ResultState;
         X = NewX;
         if (!Double.isNaN(X) && !Double.isInfinite(X))
@@ -293,15 +294,15 @@ public class State
                 &&
                     X != 0
                 &&
-                    (Math.abs(X) < Math.pow(10.0, -7.0) || Math.abs(X) > Math.pow(10.0, 7.0))
+                    (Math.abs(X) < 5.0 * Math.pow(10.0, -11.0) || Math.abs(X) > Math.pow(10.0, 10.0))
               )
               {
-                CurFormat = FORMAT_FLOATING;
+                UseFormat = FORMAT_FLOATING;
               } /*if*/
             Exp = 0;
             if (X != 0.0)
               {
-                switch (CurFormat)
+                switch (UseFormat)
                   {
                 case FORMAT_FLOATING:
                     Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
@@ -311,17 +312,58 @@ public class State
                 break;
                   } /*switch*/
               } /*if*/
-            CurDisplay = String.format("%.8f", X / Math.pow(10.0, Exp));
-            while (CurDisplay.length() != 0 && CurDisplay.charAt(CurDisplay.length() - 1) == '0')
+            if (X != 0.0)
               {
-                CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
-              } /*while*/
+                BeforeDecimal = Math.max((int)Math.floor(Math.log10(X / Math.pow(10.0, Exp))), 1);
+              }
+            else
+              {
+                BeforeDecimal = 1;
+              } /*if*/
+            switch (UseFormat)
+              {
+            case FORMAT_FLOATING:
+            case FORMAT_ENG:
+                CurDisplay = String.format
+                  (
+                    String.format("%%.%df", Math.max(8 - BeforeDecimal, 0)),
+                    X / Math.pow(10.0, Exp)
+                  );
+            break;
+            case FORMAT_FIXED:
+                if (CurNrDecimals >= 0)
+                  {
+                    CurDisplay = String.format
+                      (
+                        String.format("%%.%df", Math.max(CurNrDecimals + 1 - BeforeDecimal, 0)),
+                        X / Math.pow(10.0, Exp)
+                      );
+                  }
+                else
+                  {
+                    CurDisplay = String.format
+                      (
+                        String.format("%%.%df", Math.max(11 - BeforeDecimal, 0)),
+                        X / Math.pow(10.0, Exp)
+                      );
+                    while
+                      (
+                            CurDisplay.length() != 0
+                        &&
+                            CurDisplay.charAt(CurDisplay.length() - 1) == '0'
+                      )
+                      {
+                        CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
+                      } /*while*/
+                  } /*if*/
+            break;
+              } /*switch*/
             if (CurDisplay.length() == 0)
               {
                 CurDisplay = "0.";
               } /*if*/
           /* assume there will always be a decimal point? */
-            if (CurFormat != FORMAT_FIXED)
+            if (UseFormat != FORMAT_FIXED)
               {
                 CurDisplay += (Exp < 0 ? "-" : " ") + String.format("%02d", Math.abs(Exp));
               } /*if*/

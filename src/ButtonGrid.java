@@ -786,7 +786,7 @@ public class ButtonGrid extends android.view.View
                     break;
                     case 58:
                       /* assert InvState */
-                        CalcState.SetDisplayMode(CalcState.FORMAT_FLOATING, -1);
+                        CalcState.SetDisplayMode(CalcState.FORMAT_FIXED, -1);
                     break;
                     case 59:
                         CalcState.Int(InvState);
