@@ -276,6 +276,10 @@ public class ButtonGrid extends android.view.View
                     CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelMargins.right,
                     CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelMargins.bottom
                   );
+                if (ThisButton.BaseCode == SelectedButton)
+                  {
+                    ButtonBounds.offset(2.0f, 2.0f);
+                  } /*if*/
                 Draw.drawRect(CellBounds, GraphicsUseful.FillWithColor(ThisButton.BGColor));
                 final android.graphics.Paint TextPaint = new android.graphics.Paint();
                 TextPaint.setStyle(android.graphics.Paint.Style.FILL);
@@ -288,18 +292,13 @@ public class ButtonGrid extends android.view.View
                     Draw,
                     ThisButton.AltText,
                     (CellBounds.left + CellBounds.right) / 2.0f,
-                    CellBounds.top + (ButtonBounds.top - CellBounds.top) / 2.0f,
+                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top / 2.0f,
                     TextPaint
                   );
                   {
                     RectF DrawBounds;
-                    final GraphicsUseful.HSVA ButtonColor = new GraphicsUseful.HSVA
-                      (
-                        ThisButton.BaseCode == SelectedButton ?
-                            ThisButton.TextColor
-                        :
-                            ThisButton.ButtonColor
-                      );
+                    final GraphicsUseful.HSVA ButtonColor =
+                        new GraphicsUseful.HSVA(ThisButton.ButtonColor);
                     TextPaint.setColor
                       (
                         new GraphicsUseful.HSVA
@@ -319,6 +318,7 @@ public class ButtonGrid extends android.view.View
                         CornerRoundness,
                         TextPaint
                       );
+                    if (ThisButton.BaseCode != SelectedButton)
                       {
                         final GraphicsUseful.HSVA Darken = new GraphicsUseful.HSVA(Dark);
                         TextPaint.setColor
@@ -331,16 +331,16 @@ public class ButtonGrid extends android.view.View
                                 Darken.A
                               ).ToRGB()
                           );
-                      }
-                    DrawBounds = new RectF(ButtonBounds);
-                    DrawBounds.offset(2.0f, 2.0f);
-                    Draw.drawRoundRect
-                      (
-                        DrawBounds,
-                        CornerRoundness,
-                        CornerRoundness,
-                        TextPaint
-                      );
+                        DrawBounds = new RectF(ButtonBounds);
+                        DrawBounds.offset(2.0f, 2.0f);
+                        Draw.drawRoundRect
+                          (
+                            DrawBounds,
+                            CornerRoundness,
+                            CornerRoundness,
+                            TextPaint
+                          );
+                      } /*if*/
                     TextPaint.setColor(ButtonColor.ToRGB());
                     Draw.drawRoundRect
                       (
@@ -350,13 +350,7 @@ public class ButtonGrid extends android.view.View
                         TextPaint
                       );
                   }
-                TextPaint.setColor
-                  (
-                    ThisButton.BaseCode == SelectedButton ?
-                        ThisButton.ButtonColor
-                    :
-                        ThisButton.TextColor
-                  );
+                TextPaint.setColor(ThisButton.TextColor);
                 TextPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
                 TextPaint.setTextSize(OrigTextSize * 1.1f);
                 GraphicsUseful.DrawCenteredText
