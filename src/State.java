@@ -326,7 +326,8 @@ public class State
             case FORMAT_ENG:
                 CurDisplay = String.format
                   (
-                    String.format("%%.%df", Math.max(8 - BeforeDecimal, 0)),
+                    java.util.Locale.US,
+                    String.format(java.util.Locale.US, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
                     X / Math.pow(10.0, Exp)
                   );
             break;
@@ -335,7 +336,8 @@ public class State
                   {
                     CurDisplay = String.format
                       (
-                        String.format("%%.%df", Math.max(CurNrDecimals + 1 - BeforeDecimal, 0)),
+                        java.util.Locale.US,
+                        String.format(java.util.Locale.US, "%%.%df", Math.max(CurNrDecimals + 1 - BeforeDecimal, 0)),
                         X / Math.pow(10.0, Exp)
                       );
                   }
@@ -343,7 +345,8 @@ public class State
                   {
                     CurDisplay = String.format
                       (
-                        String.format("%%.%df", Math.max(11 - BeforeDecimal, 0)),
+                        java.util.Locale.US,
+                        String.format(java.util.Locale.US, "%%.%df", Math.max(11 - BeforeDecimal, 0)),
                         X / Math.pow(10.0, Exp)
                       );
                     while
@@ -365,7 +368,7 @@ public class State
           /* assume there will always be a decimal point? */
             if (UseFormat != FORMAT_FIXED)
               {
-                CurDisplay += (Exp < 0 ? "-" : " ") + String.format("%02d", Math.abs(Exp));
+                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(java.util.Locale.US, "%02d", Math.abs(Exp));
               } /*if*/
             TheDisplay.SetShowing(CurDisplay);
           }
@@ -759,7 +762,7 @@ public class State
 
     void ShowCurProg()
       {
-        TheDisplay.SetShowing(String.format("%03d %02d", PC, (int)Program[PC]));
+        TheDisplay.SetShowing(String.format(java.util.Locale.US, "%03d %02d", PC, (int)Program[PC]));
       } /*ShowCurProg*/
 
     public void SetProgMode
