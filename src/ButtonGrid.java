@@ -778,7 +778,11 @@ public class ButtonGrid extends android.view.View
                       /* ignore? */
                     break;
                     case 57:
-                        CalcState.SetDisplayMode(CalcState.FORMAT_ENG, -1);
+                        CalcState.SetDisplayMode
+                          (
+                            InvState ? CalcState.FORMAT_FIXED : CalcState.FORMAT_ENG,
+                            -1
+                          );
                     break;
                     case 58:
                       /* assert InvState */

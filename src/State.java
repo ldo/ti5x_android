@@ -6,11 +6,10 @@ public class State
     final static int EntryState = 0;
     final static int DecimalEntryState = 1;
     final static int ExponentEntryState = 2;
-    final static int EntryStateExponential = 3;
-    final static int DecimalEntryStateExponential = 4;
     final static int ResultState = 10;
     final static int ErrorState = 11;
     int CurState = EntryState;
+    boolean ExponentEntered = false;
 
     Display TheDisplay;
     String CurDisplay;
@@ -86,15 +85,16 @@ public class State
 
     public void ResetEntry()
       {
+        CurState = EntryState;
         if (CurFormat == FORMAT_FIXED)
           {
-            CurState = EntryState;
             CurDisplay = "0.";
+            ExponentEntered = false;
           }
         else
           {
-            CurState = EntryStateExponential;
             CurDisplay = "0. 00";
+            ExponentEntered = true;
           } /*if*/
         TheDisplay.SetShowing(CurDisplay);
       } /*ResetEntry*/
@@ -105,33 +105,27 @@ public class State
         if (CurState != ResultState && CurState != ErrorState)
           {
             int Exp;
-            boolean HasExp;
-            switch (CurState)
+            if (ExponentEntered)
               {
-            case EntryStateExponential:
-            case DecimalEntryStateExponential:
-            case ExponentEntryState:
-                HasExp = true;
                 Exp = Integer.parseInt(CurDisplay.substring(CurDisplay.length() - 2));
                 if (CurDisplay.charAt(CurDisplay.length() - 3) == '-')
                   {
                     Exp = - Exp;
                   } /*if*/
-            break;
-            default:
-                HasExp = false;
+              }
+            else
+              {
                 Exp = 0;
-            break;
-              } /*switch*/
+              } /*if*/
             X = Double.parseDouble
               (
                 CurDisplay.substring
                   (
                     0,
-                    HasExp ? CurDisplay.length() - 3 : CurDisplay.length()
+                    ExponentEntered ? CurDisplay.length() - 3 : CurDisplay.length()
                   )
               );
-            if (HasExp)
+            if (ExponentEntered)
               {
                 X = X * Math.pow(10.0, Exp);
               } /*if*/
@@ -159,7 +153,10 @@ public class State
 
     public void ClearEntry()
       {
-        ResetEntry();
+        if (CurState != ResultState)
+          {
+            ResetEntry();
+          } /*if*/
       } /*ClearEntry*/
 
     public void Digit
@@ -171,10 +168,20 @@ public class State
           {
             ResetEntry();
           } /*if*/
+        String SaveExponent = "";
+        switch (CurState)
+          {
+        case DecimalEntryState:
+            if (ExponentEntered)
+              {
+                SaveExponent = CurDisplay.substring(CurDisplay.length() - 3);
+                CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 3);
+              } /*if*/
+        break;
+          } /*switch*/
         switch (CurState)
           {
         case EntryState:
-        case EntryStateExponential:
             if (CurDisplay.charAt(0) == '0')
               {
                 CurDisplay = new String(new char[] {TheDigit}) + CurDisplay.substring(1);
@@ -186,34 +193,15 @@ public class State
             else
               {
                 CurDisplay =
-                        CurDisplay.substring
-                          (
-                            0,
-                            CurState == EntryStateExponential ?
-                                CurDisplay.length() - 4
-                            :
-                                CurDisplay.length() - 1
-                          )
+                        CurDisplay.substring(0,CurDisplay.length() - 1)
                     +
                         new String(new char[] {TheDigit})
                     +
-                        (CurState == EntryStateExponential ?
-                            CurDisplay.substring(CurDisplay.length() - 4)
-                        :
-                            CurDisplay.substring(CurDisplay.length() - 1)
-                        );
+                        CurDisplay.substring(CurDisplay.length() - 1);
               } /*if*/
         break;
         case DecimalEntryState:
             CurDisplay = CurDisplay + new String(new char[] {TheDigit});
-        break;
-        case DecimalEntryStateExponential:
-            CurDisplay =
-                    CurDisplay.substring(0, CurDisplay.length() - 3)
-                +
-                    new String(new char[] {TheDigit})
-                +
-                    CurDisplay.substring(CurDisplay.length() - 3);
         break;
         case ExponentEntryState:
           /* old exponent units digit becomes tens digit, new digit
@@ -226,6 +214,7 @@ public class State
                     new String(new char[] {TheDigit});
         break;
           } /*switch*/
+        CurDisplay += SaveExponent;
         if (CurState != ErrorState)
           {
             TheDisplay.SetShowing(CurDisplay);
@@ -238,15 +227,14 @@ public class State
           {
             ResetEntry();
           } /*if*/
-        if (CurState == EntryState)
+        switch (CurState)
           {
+        case EntryState:
+        case ExponentEntryState:
             CurState = DecimalEntryState;
-          }
-        else if (CurState == EntryStateExponential)
-          {
-            CurState = DecimalEntryStateExponential;
-          } /*if*/
-        /* otherwise ignore */
+        break;
+      /* otherwise ignore */
+          } /*CurState*/
       } /*DecimalPoint*/
 
     public void EnterExponent
@@ -258,13 +246,13 @@ public class State
           {
         case EntryState:
         case DecimalEntryState:
-            CurDisplay = CurDisplay + " 00";
+            if (!ExponentEntered)
+              {
+                CurDisplay = CurDisplay + " 00";
+              } /*if*/
             CurState = ExponentEntryState;
             TheDisplay.SetShowing(CurDisplay);
-        break;
-        case EntryStateExponential:
-        case DecimalEntryStateExponential:
-            CurState = ExponentEntryState;
+            ExponentEntered = true;
         break;
         case ResultState:
             if (CurFormat != FORMAT_FLOATING)
@@ -798,6 +786,11 @@ public class State
             Program[i] = (byte)0;
           } /*if*/
         PC = 0;
+        T = 0.0;
+        for (int i = 0; i < MaxFlags; ++i)
+          {
+            Flag[i] = false;
+          } /*for*/
       } /*ClearProgram*/
 
     public void SelectProgram
