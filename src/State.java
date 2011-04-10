@@ -65,6 +65,7 @@ public class State
     int PC;
     public boolean ProgRunning = false;
     public boolean ProgRunningSlowly = false;
+    String LastShowing = null;
 
     public State
       (
@@ -83,6 +84,18 @@ public class State
         ResetEntry();
       } /*State*/
 
+    void SetShowing
+      (
+        String ToDisplay
+      )
+      {
+        LastShowing = ToDisplay;
+        if (!ProgRunning)
+          {
+            TheDisplay.SetShowing(ToDisplay);
+          }
+      } /*SetShowing*/
+
     public void ResetEntry()
       {
         CurState = EntryState;
@@ -96,7 +109,7 @@ public class State
             CurDisplay = "0. 00";
             ExponentEntered = true;
           } /*if*/
-        TheDisplay.SetShowing(CurDisplay);
+        SetShowing(CurDisplay);
       } /*ResetEntry*/
 
     public void Enter()
@@ -135,7 +148,10 @@ public class State
 
     public void SetErrorState()
       {
-        TheDisplay.SetShowingError();
+        if (!ProgRunning)
+          {
+            TheDisplay.SetShowingError();
+          } /*if*/
         CurState = ErrorState;
       } /*SetErrorState*/
 
@@ -218,7 +234,7 @@ public class State
         CurDisplay += SaveExponent;
         if (CurState != ErrorState)
           {
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
           } /*if*/
       } /*Digit*/
 
@@ -252,7 +268,7 @@ public class State
                 CurDisplay = CurDisplay + " 00";
               } /*if*/
             CurState = ExponentEntryState;
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
             ExponentEntered = true;
         break;
         case ResultState:
@@ -359,7 +375,7 @@ public class State
               {
                 CurDisplay += (Exp < 0 ? "-" : " ") + String.format(java.util.Locale.US, "%02d", Math.abs(Exp));
               } /*if*/
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
           }
         else
           {
@@ -381,7 +397,7 @@ public class State
               {
                 CurDisplay = "-" + CurDisplay;
               } /*if*/
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
         break;
         case ExponentEntryState:
             CurDisplay =
@@ -390,7 +406,7 @@ public class State
                     (CurDisplay.charAt(CurDisplay.length() - 3) == '-' ? ' ' : '-')
                 +
                     CurDisplay.substring(CurDisplay.length() - 2);
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
         break;
         case ResultState:
             SetX(- X);
@@ -751,7 +767,7 @@ public class State
 
     void ShowCurProg()
       {
-        TheDisplay.SetShowing(String.format(java.util.Locale.US, "%03d %02d", PC, (int)Program[PC]));
+        SetShowing(String.format(java.util.Locale.US, "%03d %02d", PC, (int)Program[PC]));
       } /*ShowCurProg*/
 
     public void SetProgMode
@@ -766,7 +782,7 @@ public class State
           }
         else
           {
-            TheDisplay.SetShowing(CurDisplay);
+            SetShowing(CurDisplay);
           } /*if*/
       } /*SetProgMode*/
 
@@ -1114,12 +1130,21 @@ public class State
       /* TBD */
         ProgRunningSlowly = false; /* just in case */
         ProgRunning = true;
+        TheDisplay.SetShowingRunning();
       } /*StartProgram*/
 
     public void StopProgram()
       {
       /* TBD */
         ProgRunning = false;
+        if (CurState == ErrorState)
+          {
+            TheDisplay.SetShowingError();
+          }
+        else
+          {
+            TheDisplay.SetShowing(LastShowing);
+          } /*if*/
       } /*StopProgram*/
 
     public void SetSlowExecution

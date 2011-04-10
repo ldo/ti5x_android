@@ -17,6 +17,8 @@ public class Display extends android.view.View
     static final int NrDigits = 12;
     int[] Showing;
     int[] OtherShowing;
+    int ShowingColor, OtherColor;
+    float AnimDelay;
     android.os.Handler Idler;
     Runnable IdleTask = null;
 
@@ -117,7 +119,7 @@ public class Display extends android.view.View
         int[] ToShow /* sequence of segment codes */
       )
       {
-        ClearShowingError();
+        ClearAnimShowing();
         final int NrToShow = Math.min(ToShow.length, NrDigits);
         final int Offset = NrDigits - NrToShow;
         for (int i = NrToShow;;)
@@ -134,6 +136,7 @@ public class Display extends android.view.View
             --i;
             Showing[i] = SegmentCode(' ');
           } /*for*/
+        ShowingColor = Light;
         invalidate();
       } /*SetShowing*/
 
@@ -142,7 +145,7 @@ public class Display extends android.view.View
         String ToShow /* sequence of digits, possibly also minus signs and spaces */
       )
       {
-        ClearShowingError();
+        ClearAnimShowing();
         int j = NrDigits;
         boolean Decrement = true;
         for (int i = ToShow.length();;)
@@ -163,6 +166,7 @@ public class Display extends android.view.View
           {
             Showing[--j] = 0;
           } /*while*/
+        ShowingColor = Light;
         invalidate();
       } /*SetShowing*/
 
@@ -170,36 +174,56 @@ public class Display extends android.view.View
       {
         public void run()
           {
-            final int[] SwapTemp = Showing;
+            final int[] SwapShowing = Showing;
             Showing = OtherShowing;
-            OtherShowing = SwapTemp;
+            OtherShowing = SwapShowing;
+            final int SwapColor = ShowingColor;
+            ShowingColor = OtherColor;
+            OtherColor = SwapColor;
             invalidate();
             if (IdleTask != null)
               {
-                Idler.postDelayed(IdleTask, 1000);
+                Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
               } /*if*/
           } /*run*/
       } /*Flashing*/
 
-    void ClearShowingError()
+    void ClearAnimShowing()
       {
         if (IdleTask != null)
           {
             Idler.removeCallbacks(IdleTask);
             IdleTask = null;
           } /*if*/
-      } /*ClearShowingError*/
+      } /*ClearAnimShowing*/
+
+    public void SetShowingRunning()
+      {
+        ClearAnimShowing();
+        for (int i = 0; i < OtherShowing.length; ++i)
+          {
+            OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
+          } /*for*/
+        SetShowing(OtherShowing);
+        ShowingColor = Light;
+        OtherColor = Dim;
+        AnimDelay = 0.25f;
+        IdleTask = new Flashing();
+        Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
+      } /*SetShowingRunning*/
 
     public void SetShowingError()
       {
-        ClearShowingError();
         SetShowing(new int[] {SegmentCode('E'), SegmentCode('r'), SegmentCode('r'), SegmentCode('o'), SegmentCode('r')});
         for (int i = 0; i < OtherShowing.length; ++i)
           {
             OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
           } /*for*/
+        ShowingColor = Light;
+        OtherColor = Light;
+        AnimDelay = 1.0f;
         IdleTask = new Flashing();
-        Idler.postDelayed(IdleTask, 1000);
+        Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
       } /*SetShowingError*/
 
     static void RenderSegments
@@ -314,7 +338,7 @@ public class Display extends android.view.View
                 /*Segments =*/ Showing[i],
                 /*XOrigin =*/ i * 24.0f + 10.0f,
                 /*YOrigin =*/ 44.0f,
-                /*Color =*/ Light
+                /*Color =*/ ShowingColor
               );
           } /*for*/
       } /*onDraw*/
