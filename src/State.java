@@ -13,6 +13,8 @@ public class State
 
     Display TheDisplay;
     String CurDisplay;
+    android.os.Handler Delayer;
+    Runnable DelayTask = null;
 
     public static final int FORMAT_FIXED = 0;
     public static final int FORMAT_FLOATING = 1;
@@ -82,14 +84,32 @@ public class State
         Program = new byte[MaxProgram];
         Flag = new boolean[MaxFlags];
         PC = 0;
+        Delayer = new android.os.Handler();
         ResetEntry();
       } /*State*/
+
+    class DelayedStep implements Runnable
+      {
+        public void run()
+          {
+            ShowCurProg();
+          } /*run*/
+      } /*DelayedStep*/
+
+    void ClearDelayedStep()
+      {
+        if (DelayTask != null)
+          {
+            Delayer.removeCallbacks(DelayTask);
+          } /*if*/
+      } /*ClearDelayedStep*/
 
     void SetShowing
       (
         String ToDisplay
       )
       {
+        ClearDelayedStep();
         LastShowing = ToDisplay;
         if (!ProgRunning)
           {
@@ -149,6 +169,7 @@ public class State
 
     public void SetErrorState()
       {
+        ClearDelayedStep();
         if (!ProgRunning)
           {
             TheDisplay.SetShowingError();
@@ -1094,8 +1115,16 @@ public class State
         Program[PC] = (byte)Instr;
         if (PC < MaxProgram - 1)
           {
+            ClearDelayedStep();
+            if (DelayTask == null)
+              {
+                DelayTask = new DelayedStep();
+              } /*if*/
+            ShowCurProg(); /* show updated contents of current location */
             ++PC;
-            ShowCurProg();
+          /* give user a chance to see current contents before stepping to next location
+            -- this is a nicety the original calculator did not have */
+            Delayer.postDelayed(DelayTask, 250);
           }
         else
           {
@@ -1130,6 +1159,7 @@ public class State
 
     public void StartProgram()
       {
+        ClearDelayedStep();
       /* TBD */
         ProgRunningSlowly = false; /* just in case */
         ProgRunning = true;
@@ -1138,6 +1168,7 @@ public class State
 
     public void StopProgram()
       {
+        ClearDelayedStep();
       /* TBD */
         ProgRunning = false;
         if (CurState == ErrorState)
