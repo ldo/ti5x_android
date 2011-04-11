@@ -1252,12 +1252,8 @@ public class State
             ExecuteTask = new ProgRunner();
           } /*if*/
         ProgRunningSlowly = false; /* just in case */
-        ProgRunningSlowly = true; /* debug */
         ProgRunning = true;
-        if (!ProgRunningSlowly)
-          {
-            TheDisplay.SetShowingRunning();
-          } /*if*/
+        TheDisplay.SetShowingRunning();
         ContinueProgRunner();
       } /*StartProgram*/
 
