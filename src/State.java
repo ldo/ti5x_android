@@ -63,7 +63,7 @@ public class State
 
     public boolean ProgMode = false;
     public final int MaxMemories = 30; /* TBD make this configurable */ /* can't be zero */
-    public final int MaxProgram = 460; /* TBD make this configurable */
+    public final int MaxProgram = 480; /* TBD make this configurable */
     public final int MaxFlags = 10;
     final double[] Memory;
     final byte[] Program;
