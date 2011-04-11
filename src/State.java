@@ -31,12 +31,12 @@ public class State
     public final static int STACKOP_DIV = 4;
     public final static int STACKOP_EXP = 5;
     public final static int STACKOP_ROOT = 6;
-    final static int STACKOP_PAREN = 99;
 
     class StackEntry
       {
         double Operand;
         int Operator;
+        int ParenFollows;
 
         public StackEntry
           (
@@ -46,6 +46,7 @@ public class State
           {
             this.Operand = Operand;
             this.Operator = Operator;
+            ParenFollows = 0;
           } /*StackEntry*/
 
       } /*StackEntry*/
@@ -449,9 +450,6 @@ public class State
         case STACKOP_ROOT:
             X = Math.pow(ThisOp.Operand, 1.0 / X);
         break;
-        case STACKOP_PAREN:
-          /* no-op */
-        break;
           } /*switch*/
       /* leave it to caller to update display */
       } /*DoStackTop*/
@@ -476,10 +474,7 @@ public class State
         case STACKOP_ROOT:
             Result = 3;
         break;
-        case STACKOP_PAREN:
-            Result = 0;
-        break;
-          } /*OpCode*/
+          } /*switch*/
         return
             Result;
       } /*Precedence*/
@@ -510,9 +505,14 @@ public class State
         boolean PoppedSomething = false;
         for (;;)
           {
-            if (StackNext == 0)
-                break;
-            if (Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode))
+            if
+              (
+                    StackNext == 0
+                ||
+                    Stack[StackNext - 1].ParenFollows != 0
+                ||
+                    Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode)
+              )
                 break;
             DoStackTop();
             PoppedSomething = true;
@@ -527,7 +527,11 @@ public class State
     public void LParen()
       {
         Enter();
-        StackPush(STACKOP_PAREN);
+        if (StackNext != 0)
+          {
+            ++Stack[StackNext - 1].ParenFollows;
+          } /*if*/
+      /* else ignored */
       } /*LParen*/
 
     public void RParen()
@@ -538,9 +542,9 @@ public class State
           {
             if (StackNext == 0)
                 break;
-            if (Stack[StackNext - 1].Operator == STACKOP_PAREN)
+            if (Stack[StackNext - 1].ParenFollows != 0)
               {
-                --StackNext;
+                --Stack[StackNext - 1].ParenFollows;
                 break;
               } /*if*/
             DoStackTop();
