@@ -1427,6 +1427,144 @@ public class State
           } /*if*/
       } /*Return*/
 
+    public void SetFlag
+      (
+        int FlagNr,
+        boolean Ind,
+        boolean Set
+      )
+      {
+        if (FlagNr >= 0)
+          {
+            if (Ind)
+              {
+                if (FlagNr < MaxMemories)
+                  {
+                    FlagNr = (int)Memory[FlagNr];
+                  }
+                else
+                  {
+                    FlagNr = -1;
+                  } /*if*/
+              } /*if*/
+            if (FlagNr >= 0 && FlagNr < MaxFlags)
+              {
+                Flag[FlagNr] = Set;
+              }
+            else
+              {
+                SetErrorState();
+                StopProgram();
+              } /*if*/
+          } /*if*/
+      } /*SetFlag*/
+
+    public void BranchIfFlag
+      (
+        boolean InvState,
+        int FlagNr,
+        boolean FlagNrInd,
+        int Target,
+        boolean TargetSymbolic,
+        boolean TargetInd
+      )
+      {
+        if (FlagNr >= 0 && Target >= 0)
+          {
+            if (FlagNrInd)
+              {
+                if (FlagNr < MaxMemories)
+                  {
+                    FlagNr = (int)Memory[FlagNr];
+                  }
+                else
+                  {
+                    FlagNr = -1;
+                  } /*if*/
+              } /*if*/
+            if (FlagNr >= 0 && FlagNr < MaxFlags)
+              {
+                if (InvState != Flag[FlagNr])
+                  {
+                    Transfer(false, Target, TargetSymbolic, TargetInd);
+                  } /*if*/
+              }
+            else
+              {
+                SetErrorState();
+                StopProgram();
+              } /*if*/
+          } /*if*/
+      } /*BranchIfFlag*/
+
+    public void CompareBranch
+      (
+        boolean InvState,
+        boolean Greater,
+        int NewPC,
+        boolean Ind
+      )
+      {
+        if (NewPC >= 0)
+          {
+            if
+              (
+                InvState ?
+                    Greater ?
+                        X < T
+                    :
+                        X != T
+                :
+                    Greater ?
+                        X >= T
+                    :
+                        X == T
+              )
+              {
+                Transfer(false, NewPC, false, Ind);
+              } /*if*/
+          } /*if*/
+      } /*CompareBranch*/
+
+    public void DecrementSkip
+      (
+        boolean InvState,
+        int Reg,
+        boolean RegInd,
+        int Target,
+        boolean TargetSymbolic,
+        boolean TargetInd
+      )
+      {
+        if (Reg >= 0 && Target >= 0)
+          {
+            if (RegInd)
+              {
+                if (Reg < MaxMemories)
+                  {
+                    Reg = (int)Memory[Reg];
+                  }
+                else
+                  {
+                    Reg = -1;
+                  } /*if*/
+              } /*if*/
+            if (Reg >= 0 && Reg < MaxMemories)
+              {
+                Memory[Reg] -= 1.0;
+                if (InvState == (Memory[Reg] == 0.0))
+                  {
+                    Transfer(false, Target, TargetSymbolic, TargetInd);
+                  } /*if*/
+              }
+            else
+              {
+                SetErrorState();
+                StopProgram();
+              } /*if*/
+          } /*if*/
+      } /*DecrementSkip*/
+
     void Interpret
       (
         boolean Execute /* false to just collect labels */
@@ -1593,28 +1731,7 @@ public class State
                 break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
-                      {
-                        final int NewPC = GetLoc(true);
-                        if (NewPC >= 0)
-                          {
-                            if
-                              (
-                                InvState ?
-                                    Op == 77 ?
-                                        X < T
-                                    :
-                                        X != T
-                                :
-                                    Op == 77 ?
-                                        X >= T
-                                    :
-                                        X == T
-                              )
-                              {
-                                Transfer(false, NewPC, false, false);
-                              } /*if*/
-                          } /*if*/
-                      }
+                    CompareBranch(InvState, Op == 77, GetLoc(true), false);
                 break;
                 case 68: /*Nop*/
                   /* No effect */
@@ -1674,41 +1791,13 @@ public class State
                     Operator(STACKOP_ADD);
                 break;
                 case 86: /*St flg*/
-                      {
-                        final int FlagNr = GetUnitOp(true);
-                        if (FlagNr >= 0)
-                          {
-                            if (FlagNr < MaxFlags)
-                              {
-                                Flag[FlagNr] = !InvState;
-                              }
-                            else
-                              {
-                                SetErrorState();
-                                StopProgram();
-                              } /*if*/
-                          } /*if*/
-                      }
+                    SetFlag(GetUnitOp(true), false, !InvState);
                 break;
                 case 87: /*If flg*/
                       {
                         final int FlagNr = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        if (FlagNr >= 0 && Target >= 0)
-                          {
-                            if (FlagNr < MaxFlags)
-                              {
-                                if (InvState != Flag[FlagNr])
-                                  {
-                                    Transfer(false, Target, false, false);
-                                  } /*if*/
-                              }
-                            else
-                              {
-                                SetErrorState();
-                                StopProgram();
-                              } /*if*/
-                          } /*if*/
+                        BranchIfFlag(InvState, FlagNr, false, Target, false, false);
                       }
                 break;
                 case 88:
@@ -1741,22 +1830,7 @@ public class State
                       {
                         final int Reg = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        if (Reg >= 0 && Target >= 0)
-                          {
-                            if (Reg < MaxMemories)
-                              {
-                                Memory[Reg] -= 1.0;
-                                if (InvState == (Memory[Reg] == 0.0))
-                                  {
-                                    Transfer(false, Target, false, false);
-                                  } /*if*/
-                              }
-                            else
-                              {
-                                SetErrorState();
-                                StopProgram();
-                              } /*if*/
-                          } /*if*/
+                        DecrementSkip(InvState, Reg, false, Target, false, false);
                       }
                 break;
                 case 98:

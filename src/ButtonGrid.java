@@ -558,7 +558,10 @@ public class ButtonGrid extends android.view.View
                     boolean Finished = true; /* to begin with */
                     if (IsSymbolic || AccumDigits >= 0)
                       {
-                        StoreInv(); /* even if it's ignored by some of them */
+                        if (CalcState.ProgMode)
+                          {
+                            StoreInv(); /* even if it's ignored by some of them */
+                          } /*if*/
                         switch (CollectingForFunction)
                           {
                         case 36: /*Pgm*/
@@ -664,7 +667,12 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                              /* TBD */
+                                CalcState.CompareBranch
+                                  (
+                                    CalcState.InvState,
+                                    CollectingForFunction == 77,
+                                    AccumDigits, GotInd
+                                  );
                               } /*if*/
                         break;
                         case 69: /*Op*/
@@ -721,14 +729,14 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                              /* TBD */
+                                CalcState.SetFlag(AccumDigits, GotInd, !CalcState.InvState);
                               } /*if*/
                         break;
                         case 87: /*If flg*/
                         case 97: /*Dsz*/
-                            if (CalcState.ProgMode)
+                            if (GotFirstOperand)
                               {
-                                if (GotFirstOperand)
+                                if (CalcState.ProgMode)
                                   {
                                     CalcState.StoreInstr(CollectingForFunction);
                                     if (GotFirstInd)
@@ -740,20 +748,37 @@ public class ButtonGrid extends android.view.View
                                   }
                                 else
                                   {
-                                    GotFirstInd = GotInd;
-                                    GotInd = false;
-                                    AcceptInd = true;
-                                    FirstOperand = AccumDigits;
-                                    AccumDigits = -1;
-                                    GotFirstOperand = true;
-                                    DigitsNeeded = 3;
-                                    AcceptSymbolic = true;
-                                    Finished = false;
+                                    if (CollectingForFunction == 87)
+                                      {
+                                        CalcState.BranchIfFlag
+                                          (
+                                            CalcState.InvState,
+                                            FirstOperand, GotFirstInd,
+                                            AccumDigits, IsSymbolic, GotInd
+                                          );
+                                      }
+                                    else
+                                      {
+                                        CalcState.DecrementSkip
+                                          (
+                                            CalcState.InvState,
+                                            FirstOperand, GotFirstInd,
+                                            AccumDigits, IsSymbolic, GotInd
+                                          );
+                                      } /*if*/
                                   } /*if*/
                               }
                             else
                               {
-                              /* ignore? */
+                                GotFirstInd = GotInd;
+                                GotInd = false;
+                                AcceptInd = true;
+                                FirstOperand = AccumDigits;
+                                AccumDigits = -1;
+                                GotFirstOperand = true;
+                                DigitsNeeded = 3;
+                                AcceptSymbolic = true;
+                                Finished = false;
                               } /*if*/
                         break;
                         default:
