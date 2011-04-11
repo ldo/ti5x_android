@@ -486,14 +486,13 @@ public class State
       {
         if (StackNext == MaxStack)
           {
-          /* overflow! lose bottom of stack */
-            for (int i = 0; i < MaxStack; ++i)
-              {
-                Stack[i - 1] = Stack[i];
-              } /*for*/
-            --StackNext;
+          /* overflow! */
+            SetErrorState();
+          }
+        else
+          {
+            Stack[StackNext++] = new StackEntry(X, OpCode);
           } /*if*/
-        Stack[StackNext++] = new StackEntry(X, OpCode);
       } /*StackPush*/
 
     public void Operator
