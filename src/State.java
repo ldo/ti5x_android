@@ -810,12 +810,12 @@ public class State
         final Double Fraction = Math.abs(X) - Degrees;
         if (InvState)
           {
-            final double Minutes = Math.floor(Fraction * 60.0);
+            final double Minutes = Math.floor(Fraction * 60.0 + 0.1 /*fudge for rounding errors */);
             SetX((Degrees + Minutes / 100.0 + (Fraction * 60.0 - Minutes) * 6 / 1000.0) * Sign);
           }
         else
           {
-            final Double Minutes = Math.floor(Fraction * 100.0);
+            final Double Minutes = Math.floor(Fraction * 100.0 + 0.1 /*fudge for rounding errors */);
             SetX((Degrees + Minutes / 60.0 + (Fraction * 100.0 - Minutes) / 36.0) * Sign);
           } /*if*/
       } /*D_MS*/
