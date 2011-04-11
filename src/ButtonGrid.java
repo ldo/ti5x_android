@@ -639,7 +639,7 @@ public class ButtonGrid extends android.view.View
                         ButtonCode = 91;
                     break;
                       } /*switch*/
-                    switch (ButtonCode) /* special handling of program-editing/viewing functions */
+                    switch (ButtonCode) /* special handling of program-editing/viewing functions and number entry */
                       {
                     case 21:
                     case 26:
@@ -666,6 +666,24 @@ public class ButtonGrid extends android.view.View
                     break;
                     case 56:
                         CalcState.DeleteCurInstr();
+                    break;
+                    case 62: /*digit 7*/
+                    case 63: /*digit 8*/
+                    case 64: /*digit 9*/
+                        CalcState.StoreInstr(ButtonCode - 55);
+                    break;
+                    case 72: /*digit 4*/
+                    case 73: /*digit 5*/
+                    case 74: /*digit 6*/
+                        CalcState.StoreInstr(ButtonCode - 68);
+                    break;
+                    case 82: /*digit 1*/
+                    case 83: /*digit 2*/
+                    case 84: /*digit 3*/
+                        CalcState.StoreInstr(ButtonCode - 81);
+                    break;
+                    case 92: /*digit 0*/
+                        CalcState.StoreInstr(0);
                     break;
                     default:
                         CalcState.StoreInstr(ButtonCode);
