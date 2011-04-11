@@ -11,6 +11,8 @@ public class State
     int CurState = EntryState;
     boolean ExponentEntered = false;
 
+    public boolean InvState = false;
+
     Display TheDisplay;
     String CurDisplay;
     android.os.Handler Delayer;
@@ -836,7 +838,8 @@ public class State
 
     public void SelectProgram
       (
-        int ProgNr
+        int ProgNr,
+        boolean Indirect
       )
       {
       /* TBD */
@@ -904,11 +907,6 @@ public class State
             SetErrorState();
           } /*if*/
       } /*MemoryOp*/
-
-    public void Nop()
-      {
-        Enter();
-      } /*Nop*/
 
     public void SpecialOp
       (
@@ -1111,7 +1109,6 @@ public class State
         int Instr
       )
       {
-      /* TBD instruction merging */
         Program[PC] = (byte)Instr;
         if (PC < MaxProgram - 1)
           {
@@ -1128,9 +1125,26 @@ public class State
           }
         else
           {
+          /* TBD should actually just terminate learn mode */
             SetErrorState();
           } /*if*/
       } /*StoreInstr*/
+
+    public void StorePrevInstr
+      (
+        int Instr
+      )
+      {
+        if (PC > 0)
+          {
+            --PC;
+            StoreInstr(Instr);
+          }
+        else
+          {
+            SetErrorState();
+          } /*if*/
+      } /*StorePrevInstr*/
 
     public void InsertAtCurInstr()
       {
