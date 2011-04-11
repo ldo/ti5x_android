@@ -858,6 +858,7 @@ public class State
             Program[i] = (byte)0;
           } /*if*/
         PC = 0;
+        ReturnLast = -1;
         T = 0.0;
         for (int i = 0; i < MaxFlags; ++i)
           {
@@ -1297,6 +1298,7 @@ public class State
             Flag[i] = false;
           } /*for*/
         PC = 0;
+        ReturnLast = -1;
       } /*Reset*/
 
     int GetProg
@@ -1312,6 +1314,7 @@ public class State
           }
         else
           {
+            PC = 0;
             Result = -1;
             if (Executing)
               {
@@ -1692,8 +1695,8 @@ public class State
                 case 28:
                     Log(InvState);
                 break;
-                case 29:
-                    ClearProgram();
+                case 29: /*CP*/
+                    T = 0.0;
                 break;
               /* 20 same as 25 */
                 case 32:
