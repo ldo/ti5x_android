@@ -534,6 +534,7 @@ public class ButtonGrid extends android.view.View
                     if (AccumDigits < 0)
                       {
                         AccumDigits = 0;
+                        AcceptSymbolic = false;
                         if (GotInd)
                           {
                             DigitsNeeded = 2; /* for register number */
@@ -685,7 +686,8 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                              /* TBD */
+                                CalcState.FillInLabels();
+                                CalcState.Transfer(false, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 71: /*SBR*/
@@ -696,12 +698,20 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                              /* TBD */
+                                CalcState.FillInLabels();
+                                CalcState.Transfer(true, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 76: /*Lbl*/
-                            CalcState.StoreInstr(76);
-                            CalcState.StoreInstr(ButtonCode); /* always symbolic */
+                            if (CalcState.ProgMode)
+                              {
+                                CalcState.StoreInstr(76);
+                                CalcState.StoreInstr(ButtonCode); /* always symbolic */
+                              }
+                            else
+                              {
+                              /* ignore */
+                              } /*if*/
                         break;
                         case 86: /*St flg*/
                             if (CalcState.ProgMode)
@@ -935,7 +945,8 @@ public class ButtonGrid extends android.view.View
                     case 18:
                     case 19:
                     case 10:
-                      /* TBD */
+                        CalcState.FillInLabels();
+                        CalcState.Transfer(true, ButtonCode, true, false);
                     break;
                     case 21:
                     case 26:
@@ -1057,7 +1068,7 @@ public class ButtonGrid extends android.view.View
                     case 65:
                         CalcState.Operator(CalcState.STACKOP_MUL);
                     break;
-                    case 66:
+                    case 66: /*Pause*/
                       /* ignore */
                     break;
                   /* 67 handled above */
@@ -1068,9 +1079,7 @@ public class ButtonGrid extends android.view.View
                     case 60:
                         CalcState.SetAngMode(CalcState.ANG_DEG);
                     break;
-                    case 71:
-                      /* ignore */
-                    break;
+                  /* 71 handled above */
                     case 72:
                         CalcState.Digit('4');
                     break;

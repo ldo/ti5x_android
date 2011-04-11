@@ -57,7 +57,7 @@ public class State
 
     final int MaxStack = 8;
     double X, T;
-    StackEntry Stack[];
+    StackEntry[] Stack;
     int StackNext;
 
     public boolean ProgMode = false;
@@ -68,8 +68,15 @@ public class State
     final byte[] Program;
     final boolean[] Flag;
     int PC;
+    final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
+    boolean GotLabels;
     public boolean ProgRunning = false;
     public boolean ProgRunningSlowly = false;
+
+    final int MaxReturnStack = 6;
+    int[] ReturnStack;
+    int ReturnLast;
+
     String LastShowing = null;
 
     public State
@@ -88,6 +95,10 @@ public class State
         PC = 0;
         Delayer = new android.os.Handler();
         ResetEntry();
+        ReturnStack = new int[MaxReturnStack];
+        ReturnLast = -1;
+        Labels = new java.util.HashMap<Integer, Integer>();
+        GotLabels = false;
       } /*State*/
 
     class DelayedStep implements Runnable
@@ -860,51 +871,54 @@ public class State
         boolean Indirect
       )
       {
-        Enter();
-        boolean OK = false; /* to begin with */
-        do /*once*/
+        if (RegNr >= 0)
           {
-            if (RegNr < 0 || RegNr >= MaxMemories)
-                break;
-            if (Indirect)
+            Enter();
+            boolean OK = false; /* to begin with */
+            do /*once*/
               {
-                RegNr = (int)Math.round(Memory[RegNr]);
-                if (RegNr < 0 || RegNr >= MaxMemories)
+                if (RegNr >= MaxMemories)
                     break;
-              } /*if*/
-            switch (Op)
+                if (Indirect)
+                  {
+                    RegNr = (int)Math.round(Memory[RegNr]);
+                    if (RegNr < 0 || RegNr >= MaxMemories)
+                        break;
+                  } /*if*/
+                switch (Op)
+                  {
+                case MEMOP_STO:
+                    Memory[RegNr] = X;
+                break;
+                case MEMOP_RCL:
+                    SetX(Memory[RegNr]);
+                break;
+                case MEMOP_ADD:
+                    Memory[RegNr] += X;
+                break;
+                case MEMOP_SUB:
+                    Memory[RegNr] -= X;
+                break;
+                case MEMOP_MUL:
+                    Memory[RegNr] *= X;
+                break;
+                case MEMOP_DIV:
+                    Memory[RegNr] /= X;
+                break;
+                case MEMOP_EXC:
+                    final double Temp = Memory[RegNr];
+                    Memory[RegNr] = X;
+                    SetX(Temp);
+                break;
+                  } /*switch*/
+              /* all done */
+                OK = true;
+              }
+            while (false);
+            if (!OK)
               {
-            case MEMOP_STO:
-                Memory[RegNr] = X;
-            break;
-            case MEMOP_RCL:
-                SetX(Memory[RegNr]);
-            break;
-            case MEMOP_ADD:
-                Memory[RegNr] += X;
-            break;
-            case MEMOP_SUB:
-                Memory[RegNr] -= X;
-            break;
-            case MEMOP_MUL:
-                Memory[RegNr] *= X;
-            break;
-            case MEMOP_DIV:
-                Memory[RegNr] /= X;
-            break;
-            case MEMOP_EXC:
-                final double Temp = Memory[RegNr];
-                Memory[RegNr] = X;
-                SetX(Temp);
-            break;
-              } /*switch*/
-          /* all done */
-            OK = true;
-          }
-        while (false);
-        if (!OK)
-          {
-            SetErrorState();
+                SetErrorState();
+              } /*if*/
           } /*if*/
       } /*MemoryOp*/
 
@@ -914,117 +928,120 @@ public class State
         boolean Indirect
       )
       {
-        Enter();
-        boolean OK = false;
-        do /*once*/
+        if (OpNr >= 0)
           {
-            if (Indirect)
+            Enter();
+            boolean OK = false;
+            do /*once*/
               {
-                if (OpNr >= MaxMemories)
+                if (Indirect)
+                  {
+                    if (OpNr >= MaxMemories)
+                        break;
+                    OpNr = (int)Math.round(Memory[OpNr]);
+                  } /*if*/
+                if (OpNr >= 20 && OpNr < 30)
+                  {
+                    Memory[OpNr - 20] += 1.0;
+                    OK = true;
                     break;
-                OpNr = (int)Math.round(Memory[OpNr]);
-              } /*if*/
-            if (OpNr >= 20 && OpNr < 30)
-              {
-                Memory[OpNr - 20] += 1.0;
-                OK = true;
-                break;
-              } /*if*/
-            if (OpNr >= 30 && OpNr < 40)
-              {
-                Memory[OpNr - 30] -= 1.0;
-                OK = true;
-                break;
-              } /*if*/
-            switch (OpNr)
-              {
-          /* more TBD */
-            case 10:
-                SetX(Math.signum(X));
-                OK = true;
-            break;
-            case 11:
-              /* sample variance */
-                T = Memory[5] / Memory[3] - Memory[4] * Memory[4] / (Memory[3] * Memory[3]);
-                SetX(Memory[2] / Memory[3] - Memory[1] * Memory[1] / (Memory[3] * Memory[3]));
-                OK = true;
-            break;
-            case 12:
-              /* slope and intercept */
-                T =
-                        (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                    /
-                        (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
-                SetX
-                  (
-                    (Memory[1] - T * Memory[4]) / Memory[3]
-                  );
-                OK = true;
-            break;
-            case 13:
-              /* correlation coefficient */
-                SetX
-                  (
-                        (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                    /
-                        (Memory[5] - Memory[4] * Memory[4] / Memory[3])
-                    *
-                        Math.sqrt
-                          (
-                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0)
-                          )
-                    /
-                        Math.sqrt
-                          (
-                            (Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0)
-                          )
-                  );
-                OK = true;
-            break;
-            case 14:
-              /* estimated y from x */
+                  } /*if*/
+                if (OpNr >= 30 && OpNr < 40)
                   {
-                    final double m =
+                    Memory[OpNr - 30] -= 1.0;
+                    OK = true;
+                    break;
+                  } /*if*/
+                switch (OpNr)
+                  {
+              /* more TBD */
+                case 10:
+                    SetX(Math.signum(X));
+                    OK = true;
+                break;
+                case 11:
+                  /* sample variance */
+                    T = Memory[5] / Memory[3] - Memory[4] * Memory[4] / (Memory[3] * Memory[3]);
+                    SetX(Memory[2] / Memory[3] - Memory[1] * Memory[1] / (Memory[3] * Memory[3]));
+                    OK = true;
+                break;
+                case 12:
+                  /* slope and intercept */
+                    T =
                             (Memory[6] - Memory[1] * Memory[4] / Memory[3])
                         /
                             (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
                     SetX
                       (
-                            m * X
-                        +
-                            (Memory[1] - m * Memory[4]) / Memory[3]
+                        (Memory[1] - T * Memory[4]) / Memory[3]
                       );
-                  }
-                OK = true;
-            break;
-            case 15:
-              /* estimated x from y */
-                  {
-                    final double m =
-                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                        /
-                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                    OK = true;
+                break;
+                case 13:
+                  /* correlation coefficient */
                     SetX
                       (
-                            ((Memory[1] - m * Memory[4]) / Memory[3] - X)
+                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
                         /
-                            m
+                            (Memory[5] - Memory[4] * Memory[4] / Memory[3])
+                        *
+                            Math.sqrt
+                              (
+                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0)
+                              )
+                        /
+                            Math.sqrt
+                              (
+                                (Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0)
+                              )
                       );
-                  }
-                OK = true;
-            break;
-            case 16:
-                SetX(MaxProgram - 1.0 + (MaxMemories - 1.0) / 100.0);
-                OK = true;
-            break;
-          /* more TBD */
-          /* 20-39 handled above */
-              } /*switch*/
-          }
-        while (false);
-        if (!OK)
-          {
-            SetErrorState();
+                    OK = true;
+                break;
+                case 14:
+                  /* estimated y from x */
+                      {
+                        final double m =
+                                (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                            /
+                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                        SetX
+                          (
+                                m * X
+                            +
+                                (Memory[1] - m * Memory[4]) / Memory[3]
+                          );
+                      }
+                    OK = true;
+                break;
+                case 15:
+                  /* estimated x from y */
+                      {
+                        final double m =
+                                (Memory[6] - Memory[1] * Memory[4] / Memory[3])
+                            /
+                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                        SetX
+                          (
+                                ((Memory[1] - m * Memory[4]) / Memory[3] - X)
+                            /
+                                m
+                          );
+                      }
+                    OK = true;
+                break;
+                case 16:
+                    SetX(MaxProgram - 1.0 + (MaxMemories - 1.0) / 100.0);
+                    OK = true;
+                break;
+              /* more TBD */
+              /* 20-39 handled above */
+                  } /*switch*/
+              }
+            while (false);
+            if (!OK)
+              {
+                SetErrorState();
+              } /*if*/
           } /*if*/
       } /*SpecialOp*/
 
@@ -1104,11 +1121,18 @@ public class State
           } /*if*/
       } /*StepPC*/
 
+    void ResetLabels()
+      {
+        Labels.clear();
+        GotLabels = false;
+      } /*ResetLabels*/
+
     public void StoreInstr
       (
         int Instr
       )
       {
+        ResetLabels();
         Program[PC] = (byte)Instr;
         if (PC < MaxProgram - 1)
           {
@@ -1125,8 +1149,7 @@ public class State
           }
         else
           {
-          /* TBD should actually just terminate learn mode */
-            SetErrorState();
+            SetProgMode(false);
           } /*if*/
       } /*StoreInstr*/
 
@@ -1153,6 +1176,7 @@ public class State
             Program[i - 1] = Program[i - 2];
           } /*for*/
         Program[PC] = (byte)0;
+        ResetLabels();
         ShowCurProg();
       } /*InsertAtCurInstr*/
 
@@ -1163,17 +1187,20 @@ public class State
             Program[i] = Program[i + 1];
           } /*for*/
         Program[MaxProgram - 1] = (byte)0;
+        ResetLabels();
         ShowCurProg();
       } /*DeleteCurInstr*/
 
     public void StepProgram()
       {
-      /* TBD */
+        FillInLabels();
+        Interpret(true);
       } /*StepProgram*/
 
     public void StartProgram()
       {
         ClearDelayedStep();
+        FillInLabels();
       /* TBD */
         ProgRunningSlowly = false; /* just in case */
         ProgRunning = true;
@@ -1213,6 +1240,619 @@ public class State
         PC = 0;
       } /*Reset*/
 
-  /* more TBD */
+    int GetProg
+      (
+        boolean Executing
+      )
+      /* returns the next program instruction byte, or -1 if run off the end. */
+      {
+        byte Result;
+        if (PC < MaxProgram)
+          {
+            Result = Program[PC++];
+          }
+        else
+          {
+            Result = -1;
+            if (Executing)
+              {
+                StopProgram();
+              } /*if*/
+          } /*if*/
+        return
+            (int)Result;
+      } /*GetProg*/
+
+    int GetLoc
+      (
+        boolean Executing
+      )
+      /* fetches a program location from the instruction stream, or -1 on failure.
+        Assumes Labels has been filled in. */
+      {
+        int Result = -1;
+        final int NextByte = GetProg(Executing);
+        if (NextByte >= 0)
+          {
+            if (NextByte < 10)
+              {
+              /* 3-digit location */
+                final int NextByte2 = GetProg(Executing);
+                if (NextByte2 >= 0)
+                  {
+                    Result = NextByte * 100 + NextByte2;
+                  } /*if*/
+              }
+            else if (NextByte == 40) /*Ind*/
+              {
+                final int Reg = GetProg(Executing);
+                if (Reg >= 0 && Reg < MaxMemories)
+                  {
+                    Result = (int)Memory[Reg];
+                    if (Result < 0 || Result >= MaxProgram)
+                      {
+                        Result = -1;
+                      } /*if*/
+                  } /*if*/
+              }
+            else /* symbolic label */
+              {
+                if (Labels.containsKey(NextByte))
+                  {
+                    Result = Labels.get(NextByte);
+                  } /*if*/
+              } /*if*/
+          } /*if*/
+        return
+            Result;
+      } /*GetLoc*/
+
+    int GetUnitOp
+      (
+        boolean Executing
+      )
+      /* fetches one or two bytes from the instruction stream; if the
+        first (only) byte is < 10, then that's the value; otherwise
+        a value of 40 indicates indirection through the register
+        number in the next byte. Any other value is invalid. */
+      {
+        int Result = -1;
+        final int NextByte = GetProg(Executing);
+        if (NextByte >= 0)
+          {
+            boolean OK;
+            if (NextByte < 10)
+              {
+                Result = NextByte;
+                OK = true;
+              }
+            else if (NextByte == 40)
+              {
+                final int Reg = GetProg(Executing);
+                if (Reg >= 0 && Reg < MaxMemories)
+                  {
+                    Result = (int)Memory[Reg];
+                    OK = Result >= 0 && Result < 10;
+                    if (!OK)
+                      {
+                        Result = -1;
+                      } /*if*/
+                  }
+                else
+                  {
+                    OK = false;
+                  } /*if*/
+              }
+            else
+              {
+                OK = false;
+              } /*if*/
+            if (!OK)
+              {
+                SetErrorState();
+                StopProgram();
+              } /*if*/
+          } /*if*/
+        return
+            Result;
+      } /*GetUnitOp*/
+
+    public void Transfer
+      (
+        boolean Call,
+        int Loc,
+        boolean Symbolic,
+        boolean Ind
+      )
+      /* implements GTO and SBR. */
+      {
+        if (Loc >= 0)
+          {
+            boolean OK = false;
+            do /*once*/
+              {
+                if (Ind)
+                  {
+                    if (Loc >= MaxMemories)
+                        break;
+                    Loc = (int)Memory[Loc];
+                  }
+                else if (Symbolic)
+                  {
+                    if (!Labels.containsKey(Loc))
+                        break;
+                    Loc = Labels.get(Loc);
+                  } /*if*/
+                if (Loc < 0 || Loc >= MaxProgram)
+                    break;
+                if (Call)
+                  {
+                    if (ReturnLast == MaxReturnStack)
+                        break;
+                    ReturnStack[++ReturnLast] = PC;
+                  } /*if*/
+                PC = Loc;
+              /* all successfully done */
+                OK = true;
+              }
+            while (false);
+            if (!OK)
+              {
+                SetErrorState();
+                StopProgram();
+              } /*if*/
+          } /*if*/
+      } /*Transfer*/
+
+    void Return()
+      /* returns to the last-saved location on the return stack. */
+      {
+        boolean OK = false;
+        do /*once*/
+          {
+            if (ReturnLast < 0)
+                break;
+            final int ReturnTo = ReturnStack[ReturnLast--];
+            if (ReturnTo < 0 || ReturnTo >= MaxProgram)
+                break;
+            PC = ReturnTo;
+          /* all successfully done */
+            OK = true;
+          }
+        while (false);
+        if (!OK)
+          {
+            SetErrorState();
+            StopProgram();
+          } /*if*/
+      } /*Return*/
+
+    void Interpret
+      (
+        boolean Execute /* false to just collect labels */
+      )
+      /* main program interpreter loop: interprets one instruction and
+        advances/jumps the PC accordingly. */
+      {
+        final int Op = GetProg(Execute);
+        if (Op >= 0)
+          {
+            boolean WasModifier = false;
+            if (Execute)
+              {
+                switch (Op)
+                  {
+                case 01:
+                case 02:
+                case 03:
+                case 04:
+                case 05:
+                case 06:
+                case 07:
+                case 8:
+                case 9:
+                case 00:
+                    Digit((char)(Op + 48));
+                break;
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 10:
+                    Transfer(true, Op, true, false);
+                break;
+                case 22:
+                case 27:
+                    InvState = !InvState;
+                    WasModifier = true;
+                break;
+                case 23:
+                    Ln(InvState);
+                break;
+                case 24:
+                    ClearEntry();
+                break;
+                case 25:
+                case 20:
+                    ClearAll();
+                break;
+              /* 26 same as 21 */
+              /* 27 same as 22 */
+                case 28:
+                    Log(InvState);
+                break;
+                case 29:
+                    ClearProgram();
+                break;
+              /* 20 same as 25 */
+                case 32:
+                    SwapT();
+                break;
+                case 33:
+                    Square();
+                break;
+                case 34:
+                    Sqrt();
+                break;
+                case 35:
+                    Reciprocal();
+                break;
+                case 36: /*Pgm*/
+                    SelectProgram(GetProg(true), false); /* TBD only for duration of following instr */
+                break;
+                case 37:
+                    Polar(InvState);
+                break;
+                case 38:
+                    Sin(InvState);
+                break;
+                case 39:
+                    Cos(InvState);
+                break;
+                case 30:
+                    Tan(InvState);
+                break;
+                case 42:
+                    MemoryOp(MEMOP_STO, GetProg(true), false);
+                break;
+                case 43:
+                    MemoryOp(MEMOP_RCL, GetProg(true), false);
+                break;
+                case 44:
+                    MemoryOp(InvState ? MEMOP_SUB : MEMOP_ADD, GetProg(true), false);
+                break;
+                case 45:
+                    Operator(InvState ? STACKOP_ROOT : STACKOP_EXP);
+                break;
+                case 47:
+                    ClearMemories();
+                break;
+                case 48:
+                    MemoryOp(MEMOP_EXC, GetProg(true), false);
+                break;
+                case 49:
+                    MemoryOp(InvState ? MEMOP_DIV : MEMOP_MUL, GetProg(true), false);
+                break;
+                case 52:
+                    EnterExponent(InvState);
+                break;
+                case 53:
+                    LParen();
+                break;
+                case 54:
+                    RParen();
+                break;
+                case 55:
+                    Operator(STACKOP_DIV);
+                break;
+                case 57:
+                    SetDisplayMode
+                      (
+                        InvState ? FORMAT_FIXED : FORMAT_ENG,
+                        -1
+                      );
+                break;
+                case 58: /*Fix*/
+                    if (InvState)
+                      {
+                        SetDisplayMode(FORMAT_FIXED, -1);
+                      }
+                    else
+                      {
+                        SetDisplayMode(FORMAT_FIXED, GetProg(true));
+                      } /*if*/
+                break;
+                case 59:
+                    Int(InvState);
+                break;
+                case 50:
+                    Abs();
+                break;
+                case 61: /*GTO*/
+                    Transfer(false, GetLoc(true), false, false);
+                break;
+                case 62: /*Pgm Ind*/
+                    SelectProgram(GetProg(true), true); /* TBD only for duration of following instr */
+                break;
+                case 63:
+                    MemoryOp(MEMOP_EXC, GetProg(true), true);
+                break;
+                case 64:
+                    MemoryOp(InvState ? MEMOP_DIV : MEMOP_MUL, GetProg(true), true);
+                break;
+                case 65:
+                    Operator(STACKOP_MUL);
+                break;
+                case 66: /*Pause*/
+                  /* TBD */
+                break;
+                case 67: /*x=t*/
+                case 77: /*x≥t*/
+                      {
+                        final int NewPC = GetLoc(true);
+                        if (NewPC >= 0)
+                          {
+                            if
+                              (
+                                InvState ?
+                                    Op == 77 ?
+                                        X < T
+                                    :
+                                        X != T
+                                :
+                                    Op == 77 ?
+                                        X >= T
+                                    :
+                                        X == T
+                              )
+                              {
+                                Transfer(false, NewPC, false, false);
+                              } /*if*/
+                          } /*if*/
+                      }
+                break;
+                case 68: /*Nop*/
+                  /* No effect */
+                break;
+                case 69:
+                    SpecialOp(GetProg(true), false);
+                break;
+                case 60:
+                    SetAngMode(ANG_DEG);
+                break;
+                case 71: /*SBR*/
+                    if (InvState)
+                      {
+                        Return();
+                      }
+                    else
+                      {
+                        Transfer(true, GetLoc(true), false, false);
+                      } /*if*/
+                break;
+                case 72:
+                    MemoryOp(MEMOP_STO, GetProg(true), true);
+                break;
+                case 73:
+                    MemoryOp(MEMOP_RCL, GetProg(true), true);
+                break;
+                case 74:
+                    MemoryOp(InvState ? MEMOP_SUB : MEMOP_ADD, GetProg(true), true);
+                break;
+                case 75:
+                    Operator(STACKOP_SUB);
+                break;
+                case 76: /*Lbl*/
+                    GetProg(true); /* just skip label, assume Labels already filled in */
+                break;
+              /* 77 handled above */
+                case 78:
+                    StatsSum(InvState);
+                break;
+                case 79:
+                    StatsResult(InvState);
+                break;
+                case 70:
+                    SetAngMode(ANG_RAD);
+                break;
+                case 81:
+                    Reset();
+                    StopProgram();
+                break;
+                case 83: /*GTO Ind*/
+                    Transfer(false, GetLoc(true), false, true);
+                break;
+                case 84:
+                    SpecialOp(GetProg(true), true);
+                break;
+                case 85:
+                    Operator(STACKOP_ADD);
+                break;
+                case 86: /*St flg*/
+                      {
+                        final int FlagNr = GetUnitOp(true);
+                        if (FlagNr >= 0)
+                          {
+                            if (FlagNr < MaxFlags)
+                              {
+                                Flag[FlagNr] = !InvState;
+                              }
+                            else
+                              {
+                                SetErrorState();
+                                StopProgram();
+                              } /*if*/
+                          } /*if*/
+                      }
+                break;
+                case 87: /*If flg*/
+                      {
+                        final int FlagNr = GetUnitOp(true);
+                        final int Target = GetLoc(true);
+                        if (FlagNr >= 0 && Target >= 0)
+                          {
+                            if (FlagNr < MaxFlags)
+                              {
+                                if (InvState != Flag[FlagNr])
+                                  {
+                                    Transfer(false, Target, false, false);
+                                  } /*if*/
+                              }
+                            else
+                              {
+                                SetErrorState();
+                                StopProgram();
+                              } /*if*/
+                          } /*if*/
+                      }
+                break;
+                case 88:
+                    D_MS(InvState);
+                break;
+                case 89:
+                    Pi();
+                break;
+                case 80:
+                    SetAngMode(ANG_GRAD);
+                break;
+                case 91:
+                case 96:
+                    StopProgram();
+                break;
+                case 92: /*INV SBR*/
+                    Return();
+                break;
+                case 93:
+                    DecimalPoint();
+                break;
+                case 94:
+                    ChangeSign();
+                break;
+                case 95:
+                    Equals();
+                break;
+              /* 96 same as 91 */
+                case 97: /*Dsz*/
+                      {
+                        final int Reg = GetUnitOp(true);
+                        final int Target = GetLoc(true);
+                        if (Reg >= 0 && Target >= 0)
+                          {
+                            if (Reg < MaxMemories)
+                              {
+                                Memory[Reg] -= 1.0;
+                                if (InvState == (Memory[Reg] == 0.0))
+                                  {
+                                    Transfer(false, Target, false, false);
+                                  } /*if*/
+                              }
+                            else
+                              {
+                                SetErrorState();
+                                StopProgram();
+                              } /*if*/
+                          } /*if*/
+                      }
+                break;
+                case 98:
+                  /* TBD */
+                break;
+                case 99:
+                  /* TBD */
+                break;
+                case 90:
+                  /* TBD */
+                break;
+                default:
+                    SetErrorState();
+                    StopProgram();
+                break;
+                  } /*switch*/
+              }
+            else
+              {
+              /* just advance PC past instruction and update Labels as appropriate */
+                switch (Op)
+                  {
+                case 22:
+                case 27:
+                    WasModifier = true;
+                break;
+                case 36: /*Pgm*/
+                case 42: /*STO*/
+                case 43: /*RCL*/
+                case 44: /*SUM*/
+                case 48: /*Exc*/
+                case 49: /*Prd*/
+                case 62: /*Pgm Ind*/
+                case 63: /*Exc Ind*/
+                case 64: /*Prd Ind*/
+                case 69: /*Op*/
+                case 72: /*STO Ind*/
+                case 73: /*RCL Ind*/
+                case 74: /*SUM Ind*/
+                case 83: /*GTO Ind*/
+                case 84: /*Op Ind*/
+                case 86: /*St flg*/
+                  /* one byte following */
+                    GetProg(false);
+                break;
+                case 61: /*GTO*/
+                case 67: /*x=t*/
+                case 77: /*x≥t*/
+                    GetLoc(false);
+                break;
+                case 71: /*SBR*/
+                    if (!InvState) /* in case it wasn't merged */
+                      {
+                        GetLoc(false);
+                      } /*if*/
+                break;
+                case 76: /*Lbl*/
+                      {
+                        final int TheLabel = GetProg(false);
+                        if (TheLabel >= 0 && PC >= 0 && !Labels.containsKey(TheLabel))
+                          {
+                            Labels.put(TheLabel, PC);
+                          } /*if*/
+                      }
+                break;
+                case 87: /*If flg*/
+                case 97: /*Dsz*/
+                    GetUnitOp(false); /*register/flag*/
+                    GetLoc(false); /*branch target*/
+                break;
+                  } /*switch*/
+              } /*if*/
+            if (!WasModifier)
+              {
+                InvState = false;
+              } /*if*/
+          } /*if*/
+      } /*Interpret*/
+
+    public void FillInLabels()
+      {
+        if (!GotLabels)
+          {
+            final int SavePC = PC;
+            final boolean SaveInvState = InvState;
+            InvState = false; /*?*/
+            PC = 0;
+            do
+              {
+                Interpret(false);
+              }
+            while (PC != -1 && PC < MaxProgram);
+            GotLabels = true;
+            PC = SavePC;
+            InvState = SaveInvState;
+          } /*if*/
+      } /*FillInLabels*/
 
   } /*State*/
