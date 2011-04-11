@@ -15,8 +15,9 @@ public class State
 
     Display TheDisplay;
     String CurDisplay;
-    android.os.Handler Delayer;
+    android.os.Handler BGTask;
     Runnable DelayTask = null;
+    Runnable ExecuteTask = null;
 
     public static final int FORMAT_FIXED = 0;
     public static final int FORMAT_FLOATING = 1;
@@ -36,13 +37,13 @@ public class State
     public final static int STACKOP_EXP = 5;
     public final static int STACKOP_ROOT = 6;
 
-    class StackEntry
+    class OpStackEntry
       {
         double Operand;
         int Operator;
         int ParenFollows;
 
-        public StackEntry
+        public OpStackEntry
           (
             double Operand,
             int Operator
@@ -51,14 +52,14 @@ public class State
             this.Operand = Operand;
             this.Operator = Operator;
             ParenFollows = 0;
-          } /*StackEntry*/
+          } /*OpStackEntry*/
 
-      } /*StackEntry*/
+      } /*OpStackEntry*/
 
-    final int MaxStack = 8;
+    final int MaxOpStack = 8;
     double X, T;
-    StackEntry[] Stack;
-    int StackNext;
+    OpStackEntry[] OpStack;
+    int OpStackNext;
 
     public boolean ProgMode = false;
     public final int MaxMemories = 30; /* TBD make this configurable */ /* can't be zero */
@@ -73,8 +74,25 @@ public class State
     public boolean ProgRunning = false;
     public boolean ProgRunningSlowly = false;
 
+    class ReturnStackEntry
+      {
+        public int Addr;
+        public boolean FromInteractive;
+
+        public ReturnStackEntry
+          (
+            int Addr,
+            boolean FromInteractive
+          )
+          {
+            this.Addr = Addr;
+            this.FromInteractive = FromInteractive;
+          } /*ReturnStackEntry*/
+
+      } /*ReturnStackEntry*/
+
     final int MaxReturnStack = 6;
-    int[] ReturnStack;
+    ReturnStackEntry[] ReturnStack;
     int ReturnLast;
 
     String LastShowing = null;
@@ -85,17 +103,17 @@ public class State
       )
       {
         this.TheDisplay = TheDisplay;
-        Stack = new StackEntry[MaxStack];
-        StackNext = 0;
+        OpStack = new OpStackEntry[MaxOpStack];
+        OpStackNext = 0;
         X = 0.0;
         T = 0.0;
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
         Flag = new boolean[MaxFlags];
         PC = 0;
-        Delayer = new android.os.Handler();
+        BGTask = new android.os.Handler();
         ResetEntry();
-        ReturnStack = new int[MaxReturnStack];
+        ReturnStack = new ReturnStackEntry[MaxReturnStack];
         ReturnLast = -1;
         Labels = new java.util.HashMap<Integer, Integer>();
         GotLabels = false;
@@ -113,7 +131,7 @@ public class State
       {
         if (DelayTask != null)
           {
-            Delayer.removeCallbacks(DelayTask);
+            BGTask.removeCallbacks(DelayTask);
           } /*if*/
       } /*ClearDelayedStep*/
 
@@ -124,7 +142,7 @@ public class State
       {
         ClearDelayedStep();
         LastShowing = ToDisplay;
-        if (!ProgRunning)
+        if (!ProgRunning || ProgRunningSlowly)
           {
             TheDisplay.SetShowing(ToDisplay);
           }
@@ -183,7 +201,7 @@ public class State
     public void SetErrorState()
       {
         ClearDelayedStep();
-        if (!ProgRunning)
+        if (!ProgRunning || ProgRunningSlowly)
           {
             TheDisplay.SetShowingError();
           } /*if*/
@@ -198,7 +216,7 @@ public class State
 
     public void ClearAll()
       {
-        StackNext = 0;
+        OpStackNext = 0;
         ResetEntry();
       } /*ClearAll*/
 
@@ -463,7 +481,7 @@ public class State
 
     void DoStackTop()
       {
-        final StackEntry ThisOp = Stack[--StackNext];
+        final OpStackEntry ThisOp = OpStack[--OpStackNext];
         switch (ThisOp.Operator)
           {
         case STACKOP_ADD:
@@ -518,14 +536,14 @@ public class State
         int OpCode
       )
       {
-        if (StackNext == MaxStack)
+        if (OpStackNext == MaxOpStack)
           {
           /* overflow! */
             SetErrorState();
           }
         else
           {
-            Stack[StackNext++] = new StackEntry(X, OpCode);
+            OpStack[OpStackNext++] = new OpStackEntry(X, OpCode);
           } /*if*/
       } /*StackPush*/
 
@@ -540,11 +558,11 @@ public class State
           {
             if
               (
-                    StackNext == 0
+                    OpStackNext == 0
                 ||
-                    Stack[StackNext - 1].ParenFollows != 0
+                    OpStack[OpStackNext - 1].ParenFollows != 0
                 ||
-                    Precedence(Stack[StackNext - 1].Operator) < Precedence(OpCode)
+                    Precedence(OpStack[OpStackNext - 1].Operator) < Precedence(OpCode)
               )
                 break;
             DoStackTop();
@@ -560,9 +578,9 @@ public class State
     public void LParen()
       {
         Enter();
-        if (StackNext != 0)
+        if (OpStackNext != 0)
           {
-            ++Stack[StackNext - 1].ParenFollows;
+            ++OpStack[OpStackNext - 1].ParenFollows;
           } /*if*/
       /* else ignored */
       } /*LParen*/
@@ -573,11 +591,11 @@ public class State
         boolean PoppedSomething = false;
         for (;;)
           {
-            if (StackNext == 0)
+            if (OpStackNext == 0)
                 break;
-            if (Stack[StackNext - 1].ParenFollows != 0)
+            if (OpStack[OpStackNext - 1].ParenFollows != 0)
               {
-                --Stack[StackNext - 1].ParenFollows;
+                --OpStack[OpStackNext - 1].ParenFollows;
                 break;
               } /*if*/
             DoStackTop();
@@ -592,7 +610,7 @@ public class State
     public void Equals()
       {
         Enter();
-        while (StackNext != 0)
+        while (OpStackNext != 0)
           {
             DoStackTop();
           } /*while*/
@@ -1145,7 +1163,7 @@ public class State
             ++PC;
           /* give user a chance to see current contents before stepping to next location
             -- this is a nicety the original calculator did not have */
-            Delayer.postDelayed(DelayTask, 250);
+            BGTask.postDelayed(DelayTask, 250);
           }
         else
           {
@@ -1197,21 +1215,60 @@ public class State
         Interpret(true);
       } /*StepProgram*/
 
+    class ProgRunner implements Runnable
+      {
+        public void run()
+          {
+            if (ProgRunning)
+              {
+                Interpret(true);
+                ContinueProgRunner();
+              } /*if*/
+          } /*run*/
+      } /*ProgRunner*/
+
+    void ContinueProgRunner()
+      {
+        if (ProgRunning && !InErrorState())
+          {
+            if (ProgRunningSlowly)
+              {
+                BGTask.postDelayed(ExecuteTask, 250);
+              }
+            else
+              {
+              /* run as fast as possible */
+                BGTask.post(ExecuteTask);
+              } /*if*/
+          } /*if*/
+      } /*ContinueProgRunner*/
+
     public void StartProgram()
       {
         ClearDelayedStep();
         FillInLabels();
-      /* TBD */
+        if (ExecuteTask == null)
+          {
+            ExecuteTask = new ProgRunner();
+          } /*if*/
         ProgRunningSlowly = false; /* just in case */
+        ProgRunningSlowly = true; /* debug */
         ProgRunning = true;
-        TheDisplay.SetShowingRunning();
+        if (!ProgRunningSlowly)
+          {
+            TheDisplay.SetShowingRunning();
+          } /*if*/
+        ContinueProgRunner();
       } /*StartProgram*/
 
     public void StopProgram()
       {
-        ClearDelayedStep();
-      /* TBD */
         ProgRunning = false;
+        ClearDelayedStep();
+        if (ExecuteTask != null)
+          {
+            BGTask.removeCallbacks(ExecuteTask);
+          } /*if*/
         if (CurState == ErrorState)
           {
             TheDisplay.SetShowingError();
@@ -1227,8 +1284,14 @@ public class State
         boolean Slow
       )
       {
-        ProgRunningSlowly = Slow;
-      /* more TBD? */
+        if (ProgRunningSlowly != Slow)
+          {
+            ProgRunningSlowly = Slow;
+            if (!ProgRunningSlowly)
+              {
+                TheDisplay.SetShowingRunning();
+              } /*if*/
+          } /*if*/
       } /*SetSlowExecution*/
 
     public void Reset()
@@ -1360,6 +1423,7 @@ public class State
     public void Transfer
       (
         boolean Call,
+        boolean FromInteractive,
         int Loc,
         boolean Symbolic,
         boolean Ind
@@ -1389,9 +1453,13 @@ public class State
                   {
                     if (ReturnLast == MaxReturnStack)
                         break;
-                    ReturnStack[++ReturnLast] = PC;
+                    ReturnStack[++ReturnLast] = new ReturnStackEntry(PC, FromInteractive);
                   } /*if*/
                 PC = Loc;
+                if (Call && FromInteractive)
+                  {
+                    StartProgram();
+                  } /*if*/
               /* all successfully done */
                 OK = true;
               }
@@ -1412,10 +1480,14 @@ public class State
           {
             if (ReturnLast < 0)
                 break;
-            final int ReturnTo = ReturnStack[ReturnLast--];
-            if (ReturnTo < 0 || ReturnTo >= MaxProgram)
+            final ReturnStackEntry ReturnTo = ReturnStack[ReturnLast--];
+            if (ReturnTo.Addr < 0 || ReturnTo.Addr >= MaxProgram)
                 break;
-            PC = ReturnTo;
+            PC = ReturnTo.Addr;
+            if (ReturnTo.FromInteractive)
+              {
+                StopProgram();
+              } /*if*/
           /* all successfully done */
             OK = true;
           }
@@ -1486,7 +1558,7 @@ public class State
               {
                 if (InvState != Flag[FlagNr])
                   {
-                    Transfer(false, Target, TargetSymbolic, TargetInd);
+                    Transfer(false, false, Target, TargetSymbolic, TargetInd);
                   } /*if*/
               }
             else
@@ -1521,7 +1593,7 @@ public class State
                         X == T
               )
               {
-                Transfer(false, NewPC, false, Ind);
+                Transfer(false, false, NewPC, false, Ind);
               } /*if*/
           } /*if*/
       } /*CompareBranch*/
@@ -1554,7 +1626,7 @@ public class State
                 Memory[Reg] -= 1.0;
                 if (InvState == (Memory[Reg] == 0.0))
                   {
-                    Transfer(false, Target, TargetSymbolic, TargetInd);
+                    Transfer(false, false, Target, TargetSymbolic, TargetInd);
                   } /*if*/
               }
             else
@@ -1602,7 +1674,7 @@ public class State
                 case 18:
                 case 19:
                 case 10:
-                    Transfer(true, Op, true, false);
+                    Transfer(true, false, Op, true, false);
                 break;
                 case 22:
                 case 27:
@@ -1712,7 +1784,7 @@ public class State
                     Abs();
                 break;
                 case 61: /*GTO*/
-                    Transfer(false, GetLoc(true), false, false);
+                    Transfer(false, false, GetLoc(true), false, false);
                 break;
                 case 62: /*Pgm Ind*/
                     SelectProgram(GetProg(true), true); /* TBD only for duration of following instr */
@@ -1749,7 +1821,7 @@ public class State
                       }
                     else
                       {
-                        Transfer(true, GetLoc(true), false, false);
+                        Transfer(true, false, GetLoc(true), false, false);
                       } /*if*/
                 break;
                 case 72:
@@ -1782,7 +1854,7 @@ public class State
                     StopProgram();
                 break;
                 case 83: /*GTO Ind*/
-                    Transfer(false, GetLoc(true), false, true);
+                    Transfer(false, false, GetLoc(true), false, true);
                 break;
                 case 84:
                     SpecialOp(GetProg(true), true);

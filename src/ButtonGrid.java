@@ -695,7 +695,7 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 CalcState.FillInLabels();
-                                CalcState.Transfer(false, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                CalcState.Transfer(false, false, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 71: /*SBR*/
@@ -707,7 +707,7 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 CalcState.FillInLabels();
-                                CalcState.Transfer(true, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                CalcState.Transfer(true, true, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 76: /*Lbl*/
@@ -971,7 +971,7 @@ public class ButtonGrid extends android.view.View
                     case 19:
                     case 10:
                         CalcState.FillInLabels();
-                        CalcState.Transfer(true, ButtonCode, true, false);
+                        CalcState.Transfer(true, true, ButtonCode, true, false);
                     break;
                     case 21:
                     case 26:
