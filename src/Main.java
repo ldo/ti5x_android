@@ -7,6 +7,7 @@ public class Main extends android.app.Activity
     ButtonGrid Buttons;
     State CalcState;
     protected android.view.MenuItem ToggleOverlayItem;
+    protected android.view.MenuItem ShowHelpItem;
     protected android.view.MenuItem PowerOffItem;
     Boolean ShuttingDown = false;
 
@@ -47,6 +48,7 @@ public class Main extends android.app.Activity
       {
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
         ToggleOverlayItem.setCheckable(true);
+        ShowHelpItem = TheMenu.add(R.string.show_help);
         PowerOffItem = TheMenu.add(R.string.turn_off);
         return
             true;
@@ -64,6 +66,14 @@ public class Main extends android.app.Activity
             Buttons.OverlayVisible = !Buttons.OverlayVisible;
             Buttons.invalidate();
             ToggleOverlayItem.setChecked(Buttons.OverlayVisible);
+          }
+        else if (TheItem == ShowHelpItem)
+          {
+            startActivity
+              (
+                new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                    .setClass(this, Help.class)
+              );
           }
         else if (TheItem == PowerOffItem)
           {
