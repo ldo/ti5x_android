@@ -10,6 +10,7 @@ public class ButtonGrid extends android.view.View
     public static final int Brown = 0xff4e3836;
     public static final int Yellow = 0xffcc9858;
     public static final int White = 0xffbdaa7d;
+    public static final int Blue = 0xff1c929a;
 
     static final int NrButtonRows = 9;
     static final int NrButtonCols = 5;
@@ -23,7 +24,7 @@ public class ButtonGrid extends android.view.View
       {
         int BaseCode;
         final String Text, AltText;
-        final int TextColor, ButtonColor, AltTextColor, BGColor;
+        final int TextColor, ButtonColor, AltTextColor, OverlayColor, BGColor;
 
         public ButtonDef
           (
@@ -38,6 +39,7 @@ public class ButtonGrid extends android.view.View
             this.TextColor = TextColor;
             this.ButtonColor = ButtonColor;
             this.AltTextColor = White;
+            this.OverlayColor = Blue;
             this.BGColor = Dark;
           } /*ButtonDef*/
 
@@ -127,6 +129,8 @@ public class ButtonGrid extends android.view.View
               } /*for*/
           } /*for*/
       }
+
+    public boolean OverlayVisible = false;
 
     final RectF ButtonRelMargins = new RectF(0.07f, 0.5f, 0.07f, 0.05f);
       /* relative bounds of button within grid cell */
@@ -350,9 +354,75 @@ public class ButtonGrid extends android.view.View
                         TextPaint
                       );
                   }
+                if (OverlayVisible)
+                  {
+                    final boolean HasBaseOverlay =
+                            ThisButton.BaseCode != 21
+                        &&
+                            ThisButton.BaseCode != 31
+                        &&
+                            ThisButton.BaseCode != 41
+                        &&
+                            ThisButton.BaseCode != 51;
+                    final boolean HasAltOverlay =
+                            ThisButton.BaseCode != 21
+                        &&
+                            ThisButton.BaseCode != 41
+                        &&
+                            ThisButton.BaseCode != 51;
+                    if (HasBaseOverlay || HasAltOverlay)
+                      {
+                        final float Left = CellBounds.left + (CellBounds.right - CellBounds.left) * 0.2f;
+                          /* not quite authentic position, but what the hey */
+                        TextPaint.setTextSize(OrigTextSize * 0.6f);
+                        TextPaint.setColor(ThisButton.OverlayColor);
+                        if (HasBaseOverlay)
+                          {
+                            int BaseCode = ThisButton.BaseCode;
+                            switch (BaseCode)
+                              {
+                            case 62: /*digit 7*/
+                            case 63: /*digit 8*/
+                            case 64: /*digit 9*/
+                                BaseCode -= 55;
+                            break;
+                            case 72: /*digit 4*/
+                            case 73: /*digit 5*/
+                            case 74: /*digit 6*/
+                                BaseCode -= 68;
+                            break;
+                            case 82: /*digit 1*/
+                            case 83: /*digit 2*/
+                            case 84: /*digit 3*/
+                                BaseCode -= 81;
+                            break;
+                            case 92: /*digit 0*/
+                                BaseCode = 0;
+                            break;
+                              } /*switch*/
+                            Draw.drawText
+                              (
+                                String.format("%02d", BaseCode),
+                                Left,
+                                CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 0.5f,
+                                TextPaint
+                              );
+                          } /*if*/
+                        if (HasAltOverlay)
+                          {
+                            Draw.drawText
+                              (
+                                String.format("%02d", ThisButton.BaseCode / 10 * 10 + (ThisButton.BaseCode % 10 + 5) % 10),
+                                Left,
+                                CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 1.4f,
+                                TextPaint
+                              );
+                          } /*if*/
+                      } /*if*/
+                  } /*if*/
                 TextPaint.setColor(ThisButton.TextColor);
                 TextPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-                TextPaint.setTextSize(OrigTextSize * 1.1f);
+                TextPaint.setTextSize(OrigTextSize * 1.2f);
                 GraphicsUseful.DrawCenteredText
                   (
                     Draw,
