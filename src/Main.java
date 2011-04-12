@@ -7,6 +7,8 @@ public class Main extends android.app.Activity
     ButtonGrid Buttons;
     State CalcState;
     protected android.view.MenuItem ToggleOverlayItem;
+    protected android.view.MenuItem PowerOffItem;
+    Boolean ShuttingDown = false;
 
     final String SavedStateName = "state" + Persistent.CalcExt;
 
@@ -45,6 +47,7 @@ public class Main extends android.app.Activity
       {
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
         ToggleOverlayItem.setCheckable(true);
+        PowerOffItem = TheMenu.add(R.string.turn_off);
         return
             true;
       } /*onCreateOptionsMenu*/
@@ -61,6 +64,13 @@ public class Main extends android.app.Activity
             Buttons.OverlayVisible = !Buttons.OverlayVisible;
             Buttons.invalidate();
             ToggleOverlayItem.setChecked(Buttons.OverlayVisible);
+          }
+        else if (TheItem == PowerOffItem)
+          {
+            ShuttingDown = true;
+            deleteFile(SavedStateName); /* lose any saved state */
+            finish(); /* start afresh next time */
+            Handled = true;
           } /*if*/
         return
             Handled;
@@ -84,7 +94,10 @@ public class Main extends android.app.Activity
     public void onPause()
       {
         super.onPause();
-        SaveState();
+        if (!ShuttingDown)
+          {
+            SaveState();
+          } /*if*/
       } /*onPause*/
 
     @Override

@@ -3,4 +3,5 @@
     <string name="app_name">ti5x</string>
   <!-- options menu -->
     <string name="show_overlay">Show Key Codes</string>
+    <string name="turn_off">Turn Off</string>
 </resources>
