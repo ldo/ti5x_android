@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone="yes"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+	width="72mm" height="16mm" viewBox="0 0 72 16">
+	<title>Calculator Program Label Card</title>
+	<desc>Created 2011 April 12 by Lawrence D'Oliveiro &lt;ldo@geek-central.gen.nz&gt;,
+	released under the Creative Commons Attribution Share Alike (CC-BY-SA) licence</desc>
+
+	<rect x="0" y="0" width="72" height="16" rx="1.5" ry="1.5" fill="#95501c"/>
+    <g stroke="black">
+        <line x1="0" y1="4" x2="72" y2="4" stroke-width="0.25"/>
+        <line x1="0" y1="8" x2="70" y2="8" stroke-width="0.25"/>
+        <line x1="0" y1="12" x2="70" y2="12" stroke-width="0.25"/>
+
+        <line x1="14" y1="8" x2="14" y2="16" stroke-width="0.25"/>
+        <line x1="28" y1="8" x2="28" y2="16" stroke-width="0.25"/>
+        <line x1="42" y1="8" x2="42" y2="16" stroke-width="0.25"/>
+        <line x1="56" y1="8" x2="56" y2="16" stroke-width="0.25"/>
+        <line x1="70" y1="4" x2="70" y2="16" stroke-width="0.25"/>
+    </g>
+	
+</svg>
