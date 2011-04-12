@@ -1,8 +1,222 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <HTML>
 <HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
 <TITLE>ti5c help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+</STYLE>
 </HEAD>
 <BODY>
-<P>This will be a help page for the ti5c app.</P>
+<H1>Help Page for the ti5c app</H1>
+<P>Topics:
+<UL>
+<LI><A HREF="#BasicOps">Basic Operation</A>
+<LI><A HREF="#Display">Display Control</A>
+<LI><A HREF="#AdditionalOps">Additional Operations</A>
+<LI><A HREF="#Memories">Memories</A>
+<LI><A HREF="#Trigonometry">Trigonometry</A>
+<LI><A HREF="#Statistics">Statistics Functions</A>
+<LI><A HREF="#ProgramEntry">Program Entry</A>
+<LI><A HREF="#ProgramExecution">Program Execution</A>
+</UL>
+
+<A NAME="BasicOps"></A><H2>Basic Operation</H2>
+<UL>
+<LI><SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN>,
+<SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN> etc — number entry.
+<LI><SPAN CLASS="whitebutton">&nbsp;.&nbsp;</SPAN> — decimal point. Also lets you continue
+mantissa entry after entering exponent.
+<LI><SPAN CLASS="brownbutton">EE</SPAN> — enter exponent
+<LI><SPAN CLASS="whitebutton">+/-</SPAN> — change sign of mantissa or exponent
+<LI><SPAN CLASS="brownbutton">CE</SPAN> — clear current number without losing rest of calculation.
+<LI><SPAN CLASS="yellowbutton">CLR</SPAN> — clear entire current calculation.
+<LI><SPAN CLASS="yellowbutton">&nbsp;+&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">&nbsp;-&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">&nbsp;×&nbsp;</SPAN> and <SPAN CLASS="yellowbutton">&nbsp;÷&nbsp;</SPAN>
+— four-function arithmetic operators with usual algebraic precedence.
+<LI><SPAN CLASS="brownbutton">&nbsp;(&nbsp;</SPAN>, <SPAN CLASS="brownbutton">&nbsp;)&nbsp;</SPAN>
+— lets you override normal arithmetic operator precedence.
+<LI><SPAN CLASS="yellowbutton">&nbsp;=&nbsp;</SPAN> — completes entire pending calculation,
+automatically supplying any missing closing parentheses.
+</UL>
+
+<A NAME="Display"></A><H2>Display Control</H2>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN><SPAN CLASS="alttext">Eng</SPAN> — switch display
+to engineering notation (exponent always a multiple of 3).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN><SPAN CLASS="alttext">Fix</SPAN> <I>n</I> (<I>n</I> ∈ 0 .. 8) —
+switch display to fixed point with exactly <I>n</I> decimal places.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN><SPAN CLASS="alttext">Fix</SPAN>
+— switch display to default setting, using up to 9 decimal places.
+</UL>
+
+<A NAME="AdditionalOps"></A><H2>Additional Operations</H2>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> — modify next key to perform function written just
+above it, rather than on key itself.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> — modify next key to perform “inverse” function
+(meaning depends on key).
+<LI><SPAN CLASS="brownbutton">y**x</SPAN> — raise number entered before to power of number
+entered after.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">y**x</SPAN> — raise number
+entered before to power of reciprocal of number entered after.
+<LI><SPAN CLASS="brownbutton">lnx</SPAN> — replaces last-entered number with its log
+base <I>e</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">lnx</SPAN> — replaces last-entered
+number with its antilog base <I>e</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">log</SPAN> — replaces last-entered number
+with its log base 10.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">log</SPAN>
+— replaces last-entered number with its antilog base 10.
+<LI><SPAN CLASS="brownbutton">x²</SPAN> — replaces last-entered number with its square.
+<LI><SPAN CLASS="brownbutton">√x</SPAN> — replaces last-entered number with its square root.
+<LI><SPAN CLASS="brownbutton">1/x</SPAN> — replaces last-entered number with its reciprocal.
+<LI><SPAN CLASS="brownbutton">x⇌t</SPAN> — interchanges contents of X (displayed number) and
+T registers.
+</UL>
+
+<P>If you use both <SPAN CLASS="yellowbutton">2nd</SPAN> and <SPAN CLASS="brownbutton">INV</SPAN>,
+they can be pressed in either order.
+
+<A NAME="Memories"></A><H2>Memories</H2>
+<UL>
+<LI><SPAN CLASS="brownbutton">STO</SPAN> <I>nn</I> — store current number into memory <I>nn</I>.
+<LI><SPAN CLASS="brownbutton">RCL</SPAN> <I>nn</I> — replace current number with copy of memory <I>nn</I>.
+<LI><SPAN CLASS="brownbutton">SUM</SPAN> <I>nn</I> — add current number to memory <I>nn</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SUM</SPAN> <I>nn</I> — subtract
+current number from memory <I>nn</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CMs</SPAN> — set all memories to zero.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Exc</SPAN> <I>nn</I> — exchange
+current number and contents of memory <I>nn</I>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prd</SPAN> <I>nn</I> — multiply
+contents of memory <I>nn</I> by current number.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prd</SPAN> <I>nn</I>
+— divide contents of memory <I>nn</I> by current number.
+</UL>
+
+<A NAME="Trigonometry"></A><H2>Trigonometry</H2>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN> — enter π.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Deg</SPAN> — switches angle units
+to degrees (default).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Rad</SPAN> — switches angle units
+to radians.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Grad</SPAN> — switches angle units
+to gradians (100 gradians = 90°).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Sin</SPAN> — sine of last-entered
+number.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Sin</SPAN>
+— arcsine of last-entered number.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Cos</SPAN> — cosine of last-entered
+number.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Cos</SPAN>
+— arccosine of last-entered number.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Tan</SPAN> — tangent of last-entered
+number.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Tan</SPAN>
+— arctangent of last-entered number.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">P→R</SPAN> — polar-to-rectangular
+coordinate conversion; input angle in X register and magnitude in T register, output will be X-coordinate in
+T register and Y-coordinate in X register.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">P→R</SPAN>
+— rectangular-to-polar coordinate conversion: input X-coordinate in T register and Y-coordinate in
+X register, output will be angle in X register and magnitude in T register.
+</UL>
+
+<A NAME="Statistics"></A><H2>Statistics Functions</H2>
+<P>Note these accumulate totals in registers <B>01</B> to <B>06</B> as follows:
+<UL>
+<LI><B>01</B> — ∑x
+<LI><B>02</B> — ∑x²
+<LI><B>03</B> — N
+<LI><B>04</B> — ∑y
+<LI><B>05</B> — ∑y²
+<LI><B>06</B> — ∑xy
+</UL>
+so these need to be cleared before use.
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">∑x</SPAN> — accumulate a data point;
+independent variable in T register, dependent variable in X register. T register automatically
+incremented for next entry.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">∑x</SPAN>
+— remove a data point. Can be used to undo an incorrect entry.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">mean(x)</SPAN> — compute sample mean:
+T = ∑y / N, X = ∑x / N.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">mean(x)</SPAN> — compute population standard deviation:
+T = sqrt(∑y² - (∑y)² / N(N - 1)), X = sqrt(∑x² - (∑x)² / N(N - 1)).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>11</B> — compute
+sample variance: T = ∑y² / N - (∑y)² / N², X = ∑x² - (∑x)² / N².
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>12</B> — compute
+linear regression slope and intercept: T = <I>m</I>, X = ∑x - <I>m</I> * ∑y / N where <I>m</I> =
+(∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>13</B> — compute
+correlation coefficient: X = <I>m</I> * sqrt(∑y² - (∑y)² / N(N - 1)) / sqrt(∑x² - (∑x)² / N(N - 1))
+where <I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>14</B> — compute
+estimated <I>y</I> from <I>x</I>: X = <I>m</I> * X + (∑x² - <I>m</I> * ∑y) / N where
+<I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>15</B> — compute
+estimated <I>x</I> from <I>y</I>: X = ((∑x² - <I>m</I> * ∑y) / N - X) / <I>m</I> where
+<I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+</UL>
+
+<A NAME="ProgramEntry"></A><H2>Program Entry</H2>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN> — in calculation mode,
+set all program locations to zero.
+<LI><SPAN CLASS="brownbutton">LRN</SPAN> — toggle between calculation and program-entry modes.
+<LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction. In program-entry
+mode: advance to the next program location:
+<LI><SPAN CLASS="brownbutton">BST</SPAN> — in program-entry mode: go to the previous program location.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ins</SPAN> — in program-entry mode,
+insert a zero at the current location and move the following instructions down one.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Del</SPAN> — in program-entry mode,
+delete the instruction at the current location and move the following instructions up one.
+</UL>
+
+<A NAME="ProgramExecution"></A><H2>Program Execution</H2>
+<UL>
+<LI><SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">A´</SPAN>, <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN> etc — execute the subroutines with those
+labels.
+<LI><SPAN CLASS="brownbutton">R/S</SPAN> — in calculation mode, start execution at the current
+location, or stop execution if already running.
+<LI><SPAN CLASS="brownbutton">RST</SPAN> — clear all flags and the subroutine return stack,
+and set the current location to <B>000</B>.
+</UL>
+
 </BODY>
