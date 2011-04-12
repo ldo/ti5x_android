@@ -53,7 +53,7 @@
 <LI><A HREF="#ProgramExecution">Program Execution</A>
 </UL>
 
-<A NAME="BasicOps"></A><H2>Basic Operation</H2>
+<H2><A NAME="BasicOps"></A>Basic Operation</H2>
 <UL>
 <LI><SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN>,
 <SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN> etc — number entry.
@@ -72,7 +72,7 @@ mantissa entry after entering exponent.
 automatically supplying any missing closing parentheses.
 </UL>
 
-<A NAME="Display"></A><H2>Display Control</H2>
+<H2><A NAME="Display"></A>Display Control</H2>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN><SPAN CLASS="alttext">Eng</SPAN> — switch display
 to engineering notation (exponent always a multiple of 3).
@@ -82,7 +82,7 @@ switch display to fixed point with exactly <I>n</I> decimal places.
 — switch display to default setting, using up to 9 decimal places.
 </UL>
 
-<A NAME="AdditionalOps"></A><H2>Additional Operations</H2>
+<H2><A NAME="AdditionalOps"></A>Additional Operations</H2>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> — modify next key to perform function written just
 above it, rather than on key itself.
@@ -110,7 +110,7 @@ T registers.
 <P>If you use both <SPAN CLASS="yellowbutton">2nd</SPAN> and <SPAN CLASS="brownbutton">INV</SPAN>,
 they can be pressed in either order.
 
-<A NAME="Memories"></A><H2>Memories</H2>
+<H2><A NAME="Memories"></A>Memories</H2>
 <UL>
 <LI><SPAN CLASS="brownbutton">STO</SPAN> <I>nn</I> — store current number into memory <I>nn</I>.
 <LI><SPAN CLASS="brownbutton">RCL</SPAN> <I>nn</I> — replace current number with copy of memory <I>nn</I>.
@@ -126,7 +126,7 @@ contents of memory <I>nn</I> by current number.
 — divide contents of memory <I>nn</I> by current number.
 </UL>
 
-<A NAME="Trigonometry"></A><H2>Trigonometry</H2>
+<H2><A NAME="Trigonometry"></A>Trigonometry</H2>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN> — enter π.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Deg</SPAN> — switches angle units
@@ -155,7 +155,7 @@ T register and Y-coordinate in X register.
 X register, output will be angle in X register and magnitude in T register.
 </UL>
 
-<A NAME="Statistics"></A><H2>Statistics Functions</H2>
+<H2><A NAME="Statistics"></A>Statistics Functions</H2>
 <P>Note these accumulate totals in registers <B>01</B> to <B>06</B> as follows:
 <UL>
 <LI><B>01</B> — ∑x
@@ -165,7 +165,7 @@ X register, output will be angle in X register and magnitude in T register.
 <LI><B>05</B> — ∑y²
 <LI><B>06</B> — ∑xy
 </UL>
-so these need to be cleared before use.
+<P>so these need to be cleared before use.</P>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">∑x</SPAN> — accumulate a data point;
 independent variable in T register, dependent variable in X register. T register automatically
@@ -193,7 +193,7 @@ estimated <I>x</I> from <I>y</I>: X = ((∑x² - <I>m</I> * ∑y) / N - X) / <I>
 <I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
 </UL>
 
-<A NAME="ProgramEntry"></A><H2>Program Entry</H2>
+<H2><A NAME="ProgramEntry"></A>Program Entry</H2>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN> — in calculation mode,
 set all program locations to zero.
@@ -207,7 +207,7 @@ insert a zero at the current location and move the following instructions down o
 delete the instruction at the current location and move the following instructions up one.
 </UL>
 
-<A NAME="ProgramExecution"></A><H2>Program Execution</H2>
+<H2><A NAME="ProgramExecution"></A>Program Execution</H2>
 <UL>
 <LI><SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">A´</SPAN>, <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>,
