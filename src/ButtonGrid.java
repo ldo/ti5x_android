@@ -605,15 +605,7 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                                CalcState.MemoryOp
-                                  (
-                                    CalcState.InvState ?
-                                        CalcState.MEMOP_SUB
-                                    :
-                                        CalcState.MEMOP_ADD,
-                                    AccumDigits,
-                                    GotInd
-                                  );
+                                CalcState.MemoryOp(CalcState.MEMOP_ADD, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 48: /*Exc*/
@@ -635,15 +627,7 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
-                                CalcState.MemoryOp
-                                  (
-                                    CalcState.InvState ?
-                                        CalcState.MEMOP_DIV
-                                    :
-                                        CalcState.MEMOP_MUL,
-                                    AccumDigits,
-                                    GotInd
-                                  );
+                                CalcState.MemoryOp(CalcState.MEMOP_MUL, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 58: /*Fix*/
@@ -669,7 +653,6 @@ public class ButtonGrid extends android.view.View
                               {
                                 CalcState.CompareBranch
                                   (
-                                    CalcState.InvState,
                                     CollectingForFunction == 77,
                                     AccumDigits, GotInd
                                   );
@@ -752,7 +735,6 @@ public class ButtonGrid extends android.view.View
                                       {
                                         CalcState.BranchIfFlag
                                           (
-                                            CalcState.InvState,
                                             FirstOperand, GotFirstInd,
                                             AccumDigits, IsSymbolic, GotInd
                                           );
@@ -761,7 +743,6 @@ public class ButtonGrid extends android.view.View
                                       {
                                         CalcState.DecrementSkip
                                           (
-                                            CalcState.InvState,
                                             FirstOperand, GotFirstInd,
                                             AccumDigits, IsSymbolic, GotInd
                                           );
@@ -984,7 +965,7 @@ public class ButtonGrid extends android.view.View
                         WasModifier = true;
                     break;
                     case 23:
-                        CalcState.Ln(CalcState.InvState);
+                        CalcState.Ln();
                     break;
                     case 24:
                         CalcState.ClearEntry();
@@ -996,7 +977,7 @@ public class ButtonGrid extends android.view.View
                   /* 26 same as 21 */
                   /* 27 same as 22 */
                     case 28:
-                        CalcState.Log(CalcState.InvState);
+                        CalcState.Log();
                     break;
                     case 29:
                         CalcState.ClearProgram();
@@ -1020,23 +1001,23 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 36 handled above */
                     case 37:
-                        CalcState.Polar(CalcState.InvState);
+                        CalcState.Polar();
                     break;
                     case 38:
-                        CalcState.Sin(CalcState.InvState);
+                        CalcState.Sin();
                     break;
                     case 39:
-                        CalcState.Cos(CalcState.InvState);
+                        CalcState.Cos();
                     break;
                     case 30:
-                        CalcState.Tan(CalcState.InvState);
+                        CalcState.Tan();
                     break;
                     case 41:
                         CalcState.StepProgram();
                     break;
                   /* 42, 43, 44 handled above */
                     case 45:
-                        CalcState.Operator(CalcState.InvState ? CalcState.STACKOP_ROOT : CalcState.STACKOP_EXP);
+                        CalcState.Operator(CalcState.STACKOP_EXP);
                     break;
                     case 46:
                       /* ignore? */
@@ -1049,7 +1030,7 @@ public class ButtonGrid extends android.view.View
                       /* ignore */
                     break;
                     case 52:
-                        CalcState.EnterExponent(CalcState.InvState);
+                        CalcState.EnterExponent();
                     break;
                     case 53:
                         CalcState.LParen();
@@ -1075,7 +1056,7 @@ public class ButtonGrid extends android.view.View
                         CalcState.SetDisplayMode(CalcState.FORMAT_FIXED, -1);
                     break;
                     case 59:
-                        CalcState.Int(CalcState.InvState);
+                        CalcState.Int();
                     break;
                     case 50:
                         CalcState.Abs();
@@ -1122,10 +1103,10 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 77 handled above */
                     case 78:
-                        CalcState.StatsSum(CalcState.InvState);
+                        CalcState.StatsSum();
                     break;
                     case 79:
-                        CalcState.StatsResult(CalcState.InvState);
+                        CalcState.StatsResult();
                     break;
                     case 70:
                         CalcState.SetAngMode(CalcState.ANG_RAD);
@@ -1147,7 +1128,7 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 86, 87 handled above */
                     case 88:
-                        CalcState.D_MS(CalcState.InvState);
+                        CalcState.D_MS();
                     break;
                     case 89:
                         CalcState.Pi();

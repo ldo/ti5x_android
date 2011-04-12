@@ -307,11 +307,9 @@ public class State
           } /*CurState*/
       } /*DecimalPoint*/
 
-    public void EnterExponent
-      (
-        boolean InvState /* TBD */
-      )
+    public void EnterExponent()
       {
+      /* InvState TBD */
         switch (CurState)
           {
         case EntryState:
@@ -553,6 +551,15 @@ public class State
       )
       {
         Enter();
+        if (InvState)
+          {
+            switch (OpCode)
+              {
+            case STACKOP_EXP:
+                OpCode = STACKOP_ROOT;
+            break;
+              } /*switch*/
+          } /*if*/
         boolean PoppedSomething = false;
         for (;;)
           {
@@ -662,10 +669,7 @@ public class State
             Scale;
       } /*TrigScale*/
 
-    public void Sin
-      (
-        boolean InvState
-      )
+    public void Sin()
       {
         Enter();
         if (InvState)
@@ -678,10 +682,7 @@ public class State
           } /*if*/
       } /*Sin*/
 
-    public void Cos
-      (
-        boolean InvState
-      )
+    public void Cos()
       {
         Enter();
         if (InvState)
@@ -694,10 +695,7 @@ public class State
           } /*if*/
       } /*Cos*/
 
-    public void Tan
-      (
-        boolean InvState
-      )
+    public void Tan()
       {
         Enter();
         if (InvState)
@@ -710,10 +708,7 @@ public class State
           } /*if*/
       } /*Tan*/
 
-    public void Ln
-      (
-        boolean InvState
-      )
+    public void Ln()
       {
         Enter();
         if (InvState)
@@ -726,10 +721,7 @@ public class State
           } /*if*/
       } /*Ln*/
 
-    public void Log
-      (
-        boolean InvState
-      )
+    public void Log()
       {
         Enter();
         if (InvState)
@@ -747,10 +739,7 @@ public class State
         SetX(Math.PI);
       } /*Pi*/
 
-    public void Int
-      (
-        boolean InvState
-      )
+    public void Int()
       {
         Enter();
         final Double IntPart = Math.floor(Math.abs(X));
@@ -777,10 +766,7 @@ public class State
         T = SwapTemp;
       } /*SwapT*/
 
-    public void Polar
-      (
-        boolean InvState
-      )
+    public void Polar()
       {
         Enter();
         final Double Scale = TrigScale();
@@ -799,10 +785,7 @@ public class State
         SetX(NewY);
       } /*Polar*/
 
-    public void D_MS
-      (
-        boolean InvState
-      )
+    public void D_MS()
       {
         Enter();
         final Double Sign = Math.signum(X);
@@ -893,6 +876,18 @@ public class State
         if (RegNr >= 0)
           {
             Enter();
+            if (InvState)
+              {
+                switch (Op)
+                  {
+                case MEMOP_ADD:
+                    Op = MEMOP_SUB;
+                break;
+                case MEMOP_MUL:
+                    Op = MEMOP_DIV;
+                break;
+                  } /*switch*/
+              } /*if*/
             boolean OK = false; /* to begin with */
             do /*once*/
               {
@@ -1064,10 +1059,7 @@ public class State
           } /*if*/
       } /*SpecialOp*/
 
-    public void StatsSum
-      (
-        boolean InvState
-      )
+    public void StatsSum()
       {
         Enter();
         if (InvState)
@@ -1095,10 +1087,7 @@ public class State
         SetX(Memory[3]);
       } /*StatsSum*/
 
-    public void StatsResult
-      (
-        boolean InvState
-      )
+    public void StatsResult()
       {
         if (InvState)
           {
@@ -1532,7 +1521,6 @@ public class State
 
     public void BranchIfFlag
       (
-        boolean InvState,
         int FlagNr,
         boolean FlagNrInd,
         int Target,
@@ -1570,7 +1558,6 @@ public class State
 
     public void CompareBranch
       (
-        boolean InvState,
         boolean Greater,
         int NewPC,
         boolean Ind
@@ -1599,7 +1586,6 @@ public class State
 
     public void DecrementSkip
       (
-        boolean InvState,
         int Reg,
         boolean RegInd,
         int Target,
@@ -1681,7 +1667,7 @@ public class State
                     WasModifier = true;
                 break;
                 case 23:
-                    Ln(InvState);
+                    Ln();
                 break;
                 case 24:
                     ClearEntry();
@@ -1693,7 +1679,7 @@ public class State
               /* 26 same as 21 */
               /* 27 same as 22 */
                 case 28:
-                    Log(InvState);
+                    Log();
                 break;
                 case 29: /*CP*/
                     T = 0.0;
@@ -1715,16 +1701,16 @@ public class State
                     SelectProgram(GetProg(true), false); /* TBD only for duration of following instr */
                 break;
                 case 37:
-                    Polar(InvState);
+                    Polar();
                 break;
                 case 38:
-                    Sin(InvState);
+                    Sin();
                 break;
                 case 39:
-                    Cos(InvState);
+                    Cos();
                 break;
                 case 30:
-                    Tan(InvState);
+                    Tan();
                 break;
                 case 42:
                     MemoryOp(MEMOP_STO, GetProg(true), false);
@@ -1733,10 +1719,10 @@ public class State
                     MemoryOp(MEMOP_RCL, GetProg(true), false);
                 break;
                 case 44:
-                    MemoryOp(InvState ? MEMOP_SUB : MEMOP_ADD, GetProg(true), false);
+                    MemoryOp(MEMOP_ADD, GetProg(true), false);
                 break;
                 case 45:
-                    Operator(InvState ? STACKOP_ROOT : STACKOP_EXP);
+                    Operator(STACKOP_EXP);
                 break;
                 case 47:
                     ClearMemories();
@@ -1745,10 +1731,10 @@ public class State
                     MemoryOp(MEMOP_EXC, GetProg(true), false);
                 break;
                 case 49:
-                    MemoryOp(InvState ? MEMOP_DIV : MEMOP_MUL, GetProg(true), false);
+                    MemoryOp(MEMOP_MUL, GetProg(true), false);
                 break;
                 case 52:
-                    EnterExponent(InvState);
+                    EnterExponent();
                 break;
                 case 53:
                     LParen();
@@ -1777,7 +1763,7 @@ public class State
                       } /*if*/
                 break;
                 case 59:
-                    Int(InvState);
+                    Int();
                 break;
                 case 50:
                     Abs();
@@ -1792,7 +1778,7 @@ public class State
                     MemoryOp(MEMOP_EXC, GetProg(true), true);
                 break;
                 case 64:
-                    MemoryOp(InvState ? MEMOP_DIV : MEMOP_MUL, GetProg(true), true);
+                    MemoryOp(MEMOP_MUL, GetProg(true), true);
                 break;
                 case 65:
                     Operator(STACKOP_MUL);
@@ -1802,7 +1788,7 @@ public class State
                 break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
-                    CompareBranch(InvState, Op == 77, GetLoc(true), false);
+                    CompareBranch(Op == 77, GetLoc(true), false);
                 break;
                 case 68: /*Nop*/
                   /* No effect */
@@ -1830,7 +1816,7 @@ public class State
                     MemoryOp(MEMOP_RCL, GetProg(true), true);
                 break;
                 case 74:
-                    MemoryOp(InvState ? MEMOP_SUB : MEMOP_ADD, GetProg(true), true);
+                    MemoryOp(MEMOP_ADD, GetProg(true), true);
                 break;
                 case 75:
                     Operator(STACKOP_SUB);
@@ -1840,10 +1826,10 @@ public class State
                 break;
               /* 77 handled above */
                 case 78:
-                    StatsSum(InvState);
+                    StatsSum();
                 break;
                 case 79:
-                    StatsResult(InvState);
+                    StatsResult();
                 break;
                 case 70:
                     SetAngMode(ANG_RAD);
@@ -1868,11 +1854,11 @@ public class State
                       {
                         final int FlagNr = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        BranchIfFlag(InvState, FlagNr, false, Target, false, false);
+                        BranchIfFlag(FlagNr, false, Target, false, false);
                       }
                 break;
                 case 88:
-                    D_MS(InvState);
+                    D_MS();
                 break;
                 case 89:
                     Pi();
@@ -1901,7 +1887,7 @@ public class State
                       {
                         final int Reg = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        DecrementSkip(InvState, Reg, false, Target, false, false);
+                        DecrementSkip(Reg, false, Target, false, false);
                       }
                 break;
                 case 98:
