@@ -3,8 +3,39 @@ package nz.gen.geek_central.ti5x;
 public class Main extends android.app.Activity
   /* ti5x calculator emulator -- mainline */
   {
+    Display TheDisplay;
     ButtonGrid Buttons;
+    State CalcState;
     protected android.view.MenuItem ToggleOverlayItem;
+
+    final String SavedStateName = "state" + Persistent.CalcExt;
+
+    void SaveState()
+      {
+        deleteFile(SavedStateName); /* if it exists */
+        java.io.FileOutputStream CurSave;
+        try
+          {
+            CurSave = openFileOutput(SavedStateName, MODE_WORLD_READABLE);
+          }
+        catch (java.io.FileNotFoundException Eh)
+          {
+            throw new RuntimeException("ti5x save-state create error " + Eh.toString());
+          } /*try*/
+        Persistent.Save(Buttons, CalcState, true, CurSave); /* catch RuntimeException? */
+        try
+          {
+            CurSave.flush();
+            CurSave.close();
+          }
+        catch (java.io.IOException Failed)
+          {
+            throw new RuntimeException
+              (
+                "ti5x state save error " + Failed.toString()
+              );
+          } /*try*/
+      } /*SaveState*/
 
     @Override
     public boolean onCreateOptionsMenu
@@ -43,9 +74,38 @@ public class Main extends android.app.Activity
       {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        TheDisplay = (Display)findViewById(R.id.display);
         Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        Buttons.CalcState = new State((Display)findViewById(R.id.display));
-      /* more TBD */
+        CalcState = new State(TheDisplay);
+        Buttons.CalcState = CalcState;
       } /*onCreate*/
+
+    @Override
+    public void onPause()
+      {
+        super.onPause();
+        SaveState();
+      } /*onPause*/
+
+    @Override
+    public void onResume()
+      {
+        super.onResume();
+        try
+          {
+            Persistent.Load
+              (
+                /*FromFile =*/ getFilesDir().getAbsolutePath() + "/" + SavedStateName,
+                /*ProgNr =*/ 0,
+                /*TheDisplay =*/ TheDisplay,
+                /*Buttons =*/ Buttons,
+                /*Calc =*/ CalcState
+              );
+          }
+        catch (Persistent.DataFormatException Bad)
+          {
+            System.err.printf("ti5x failure to reload state from file \"%s\": %s\n", getFilesDir().getAbsolutePath() + "/" + SavedStateName, Bad.toString()); /* debug  */
+          } /*try*/
+      } /*onResume*/
 
   } /*Main*/

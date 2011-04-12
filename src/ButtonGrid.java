@@ -130,24 +130,33 @@ public class ButtonGrid extends android.view.View
           } /*for*/
       }
 
-    public boolean OverlayVisible = false;
+    public boolean OverlayVisible;
 
     final RectF ButtonRelMargins = new RectF(0.07f, 0.5f, 0.07f, 0.05f);
       /* relative bounds of button within grid cell */
     final float CornerRoundness = 1.5f;
 
   /* global modifier state */
-    public boolean AltState = false;
+    public boolean AltState;
 
-    int SelectedButton = -1;
+    public int SelectedButton = -1;
 
     public State CalcState;
-    int DigitsNeeded;
-    boolean AcceptSymbolic, AcceptInd, NextLiteral;
-    int AccumDigits, FirstOperand;
-    boolean GotFirstOperand, GotFirstInd, IsSymbolic, GotInd;
-    int CollectingForFunction;
-    int ButtonCode;
+    public int DigitsNeeded;
+    public boolean AcceptSymbolic, AcceptInd, NextLiteral;
+    public int AccumDigits, FirstOperand;
+    public boolean GotFirstOperand, GotFirstInd, IsSymbolic, GotInd;
+    public int CollectingForFunction;
+    public int ButtonCode;
+
+    public void Reset()
+      /* resets to power-up state. */
+      {
+        AltState = false;
+        ResetOperands();
+        OverlayVisible = false;
+        invalidate();
+      } /*Reset*/
 
     public ButtonGrid
       (
@@ -248,7 +257,7 @@ public class ButtonGrid extends android.view.View
                   } /*onClick*/
               }
           );
-        ResetOperands();
+        Reset();
       } /*ButtonGrid*/
 
     @Override
@@ -1182,7 +1191,7 @@ public class ButtonGrid extends android.view.View
                         CalcState.SetAngMode(CalcState.ANG_RAD);
                     break;
                     case 81:
-                        CalcState.Reset();
+                        CalcState.ResetProg();
                     break;
                     case 82:
                         CalcState.Digit('1');

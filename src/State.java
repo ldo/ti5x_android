@@ -3,13 +3,13 @@ package nz.gen.geek_central.ti5x;
 public class State
   /* the calculation state and number entry */
   {
-    final static int EntryState = 0;
-    final static int DecimalEntryState = 1;
-    final static int ExponentEntryState = 2;
-    final static int ResultState = 10;
-    final static int ErrorState = 11;
-    int CurState = EntryState;
-    boolean ExponentEntered = false;
+    public final static int EntryState = 0;
+    public final static int DecimalEntryState = 1;
+    public final static int ExponentEntryState = 2;
+    public final static int ResultState = 10;
+    public final static int ErrorState = 11;
+    public int CurState = EntryState;
+    public boolean ExponentEntered = false;
 
     public boolean InvState = false;
 
@@ -20,15 +20,15 @@ public class State
     Runnable ExecuteTask = null;
 
     public static final int FORMAT_FIXED = 0;
-    public static final int FORMAT_FLOATING = 1;
+    public static final int FORMAT_FLOAT = 1;
     public static final int FORMAT_ENG = 2;
-    int CurFormat = FORMAT_FIXED;
-    int CurNrDecimals = -1;
+    public int CurFormat = FORMAT_FIXED;
+    public int CurNrDecimals = -1;
 
     public static final int ANG_RAD = 1;
     public static final int ANG_DEG = 2;
     public static final int ANG_GRAD = 3;
-    int CurAng = ANG_DEG;
+    public int CurAng = ANG_DEG;
 
     public final static int STACKOP_ADD = 1;
     public final static int STACKOP_SUB = 2;
@@ -37,7 +37,7 @@ public class State
     public final static int STACKOP_EXP = 5;
     public final static int STACKOP_ROOT = 6;
 
-    class OpStackEntry
+    public static class OpStackEntry
       {
         double Operand;
         int Operator;
@@ -46,35 +46,36 @@ public class State
         public OpStackEntry
           (
             double Operand,
-            int Operator
+            int Operator,
+            int ParenFollows
           )
           {
             this.Operand = Operand;
             this.Operator = Operator;
-            ParenFollows = 0;
+            this.ParenFollows = ParenFollows;
           } /*OpStackEntry*/
 
       } /*OpStackEntry*/
 
-    final int MaxOpStack = 8;
-    double X, T;
-    OpStackEntry[] OpStack;
-    int OpStackNext;
+    public final int MaxOpStack = 8;
+    public double X, T;
+    public OpStackEntry[] OpStack;
+    public int OpStackNext;
 
-    public boolean ProgMode = false;
+    public boolean ProgMode;
     public final int MaxMemories = 30; /* TBD make this configurable */ /* can't be zero */
     public final int MaxProgram = 480; /* TBD make this configurable */
     public final int MaxFlags = 10;
-    final double[] Memory;
-    final byte[] Program;
-    final boolean[] Flag;
-    int PC;
+    public final double[] Memory;
+    public final byte[] Program;
+    public final boolean[] Flag;
+    public int PC;
     final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
     boolean GotLabels;
     public boolean ProgRunning = false;
     public boolean ProgRunningSlowly = false;
 
-    class ReturnStackEntry
+    public static class ReturnStackEntry
       {
         public int Addr;
         public boolean FromInteractive;
@@ -91,11 +92,36 @@ public class State
 
       } /*ReturnStackEntry*/
 
-    final int MaxReturnStack = 6;
-    ReturnStackEntry[] ReturnStack;
-    int ReturnLast;
+    public final int MaxReturnStack = 6;
+    public ReturnStackEntry[] ReturnStack;
+    public int ReturnLast;
 
     String LastShowing = null;
+
+    public void Reset()
+      /* resets to power-up/blank state. */
+      {
+        OpStackNext = 0;
+        X = 0.0;
+        T = 0.0;
+        PC = 0;
+        ReturnLast = -1;
+        GotLabels = false;
+        for (int i = 0; i < MaxFlags; ++i)
+          {
+            Flag[i] = false;
+          } /*for*/
+        for (int i = 0; i < MaxMemories; ++i)
+          {
+            Memory[i] = 0.0;
+          } /*for*/
+        for (int i = 0; i < MaxProgram; ++i)
+          {
+            Program[i] = (byte)0;
+          } /*if*/
+        ProgMode = false;
+        ResetEntry();
+      } /*Reset*/
 
     public State
       (
@@ -104,19 +130,13 @@ public class State
       {
         this.TheDisplay = TheDisplay;
         OpStack = new OpStackEntry[MaxOpStack];
-        OpStackNext = 0;
-        X = 0.0;
-        T = 0.0;
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
         Flag = new boolean[MaxFlags];
-        PC = 0;
         BGTask = new android.os.Handler();
-        ResetEntry();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
-        ReturnLast = -1;
         Labels = new java.util.HashMap<Integer, Integer>();
-        GotLabels = false;
+        Reset();
       } /*State*/
 
     class DelayedStep implements Runnable
@@ -323,9 +343,9 @@ public class State
             ExponentEntered = true;
         break;
         case ResultState:
-            if (CurFormat != FORMAT_FLOATING)
+            if (CurFormat != FORMAT_FLOAT)
               {
-                CurFormat = FORMAT_FLOATING;
+                CurFormat = FORMAT_FLOAT;
                 SetX(X); /* will cause redisplay */
               } /*if*/
         break;
@@ -353,14 +373,14 @@ public class State
                     (Math.abs(X) < 5.0 * Math.pow(10.0, -11.0) || Math.abs(X) > Math.pow(10.0, 10.0))
               )
               {
-                UseFormat = FORMAT_FLOATING;
+                UseFormat = FORMAT_FLOAT;
               } /*if*/
             Exp = 0;
             if (X != 0.0)
               {
                 switch (UseFormat)
                   {
-                case FORMAT_FLOATING:
+                case FORMAT_FLOAT:
                     Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
                 break;
                 case FORMAT_ENG:
@@ -378,7 +398,7 @@ public class State
               } /*if*/
             switch (UseFormat)
               {
-            case FORMAT_FLOATING:
+            case FORMAT_FLOAT:
             case FORMAT_ENG:
                 CurDisplay = String.format
                   (
@@ -541,7 +561,7 @@ public class State
           }
         else
           {
-            OpStack[OpStackNext++] = new OpStackEntry(X, OpCode);
+            OpStack[OpStackNext++] = new OpStackEntry(X, OpCode, 0);
           } /*if*/
       } /*StackPush*/
 
@@ -1280,7 +1300,7 @@ public class State
           } /*if*/
       } /*SetSlowExecution*/
 
-    public void Reset()
+    public void ResetProg()
       {
         for (int i = 0; i < MaxFlags; ++i)
           {
@@ -1288,7 +1308,7 @@ public class State
           } /*for*/
         PC = 0;
         ReturnLast = -1;
-      } /*Reset*/
+      } /*ResetProg*/
 
     int GetProg
       (
@@ -1835,7 +1855,7 @@ public class State
                     SetAngMode(ANG_RAD);
                 break;
                 case 81:
-                    Reset();
+                    ResetProg();
                     StopProgram();
                 break;
                 case 83: /*GTO Ind*/

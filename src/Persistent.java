@@ -1,0 +1,1168 @@
+package nz.gen.geek_central.ti5x;
+
+import java.util.zip.ZipEntry;
+
+class ZipComponentWriter
+  /* convenient writing of components to a ZIP archive, with automatic
+    calculation of size and CRC fields. */
+  {
+    protected java.util.zip.ZipOutputStream Parent;
+    protected ZipEntry Entry;
+    public java.io.ByteArrayOutputStream Out;
+
+    public ZipComponentWriter
+      (
+        java.util.zip.ZipOutputStream Parent,
+        String Name,
+        boolean Compressed
+      )
+      {
+        this.Parent = Parent;
+        Entry = new ZipEntry(Name);
+        Entry.setMethod
+          (
+            Compressed ?
+                ZipEntry.DEFLATED
+            :
+                ZipEntry.STORED
+          );
+        Out = new java.io.ByteArrayOutputStream();
+      } /*ZipComponentWriter*/
+
+    public void write
+      (
+        byte[] buffer,
+        int offset,
+        int len
+      )
+      /* writes more data making up the component. */
+      {
+        Out.write(buffer, offset, len);
+      } /*write*/
+
+    public void write
+      (
+        byte[] buffer
+      )
+      {
+        write(buffer, 0, buffer.length);
+      } /*write*/
+
+    public void write
+      (
+        String data
+      )
+      {
+        write(data.getBytes());
+      } /*write*/
+
+    public void close()
+      /* finalizes output of this archive component. */
+        throws java.io.IOException
+      {
+        Out.close();
+        final byte[] TheData = Out.toByteArray();
+        Entry.setSize(TheData.length);
+        final java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+        crc.update(TheData);
+        Entry.setCrc(crc.getValue());
+        Parent.putNextEntry(Entry);
+        Parent.write(TheData, 0, TheData.length);
+        Parent.closeEntry();
+      } /*close*/
+  
+  } /*ZipComponentWriter*/
+
+public class Persistent
+  /* saving/loading of libraries and calculator state. */
+  {
+    public static final String CalcMimeType = "application/vnd.nz.gen.geek_central.ti5x";
+    public static final String CalcExt = ".ti5x";
+    public static final String[] ExternalCalcDirectories =
+        {
+            "Download",
+        };
+
+    public static class DataFormatException extends RuntimeException
+      /* indicates a problem parsing a saved state file. */
+      {
+
+        public DataFormatException
+          (
+            String Message
+          )
+          {
+            super(Message);
+          } /*DataFormatException*/
+
+      } /*DataFormatException*/
+
+    static final java.util.Locale StdLocale = java.util.Locale.US;
+
+    static void SaveBool
+      (
+        java.io.PrintStream POut,
+        String Name,
+        boolean Value,
+        int Indent
+      )
+      {
+        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
+        POut.printf(StdLocale, "<param name=\"%s\" value=\"%s\"/>\n", Name, Value ? "1" : "0");
+      } /*SaveBool*/
+
+    static void SaveInt
+      (
+        java.io.PrintStream POut,
+        String Name,
+        int Value,
+        int Indent
+      )
+      {
+        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
+        POut.printf(StdLocale, "<param name=\"%s\" value=\"%d\"/>\n", Name, Value);
+      } /*SaveInt*/
+
+    static void SaveDouble
+      (
+        java.io.PrintStream POut,
+        String Name,
+        double Value,
+        int Indent
+      )
+      {
+        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
+        POut.printf(StdLocale, "<param name=\"%s\" value=\"%.16e\"/>\n", Name, Value);
+      } /*SaveDouble*/
+
+    static boolean GetBool
+      (
+        String Value
+      )
+      {
+        boolean Result;
+        int IntValue;
+        try
+          {
+            IntValue = Integer.parseInt(Value);
+          }
+        catch (NumberFormatException Bad)
+          {
+            throw new DataFormatException(String.format(StdLocale, "bad boolean value \"%s\"", Value));
+          } /*try*/
+        if (IntValue == 0)
+          {
+            Result = false;
+          }
+        else if (IntValue == 1)
+          {
+            Result = true;
+          }
+        else
+          {
+            throw new DataFormatException(String.format(StdLocale, "bad boolean value %d", IntValue));
+          } /*if*/
+        return
+            Result;
+      } /*GetBool*/
+
+    static int GetInt
+      (
+        String Value
+      )
+      {
+        int Result;
+        try
+          {
+            Result = Integer.parseInt(Value);
+          }
+        catch (NumberFormatException Bad)
+          {
+            throw new DataFormatException(String.format(StdLocale, "bad integer value \"%s\"", Value));
+          } /*try*/
+        return
+            Result;
+      } /*GetInt*/
+
+    static double GetDouble
+      (
+        String Value
+      )
+      {
+        double Result;
+        try
+          {
+            Result = Double.parseDouble(Value);
+          }
+        catch (NumberFormatException Bad)
+          {
+            throw new DataFormatException(String.format(StdLocale, "bad double value \"%s\"", Value));
+          } /*try*/
+        return
+            Result;
+      } /*GetDouble*/
+
+    public static void Save
+      (
+        ButtonGrid Buttons,
+        State Calc,
+        boolean AllState, /* true to save entire calculator state, false to only save program */
+        java.io.OutputStream RawOut
+      )
+      {
+        try
+          {
+            java.util.zip.ZipOutputStream Out = new java.util.zip.ZipOutputStream(RawOut);
+              {
+              /* Follow ODF convention of an uncompressed "mimetype" entry at known offset
+                to allow magic-number sniffing. Must be first. */
+                final ZipComponentWriter MimeType = new ZipComponentWriter(Out, "mimetype", false);
+                MimeType.write(CalcMimeType);
+                MimeType.close();
+              }
+              {
+                final ZipComponentWriter StateOut = new ZipComponentWriter(Out, "prog00", true);
+                java.io.PrintStream POut = new java.io.PrintStream(StateOut.Out);
+                POut.println("<state>");
+                if (AllState)
+                  {
+                    POut.println("    <buttons>");
+                    SaveBool(POut, "alt", Buttons.AltState, 8);
+                    SaveBool(POut, "overlay", Buttons.OverlayVisible, 8);
+                    SaveInt(POut, "selected_button", Buttons.SelectedButton, 8);
+                    SaveInt(POut, "digits_needed", Buttons.DigitsNeeded, 8);
+                    SaveBool(POut, "accept_symbolic", Buttons.AcceptSymbolic, 8);
+                    SaveBool(POut, "accept_ind", Buttons.AcceptInd, 8);
+                    SaveBool(POut, "next_literal", Buttons.NextLiteral, 8);
+                    SaveInt(POut, "accum_digits", Buttons.AccumDigits, 8);
+                    SaveInt(POut, "first_operand", Buttons.FirstOperand, 8);
+                    SaveBool(POut, "got_first_operand", Buttons.GotFirstOperand, 8);
+                    SaveBool(POut, "got_first_ind", Buttons.GotFirstInd, 8);
+                    SaveBool(POut, "is_symbolic", Buttons.IsSymbolic, 8);
+                    SaveBool(POut, "got_ind", Buttons.GotInd, 8);
+                    SaveInt(POut, "collecting_for_function", Buttons.CollectingForFunction, 8);
+                    SaveInt(POut, "button_code", Buttons.ButtonCode, 8);
+                    POut.println("    </buttons>");
+                  } /*if*/
+                POut.println("    <calc>");
+                if (AllState)
+                  {
+                      {
+                        String StateName;
+                        switch (Calc.CurState)
+                          {
+                        case State.EntryState:
+                            StateName = "entry";
+                        break;
+                        case State.DecimalEntryState:
+                            StateName = "decimal_entry";
+                        break;
+                        case State.ExponentEntryState:
+                            StateName = "exponent_entry";
+                        break;
+                        case State.ResultState:
+                            StateName = "result";
+                        break;
+                        case State.ErrorState:
+                            StateName = "error";
+                        break;
+                        default:
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized Calc.CurState = %d", Calc.CurState)
+                              );
+                      /* break; */
+                          } /*switch*/
+                        POut.printf(StdLocale, "        <param name=\"state\" value=\"%s\"/>\n", StateName);
+                      }
+                    SaveBool(POut, "exponent_entered", Calc.ExponentEntered, 8);
+                    if (Calc.CurState != State.ResultState && Calc.CurState != State.ErrorState)
+                      {
+                        POut.printf(StdLocale, "        <param name=\"display\" value=\"%s\"/>\n", Calc.CurDisplay);
+                      } /*if*/
+                    SaveBool(POut, "inv", Calc.InvState, 8);
+                      {
+                        String FmtName;
+                        switch (Calc.CurFormat)
+                          {
+                        case State.FORMAT_FIXED:
+                            FmtName = "fixed";
+                        break;
+                        case State.FORMAT_FLOAT:
+                            FmtName = "float";
+                        break;
+                        case State.FORMAT_ENG:
+                            FmtName = "eng";
+                        break;
+                        default:
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized Calc.CurFormat = %d", Calc.CurFormat)
+                              );
+                      /* break; */
+                          } /*switch*/
+                        POut.printf(StdLocale, "        <param name=\"format\" value=\"%s\"/>\n", FmtName);
+                      }
+                    SaveInt(POut, "nr_decimals", Calc.CurNrDecimals, 8);
+                      {
+                        String Name;
+                        switch (Calc.CurAng)
+                          {
+                        case State.ANG_RAD:
+                            Name = "radians";
+                        break;
+                        case State.ANG_DEG:
+                            Name = "degrees";
+                        break;
+                        case State.ANG_GRAD:
+                            Name = "gradians";
+                        break;
+                        default:
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized Calc.Ang = %d", Calc.CurAng)
+                              );
+                      /* break; */
+                          } /*switch*/
+                        POut.printf(StdLocale, "        <param name=\"angle_units\" value=\"%s\"/>\n", Name);
+                      }
+                    POut.println("        <opstack>");
+                    for (int i = 0; i < Calc.OpStackNext; ++i)
+                      {
+                        final State.OpStackEntry Op = Calc.OpStack[i];
+                        String OpName;
+                        switch (Op.Operator)
+                          {
+                        case State.STACKOP_ADD:
+                            OpName = "add";
+                        break;
+                        case State.STACKOP_SUB:
+                            OpName = "sub";
+                        break;
+                        case State.STACKOP_MUL:
+                            OpName = "mul";
+                        break;
+                        case State.STACKOP_DIV:
+                            OpName = "div";
+                        break;
+                        case State.STACKOP_EXP:
+                            OpName = "exp";
+                        break;
+                        case State.STACKOP_ROOT:
+                            OpName = "root";
+                        break;
+                        default:
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized stacked op %d at pos %d", Op.Operator, i)
+                              );
+                      /* break; */
+                          } /*switch*/
+                        POut.printf
+                          (
+                            StdLocale,
+                            "            <op name=\"%s\" opnd=\"%.16e\" parens=\"%d\"/>\n",
+                            OpName,
+                            Op.Operand,
+                            Op.ParenFollows
+                          );
+                      } /*for*/
+                    POut.println("        </opstack>");
+                    SaveDouble(POut, "X", Calc.X, 8);
+                    SaveDouble(POut, "T", Calc.T, 8);
+                    SaveBool(POut, "learn_mode", Calc.ProgMode, 8);
+                    POut.println("        <mem>");
+                    for (int i = 0; i < Calc.Memory.length; ++i)
+                      {
+                        POut.printf(StdLocale, "            %.16e\n", Calc.Memory[i]);
+                      } /*for*/
+                    POut.println("        </mem>");
+                  } /*if AllState*/
+                POut.println("        <prog>");
+                  {
+                    int Cols = 0;
+                    int i = 0;
+                    for (;;)
+                      {
+                        if (i == Calc.Program.length || Cols == 24)
+                          {
+                            POut.println();
+                            Cols = 0;
+                          } /*if*/
+                        if (i == Calc.Program.length)
+                            break;
+                        if (Cols != 0)
+                          {
+                            POut.print(" ");
+                          } /*if*/
+                        POut.printf(StdLocale, "%02d", Calc.Program[i]);
+                        ++i;
+                        ++Cols;
+                      } /*for*/
+                  }
+                POut.println("        </prog>");
+                if (AllState)
+                  {
+                    POut.println("        <flags>");
+                    for (int i = 0; i < Calc.Flag.length; ++i)
+                      {
+                        if (i != 0)
+                          {
+                            POut.print(" ");
+                          } /*if*/
+                        POut.print(Calc.Flag[i] ? "1" : "0");
+                      } /*for*/
+                    POut.print("\n        </flags>\n");
+                    SaveInt(POut, "PC", Calc.PC, 8);
+                    POut.println("        <retstack>");
+                    for (int i = 0; i <= Calc.ReturnLast; ++i)
+                      {
+                        final State.ReturnStackEntry Ret = Calc.ReturnStack[i];
+                        POut.printf
+                          (
+                            "            <ret addr=\"%d\" from_interactive=\"%s\"/>\n",
+                            Ret.Addr,
+                            Ret.FromInteractive ? "1" : "0"
+                          );
+                      } /*for*/
+                    POut.println("        </retstack>");
+                  } /*if*/
+                POut.println("    </calc>");
+                POut.println("</state>");
+                POut.flush();
+                StateOut.close();
+              }
+            Out.finish();
+          }
+        catch (java.io.IOException Failed)
+          {
+            throw new RuntimeException("ti5x.Persistent.Save error " + Failed.toString());
+          } /*try*/
+      } /*Save*/
+
+    public static void Save
+      (
+        ButtonGrid Buttons,
+        State Calc,
+        boolean AllState, /* true to save entire calculator state, false to only save program */
+        String ToFile
+      )
+      {
+        java.io.FileOutputStream Out;
+        try
+          {
+            Out = new java.io.FileOutputStream(ToFile);
+          }
+        catch (java.io.FileNotFoundException Failed)
+          {
+            throw new RuntimeException
+              (
+                "ti5x.Persistent.Save create error " + Failed.toString()
+              );
+          } /*try*/
+        Save(Buttons, Calc, AllState, Out);
+        try
+          {
+            Out.flush();
+            Out.close();
+          }
+        catch (java.io.IOException Failed)
+          {
+            throw new RuntimeException("ti5x.Persistent.Save error " + Failed.toString());
+          } /*try*/
+      } /*Save*/
+
+    public static byte[] ReadAll
+      (
+        java.io.InputStream From
+      )
+      /* reads all available data from From. */
+    throws java.io.IOException
+      {
+        java.io.ByteArrayOutputStream Result = new java.io.ByteArrayOutputStream();
+        final byte[] Buf = new byte[256]; /* just to reduce number of I/O operations */
+        for (;;)
+          {
+            final int BytesRead = From.read(Buf);
+            if (BytesRead < 0)
+                break;
+            Result.write(Buf, 0, BytesRead);
+          } /*for*/
+        return
+            Result.toByteArray();
+      } /*ReadAll*/
+
+    static class CalcStateLoader extends org.xml.sax.helpers.DefaultHandler
+      {
+        protected Display TheDisplay;
+        protected ButtonGrid Buttons;
+        protected State Calc;
+
+        private final int AtTopLevel = 0;
+        private final int DoingState = 1;
+        private final int DoingButtons = 2;
+        private final int DoingCalc = 3;
+        private final int DoingOpStack = 10;
+        private final int DoingMem = 11;
+        private final int DoingProg = 12;
+        private final int DoingFlags = 13;
+        private final int DoingRetStack = 14;
+        private int ParseState = AtTopLevel;
+        private boolean DoneState = false;
+        private boolean AllowContent;
+        java.io.ByteArrayOutputStream Content = null;
+
+        public CalcStateLoader
+          (
+            Display TheDisplay,
+            ButtonGrid Buttons,
+            State Calc
+          )
+          {
+            super();
+            this.TheDisplay = TheDisplay;
+            this.Buttons = Buttons;
+            this.Calc = Calc;
+          } /*CalcStateLoader*/
+
+        private void StartContent()
+          {
+            Content = new java.io.ByteArrayOutputStream();
+            AllowContent = true;
+          } /*StartContent*/
+
+        @Override
+        public void startElement
+          (
+            String uri,
+            String localName,
+            String qName,
+            org.xml.sax.Attributes attributes
+          )
+          {
+            localName = localName.intern();
+            System.err.println("ti5x load state start tag \"" + localName + "\""); /* debug */
+            boolean Handled = false;
+            AllowContent = false; /* to begin with */
+            if (ParseState == AtTopLevel)
+              {
+                if (localName == "state" && !DoneState)
+                  {
+                    ParseState = DoingState;
+                    Handled = true;
+                  } /*if*/
+              }
+            else if (ParseState == DoingState)
+              {
+                if (localName == "buttons")
+                  {
+                    ParseState = DoingButtons;
+                    Handled = true;
+                  }
+                else if (localName == "calc")
+                  {
+                    ParseState = DoingCalc;
+                    Handled = true;
+                  } /*if*/
+              }
+            else if (ParseState == DoingButtons)
+              {
+                if (localName == "param")
+                  {
+                    final String Name = attributes.getValue("name").intern();
+                    final String Value = attributes.getValue("value");
+                    if (Name == "alt")
+                      {
+                        Buttons.AltState = GetBool(Value);
+                      }
+                    else if (Name == "overlay")
+                      {
+                        Buttons.OverlayVisible = GetBool(Value);
+                      }
+                    else if (Name == "selected_button")
+                      {
+                        Buttons.SelectedButton = GetInt(Value);
+                      }
+                    else if (Name == "digits_needed")
+                      {
+                        Buttons.DigitsNeeded = GetInt(Value);
+                      }
+                    else if (Name == "accept_symbolic")
+                      {
+                        Buttons.AcceptSymbolic = GetBool(Value);
+                      }
+                    else if (Name == "accept_ind")
+                      {
+                        Buttons.AcceptInd = GetBool(Value);
+                      }
+                    else if (Name == "next_literal")
+                      {
+                        Buttons.NextLiteral = GetBool(Value);
+                      }
+                    else if (Name == "accum_digits")
+                      {
+                        Buttons.AccumDigits = GetInt(Value);
+                      }
+                    else if (Name == "first_operand")
+                      {
+                        Buttons.FirstOperand = GetInt(Value);
+                      }
+                    else if (Name == "got_first_operand")
+                      {
+                        Buttons.GotFirstOperand = GetBool(Value);
+                      }
+                    else if (Name == "got_first_ind")
+                      {
+                        Buttons.GotFirstInd = GetBool(Value);
+                      }
+                    else if (Name == "is_symbolic")
+                      {
+                        Buttons.IsSymbolic = GetBool(Value);
+                      }
+                    else if (Name == "got_ind")
+                      {
+                        Buttons.GotInd = GetBool(Value);
+                      }
+                    else if (Name == "collecting_for_function")
+                      {
+                        Buttons.CollectingForFunction = GetInt(Value);
+                      }
+                    else if (Name == "button_code")
+                      {
+                        Buttons.ButtonCode = GetInt(Value);
+                      }
+                    else
+                      {
+                        throw new DataFormatException
+                          (
+                            String.format(StdLocale, "unrecognized <buttons> param \"%s\"", Name)
+                          );
+                      } /*if*/
+                    Handled = true;
+                  } /*if*/
+              }
+            else if (ParseState == DoingCalc)
+              {
+                if (localName == "param")
+                  {
+                    final String Name = attributes.getValue("name").intern();
+                    final String Value = attributes.getValue("value").intern();
+                    if (Name == "state")
+                      {
+                        if (Value == "entry")
+                          {
+                            Calc.CurState = State.EntryState;
+                          }
+                        else if (Value == "decimal_entry")
+                          {
+                            Calc.CurState = State.DecimalEntryState;
+                          }
+                        else if (Value == "exponent_entry")
+                          {
+                            Calc.CurState = State.ExponentEntryState;
+                          }
+                        else if (Value == "result")
+                          {
+                            Calc.CurState = State.ResultState;
+                          }
+                        else if (Value == "error")
+                          {
+                            Calc.CurState = State.ErrorState;
+                          }
+                        else
+                          {
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized calc state \"%s\"", Value)
+                              );
+                          } /*if*/
+                      }
+                    else if (Name == "exponent_entered")
+                      {
+                        Calc.ExponentEntered = GetBool(Value);
+                      }
+                    else if (Name == "display")
+                      {
+                        Calc.CurDisplay = Value;
+                      }
+                    else if (Name == "inv")
+                      {
+                        Calc.InvState = GetBool(Value);
+                      }
+                    else if (Name == "format")
+                      {
+                        if (Value == "fixed")
+                          {
+                            Calc.CurFormat = State.FORMAT_FIXED;
+                          }
+                        else if (Value == "float")
+                          {
+                            Calc.CurFormat = State.FORMAT_FLOAT;
+                          }
+                        else if (Value == "eng")
+                          {
+                            Calc.CurFormat = State.FORMAT_ENG;
+                          }
+                        else
+                          {
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized calc format \"%s\"", Value)
+                              );
+                          } /*if*/
+                      }
+                    else if (Name == "nr_decimals")
+                      {
+                        Calc.CurNrDecimals = GetInt(Value);
+                      }
+                    else if (Name == "angle_units")
+                      {
+                        if (Value == "radians")
+                          {
+                            Calc.CurAng = State.ANG_RAD;
+                          }
+                        else if (Value == "degrees")
+                          {
+                            Calc.CurAng = State.ANG_DEG;
+                          }
+                        else if (Value == "gradians")
+                          {
+                            Calc.CurAng = State.ANG_GRAD;
+                          }
+                        else
+                          {
+                            throw new RuntimeException
+                              (
+                                String.format(StdLocale, "unrecognized calc angle_units \"%s\"", Value)
+                              );
+                          } /*if*/
+                      }
+                    else if (Name == "X")
+                      {
+                        Calc.X = GetDouble(Value);
+                      }
+                    else if (Name == "T")
+                      {
+                        Calc.T = GetDouble(Value);
+                      }
+                    else if (Name == "learn_mode")
+                      {
+                        Calc.ProgMode = GetBool(Value);
+                      }
+                    else if (Name == "PC")
+                      {
+                        Calc.PC = GetInt(Value);
+                      }
+                    else
+                      {
+                        throw new DataFormatException
+                          (
+                            String.format(StdLocale, "unrecognized <calc> param \"%s\"", Name)
+                          );
+                      } /*if*/
+                    Handled = true;
+                  }
+                else if (localName == "opstack")
+                  {
+                    Calc.OpStackNext = 0;
+                    ParseState = DoingOpStack;
+                    Handled = true;
+                  }
+                else if (localName == "mem")
+                  {
+                    ParseState = DoingMem;
+                    StartContent();
+                    Handled = true;
+                  }
+                else if (localName == "prog")
+                  {
+                    ParseState = DoingProg;
+                    StartContent();
+                    Handled = true;
+                  }
+                else if (localName == "flags")
+                  {
+                    ParseState = DoingFlags;
+                    StartContent();
+                    Handled = true;
+                  }
+                else if (localName == "retstack")
+                  {
+                    Calc.ReturnLast = -1;
+                    ParseState = DoingRetStack;
+                    Handled = true;
+                  } /*if*/
+              }
+            else if (ParseState == DoingOpStack)
+              {
+                if (localName == "op")
+                  {
+                    final String OpName = attributes.getValue("name").intern();
+                    int Op;
+                    if (OpName == "add")
+                      {
+                        Op = State.STACKOP_ADD;
+                      }
+                    else if (OpName == "sub")
+                      {
+                        Op = State.STACKOP_SUB;
+                      }
+                    else if (OpName == "mul")
+                      {
+                        Op = State.STACKOP_MUL;
+                      }
+                    else if (OpName == "div")
+                      {
+                        Op = State.STACKOP_DIV;
+                      }
+                    else if (OpName == "exp")
+                      {
+                        Op = State.STACKOP_EXP;
+                      }
+                    else if (OpName == "root")
+                      {
+                        Op = State.STACKOP_ROOT;
+                      }
+                    else
+                      {
+                        throw new DataFormatException
+                          (
+                            String.format(StdLocale, "unrecognized <op> operator \"%s\"", OpName)
+                          );
+                      } /*if*/
+                    if (Calc.OpStackNext == Calc.MaxOpStack)
+                      {
+                        throw new DataFormatException
+                          (
+                            String.format(StdLocale, "too many <op> entries -- only %d allowed", Calc.MaxOpStack)
+                          );
+                      } /*if*/
+                    Calc.OpStack[Calc.OpStackNext++] = new State.OpStackEntry
+                      (
+                        GetDouble(attributes.getValue("opnd")),
+                        Op,
+                        GetInt(attributes.getValue("parens"))
+                      );
+                    Handled = true;
+                  } /*if*/
+              }
+            else if (ParseState == DoingRetStack)
+              {
+                if (localName == "ret")
+                  {
+                    if (Calc.ReturnLast == Calc.MaxReturnStack - 1)
+                      {
+                        throw new DataFormatException
+                          (
+                            String.format(StdLocale, "too many <ret> entries -- only %d allowed", Calc.MaxReturnStack)
+                          );
+                      } /*if*/
+                    Calc.ReturnStack[++Calc.ReturnLast] = new State.ReturnStackEntry
+                      (
+                        GetInt(attributes.getValue("addr")),
+                        GetBool(attributes.getValue("from_interactive"))
+                      );
+                    Handled = true;
+                  } /*if*/
+              } /*if*/
+            if (!Handled)
+              {
+                throw new DataFormatException("unexpected XML tag " + localName + " in state " + ParseState);
+              } /*if*/
+          } /*startElement*/
+
+        @Override
+        public void characters
+          (
+            char[] ch,
+            int start,
+            int length
+          )
+          {
+            if (AllowContent)
+              {
+                try
+                  {
+                    Content.write(new String(ch, start, length).getBytes());
+                  }
+                catch (java.io.IOException Failed)
+                  {
+                    throw new RuntimeException("ti5x XML content parse error " + Failed.toString());
+                  } /*try*/
+              } /*if*/
+            /* else ignore */
+          } /*characters*/
+
+        @Override
+        public void endElement
+          (
+            String uri,
+            String localName,
+            String qName
+          )
+          {
+            localName = localName.intern();
+            System.err.println("ti5x load state end tag \"" + localName + "\""); /* debug */
+            final String ContentStr = Content != null ? Content.toString() : null;
+            Content = null;
+            AllowContent = false;
+            switch (ParseState)
+              {
+            case DoingState:
+                if (localName == "state")
+                  {
+                    ParseState = AtTopLevel;
+                    switch (Calc.CurState)
+                      {
+                    case State.ResultState:
+                        Calc.SetX(Calc.X);
+                    break;
+                    case State.ErrorState:
+                        TheDisplay.SetShowingError();
+                    break;
+                    default: /* assume in the middle of number entry */
+                        Calc.SetProgMode(Calc.ProgMode);
+                    break;
+                      } /*switch*/
+                    Buttons.invalidate();
+                  } /*if*/
+            break;
+            case DoingButtons:
+                if (localName == "buttons")
+                  {
+                    ParseState = DoingState;
+                  } /*if*/
+            case DoingCalc:
+                if (localName == "calc")
+                  {
+                    ParseState = DoingState;
+                  } /*if*/
+            break;
+            case DoingOpStack:
+                if (localName == "opstack")
+                  {
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+            case DoingRetStack:
+                if (localName == "retstack")
+                  {
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+            case DoingMem:
+                if (localName == "mem")
+                  {
+                    int Reg = 0;
+                    int i = 0;
+                    for (;;)
+                      {
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) > ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        final int Start = i;
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) <= ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        if (i > Start)
+                          {
+                            if (Reg == Calc.MaxMemories)
+                              {
+                                throw new DataFormatException
+                                  (
+                                    String.format(StdLocale, "too many memories, only %d allowed", Calc.MaxMemories)
+                                  );
+                              } /*if*/
+                            Calc.Memory[Reg++] = GetDouble(ContentStr.substring(Start, i));
+                          } /*if*/
+                        if (i == ContentStr.length())
+                            break;
+                      } /*for*/
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+            case DoingProg:
+                if (localName == "prog")
+                  {
+                    int Addr = 0;
+                    int i = 0;
+                    for (;;)
+                      {
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) > ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        final int Start = i;
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) <= ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        if (i > Start)
+                          {
+                            if (Addr == Calc.MaxProgram)
+                              {
+                                throw new DataFormatException
+                                  (
+                                    String.format(StdLocale, "too many program steps, only %d allowed", Calc.MaxProgram)
+                                  );
+                              } /*if*/
+                            Calc.Program[Addr++] = (byte)GetInt(ContentStr.substring(Start, i));
+                          } /*if*/
+                        if (i == ContentStr.length())
+                            break;
+                      } /*for*/
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+            case DoingFlags:
+                if (localName == "flags")
+                  {
+                    int Flag = 0;
+                    int i = 0;
+                    for (;;)
+                      {
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) > ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        final int Start = i;
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) <= ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        if (i > Start)
+                          {
+                            if (Flag == Calc.MaxFlags)
+                              {
+                                throw new DataFormatException
+                                  (
+                                    String.format(StdLocale, "too many flags, only %d allowed", Calc.MaxFlags)
+                                  );
+                              } /*if*/
+                            Calc.Flag[Flag++] = GetBool(ContentStr.substring(Start, i));
+                          } /*if*/
+                        if (i == ContentStr.length())
+                            break;
+                      } /*for*/
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+              } /*switch*/
+          } /*endElement*/
+
+      } /*CalcStateLoader*/
+
+    public static void Load
+      (
+        String FromFile,
+        int ProgNr,
+        Display TheDisplay,
+        ButtonGrid Buttons,
+        State Calc
+      )
+    throws DataFormatException
+      {
+        final String ProgName = String.format(StdLocale, "prog%02d", ProgNr);
+        try
+          {
+            final java.util.zip.ZipFile In = new java.util.zip.ZipFile
+              (
+                new java.io.File(FromFile),
+                java.util.zip.ZipFile.OPEN_READ
+              );
+            final ZipEntry MimeType = In.getEntry("mimetype");
+            final ZipEntry CardEntry = In.getEntry(String.format(StdLocale, "card%02d", ProgNr));
+            final ZipEntry StateEntry = In.getEntry(ProgName);
+            if
+              (
+                    MimeType == null
+                ||
+                    StateEntry == null
+              )
+              {
+                throw new DataFormatException
+                  (
+                    String.format
+                      (
+                        StdLocale,
+                        "missing one or more mandatory archive components: mimetype, %s",
+                        ProgName
+                      )
+                  );
+              } /*if*/
+            if
+              (
+                    In.entries().nextElement().getName().intern() != "mimetype"
+                ||
+                    MimeType.getMethod() != ZipEntry.STORED
+              )
+              {
+                throw new DataFormatException("mimetype must be uncompressed and first in archive");
+              } /*if*/
+            if (new String(ReadAll(In.getInputStream(MimeType))).intern() != CalcMimeType)
+              {
+                throw new DataFormatException("wrong MIME type");
+              } /*if*/
+            if (CardEntry != null)
+              {
+                TheDisplay.SetCardImage
+                  (
+                    android.graphics.BitmapFactory.decodeStream(In.getInputStream(CardEntry))
+                  );
+              }
+            else
+              {
+                TheDisplay.SetCardImage(null);
+              } /*if*/
+            Buttons.Reset();
+            Calc.Reset();
+            try
+              {
+                javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
+                  (
+                    In.getInputStream(StateEntry),
+                    new CalcStateLoader(TheDisplay, Buttons, Calc)
+                  );
+              }
+            catch (javax.xml.parsers.ParserConfigurationException Bug)
+              {
+                throw new RuntimeException("SAX parser error: " + Bug.toString());
+              }
+            catch (org.xml.sax.SAXException Bad)
+              {
+                throw new DataFormatException("SAX parser error: " + Bad.toString());
+              } /*try*/
+          }
+        catch (java.io.IOException IOError)
+          {
+            throw new DataFormatException("I/O error: " + IOError.toString());
+          } /*try*/
+      } /*Load*/
+
+  } /*Persistent*/
