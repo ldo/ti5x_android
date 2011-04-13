@@ -47,16 +47,7 @@ def fix() :
 
 codes = \
     {
-        1 : simple("1"),
-        2 : simple("2"),
-        3 : simple("3"),
-        4 : simple("4"),
-        5 : simple("5"),
-        6 : simple("6"),
-        7 : simple("7"),
-        8 : simple("8"),
-        9 : simple("9"),
-        0 : simple("0"),
+        # digits 0-9 handled specially
         11 : simple("A"),
         12 : simple("B"),
         13 : simple("C"),
@@ -159,6 +150,8 @@ def report_error(msg) :
 was_modifier = False
 inv_state = False
 expect = None
+last_was_digit = False
+decimal_seen = False
 
 curline = ""
 cursym = None
@@ -262,7 +255,21 @@ while True :
                             lastcode = None
                         #end if
                     #end if
+                elif val < 10 or val == 93 and not decimal_seen :
+                    # digit
+                    if val < 10 :
+                        sys.stdout.write(chr(val + 48))
+                    else :
+                        sys.stdout.write(".")
+                        decimal_seen = True
+                    #end if
+                    last_was_digit = True
                 else :
+                    if last_was_digit :
+                        sys.stdout.write("\n")
+                        last_was_digit = False
+                        decimal_seen = False
+                    #end if
                     if val in codes :
                         code = codes[val]
                         if "sym" in code :
@@ -300,3 +307,6 @@ while True :
         #end if
     #end if
 #end while
+if last_was_digit :
+    sys.stdout.write("\n")
+#end if
