@@ -1949,7 +1949,6 @@ public class State
                 case 74: /*SUM Ind*/
                 case 83: /*GTO Ind*/
                 case 84: /*Op Ind*/
-                case 86: /*St flg*/
                   /* one byte following */
                     GetProg(false);
                 break;
@@ -1972,6 +1971,9 @@ public class State
                             Labels.put(TheLabel, PC);
                           } /*if*/
                       }
+                break;
+                case 86: /*St flg*/
+                    GetUnitOp(false);
                 break;
                 case 87: /*If flg*/
                 case 97: /*Dsz*/
