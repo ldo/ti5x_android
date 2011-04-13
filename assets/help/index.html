@@ -158,11 +158,11 @@ X register, output will be angle in X register and magnitude in T register.
 <H2><A NAME="Statistics"></A>Statistics Functions</H2>
 <P>Note these accumulate totals in registers <B>01</B> to <B>06</B> as follows:
 <UL>
-<LI><B>01</B> — ∑x
-<LI><B>02</B> — ∑x²
+<LI><B>01</B> — ∑y
+<LI><B>02</B> — ∑y²
 <LI><B>03</B> — N
-<LI><B>04</B> — ∑y
-<LI><B>05</B> — ∑y²
+<LI><B>04</B> — ∑x
+<LI><B>05</B> — ∑x²
 <LI><B>06</B> — ∑xy
 </UL>
 <P>so these need to be cleared before use.</P>
@@ -173,24 +173,24 @@ incremented for next entry.
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">∑x</SPAN>
 — remove a data point. Can be used to undo an incorrect entry.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">mean(x)</SPAN> — compute sample mean:
-T = ∑y / N, X = ∑x / N.
+T = ∑x / N, X = ∑y / N.
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">mean(x)</SPAN> — compute population standard deviation:
-T = sqrt(∑y² - (∑y)² / N(N - 1)), X = sqrt(∑x² - (∑x)² / N(N - 1)).
+T = sqrt(∑x² - (∑x)² / N(N - 1)), X = sqrt(∑y² - (∑y)² / N(N - 1)).
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>11</B> — compute
-sample variance: T = ∑y² / N - (∑y)² / N², X = ∑x² - (∑x)² / N².
+sample variance: T = ∑x² / N - (∑x)² / N², X = ∑y² - (∑y)² / N².
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>12</B> — compute
-linear regression slope and intercept: T = <I>m</I>, X = ∑x - <I>m</I> * ∑y / N where <I>m</I> =
-(∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+linear regression slope and intercept: T = <I>m</I>, X = ∑y - <I>m</I> * ∑x / N where <I>m</I> =
+(∑xy - ∑x∑y / N) / (∑x² - (∑x)² / N).
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>13</B> — compute
-correlation coefficient: X = <I>m</I> * sqrt(∑y² - (∑y)² / N(N - 1)) / sqrt(∑x² - (∑x)² / N(N - 1))
-where <I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+correlation coefficient: X = <I>m</I> * sqrt(∑x² - (∑x)² / N(N - 1)) / sqrt(∑y² - (∑y)² / N(N - 1))
+where <I>m</I> = (∑xy - ∑x∑y / N) / (∑x² - (∑x)² / N).
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>14</B> — compute
-estimated <I>y</I> from <I>x</I>: X = <I>m</I> * X + (∑x² - <I>m</I> * ∑y) / N where
-<I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+estimated <I>y</I> from <I>x</I>: X = <I>m</I> * X + (∑y² - <I>m</I> * ∑x) / N where
+<I>m</I> = (∑xy - ∑x∑y / N) / (∑x² - (∑x)² / N).
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>15</B> — compute
-estimated <I>x</I> from <I>y</I>: X = ((∑x² - <I>m</I> * ∑y) / N - X) / <I>m</I> where
-<I>m</I> = (∑xy - ∑x∑y / N) / (∑y² - (∑y)² / N).
+estimated <I>x</I> from <I>y</I>: X = (X - (∑y² - <I>m</I> * ∑x) / N) / <I>m</I> where
+<I>m</I> = (∑xy - ∑x∑y / N) / (∑x² - (∑x)² / N).
 </UL>
 
 <H2><A NAME="ProgramEntry"></A>Program Entry</H2>
