@@ -457,15 +457,6 @@ public class ButtonGrid extends android.view.View
         CollectingForFunction = -1;
       } /*ResetOperands*/
 
-    void StoreInv()
-      /* prefixes the next instruction with an INV opcode if appropriate. */
-      {
-        if (CalcState.InvState)
-          {
-            CalcState.StoreInstr(22);
-          } /*if*/
-      } /*StoreInv*/
-
     void StoreOperand
       (
         int NrDigits, /* 1, 2 or 3 */
@@ -637,10 +628,6 @@ public class ButtonGrid extends android.view.View
                     boolean Finished = true; /* to begin with */
                     if (IsSymbolic || AccumDigits >= 0)
                       {
-                        if (CalcState.ProgMode)
-                          {
-                            StoreInv(); /* even if it's ignored by some of them */
-                          } /*if*/
                         switch (CollectingForFunction)
                           {
                         case 36: /*Pgm*/
@@ -858,8 +845,7 @@ public class ButtonGrid extends android.view.View
                         ResetOperands();
                       } /*if*/
                   } /*if*/
-              } 
-                /*if CollectingForFunction*/
+              } /*if CollectingForFunction*/
             if (!Handled)
               {
               /* check for functions needing further entry */
