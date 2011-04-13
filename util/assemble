@@ -1,0 +1,406 @@
+#!/usr/bin/python3.1
+#+
+# Very simple symbolic assembler for ti5x programs. Reads a # symbolic representation from
+# standard input, and writes a sequence of numeric codes to standard output.
+#
+# Created by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+#-
+
+import sys
+import re
+
+def simpleop(opcode) :
+    return {"op" : opcode, "altop" : opcode}
+#end simpleop
+
+def simpleop2(opcode, altopcode) :
+    return {"op" : opcode, "altop" : altopcode}
+#end simpleop2
+
+def set_alt_state() :
+    global alt_state
+    if alt_state :
+        report_error("redundant \"2nd\"")
+    #end if
+    alt_state = True
+#end set_alt_state
+
+def regop(basecode, indcode) :
+    return {"op" : basecode, "indop" : indcode, "expect" : "reg"}
+#end regop
+
+def regop2(basecode, altcode, indcode, altindcode) :
+    return {"op" : basecode, "altop" : altcode, "indop" : indcode, "altindop" : altindcode, "expect" : "reg"}
+#end if
+
+def transferop(basecode, indcode = None) :
+    entry = \
+        {
+            "op" : basecode,
+            "expect" : "loc",
+        }
+    if indcode != None :
+        entry["indop"] = indcode
+    #end if
+    return entry
+#end transferop
+
+def sbr() :
+    global expect, pending_out
+    if pending_out == 22 :
+        pending_out = None
+        out(92)
+        expect = None
+    else :
+        expect = "loc"
+    #end if
+#end sbr
+
+symbols = \
+    {
+        # note no entries for digits, these are handled specially
+        "a" : simpleop2(11, 16),
+        "b" : simpleop2(12, 17),
+        "c" : simpleop2(13, 18),
+        "d" : simpleop2(14, 19),
+        "e" : simpleop2(15, 10),
+        "a'" : simpleop(16),
+        "b'" : simpleop(17),
+        "c'" : simpleop(18),
+        "d'" : simpleop(19),
+        "e'" : simpleop(20),
+        "2nd" : {"act" : set_alt_state, "modifier" : True},
+        "inv" : simpleop2(22, 27),
+        "lnx" : simpleop2(23, 28),
+        "log" : simpleop(28),
+        "ce" : simpleop2(24, 29),
+        "cp" : simpleop(29),
+        "clr" : simpleop2(25, 20),
+        # no "lrn"
+        "pgm" : regop(36, 62), # TBD does this have special meaning with INV?,
+        "x<>t" : simpleop2(32, 37),
+        "p->r" : simpleop(37),
+        "x2" : simpleop2(33, 38),
+        "sin" : simpleop(38),
+        "sqrt" : simpleop2(34, 39),
+        "cos" : simpleop(39),
+        "1/x" : simpleop2(35, 30),
+        "tan" : simpleop(30),
+        # no "sst"
+        # no "ins"
+        "sto" : regop(42, 72), # I don't correctly handle "2nd STO"
+        "cms" : simpleop(47),
+        "rcl" : regop2(43, 48, 73, 63),
+        "exc" : regop(48, 63),
+        "sum" : regop2(44, 49, 74, 64),
+        "prd" : regop(49, 64),
+        "y**x" : simpleop(45),
+        "ind" : {"modifier" : True, "isind" : True}, # special handling by parser
+        # no "bst"
+        # no "del"
+        "ee" : simpleop2(52, 57),
+        "eng" : simpleop(57),
+        "(" : simpleop2(53, 58),
+        "fix" : simpleop(58),
+        ")" : simpleop2(54, 59),
+        "int" : simpleop(59),
+        "÷" : simpleop2(55, 50),
+        "|x|" : simpleop(50),
+        "gto" : transferop(61, 83),
+        "pause" : simpleop(66),
+        "x=t" : transferop(67),
+        "nop" : simpleop(68),
+        "op" : regop(69, 84),
+        "×" : simpleop2(65, 60),
+        "deg" : simpleop(60),
+        "sbr" : {"op" : 71,  "act" : sbr},
+        "lbl" : {"op" : 76, "expect" : "label"},
+        "x≥t" : transferop(77),
+        "sigma" : simpleop(78),
+        "mean" : simpleop(79),
+        "-" : simpleop2(75, 70),
+        "rad" : simpleop(70),
+        "rst" : simpleop(81),
+        "stflg" : {"op" : 86, "expect" : "flag"},
+        "ifflg" : {"op" : 87, "expect" : "flag", "expect2" : "loc"},
+        "d.ms" : simpleop(88),
+        "pi" : simpleop(89),
+        "+" : simpleop2(85, 80),
+        "grad" : simpleop(80),
+        "r/s" : simpleop2(91, 96),
+        "dsz" : {"op" : 97, "expect" : "flag", "expect2" : "loc"},
+        "." : simpleop2(93, 98),
+        "adv" : simpleop(98),
+        "+/-" : simpleop2(94, 99),
+        "prt" : simpleop(99),
+        "=" : simpleop2(95, 90),
+        "list" : simpleop(90),
+    }
+for s in symbols.values() :
+    if "op" in s and "altop" not in s :
+        s["altop"] = s["op"]
+    #end if
+    if "indop" in s and "altindop" not in s :
+        s["altindop"] = s["indop"]
+    #end if
+#end for
+del s
+# synonyms
+symbols["x⇌t"] = symbols["x<>t"]
+symbols["p→r"] = symbols["p->r"]
+symbols["√x"] = symbols["sqrt"]
+symbols["**"] = symbols["y**x"]
+symbols["pow"] = symbols["y**x"]
+symbols["abs"] = symbols["|x|"]
+symbols["/"] = symbols["÷"]
+symbols["*"] = symbols["×"]
+symbols["x>=t"] = symbols["x≥t"]
+symbols["∑x"] = symbols["sigma"]
+symbols["π"] = symbols["pi"]
+
+def report_error(msg) :
+    sys.stderr.write("Assembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
+    # reset everything to try to recover from error:
+    global alt_state, inv_state, was_modifier, expect, lastsym
+    alt_state = False
+    inv_state = False
+    was_modifier = False
+    expect = None
+    lastsym = None
+#end report_error
+
+alt_state = False
+ind_state = False
+was_modifier = False
+outcount = 0
+pending_out = None # hold back last byte for possible merging
+expect = None
+lastsym = None
+
+def realout(b) :
+    """really outputs a single instruction byte."""
+    global outcount
+    if outcount != 0 :
+        sys.stdout.write(" ")
+    #end if
+    sys.stdout.write("%02d" % b);
+    outcount += 1
+    if outcount == 24 :
+        sys.stdout.write("\n")
+        outcount = 0
+    #end if
+#end realout
+
+def flushout() :
+    """writes out any pending instruction byte."""
+    global pending_out
+    if pending_out != None :
+        realout(pending_out)
+        pending_out = None
+    #end if
+#end flushout
+
+def out(b) :
+    """outputs a single instruction byte."""
+    global pending_out
+    flushout()
+    pending_out = b
+#end out
+
+curline = ""
+EOF = False
+cursym = None
+in_comment = False
+line_nr = 0
+was_newline = True
+while True :
+    if len(curline) == 0 and not EOF :
+        curline += sys.stdin.readline()
+        if len(curline) == 0 :
+            EOF = True
+        #end if
+    #end if
+    if len(curline) != 0 :
+        ch = curline[0]
+        curline = curline[1:]
+    else :
+        ch = " "
+    #end if
+    if was_newline :
+        line_nr += 1
+        col_nr = 0
+        was_newline = False
+    #end if
+    if ch == "\n" :
+        was_newline = True
+    else :
+        col_nr += 1
+    #end if
+    if in_comment :
+        if EOF :
+            break
+        if ch == "\n" :
+            in_comment = False
+        #end if
+    else :
+        if cursym == None :
+            if ch > " " :
+                if ch == ";" or ch == "#" :
+                    in_comment = True
+                else :
+                    cursym = ch # start collecting next symbol
+                #end if
+            else :
+                if EOF :
+                    break
+            #end if
+        else :
+            if ch > " " :
+                cursym += ch
+            else : # got a complete symbol
+                lookup = cursym.lower()
+                symbol = symbols.get(lookup)
+                numeric = re.search(r"^[\+\-]?(?:\d+(?:\.\d*)?|\.\d+?)(?:[eE][\+\-]?\d+)?$", cursym) != None
+                integral = re.search(r"^\d+$", cursym) != None
+                if expect != None :
+                    if expect != "label" and symbol != None and symbol.get("isind", False) :
+                        if ind_state :
+                            report_error("redundant \"ind\"")
+                        #end if
+                        ind_state = True
+                        expect = "reg"
+                    #end if
+                    # ensure opcode has been output, if not already done so
+                    if "op" in lastsym :
+                        if ind_state and "indop" in lastsym :
+                            out(lastsym[("indop", "altindop")[alt_state]])
+                        else :
+                            out(lastsym[("op", "altop")[alt_state]])
+                            if ind_state :
+                                out(40)
+                            #end if
+                        #end if
+                        for k in ("op", "altop", "indop", "altindop") :
+                            lastsym.pop(k, None)
+                        #end for
+                    elif ind_state :
+                        out(40)
+                    #end if
+                    ind_state = False
+                #end if
+                if numeric :
+                    if expect != None :
+                        assert expect in ("label", "flag", "reg", "loc")
+                        if integral :
+                            opval = int(cursym)
+                            if expect == "loc" :
+                                if opval < 1000 :
+                                    out(opval // 100)
+                                    out(opval % 100)
+                                else :
+                                    report_error("address can't be > 999")
+                                #end if
+                            elif expect == "reg" :
+                                if opval < 100 :
+                                    out(opval)
+                                else :
+                                    report_error("reg/op/pgm number can't be > 99")
+                                #end if
+                            elif expect == "flag" :
+                                if opval < 10 :
+                                    out(opval)
+                                else :
+                                    report_error("reg/flag number can't be > 9")
+                                #end if
+                            else : # expect = "label"
+                                report_error("expecting %s" % expect)
+                            #end if
+                        else :
+                            report_error("expecting integer")
+                        #end if
+                        if lastsym != None :
+                            expect = lastsym.get("expect") # further operand?
+                            if expect != None :
+                                del lastsym["expect"]
+                            else :
+                                lastsym = None # all done
+                            #end if
+                        else :
+                            pass # cleared on error
+                        #end if
+                    else :
+                        # not expecting special operand, so just output keystrokes for entering number
+                        for digit in cursym :
+                            if digit == "-" :
+                                out(94) # "+/-"
+                            elif digit >= "0" and digit <= "9" :
+                                out(ord(digit) - 48)
+                            elif digit == "." :
+                                out(93) # "."
+                            elif digit == "e" or digit == "E" :
+                                out(52) # "EE"
+                            #end if
+                        #end for
+                    #end if
+                elif symbol != None :
+                    was_modifier = False
+                    if expect != None :
+                        if symbol.get("isind", False) :
+                            if expect == "label" :
+                                report_error("cannot use \"ind\" as label")
+                                expect = None
+                            else :
+                                pass # already handled above
+                            #end if
+                        elif expect == "loc" or expect == "label" :
+                            which = ("op", "altop")[alt_state]
+                            if which in symbol :
+                                out(symbol[which])
+                            else :
+                                report_error("cannot use \"%s\" as label -- no %s" % (cursym, which))
+                            #end if
+                            expect = None
+                        else :
+                            report_error("not expecting symbol for %s" % expect)
+                            expect = None
+                        #end if
+                        if expect == None :
+                            lastsym = None
+                        #end if
+                    elif symbol.get("isind", False) :
+                        report_error("dangling \"ind\"")
+                    else :
+                        if "act" in symbol :
+                            symbol["act"]()
+                        else :
+                            expect = symbol.get("expect")
+                            if expect == None :
+                                out(symbol[("op", "altop")[alt_state]])
+                            #end if
+                        #end if
+                        if expect != None :
+                            lastsym = dict((k, symbol[k]) for k in symbol if k not in ("expect", "expect2"))
+                            if "expect2" in symbol :
+                                lastsym["expect"] = symbol["expect2"]
+                            #end if
+                        else :
+                            lastsym = None
+                        #end if
+                        if not symbol.get("modifier", False) :
+                            alt_state = False
+                        #end if
+                    #end if
+                else :
+                    report_error("unrecognized symbol \"%s\"" % cursym)
+                #end if
+                cursym = None
+                if EOF :
+                    break
+            #end if got complete symbol
+        #end if collecting symbol
+    #end if
+#end while
+flushout()
+if outcount != 0 :
+    sys.stdout.write("\n")
+#end if
