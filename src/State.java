@@ -69,11 +69,23 @@ public class State
     public final double[] Memory;
     public final byte[] Program;
     public final boolean[] Flag;
+      /* TBD special interpretation of flags:
+        8 => stop on error
+        9 => trace calculation on printer
+      */
     public int PC;
     final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
-    boolean GotLabels;
+    boolean GotLabels; /* Labels table is currently valid */
     public boolean ProgRunning = false;
     public boolean ProgRunningSlowly = false;
+
+  /* use of memories for stats operations */
+    public static final int STATSREG_SIGMAY = 1;
+    public static final int STATSREG_SIGMAY2 = 2;
+    public static final int STATSREG_N = 3;
+    public static final int STATSREG_SIGMAX = 4;
+    public static final int STATSREG_SIGMAX2 = 5;
+    public static final int STATSREG_SIGMAXY = 6;
 
     public static class ReturnStackEntry
       {
@@ -956,6 +968,23 @@ public class State
           } /*if*/
       } /*MemoryOp*/
 
+    double StatsSlope()
+      /* estimated slope from linear regression, used in a lot of other results. */
+      {
+        return
+                (
+                    Memory[STATSREG_SIGMAXY]
+                -
+                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
+                )
+            /
+                (
+                    Memory[STATSREG_SIGMAX2]
+                -
+                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
+                );
+      } /*StatsSlope*/
+
     public void SpecialOp
       (
         int OpNr,
@@ -995,38 +1024,52 @@ public class State
                 break;
                 case 11:
                   /* sample variance */
-                    T = Memory[5] / Memory[3] - Memory[4] * Memory[4] / (Memory[3] * Memory[3]);
-                    SetX(Memory[2] / Memory[3] - Memory[1] * Memory[1] / (Memory[3] * Memory[3]));
+                    T =
+                            Memory[STATSREG_SIGMAX2] / Memory[STATSREG_N]
+                        -
+                                Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX]
+                            /
+                                (Memory[STATSREG_N] * Memory[STATSREG_N]);
+                    SetX
+                      (
+                            Memory[STATSREG_SIGMAY2] / Memory[STATSREG_N]
+                        -
+                                Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY]
+                            /
+                                (Memory[STATSREG_N] * Memory[STATSREG_N])
+                      );
                     OK = true;
                 break;
                 case 12:
                   /* slope and intercept */
-                    T =
-                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                        /
-                            (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
-                    SetX
-                      (
-                        (Memory[1] - T * Memory[4]) / Memory[3]
-                      );
-                    OK = true;
+                      {
+                        final double m = StatsSlope();
+                        T = m;
+                        SetX
+                          (
+                            (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
+                          );
+                        OK = true;
+                      }
                 break;
                 case 13:
                   /* correlation coefficient */
                     SetX
                       (
-                            (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                        /
-                            (Memory[5] - Memory[4] * Memory[4] / Memory[3])
+                            StatsSlope()
                         *
                             Math.sqrt
                               (
-                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0)
+                                    Memory[STATSREG_SIGMAX2]
+                                -
+                                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
                               )
                         /
                             Math.sqrt
                               (
-                                (Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0)
+                                    Memory[STATSREG_SIGMAY2]
+                                -
+                                    Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
                               )
                       );
                     OK = true;
@@ -1034,15 +1077,12 @@ public class State
                 case 14:
                   /* estimated y from x */
                       {
-                        final double m =
-                                (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                            /
-                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                        final double m = StatsSlope();
                         SetX
                           (
                                 m * X
                             +
-                                (Memory[1] - m * Memory[4]) / Memory[3]
+                                (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
                           );
                       }
                     OK = true;
@@ -1050,13 +1090,14 @@ public class State
                 case 15:
                   /* estimated x from y */
                       {
-                        final double m =
-                                (Memory[6] - Memory[1] * Memory[4] / Memory[3])
-                            /
-                                (Memory[5] - Memory[4] * Memory[4] / Memory[3]);
+                        final double m = StatsSlope();
                         SetX
                           (
-                                ((Memory[1] - m * Memory[4]) / Memory[3] - X)
+                                (
+                                    (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
+                                -
+                                    X
+                                )
                             /
                                 m
                           );
@@ -1085,44 +1126,63 @@ public class State
         if (InvState)
           {
           /* remove sample */
-            Memory[1] -= X;
-            Memory[2] -= X * X;
-            Memory[3] -= 1.0;
-            Memory[4] -= T;
-            Memory[5] -= T * T;
-            Memory[6] -= X * T;
+            Memory[STATSREG_SIGMAY] -= X;
+            Memory[STATSREG_SIGMAY2] -= X * X;
+            Memory[STATSREG_N] -= 1.0;
+            Memory[STATSREG_SIGMAX] -= T;
+            Memory[STATSREG_SIGMAX2] -= T * T;
+            Memory[STATSREG_SIGMAXY] -= X * T;
             T -= 1.0;
           }
         else
           {
           /* accumulate sample */
-            Memory[1] += X;
-            Memory[2] += X * X;
-            Memory[3] += 1.0;
-            Memory[4] += T;
-            Memory[5] += T * T;
-            Memory[6] += X * T;
+            Memory[STATSREG_SIGMAY] += X;
+            Memory[STATSREG_SIGMAY2] += X * X;
+            Memory[STATSREG_N] += 1.0;
+            Memory[STATSREG_SIGMAX] += T;
+            Memory[STATSREG_SIGMAX2] += T * T;
+            Memory[STATSREG_SIGMAXY] += X * T;
             T += 1.0;
           } /*if*/
-        SetX(Memory[3]);
+        SetX(Memory[STATSREG_N]);
       } /*StatsSum*/
 
     public void StatsResult()
       {
         if (InvState)
           {
-          /* population standard deviation */
-            T = Math.sqrt((Memory[5] - Memory[4] * Memory[4] / Memory[3]) / (Memory[3] - 1.0));
+          /* estimated population standard deviation */
+            T =
+                Math.sqrt
+                    (
+                        (
+                            Memory[STATSREG_SIGMAX2]
+                        -
+                            Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
+                        )
+                    /
+                        (Memory[STATSREG_N] - 1.0)
+                    );
             SetX
               (
-                Math.sqrt((Memory[2] - Memory[1] * Memory[1] / Memory[3]) / (Memory[3] - 1.0))
+                Math.sqrt
+                    (
+                        (
+                            Memory[STATSREG_SIGMAY2]
+                        -
+                            Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
+                        )
+                    /
+                        (Memory[STATSREG_N] - 1.0)
+                    )
               );
           }
         else
           {
           /* sample mean */
-            T = Memory[4] / Memory[3];
-            SetX(Memory[1] / Memory[3]);
+            T = Memory[STATSREG_SIGMAX] / Memory[STATSREG_N];
+            SetX(Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]);
           } /*if*/
       } /*StatsResult*/
 
