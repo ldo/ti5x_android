@@ -114,6 +114,7 @@ symbols = \
         "×" : simpleop2(65, 60),
         "deg" : simpleop(60),
         "sbr" : {"op" : 71,  "act" : sbr},
+        "rtn" : simpleop(92),
         "lbl" : {"op" : 76, "expect" : "label"},
         "x≥t" : transferop(77),
         "sigma" : simpleop(78),
@@ -147,6 +148,7 @@ for s in symbols.values() :
 del s
 # synonyms
 symbols["x⇌t"] = symbols["x<>t"]
+symbols["x-t"] = symbols["x<>t"]
 symbols["p→r"] = symbols["p->r"]
 symbols["sqr"] = symbols["x2"]
 symbols["x²"] = symbols["x2"]
