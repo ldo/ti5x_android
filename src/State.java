@@ -1094,9 +1094,9 @@ public class State
                         SetX
                           (
                                 (
-                                    (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
-                                -
                                     X
+                                -
+                                    (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
                                 )
                             /
                                 m
