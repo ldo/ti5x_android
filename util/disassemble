@@ -1,0 +1,302 @@
+#!/usr/bin/python3.1
+#+
+# Very simple symbolic disassembler for ti5x programs. Reads a sequence of numeric codes from
+# standard input, and writes a symbolic representation to standard output.
+#
+# Created by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+#-
+
+import sys
+
+def simple(sym) :
+    return {"sym" : sym}
+#end simple
+
+def regop(op, hassym) :
+    entry = {"expect" : "reg"}
+    if hassym :
+        entry["sym"] = op
+    #end if
+    return entry
+#end regop
+
+def locop(op) :
+    return {"sym" : op, "expect" : "loc"}
+#end locop
+
+def pgm() :
+    global expect
+    if not inv_state :
+        expect = "reg"
+    #end if
+#end pgm
+
+def sbr() :
+    global expect
+    if not inv_state :
+        expect = "loc"
+    #end if
+#end sbr
+
+def fix() :
+    global expect
+    if not inv_state :
+        expect = "flag"
+    #end if
+#end fix
+
+codes = \
+    {
+        1 : simple("1"),
+        2 : simple("2"),
+        3 : simple("3"),
+        4 : simple("4"),
+        5 : simple("5"),
+        6 : simple("6"),
+        7 : simple("7"),
+        8 : simple("8"),
+        9 : simple("9"),
+        0 : simple("0"),
+        11 : simple("A"),
+        12 : simple("B"),
+        13 : simple("C"),
+        14 : simple("D"),
+        15 : simple("E"),
+        16 : simple("A'"),
+        17 : simple("B'"),
+        18 : simple("C'"),
+        19 : simple("D'"),
+        10 : simple("E'"),
+        22 : {"sym" : "INV", "modifier" : True},
+        23 : simple("lnx"),
+        24 : simple("CE"),
+        25 : simple("CLR"),
+        27 : {"sym" : "2nd INV", "modifier" : True},
+        28 : simple("log"),
+        29 : simple("CP"),
+        20 : simple("2nd CLR"),
+        # 31 invalid
+        32 : simple("x⇌t"),
+        33 : simple("x²"),
+        34 : simple("√x"),
+        35 : simple("1/x"),
+        36 : {"sym" : "Pgm", "act" : pgm},
+        37 : simple("P→R"),
+        38 : simple("sin"),
+        39 : simple("cos"),
+        30 : simple("tan"),
+        # 41 invalid
+        42 : regop("STO", True),
+        43 : regop("RCL", True),
+        44 : regop("SUM", True),
+        45 : simple("y**x"),
+        # 46 invalid
+        47 : simple("CMs"),
+        48 : regop("Exc", True),
+        49 : regop("Prd", True),
+        # 40 (Ind) specially handled
+        # 51 invalid
+        52 : simple("EE"),
+        53 : simple("("),
+        54 : simple(")"),
+        55 : simple("÷"),
+        # 56 invalid
+        57 : simple("Eng"),
+        58 : {"sym" : "Fix", "act" : fix},
+        59 : simple("Int"),
+        50 : simple("|x|"),
+        61 : locop("GTO"),
+        62 : regop("Pgm Ind", False),
+        63 : regop("Exc Ind", False),
+        64 : regop("Prd Ind", False),
+        65 : simple("×"),
+        # 66 invalid
+        67 : locop("x=t"),
+        68 : simple("Nop"),
+        69 : regop("Op", True),
+        60 : simple("Deg"),
+        71 : {"sym" : "SBR", "act" : sbr},
+        72 : regop("STO Ind", False),
+        73 : regop("RCL Ind", False),
+        74 : regop("SUM Ind", False),
+        75 : simple("-"),
+        76 : {"sym" : "Lbl", "expect" : "label"},
+        77 : locop("x≥t"),
+        78 : simple("∑x"),
+        79 : simple("mean(x)"),
+        70 : simple("Rad"),
+        81 : simple("RST"),
+        # 82 invalid (HIR!)
+        83 : regop("GTO Ind", False),
+        84 : regop("Op Ind", False),
+        85 : simple("+"),
+        86 : {"sym" : "Stflg", "expect" : "flag"},
+        87 : {"sym" : "Ifflg", "expect" : "flag", "expect2" : "loc"},
+        88 : simple("D.MS"),
+        89 : simple("π"),
+        80 : simple("Grad"),
+        91 : simple("R/S"),
+        92 : simple("INV SBR"),
+        93 : simple("."),
+        94 : simple("+/-"),
+        95 : simple("="),
+        96 : simple("2nd R/S"),
+        97 : {"sym" : "Dsz", "expect" : "flag", "expect2" : "loc"},
+        98 : simple("Prt"),
+        99 : simple("prt"),
+        90 : simple("List"),
+    }
+
+def report_error(msg) :
+    sys.stderr.write("Disassembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
+    # reset everything to try to recover from error:
+    global inv_state, was_modifier, expect
+    inv_state = False
+    was_modifier = False
+    expect = None
+#end report_error
+
+was_modifier = False
+inv_state = False
+expect = None
+
+curline = ""
+cursym = None
+EOF = False
+was_newline = True
+loc = None
+lastcode = None
+line_nr = 0
+while True :
+    if len(curline) == 0 and not EOF :
+        curline += sys.stdin.readline()
+        if len(curline) == 0 :
+            EOF = True
+        #end if
+    #end if
+    if len(curline) != 0 :
+        ch = curline[0]
+        curline = curline[1:]
+    else :
+        ch = " "
+    #end if
+    if was_newline :
+        line_nr += 1
+        col_nr = 0
+        was_newline = False
+    #end if
+    if ch == "\n" :
+        was_newline = True
+    else :
+        col_nr += 1
+    #end if
+    if cursym == None :
+        if ch > " " :
+            cursym = ch # start collecting next symbol
+        else :
+            if EOF :
+                break
+        #end if
+    else :
+        if ch > " " :
+            cursym += ch
+        else : # got a complete symbol
+            try :
+                val = int(cursym)
+            except ValueError :
+                report_error("non-numeric code \"%s\"" % cursym)
+                val = None
+            #end try
+            if val != None and val >= 100 :
+                report_error("not a two-digit code: %d\n" % val)
+                val = None
+            #end if
+            if val != None :
+                if expect != None :
+                    if expect == "loc2" :
+                        sys.stdout.write("%03d" % (loc * 100 + val))
+                        expect = None
+                    elif expect == "loc" :
+                        expect = None
+                        if val < 10 :
+                            loc = val
+                            expect = "loc2"
+                        elif val == 40 :
+                            sys.stdout.write("Ind")
+                            expect = "reg"
+                        else :
+                            if val in codes and "sym" in codes[val] :
+                                sys.stdout.write(codes[val]["sym"])
+                            else :
+                                report_error("cannot use code %02d as label" % val)
+                            #end if
+                        #end if
+                    elif expect == "reg" :
+                        sys.stdout.write("%02d" % val)
+                        expect = None
+                    elif expect == "flag" :
+                        expect = None
+                        if val < 10 :
+                            sys.stdout.write("%1d" % val)
+                        elif val == 40 :
+                            sys.stdout.write("Ind")
+                            expect = "reg"
+                        else :
+                            report_error("invalid flag code %02d" % val)
+                        #end if
+                    elif expect == "label" :
+                        expect = None
+                        if val in codes and "sym" in codes[val] :
+                            sys.stdout.write(codes[val]["sym"])
+                        else :
+                            report_error("cannot use code %02d as label" % val)
+                        #end if
+                    #end if
+                    if expect == None and lastcode != None :
+                        if "expect" in lastcode :
+                            expect = lastcode["expect"]
+                            del lastcode["expect"]
+                            sys.stdout.write(" ")
+                        else :
+                            sys.stdout.write("\n")
+                            lastcode = None
+                        #end if
+                    #end if
+                else :
+                    if val in codes :
+                        code = codes[val]
+                        if "sym" in code :
+                            sys.stdout.write(code["sym"])
+                        else :
+                            report_error("code %02d has no symbol" % val)
+                        #end if
+                        was_modifier = "modifier" in code
+                        if "act" in code :
+                            code["act"]()
+                        elif "expect" in code :
+                            lastcode = dict((k, code[k]) for k in code if k not in ("expect", "expect2"))
+                            if "expect2" in code :
+                                lastcode["expect"] = code["expect2"]
+                            #end if
+                            expect = code["expect"]
+                            sys.stdout.write(" ")
+                        elif was_modifier :
+                            sys.stdout.write(" ")
+                        else :
+                            sys.stdout.write("\n")
+                        #end if
+                        if was_modifier :
+                            inv_state = True
+                        #end if
+                    else :
+                        report_error("invalid code %02d" % val)
+                    #end if
+                    if not was_modifier :
+                        inv_state = False
+                    #end if
+                #end if
+            #end if
+            cursym = None
+        #end if
+    #end if
+#end while
