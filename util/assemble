@@ -148,6 +148,8 @@ del s
 # synonyms
 symbols["x⇌t"] = symbols["x<>t"]
 symbols["p→r"] = symbols["p->r"]
+symbols["sqr"] = symbols["x2"]
+symbols["x²"] = symbols["x2"]
 symbols["√x"] = symbols["sqrt"]
 symbols["**"] = symbols["y**x"]
 symbols["pow"] = symbols["y**x"]
