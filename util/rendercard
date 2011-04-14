@@ -1,0 +1,503 @@
+#!/usr/bin/python
+#+
+# This script takes an XML card template from standard input and renders the card
+# image in PNG format to standard output.
+#
+# The XML template looks like this:
+#
+#     <carddef>
+#         label
+#         label ...
+#     </carddef>
+#
+# where each label looks like
+#
+#     <label slot="slot">content</label>
+#
+# where the slot specifies where to position the label (as below), and the content is a
+# mix of straight text and button definitions that look like this:
+#
+#     <button>titletext</button>
+#
+# The button text is rendered inline with the rest of the text with a box around it.
+# The label slots must be from the following:
+#
+#     titleleft -- second row, left-aligned
+#     titleright -- second row, right-aligned
+#     aprime, bprime, cprime, dprime, eprime -- third row, five cells
+#     primecenter -- third row, centred in single full-width cell
+#     a, b, c, d, e -- fourth row, five cells
+#     basecenter -- fourth row, centred in single full-width cell
+#
+# Note that the ones that treat a row as a single cell are incompatible
+# with the ones that divide it into multiple cells.
+#
+# Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+#-
+
+from __future__ import \
+    division
+from functools import \
+    reduce
+import sys
+import subprocess
+import xml.parsers.expat as expat
+import xml.sax.saxutils as saxutils
+
+#+
+# Useful stuff
+#-
+
+def psstring(data) :
+    """returns a PostScript string literal that evaluates to data."""
+    data = str(data)
+    result = ""
+    for i in range(0, len(data)) :
+        ch = data[i]
+        if ch == "(" or ch == ")" or ch == "\\" :
+            ch = "\\" + ch
+        # everything else can remain as is
+        #end if
+        result += ch
+    #end for
+    return "(" + result + ")"
+#end psstring
+
+def mm(dist) :
+    """returns the equivalent in points to dist in millimetres."""
+    return dist * 72 / 25.4
+#end mm
+
+#+
+# Card template
+#-
+
+label_slots = \
+    {
+    # key is slot name, value is dict with keys:
+    #     row -- row number [2 .. 4] (top row reserved for fixed text)
+    #     cell -- cell number [1 .. 5] if row is divided into cells, or 0 if entire row is one cell
+    #     align -- alignment of label text within cell (actually ignored for multiple cells per row)
+        "titleleft" : {"row" : 2, "cell" : 0, "align" : "left"},
+        "titleright" : {"row" : 2, "cell" : 0, "align" : "right"},
+        "aprime" : {"row" : 3, "cell" : 1, "align" : "center"},
+        "bprime" : {"row" : 3, "cell" : 2, "align" : "center"},
+        "cprime" : {"row" : 3, "cell" : 3, "align" : "center"},
+        "dprime" : {"row" : 3, "cell" : 4, "align" : "center"},
+        "eprime" : {"row" : 3, "cell" : 5, "align" : "center"},
+        "primecenter" : {"row" : 3, "cell" : 0, "align" : "center"},
+        "basecenter" : {"row" : 4, "cell" : 0, "align" : "center"},
+        "baseleft" : {"row" : 4, "cell" : 0, "align" : "left"},
+        "baseright" : {"row" : 4, "cell" : 0, "align" : "right"},
+        "a" : {"row" : 4, "cell" : 1, "align" : "center"},
+        "b" : {"row" : 4, "cell" : 2, "align" : "center"},
+        "c" : {"row" : 4, "cell" : 3, "align" : "center"},
+        "d" : {"row" : 4, "cell" : 4, "align" : "center"},
+        "e" : {"row" : 4, "cell" : 5, "align" : "center"},
+    }
+
+# classes representing label content:
+class cdata :
+    """straight text."""
+
+    def __init__(self, text) :
+        self.text = text
+    #end __init__
+
+    def __repr__(self) :
+        return repr("<cdata>%s</cdata>" % self.text)
+    #end __repr__
+
+#end cdata
+
+class button :
+    """an inline button label."""
+
+    def __init__(self, text) :
+        self.text = text
+    #end __init__
+
+    def __repr__(self) :
+        return repr("<button>%s</button>" % self.text)
+    #end __repr__
+
+#end button
+
+def parse_template(input) :
+
+    parse_state = {"nest" : 0, "main_seen" : False, "save_content" : [], "content" : None}
+    result = [None] * 4
+
+    def require_attrs(tag, attrs, attrnames) :
+        """ensures that attrs has values for all keys listed in attrnames."""
+        if not reduce(lambda a, b : a and b, (name in attrs for name in attrnames), True) :
+            raise RuntimeError("missing required attributes for \"%s\"" % tag)
+        #end if
+    #end require_attrs
+
+    def handle_label_def(tag, attrs) :
+        require_attrs(tag, attrs, ("slot",))
+        slotname = attrs["slot"]
+        if slotname not in label_slots :
+            raise RuntimeError("invalid slot name \"%s\"" % slotname)
+        #end if
+        slot = label_slots[slotname]
+        if result[slot["row"] - 1] == None :
+            result[slot["row"] - 1] = {"nrcells" : None}
+        #end if
+        row = result[slot["row"] - 1]
+        if row["nrcells"] != None :
+            if (row["nrcells"] == 1) != (slot["cell"] == 0) :
+                raise RuntimeError("slot %s incompatible with previously-specified slots" % slotname)
+            #end if
+        else :
+            row["nrcells"] = [1, 5][slot["cell"] != 0]
+        #end if
+        if slot["cell"] != 0 :
+            key = slot["cell"]
+        else :
+            key = slot["align"]
+        #end if
+        if key in row :
+            raise RuntimeError("already filled %s slot in row %d" % (key, slot["row"]))
+        #end if
+        parse_state["cur_label"] = {"content" : []}
+        row[key] = parse_state["cur_label"]
+    #end handle_label_def
+
+    def handle_label_end(tag) :
+        parse_state["cur_label"]["content"].append(cdata("".join(parse_state["content"])))
+        parse_state["content"] = []
+    #end handle_label_end
+
+    def handle_button_def(tag, attrs) :
+        parse_state["cur_label"]["content"].append(cdata("".join(parse_state["save_content"][-1])))
+        parse_state["save_content"][-1] = []
+    #end handle_button_def
+
+    def handle_button_end(tag) :
+        parse_state["cur_label"]["content"].append(button("".join(parse_state["content"])))
+        parse_state["content"] = []
+    #end handle_button_end
+
+    element_handlers = \
+        {
+            1 :
+                {
+                    "label" : handle_label_def,
+                    "/label" : handle_label_end,
+                },
+            2 :
+                {
+                    "button" : handle_button_def,
+                    "/button" : handle_button_end,
+                }
+        }
+
+    def handle_start_element(name, attrs) :
+        parse_state["save_content"].append(parse_state["content"])
+        parse_state["content"] = []
+        if parse_state["nest"] == 0 :
+            if name == "carddef" :
+                parse_state["nest"] = 1
+                parse_state["main_seen"] = True
+            else :
+                raise RuntimeError \
+                  (
+                    "unrecognized top-level element \"%s\"." % name
+                  )
+            #end if
+        else :
+            handlers = element_handlers.get(parse_state["nest"])
+            if handlers != None :
+                handler = handlers.get(name)
+                if handler != None :
+                    parse_state["nest"] += 1
+                    handler(name, attrs)
+                else :
+                    raise RuntimeError \
+                      (
+                        "unrecognized element \"%s\"." % name
+                      )
+                #end if
+            else :
+                raise RuntimeError("unrecognized element nesting")
+            #end if
+        #end if
+    #end handle_start_element
+
+    def handle_end_element(name) :
+        parse_state["nest"] -= 1
+        if parse_state["nest"] != 0 :
+            handler = element_handlers[parse_state["nest"]].get("/" + name)
+            if handler != None :
+                handler(name)
+            #end if
+        #end if
+        parse_state["content"] = parse_state["save_content"].pop()
+    #end handle_end_element
+
+    def handle_cdata(data) :
+        parse_state["content"].append(data)
+    #end handle_cdata
+
+#begin parse_template
+    parser = expat.ParserCreate()
+    parser.StartElementHandler = handle_start_element
+    parser.EndElementHandler = handle_end_element
+    parser.CharacterDataHandler = handle_cdata
+    result[0] = {"nrcells" : 1, "center" : {"content" : [cdata(u"Solid State Software")]}}
+    parser.ParseFile(input)
+      # can raise expat.ExpatError
+    if not parse_state["main_seen"] :
+        raise RuntimeError("missing \"carddef\" element")
+    #end if
+    for i in (2, 3) :
+        if result[i] == None :
+            result[i] = {"nrcells" : 5} # just draw empty cells
+        #end if
+    #end for
+    return result
+#end parse_template
+
+#+
+# Mainline
+#-
+
+debug_ps = False
+FontName = "Helvetica"
+template = parse_template(sys.stdin)
+
+if debug_ps :
+    args = ("cat",)
+else :
+    args = \
+        (
+            "gs", "-q", "-dBATCH", "-dNOPAUSE",
+              # -dBATCH needed to turn off prompt (doc says -dNOPAUSE does this, but it
+              # lies).
+            "-sPAPERSIZE=a4", "-sDEVICE=pngalpha", "-sOutputFile=/dev/stdout",
+            "-r%(pixel_density)ux%(pixel_density)u" % {"pixel_density" : 144},
+            "/dev/stdin",
+              # Side effect of -dBATCH is that gs no longer automatically reads from
+              # stdin, need to specify explicit input filenames.
+        )
+#end if
+proc_gs = subprocess.Popen \
+  (
+    args = args,
+    stdin = subprocess.PIPE,
+    close_fds = True # make sure no superfluous references to pipes
+  )
+gs = proc_gs.stdin
+
+card_width = mm(72)
+card_height = mm(16)
+thumb_margin = mm(2)
+label_margin = mm(2)
+gs.write \
+  (
+        "<</PageSize [%(width)u %(height)u] /ImagingBBox null>> setpagedevice\n"
+    %
+        {
+            "width" : card_width,
+            "height" : card_height,
+        }
+  )
+gs.write \
+  (
+    # theory of operation: the Decoding resource named Unicode is a dictionary
+    # mapping glyphnames to Unicode character codes. However, multiple glyph names
+    # can map to the same character code. I construct the inverse of this mapping,
+    # where each character code maps to a dictionary with all the corresponding
+    # glyph names as keys (and dummy values). To render a Unicode character,
+    # I try all the glyph names corresponding to that character code until I
+    # find a match in the CharStrings dictionary of the currentfont.
+    "/UnicodeEncode 256 dict def\n" # initial size doesn't matter
+    "/DefineCode\n" # glyphname charcode DefineCode -
+      # inserts a correspondence between the specified glyph name and character
+      # code into UnicodeEncode.
+    "  {\n"
+    "    UnicodeEncode 1 index known not\n"
+    "       { % if\n"
+    "        UnicodeEncode 1 index 1 dict put\n" # first glyph name for this character code
+    "      }\n"
+    "    if\n"
+    "    UnicodeEncode exch get exch true put\n"
+            # add another glyph name to dict for that character code
+            # glyph name is key, value is unimportant
+    "  }\n"
+    "def\n"
+    "/Unicode /Decoding findresource {DefineCode} forall\n"
+      # mapping from Unicode character code to possible PostScript glyph names
+    "/minus 45 DefineCode\n" # needed for Palatino-Roman
+    "\n"
+    "/UniShow\n" # chararray UniShow --
+      # given an array of Unicode character codes, does a show of the corresponding
+      # glyphs in turn. Assumes it's a Type 1 font.
+    "  {\n"
+    "      {\n"
+    "        dup UnicodeEncode exch known\n"
+    "          {\n"
+    "            UnicodeEncode exch get\n"
+    "            /.notdef exch\n" # in case no glyph name found
+    "              { % forall\n"
+    "                pop\n" # get rid of dummy value
+    "                currentfont /CharStrings get 1 index known\n"
+    "                  {\n"
+    "                    exch pop\n" # get rid of .notdef, leave found key
+    "                    exit\n"
+    "                  }\n"
+    "                  {\n"
+    "                    pop\n"
+    "                  }\n"
+    "                ifelse\n"
+    "              }\n"
+    "            forall\n"
+    "          }\n"
+    "          {\n"
+    "            pop /.notdef\n"
+    "          }\n"
+    "        ifelse\n"
+    "        glyphshow\n"
+    "      }\n"
+    "    forall\n"
+    "  }\n"
+    "def\n"
+    "\n"
+    "/UniWidth\n" # chararray UniWidth xdelta ydelta
+      # given an array of Unicode character codes, returns the width
+      # of the complete string.
+    "  {\n"
+    "   currentpoint 3 2 roll\n" # save currentpoint (assumes there is one!)
+    "   clippath pathbbox 4 2 roll pop pop\n"
+    "   exch 100 add exch moveto\n" # guaranteed to be outside current clip
+    "   currentpoint 3 2 roll UniShow currentpoint\n"
+    "   3 2 roll sub 3 1 roll exch sub exch\n"
+    "   4 2 roll moveto\n" # restore currentpoint
+    "  }\n"
+    "def\n"
+  )
+def glyphify(thestr) :
+    """returns a PostScript sequence that constructs an array of glyphs
+    from the specified string."""
+    return \
+        (
+            "["
+        +
+            " ".join("%d" % ord(unich) for unich in thestr.decode("utf-8"))
+        +
+            "]"
+              # yes, this sequence leaks memory
+        )
+#end glyphify
+def UniOp(thestr, Op) :
+    """returns a PostScript sequence that uses the UniShow routine
+    to render the specified string."""
+    return glyphify(thestr) + " " + Op
+#end UniOp
+def UniShow(thestr) :
+    return UniOp(thestr, "UniShow")
+#end UniShow
+def UniWidth(thestr) :
+    return UniOp(thestr, "UniWidth")
+#end UniWidth
+
+gs.write("/%s findfont 7 scalefont setfont\n" % FontName)
+gs.write("/boxextra (M) stringwidth pop 2 div def\n")
+gs.write("/DeviceRGB setcolorspace\n")
+corner_radius = mm(1.5)
+gs.write("0 0 0 setcolor newpath %.1f 0 moveto\n" % (corner_radius))
+gs.write("%.1f 0 rlineto\n" % (card_width - 2 * corner_radius))
+gs.write("%.1f %.1f %.1f 270 360 arc\n" % (card_width - corner_radius, corner_radius, corner_radius))
+gs.write("0 %.1f rlineto\n" % (card_height - 2 * corner_radius))
+gs.write("%.1f %.1f %.1f 0 90 arc\n" % (card_width - corner_radius, card_height - corner_radius, corner_radius))
+gs.write("%.1f 0 rlineto\n" % (2 * corner_radius - card_width))
+gs.write("%.1f %.1f %.1f 90 180 arc\n" % (corner_radius, card_height - corner_radius, corner_radius))
+gs.write("0 %.1f rlineto\n" % (2 * corner_radius - card_height))
+gs.write("%.1f %.1f %.1f 180 270 arc\n" % (corner_radius, corner_radius, corner_radius))
+gs.write("closepath fill\n")
+gs.write("%.3f %.3f %.3f setcolor\n" % tuple(i / 255 for i in (0x95, 0x50, 0x1c)))
+gs.write("0.5 setlinewidth\n")
+gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * 0.75, card_width))
+for i in (1, 2) :
+    gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * i  / 4, card_width - thumb_margin))
+#end for
+gs.write \
+  (
+        "newpath %.1f %.1f moveto 0 %.1f rlineto stroke\n"
+    %
+        (card_width - thumb_margin, card_height * 0.75, - card_height * 0.75)
+  )
+for i in range(0, 4) :
+    if template[i] != None :
+        row = template[i]
+        if row["nrcells"] > 1 :
+            for col in range(1, row["nrcells"] + 1) :
+                gs.write("newpath %.1f 0 moveto\n" % ((card_width - thumb_margin) * col / row["nrcells"]))
+                gs.write("0 %.1f rlineto stroke\n" % (card_height * 0.25))
+                if col in row :
+                    items = row[col]
+                    # assume no buttons and always centre-aligned
+                    text = "".join(item["content"].text for item in items.values())
+                    gs.write(UniWidth(text) + " pop -2 div")
+                    gs.write \
+                      (
+                            " %.1f add %.1f moveto\n"
+                        %
+                            (
+                                (card_width - thumb_margin) * (col - 0.5) / row["nrcells"],
+                                card_height * (4 - i - 0.75) / 4,
+                            )
+                      )
+                    gs.write(UniShow(text) + "\n")
+                #end if
+            #end for
+        else :
+            for align in ("left", "center", "right") :
+                if align in row :
+                    items = row[align]["content"]
+                    gs.write \
+                      (
+                            "%.1f %.1f moveto "
+                        %
+                            (
+                                    label_margin
+                                +
+                                        (card_width - thumb_margin - 2 * label_margin)
+                                    *
+                                        {"left" : 0.0, "center" : 0.5, "right" : 1.0}[align],
+                                card_height * (4 - i - 0.75) / 4,
+                            )
+                      )
+                    if align != "left" :
+                        gs.write("0\n")
+                        for item in items :
+                            gs.write(UniWidth(item.text) + " pop")
+                            if isinstance(item, button) :
+                                gs.write(" boxextra add")
+                            #end if
+                            gs.write(" add\n")
+                        #end for
+                        gs.write("-%.1f mul 0 rmoveto\n" % {"center" : 0.5, "right" : 1.0}[align])
+                    #end if
+                    for item in items :
+                        if isinstance(item, button) :
+                            gs.write("currentpoint pop boxextra 2 div 0 rmoveto\n")
+                            gs.write(UniShow(item.text) + "\n")
+                            gs.write("boxextra 2 div 0 rmoveto dup currentpoint pop exch sub\n")
+                            gs.write("%.1f exch\n" % (card_height * (4 - i - 0.89) / 4))
+                            gs.write("%.1f rectstroke\n" % (card_height / 4 * 0.7))
+                        else :
+                            gs.write(UniShow(item.text) + "\n")
+                        #end if
+                    #end for
+                #end if
+            #end for
+        #end if
+    #end if
+#end for
+gs.write("showpage\n")
+
+gs.close()
+proc_gs.wait()
