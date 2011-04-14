@@ -385,7 +385,7 @@ def glyphify(thestr) :
         (
             "["
         +
-            " ".join("%d" % ord(unich) for unich in thestr.decode("utf-8"))
+            " ".join("%d" % ord(unich) for unich in thestr)
         +
             "]"
               # yes, this sequence leaks memory
@@ -436,10 +436,11 @@ for i in range(0, 4) :
             for col in range(1, row["nrcells"] + 1) :
                 gs.write("newpath %.1f 0 moveto\n" % ((card_width - thumb_margin) * col / row["nrcells"]))
                 gs.write("0 %.1f rlineto stroke\n" % (card_height * 0.25))
+                gs.write("0 0 moveto\n") # UniWidth needs currentpoint
                 if col in row :
-                    items = row[col]
+                    items = row[col]["content"]
                     # assume no buttons and always centre-aligned
-                    text = "".join(item["content"].text for item in items.values())
+                    text = "".join(item.text for item in items)
                     gs.write(UniWidth(text) + " pop -2 div")
                     gs.write \
                       (
