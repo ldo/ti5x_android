@@ -55,7 +55,15 @@ if not os.path.isfile(dstfile) or os.path.getmtime(dstfile) < mtime :
         if child.returncode != 0 :
             raise RuntimeError("assemble %s cmd returned %d" % (module["src"], status))
         #end if
-        dst.writestr("prog%02d" % module["nr"], data)
+        dst.writestr \
+          (
+            "prog%02d" % module["nr"],
+                b"<state>\n    <calc>\n        <prog>\n"
+            +
+                data
+            +
+                b"        </prog>\n    </calc>\n</state>\n"
+          )
         if "card" in module :
             child = subprocess.Popen \
               (
