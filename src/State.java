@@ -63,8 +63,8 @@ public class State
     public int OpStackNext;
 
     public boolean ProgMode;
-    public final int MaxMemories = 30; /* TBD make this configurable */ /* can't be zero */
-    public final int MaxProgram = 480; /* TBD make this configurable */
+    public final int MaxMemories = 100; /* maximum addressable */
+    public final int MaxProgram = 960; /* absolute max on original model */
     public final int MaxFlags = 10;
     public final double[] Memory;
     public final byte[] Program;
@@ -1104,6 +1104,8 @@ public class State
                       }
                     OK = true;
                 break;
+                case 17:
+                  /* not implemented, fall through */
                 case 16:
                     SetX(MaxProgram - 1.0 + (MaxMemories - 1.0) / 100.0);
                     OK = true;
