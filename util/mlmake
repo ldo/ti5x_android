@@ -1,0 +1,82 @@
+#!/usr/bin/python3.1
+#+
+# This script builds the master library file.
+#
+# Created by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+#-
+
+import sys
+import os
+import subprocess
+import zipfile
+
+utildir = os.path.dirname(sys.argv[0])
+srcdir = os.path.join(os.path.dirname(utildir), "mlsrc")
+dstfile = os.path.join(os.path.dirname(utildir), "res/raw/ml.ti5x")
+sys.stderr.write("%s => %s\n" % (srcdir, dstfile)) # debug
+
+sources = []
+nr = 0
+mtime = 0 # older than any possible mtime
+while True : # collect source files for all modules
+    nr += 1
+    srcfile = os.path.join(srcdir, "prog%02d.src" % nr)
+    if not os.path.isfile(srcfile) :
+        break # assume contiguous numbering
+    entry = {"nr" : nr, "src" : srcfile}
+    mtime = max(mtime, os.path.getmtime(srcfile))
+    for key, namefmt in (("card", "card%02d.xml"), ("help", "help%02d.html")) :
+      # additional optional files: card image and help
+        thefile = os.path.join(srcdir, namefmt % nr)
+        if os.path.isfile(thefile) :
+            mtime = max(mtime, os.path.getmtime(thefile))
+            entry[key] = thefile
+        #end if
+    #end for
+    sources.append(entry)
+#end while
+sys.stderr.write("sources: %s\n" % repr(sources)) # debug
+if not os.path.isfile(dstfile) or os.path.getmtime(dstfile) < mtime :
+    dstfile_new = dstfile + "-new"
+    dst = zipfile.ZipFile(dstfile_new, mode = "w", compression = zipfile.ZIP_DEFLATED)
+    entry = zipfile.ZipInfo()
+    entry.filename = "mimetype"
+    entry.compress_type = zipfile.ZIP_STORED
+    dst.writestr(entry, b"application/vnd.nz.gen.geek_central.ti5x")
+    for module in sources :
+        child = subprocess.Popen \
+          (
+            args = (os.path.join(utildir, "assemble"),),
+            stdin = open(module["src"], "r"),
+            stdout = subprocess.PIPE,
+            close_fds = True
+          )
+        data, _ = child.communicate()
+        if child.returncode != 0 :
+            raise RuntimeError("assemble %s cmd returned %d" % (module["src"], status))
+        #end if
+        dst.writestr("prog%02d" % module["nr"], data)
+        if "card" in module :
+            child = subprocess.Popen \
+              (
+                args = (os.path.join(utildir, "rendercard"),),
+                stdin = open(module["card"], "r"),
+                stdout = subprocess.PIPE,
+                close_fds = True
+              )
+            data, _ = child.communicate()
+            if child.returncode != 0 :
+                raise RuntimeError("rendercard %s cmd returned %d" % (module["card"], status))
+            #end if
+            dst.writestr("card%02d" % module["nr"], data)
+        #end if
+        if "help" in module :
+            dsg.writestr("help%02d" % module["nr"], open(module["help"], "rb").read())
+        #end if
+    #end for
+    dst.close()
+    os.rename(dstfile_new, dstfile)
+    sys.stderr.write("%s rebuilt\n" % dstfile)
+else :
+    sys.stderr.write("%s is up to date\n" % dstfile)
+#end if
