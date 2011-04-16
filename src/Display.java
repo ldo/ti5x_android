@@ -7,8 +7,6 @@ public class Display extends android.view.View
   /* calculator display area */
   {
   /* rendering parameters */
-    static final int Light = 0xfff10a34; /* normal colour */
-    static final int Dim = 0xffb20727; /* dimmer version of above */
     static final float DigitWidth = 0.5f; /* as fraction of size */
     static final float SegmentHalfWidth = 0.05f; /* as fraction of size */
     static final float SegmentMargin = 0.025f; /* as fraction of size */
@@ -136,7 +134,7 @@ public class Display extends android.view.View
             --i;
             Showing[i] = SegmentCode(' ');
           } /*for*/
-        ShowingColor = Light;
+        ShowingColor = ColorScheme.LEDLight;
         invalidate();
       } /*SetShowing*/
 
@@ -166,7 +164,7 @@ public class Display extends android.view.View
           {
             Showing[--j] = 0;
           } /*while*/
-        ShowingColor = Light;
+        ShowingColor = ColorScheme.LEDLight;
         invalidate();
       } /*SetShowing*/
 
@@ -205,8 +203,8 @@ public class Display extends android.view.View
             OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
           } /*for*/
         SetShowing(OtherShowing);
-        ShowingColor = Light;
-        OtherColor = Dim;
+        ShowingColor = ColorScheme.LEDLight;
+        OtherColor = ColorScheme.LEDDim;
         AnimDelay = 0.25f;
         IdleTask = new Flashing();
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
@@ -219,8 +217,8 @@ public class Display extends android.view.View
           {
             OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
           } /*for*/
-        ShowingColor = Light;
-        OtherColor = Light;
+        ShowingColor = ColorScheme.LEDLight;
+        OtherColor = ColorScheme.LEDLight;
         AnimDelay = 1.0f;
         IdleTask = new Flashing();
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));

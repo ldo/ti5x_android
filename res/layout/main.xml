@@ -9,6 +9,11 @@
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content" 
     />
+    <nz.gen.geek_central.ti5x.HelpCard
+        android:id="@+id/help_card"
+        android:layout_width="fill_parent" 
+        android:layout_height="40dp" 
+    />
     <nz.gen.geek_central.ti5x.ButtonGrid
         android:id="@+id/buttons"
         android:layout_width="fill_parent" 

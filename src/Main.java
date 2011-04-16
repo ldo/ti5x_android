@@ -4,6 +4,7 @@ public class Main extends android.app.Activity
   /* ti5x calculator emulator -- mainline */
   {
     Display TheDisplay;
+    HelpCard TheHelpCard;
     ButtonGrid Buttons;
     State CalcState;
     protected android.view.MenuItem ToggleOverlayItem;
@@ -95,6 +96,7 @@ public class Main extends android.app.Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         TheDisplay = (Display)findViewById(R.id.display);
+        TheHelpCard = (HelpCard)findViewById(R.id.help_card);
         Buttons = (ButtonGrid)findViewById(R.id.buttons);
         CalcState = new State(TheDisplay);
         Buttons.CalcState = CalcState;
