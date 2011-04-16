@@ -11,7 +11,6 @@ public class Display extends android.view.View
     static final float SegmentHalfWidth = 0.05f; /* as fraction of size */
     static final float SegmentMargin = 0.025f; /* as fraction of size */
     static final float Slant = 0.1f; /* tangent of slant angle to right from vertical */
-    static final float Size = 32.0f;
     static final int NrDigits = 12;
     int[] Showing;
     int[] OtherShowing;
@@ -230,6 +229,7 @@ public class Display extends android.view.View
         int Segments,
         float XOrigin,
         float YOrigin,
+        float Size,
         int Color
       )
       /* renders the specified combination of LED segments and dots at the specified
@@ -320,30 +320,22 @@ public class Display extends android.view.View
       } /*SetCardImage*/
 
     @Override
-    protected void onMeasure
-      (
-        int WidthMeasureSpec,
-        int HeightMeasureSpec
-      )
-      {
-        setMeasuredDimension(480, 60);
-      } /*onMeasure*/
-
-    @Override
     public void onDraw
       (
         android.graphics.Canvas Draw
       )
       {
         super.onDraw(Draw);
+        final PointF GridSize = new PointF(getWidth(), getHeight());
         for (int i = 0; i < Showing.length; ++i)
           {
             RenderSegments
               (
                 /*Draw =*/ Draw,
                 /*Segments =*/ Showing[i],
-                /*XOrigin =*/ i * 24.0f + 10.0f,
-                /*YOrigin =*/ 44.0f,
+                /*XOrigin =*/ (i - 1) * GridSize.x / NrDigits + 10.0f,
+                /*YOrigin =*/ GridSize.y * 0.8f,
+                /*Size =*/ GridSize.y * 0.6f,
                 /*Color =*/ ShowingColor
               );
           } /*for*/
