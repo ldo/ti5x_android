@@ -110,6 +110,8 @@ public class State
 
     String LastShowing = null;
 
+    static final java.util.Locale StdLocale = java.util.Locale.US;
+
     public void Reset()
       /* resets to power-up/blank state. */
       {
@@ -382,7 +384,11 @@ public class State
                 &&
                     X != 0
                 &&
-                    (Math.abs(X) < 5.0 * Math.pow(10.0, -11.0) || Math.abs(X) > Math.pow(10.0, 10.0))
+                    (
+                        Math.abs(X) < 5.0 * Math.pow(10.0, -10.0)
+                    ||
+                        Math.abs(X) > Math.pow(10.0, 10.0)
+                    )
               )
               {
                 UseFormat = FORMAT_FLOAT;
@@ -402,7 +408,8 @@ public class State
               } /*if*/
             if (X != 0.0)
               {
-                BeforeDecimal = Math.max((int)Math.floor(Math.log10(X / Math.pow(10.0, Exp))), 1);
+                BeforeDecimal = Math.max((int)Math.floor(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
+                  /* places before decimal point */
               }
             else
               {
@@ -414,8 +421,8 @@ public class State
             case FORMAT_ENG:
                 CurDisplay = String.format
                   (
-                    java.util.Locale.US,
-                    String.format(java.util.Locale.US, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
+                    StdLocale,
+                    String.format(StdLocale, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
                     X / Math.pow(10.0, Exp)
                   );
             break;
@@ -424,8 +431,13 @@ public class State
                   {
                     CurDisplay = String.format
                       (
-                        java.util.Locale.US,
-                        String.format(java.util.Locale.US, "%%.%df", Math.max(CurNrDecimals + 1 - BeforeDecimal, 0)),
+                        StdLocale,
+                        String.format
+                          (
+                            StdLocale,
+                            "%%.%df",
+                            Math.max(Math.min(CurNrDecimals, 10 - BeforeDecimal), 0)
+                          ),
                         X / Math.pow(10.0, Exp)
                       );
                   }
@@ -433,8 +445,8 @@ public class State
                   {
                     CurDisplay = String.format
                       (
-                        java.util.Locale.US,
-                        String.format(java.util.Locale.US, "%%.%df", Math.max(11 - BeforeDecimal, 0)),
+                        StdLocale,
+                        String.format(StdLocale, "%%.%df", Math.max(10 - BeforeDecimal, 0)),
                         X / Math.pow(10.0, Exp)
                       );
                     while
@@ -456,7 +468,7 @@ public class State
           /* assume there will always be a decimal point? */
             if (UseFormat != FORMAT_FIXED)
               {
-                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(java.util.Locale.US, "%02d", Math.abs(Exp));
+                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(StdLocale, "%02d", Math.abs(Exp));
               } /*if*/
             SetShowing(CurDisplay);
           }
@@ -837,7 +849,7 @@ public class State
 
     void ShowCurProg()
       {
-        SetShowing(String.format(java.util.Locale.US, "%03d %02d", PC, (int)Program[PC]));
+        SetShowing(String.format(StdLocale, "%03d %02d", PC, (int)Program[PC]));
       } /*ShowCurProg*/
 
     public void SetProgMode
