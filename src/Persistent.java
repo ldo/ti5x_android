@@ -206,7 +206,8 @@ public class Persistent
       (
         ButtonGrid Buttons,
         State Calc,
-        boolean AllState, /* true to save entire calculator state, false to only save program */
+        boolean AllState,
+          /* true to save entire calculator state, false to only save user-entered program */
         java.io.OutputStream RawOut
       )
       {
@@ -378,6 +379,7 @@ public class Persistent
                       } /*for*/
                     POut.println("        </mem>");
                   } /*if AllState*/
+              /* TBD banks */
                 POut.println("        <prog>");
                   {
                     int Cols = 0;
@@ -414,13 +416,15 @@ public class Persistent
                       } /*for*/
                     POut.print("\n        </flags>\n");
                     SaveInt(POut, "PC", Calc.PC, 8);
+                    SaveInt(POut, "bank", Calc.CurBank, 8);
                     POut.println("        <retstack>");
                     for (int i = 0; i <= Calc.ReturnLast; ++i)
                       {
                         final State.ReturnStackEntry Ret = Calc.ReturnStack[i];
                         POut.printf
                           (
-                            "            <ret addr=\"%d\" from_interactive=\"%s\"/>\n",
+                            "            <ret bank=\"%d\" addr=\"%d\" from_interactive=\"%s\"/>\n",
+                            Ret.BankNr,
                             Ret.Addr,
                             Ret.FromInteractive ? "1" : "0"
                           );
@@ -753,6 +757,10 @@ public class Persistent
                       {
                         Calc.PC = GetInt(Value);
                       }
+                    else if (Name == "Bank")
+                      {
+                        Calc.CurBank = GetInt(Value);
+                      }
                     else
                       {
                         throw new DataFormatException
@@ -776,6 +784,7 @@ public class Persistent
                   }
                 else if (localName == "prog")
                   {
+                  /* TBD banks */
                     ParseState = DoingProg;
                     StartContent();
                     Handled = true;
@@ -859,6 +868,7 @@ public class Persistent
                       } /*if*/
                     Calc.ReturnStack[++Calc.ReturnLast] = new State.ReturnStackEntry
                       (
+                        GetInt(attributes.getValue("bank")),
                         GetInt(attributes.getValue("addr")),
                         GetBool(attributes.getValue("from_interactive"))
                       );

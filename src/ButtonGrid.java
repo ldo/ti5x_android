@@ -713,7 +713,7 @@ public class ButtonGrid extends android.view.View
                                 Calc.CompareBranch
                                   (
                                     CollectingForFunction == 77,
-                                    AccumDigits, GotInd
+                                    Calc.CurBank, AccumDigits, GotInd
                                   );
                               } /*if*/
                         break;
@@ -737,7 +737,7 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 Calc.FillInLabels();
-                                Calc.Transfer(false, false, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                Calc.Transfer(false, false, Calc.CurBank, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 71: /*SBR*/
@@ -749,7 +749,7 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 Calc.FillInLabels();
-                                Calc.Transfer(true, true, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                Calc.Transfer(true, true, Calc.CurBank, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
                               } /*if*/
                         break;
                         case 76: /*Lbl*/
@@ -795,7 +795,7 @@ public class ButtonGrid extends android.view.View
                                         Calc.BranchIfFlag
                                           (
                                             FirstOperand, GotFirstInd,
-                                            AccumDigits, IsSymbolic, GotInd
+                                            Calc.CurBank, AccumDigits, IsSymbolic, GotInd
                                           );
                                       }
                                     else
@@ -803,7 +803,7 @@ public class ButtonGrid extends android.view.View
                                         Calc.DecrementSkip
                                           (
                                             FirstOperand, GotFirstInd,
-                                            AccumDigits, IsSymbolic, GotInd
+                                            Calc.CurBank, AccumDigits, IsSymbolic, GotInd
                                           );
                                       } /*if*/
                                   } /*if*/
@@ -1010,7 +1010,7 @@ public class ButtonGrid extends android.view.View
                     case 19:
                     case 10:
                         Calc.FillInLabels();
-                        Calc.Transfer(true, true, ButtonCode, true, false);
+                        Calc.Transfer(true, true, Calc.CurBank, ButtonCode, true, false);
                     break;
                     case 21:
                     case 26:

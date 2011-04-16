@@ -62,18 +62,37 @@ public class State
     public OpStackEntry[] OpStack;
     public int OpStackNext;
 
+    public static class ProgBank
+      {
+        byte[] Program;
+        android.graphics.Bitmap Card; /* can be null */
+
+        public ProgBank
+          (
+            byte[] Program,
+            android.graphics.Bitmap Card
+          )
+          {
+            this.Program = Program;
+            this.Card = Card;
+          } /*ProgBank*/
+
+      } /*ProgBank*/
+
     public boolean ProgMode;
     public final int MaxMemories = 100; /* maximum addressable */
     public final int MaxProgram = 960; /* absolute max on original model */
+    public final int MaxBanks = 100; /* 00 is user-entered program, others are loaded from library modules */
     public final int MaxFlags = 10;
     public final double[] Memory;
     public final byte[] Program;
+    public final ProgBank[] Bank; /* Bank[0].Program always points to Program */
     public final boolean[] Flag;
       /* TBD special interpretation of flags:
         8 => stop on error
         9 => trace calculation on printer
       */
-    public int PC;
+    public int PC, RunPC, CurBank, RunBank, LastBank;
     final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
     boolean GotLabels; /* Labels table is currently valid */
     public boolean ProgRunning = false;
@@ -89,11 +108,12 @@ public class State
 
     public static class ReturnStackEntry
       {
-        public int Addr;
+        public int BankNr, Addr;
         public boolean FromInteractive;
 
         public ReturnStackEntry
           (
+            int BankNr,
             int Addr,
             boolean FromInteractive
           )
@@ -119,6 +139,8 @@ public class State
         X = 0.0;
         T = 0.0;
         PC = 0;
+        RunPC = 0;
+        CurBank = 0;
         ReturnLast = -1;
         GotLabels = false;
         for (int i = 0; i < MaxFlags; ++i)
@@ -133,6 +155,10 @@ public class State
           {
             Program[i] = (byte)0;
           } /*if*/
+        for (int i = 1; i < MaxBanks; ++i)
+          {
+            Bank[i] = null;
+          } /*for*/
         ProgMode = false;
         ResetEntry();
       } /*Reset*/
@@ -146,6 +172,8 @@ public class State
         OpStack = new OpStackEntry[MaxOpStack];
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
+        Bank = new ProgBank[MaxBanks];
+        Bank[0] = new ProgBank(Program, null);
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
@@ -899,7 +927,24 @@ public class State
         boolean Indirect
       )
       {
-      /* TBD */
+        if (ProgNr >= 0)
+          {
+            if (ProgNr < MaxBanks && Bank[ProgNr] != null)
+              {
+                if (ProgRunning)
+                  {
+                    RunBank = ProgNr;
+                  }
+                else
+                  {
+                    CurBank = ProgNr;
+                  } /*if*/
+              }
+            else
+              {
+                SetErrorState();
+              } /*if*/
+          } /*if*/
       } /*SelectProgram*/
 
     public static final int MEMOP_STO = 1;
@@ -1296,7 +1341,11 @@ public class State
     public void StepProgram()
       {
         FillInLabels();
+        RunPC = PC;
+        RunBank = CurBank;
         Interpret(true);
+        CurBank = RunBank; /*is this correct?*/
+        PC = RunPC;
       } /*StepProgram*/
 
     class ProgRunner implements Runnable
@@ -1338,6 +1387,9 @@ public class State
         ProgRunningSlowly = false; /* just in case */
         ProgRunning = true;
         TheDisplay.SetShowingRunning();
+        RunPC = PC;
+        RunBank = CurBank;
+        LastBank = CurBank;
         ContinueProgRunner();
       } /*StartProgram*/
 
@@ -1349,6 +1401,8 @@ public class State
           {
             BGTask.removeCallbacks(ExecuteTask);
           } /*if*/
+        PC = RunPC;
+        RunBank = CurBank;
         if (CurState == ErrorState)
           {
             TheDisplay.SetShowingError();
@@ -1380,7 +1434,14 @@ public class State
           {
             Flag[i] = false;
           } /*for*/
-        PC = 0;
+        if (ProgRunning)
+          {
+            RunPC = 0;
+          }
+        else
+          {
+            PC = 0;
+          } /*if*/
         ReturnLast = -1;
       } /*ResetProg*/
 
@@ -1391,13 +1452,13 @@ public class State
       /* returns the next program instruction byte, or -1 if run off the end. */
       {
         byte Result;
-        if (PC < MaxProgram)
+        if (RunPC < Bank[RunBank].Program.length)
           {
-            Result = Program[PC++];
+            Result = Bank[RunBank].Program[RunPC++];
           }
         else
           {
-            PC = 0;
+            RunPC = 0;
             Result = -1;
             if (Executing)
               {
@@ -1434,7 +1495,7 @@ public class State
                 if (Reg >= 0 && Reg < MaxMemories)
                   {
                     Result = (int)Memory[Reg];
-                    if (Result < 0 || Result >= MaxProgram)
+                    if (Result < 0 || Result >= Bank[RunBank].Program.length)
                       {
                         Result = -1;
                       } /*if*/
@@ -1506,6 +1567,7 @@ public class State
       (
         boolean Call,
         boolean FromInteractive,
+        int Bank,
         int Loc,
         boolean Symbolic,
         boolean Ind
@@ -1529,15 +1591,23 @@ public class State
                         break;
                     Loc = Labels.get(Loc);
                   } /*if*/
-                if (Loc < 0 || Loc >= MaxProgram)
+                if (Loc < 0 || Loc >= this.Bank[Bank].Program.length)
                     break;
                 if (Call)
                   {
                     if (ReturnLast == MaxReturnStack)
                         break;
-                    ReturnStack[++ReturnLast] = new ReturnStackEntry(PC, FromInteractive);
+                    ReturnStack[++ReturnLast] =
+                        new ReturnStackEntry(LastBank, RunPC, FromInteractive);
                   } /*if*/
-                PC = Loc;
+                if (ProgRunning)
+                  {
+                    RunPC = Loc;
+                  }
+                else
+                  {
+                    PC = Loc;
+                  } /*if*/
                 if (Call && FromInteractive)
                   {
                     StartProgram();
@@ -1563,9 +1633,25 @@ public class State
             if (ReturnLast < 0)
                 break;
             final ReturnStackEntry ReturnTo = ReturnStack[ReturnLast--];
-            if (ReturnTo.Addr < 0 || ReturnTo.Addr >= MaxProgram)
+            if
+              (
+                    ReturnTo.Addr < 0
+                ||
+                    Bank[ReturnTo.BankNr] == null
+                ||
+                    ReturnTo.Addr >= Bank[ReturnTo.BankNr].Program.length
+              )
                 break;
-            PC = ReturnTo.Addr;
+            if (ProgRunning)
+              {
+                RunBank = ReturnTo.BankNr;
+                RunPC = ReturnTo.Addr;
+              }
+            else
+              {
+                CurBank = ReturnTo.BankNr;
+                PC = ReturnTo.Addr;
+              } /*if*/
             if (ReturnTo.FromInteractive)
               {
                 StopProgram();
@@ -1617,6 +1703,7 @@ public class State
       (
         int FlagNr,
         boolean FlagNrInd,
+        int Bank,
         int Target,
         boolean TargetSymbolic,
         boolean TargetInd
@@ -1639,7 +1726,7 @@ public class State
               {
                 if (InvState != Flag[FlagNr])
                   {
-                    Transfer(false, false, Target, TargetSymbolic, TargetInd);
+                    Transfer(false, false, Bank, Target, TargetSymbolic, TargetInd);
                   } /*if*/
               }
             else
@@ -1653,6 +1740,7 @@ public class State
     public void CompareBranch
       (
         boolean Greater,
+        int Bank,
         int NewPC,
         boolean Ind
       )
@@ -1673,7 +1761,7 @@ public class State
                         X == T
               )
               {
-                Transfer(false, false, NewPC, false, Ind);
+                Transfer(false, false, Bank, NewPC, false, Ind);
               } /*if*/
           } /*if*/
       } /*CompareBranch*/
@@ -1682,6 +1770,7 @@ public class State
       (
         int Reg,
         boolean RegInd,
+        int Bank,
         int Target,
         boolean TargetSymbolic,
         boolean TargetInd
@@ -1705,7 +1794,7 @@ public class State
                 Memory[Reg] -= 1.0;
                 if (InvState == (Memory[Reg] == 0.0))
                   {
-                    Transfer(false, false, Target, TargetSymbolic, TargetInd);
+                    Transfer(false, false, Bank, Target, TargetSymbolic, TargetInd);
                   } /*if*/
               }
             else
@@ -1721,12 +1810,13 @@ public class State
         boolean Execute /* false to just collect labels */
       )
       /* main program interpreter loop: interprets one instruction and
-        advances/jumps the PC accordingly. */
+        advances/jumps RunPC accordingly. */
       {
         final int Op = GetProg(Execute);
         if (Op >= 0)
           {
             boolean WasModifier = false;
+            boolean BankSet = false;
             if (Execute)
               {
                 switch (Op)
@@ -1753,7 +1843,7 @@ public class State
                 case 18:
                 case 19:
                 case 10:
-                    Transfer(true, false, Op, true, false);
+                    Transfer(true, false, RunBank, Op, true, false);
                 break;
                 case 22:
                 case 27:
@@ -1792,7 +1882,8 @@ public class State
                     Reciprocal();
                 break;
                 case 36: /*Pgm*/
-                    SelectProgram(GetProg(true), false); /* TBD only for duration of following instr */
+                    SelectProgram(GetProg(true), false);
+                    BankSet = true;
                 break;
                 case 37:
                     Polar();
@@ -1863,10 +1954,11 @@ public class State
                     Abs();
                 break;
                 case 61: /*GTO*/
-                    Transfer(false, false, GetLoc(true), false, false);
+                    Transfer(false, false, RunBank, GetLoc(true), false, false);
                 break;
                 case 62: /*Pgm Ind*/
-                    SelectProgram(GetProg(true), true); /* TBD only for duration of following instr */
+                    SelectProgram(GetProg(true), true);
+                    BankSet = true;
                 break;
                 case 63:
                     MemoryOp(MEMOP_EXC, GetProg(true), true);
@@ -1882,7 +1974,7 @@ public class State
                 break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
-                    CompareBranch(Op == 77, GetLoc(true), false);
+                    CompareBranch(Op == 77, RunBank, GetLoc(true), false);
                 break;
                 case 68: /*Nop*/
                   /* No effect */
@@ -1900,7 +1992,7 @@ public class State
                       }
                     else
                       {
-                        Transfer(true, false, GetLoc(true), false, false);
+                        Transfer(true, false, RunBank, GetLoc(true), false, false);
                       } /*if*/
                 break;
                 case 72:
@@ -1933,7 +2025,7 @@ public class State
                     StopProgram();
                 break;
                 case 83: /*GTO Ind*/
-                    Transfer(false, false, GetLoc(true), false, true);
+                    Transfer(false, false, RunBank, GetLoc(true), false, true);
                 break;
                 case 84:
                     SpecialOp(GetProg(true), true);
@@ -1948,7 +2040,7 @@ public class State
                       {
                         final int FlagNr = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        BranchIfFlag(FlagNr, false, Target, false, false);
+                        BranchIfFlag(FlagNr, false, RunBank, Target, false, false);
                       }
                 break;
                 case 88:
@@ -1981,7 +2073,7 @@ public class State
                       {
                         final int Reg = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        DecrementSkip(Reg, false, Target, false, false);
+                        DecrementSkip(Reg, false, RunBank, Target, false, false);
                       }
                 break;
                 case 98:
@@ -1998,10 +2090,15 @@ public class State
                     StopProgram();
                 break;
                   } /*switch*/
+                LastBank = RunBank;
+                if (!BankSet)
+                  {
+                    RunBank = CurBank;
+                  } /*if*/
               }
             else
               {
-              /* just advance PC past instruction and update Labels as appropriate */
+              /* just advance RunPC past instruction and update Labels as appropriate */
                 switch (Op)
                   {
                 case 22:
@@ -2040,9 +2137,9 @@ public class State
                 case 76: /*Lbl*/
                       {
                         final int TheLabel = GetProg(false);
-                        if (TheLabel >= 0 && PC >= 0 && !Labels.containsKey(TheLabel))
+                        if (TheLabel >= 0 && RunPC >= 0 && !Labels.containsKey(TheLabel))
                           {
-                            Labels.put(TheLabel, PC);
+                            Labels.put(TheLabel, RunPC);
                           } /*if*/
                       }
                 break;
@@ -2067,17 +2164,16 @@ public class State
       {
         if (!GotLabels)
           {
-            final int SavePC = PC;
             final boolean SaveInvState = InvState;
             InvState = false; /*?*/
-            PC = 0;
+            RunPC = 0;
+            RunBank = CurBank;
             do
               {
                 Interpret(false);
               }
-            while (PC != -1 && PC < MaxProgram);
+            while (RunPC != -1 && RunPC < Bank[RunBank].Program.length);
             GotLabels = true;
-            PC = SavePC;
             InvState = SaveInvState;
           } /*if*/
       } /*FillInLabels*/
