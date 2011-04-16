@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #+
 # This script takes an XML card template from standard input and renders the card
 # image in PNG format to standard output.
@@ -40,6 +40,7 @@ from __future__ import \
 from functools import \
     reduce
 import sys
+import io
 import subprocess
 import xml.parsers.expat as expat
 import xml.sax.saxutils as saxutils
@@ -246,7 +247,7 @@ def parse_template(input) :
     parser.StartElementHandler = handle_start_element
     parser.EndElementHandler = handle_end_element
     parser.CharacterDataHandler = handle_cdata
-    result[0] = {"nrcells" : 1, "center" : {"content" : [cdata(u"Solid State Software")]}}
+    result[0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
     parser.ParseFile(input)
       # can raise expat.ExpatError
     if not parse_state["main_seen"] :
@@ -266,7 +267,7 @@ def parse_template(input) :
 
 debug_ps = False
 FontName = "Helvetica"
-template = parse_template(sys.stdin)
+template = parse_template(sys.stdin.detach())
 
 if debug_ps :
     args = ("cat",)
@@ -289,7 +290,7 @@ proc_gs = subprocess.Popen \
     stdin = subprocess.PIPE,
     close_fds = True # make sure no superfluous references to pipes
   )
-gs = proc_gs.stdin
+gs = io.TextIOWrapper(proc_gs.stdin)
 
 card_width = mm(72)
 card_height = mm(16)
