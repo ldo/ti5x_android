@@ -326,16 +326,18 @@ public class Display extends android.view.View
       )
       {
         super.onDraw(Draw);
-        final PointF GridSize = new PointF(getWidth(), getHeight());
+        final android.graphics.RectF DisplayBounds =
+            new android.graphics.RectF(0, 0, getWidth(), getHeight());
+        Draw.drawRect(DisplayBounds, GraphicsUseful.FillWithColor(ColorScheme.LEDOff));
         for (int i = 0; i < Showing.length; ++i)
           {
             RenderSegments
               (
                 /*Draw =*/ Draw,
                 /*Segments =*/ Showing[i],
-                /*XOrigin =*/ (i - 1) * GridSize.x / NrDigits + 10.0f,
-                /*YOrigin =*/ GridSize.y * 0.8f,
-                /*Size =*/ GridSize.y * 0.6f,
+                /*XOrigin =*/ (i - 1) * DisplayBounds.right / NrDigits + 10.0f,
+                /*YOrigin =*/ DisplayBounds.bottom * 0.8f,
+                /*Size =*/ DisplayBounds.bottom * 0.6f,
                 /*Color =*/ ShowingColor
               );
           } /*for*/

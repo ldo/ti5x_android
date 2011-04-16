@@ -9,6 +9,7 @@ public class ColorScheme
   /* display */
     public static final int LEDLight = 0xfff10a34; /* normal colour */
     public static final int LEDDim = 0xffb20727; /* dimmer version of above */
+    public static final int LEDOff = 0x8031010a; /* dimmest of all, translucent */
 
   /* buttons */
     public static final int ButtonBrown = 0xff4e3836;
