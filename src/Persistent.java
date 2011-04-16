@@ -494,7 +494,7 @@ public class Persistent
 
     static class CalcStateLoader extends org.xml.sax.helpers.DefaultHandler
       {
-        protected Display TheDisplay;
+        protected Display Disp;
         protected ButtonGrid Buttons;
         protected State Calc;
 
@@ -514,13 +514,13 @@ public class Persistent
 
         public CalcStateLoader
           (
-            Display TheDisplay,
+            Display Disp,
             ButtonGrid Buttons,
             State Calc
           )
           {
             super();
-            this.TheDisplay = TheDisplay;
+            this.Disp = Disp;
             this.Buttons = Buttons;
             this.Calc = Calc;
           } /*CalcStateLoader*/
@@ -918,7 +918,7 @@ public class Persistent
                         Calc.SetX(Calc.X);
                     break;
                     case State.ErrorState:
-                        TheDisplay.SetShowingError();
+                        Disp.SetShowingError();
                     break;
                     default: /* assume in the middle of number entry */
                         Calc.SetProgMode(Calc.ProgMode);
@@ -1082,7 +1082,8 @@ public class Persistent
       (
         String FromFile,
         int ProgNr,
-        Display TheDisplay,
+        Display Disp,
+        HelpCard Help,
         ButtonGrid Buttons,
         State Calc
       )
@@ -1131,14 +1132,14 @@ public class Persistent
               } /*if*/
             if (CardEntry != null)
               {
-                TheDisplay.SetCardImage
+                Help.SetCardImage
                   (
                     android.graphics.BitmapFactory.decodeStream(In.getInputStream(CardEntry))
                   );
               }
             else
               {
-                TheDisplay.SetCardImage(null);
+                Help.SetCardImage(null);
               } /*if*/
             Buttons.Reset();
             Calc.Reset();
@@ -1147,7 +1148,7 @@ public class Persistent
                 javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
                   (
                     In.getInputStream(StateEntry),
-                    new CalcStateLoader(TheDisplay, Buttons, Calc)
+                    new CalcStateLoader(Disp, Buttons, Calc)
                   );
               }
             catch (javax.xml.parsers.ParserConfigurationException Bug)

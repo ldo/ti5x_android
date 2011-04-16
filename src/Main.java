@@ -3,10 +3,10 @@ package nz.gen.geek_central.ti5x;
 public class Main extends android.app.Activity
   /* ti5x calculator emulator -- mainline */
   {
-    Display TheDisplay;
-    HelpCard TheHelpCard;
+    Display Disp;
+    HelpCard Help;
     ButtonGrid Buttons;
-    State CalcState;
+    State Calc;
     protected android.view.MenuItem ToggleOverlayItem;
     protected android.view.MenuItem ShowHelpItem;
     protected android.view.MenuItem PowerOffItem;
@@ -26,7 +26,7 @@ public class Main extends android.app.Activity
           {
             throw new RuntimeException("ti5x save-state create error " + Eh.toString());
           } /*try*/
-        Persistent.Save(Buttons, CalcState, true, CurSave); /* catch RuntimeException? */
+        Persistent.Save(Buttons, Calc, true, CurSave); /* catch RuntimeException? */
         try
           {
             CurSave.flush();
@@ -95,11 +95,11 @@ public class Main extends android.app.Activity
       {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        TheDisplay = (Display)findViewById(R.id.display);
-        TheHelpCard = (HelpCard)findViewById(R.id.help_card);
+        Disp = (Display)findViewById(R.id.display);
+        Help = (HelpCard)findViewById(R.id.help_card);
         Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        CalcState = new State(TheDisplay);
-        Buttons.CalcState = CalcState;
+        Calc = new State(Disp);
+        Buttons.Calc = Calc;
       } /*onCreate*/
 
     @Override
@@ -122,9 +122,10 @@ public class Main extends android.app.Activity
               (
                 /*FromFile =*/ getFilesDir().getAbsolutePath() + "/" + SavedStateName,
                 /*ProgNr =*/ 0,
-                /*TheDisplay =*/ TheDisplay,
+                /*Disp =*/ Disp,
+                /*Help =*/ Help,
                 /*Buttons =*/ Buttons,
-                /*Calc =*/ CalcState
+                /*Calc =*/ Calc
               );
           }
         catch (Persistent.DataFormatException Bad)

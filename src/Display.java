@@ -311,14 +311,6 @@ public class Display extends android.view.View
           } /*if*/
       } /*RenderSegments*/
 
-    public void SetCardImage
-      (
-        android.graphics.Bitmap NewCardImage
-      )
-      {
-       /* TBD */
-      } /*SetCardImage*/
-
     @Override
     public void onDraw
       (
