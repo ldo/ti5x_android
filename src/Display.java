@@ -11,7 +11,7 @@ public class Display extends android.view.View
     static final float SegmentHalfWidth = 0.05f; /* as fraction of size */
     static final float SegmentMargin = 0.025f; /* as fraction of size */
     static final float Slant = 0.1f; /* tangent of slant angle to right from vertical */
-    static final int NrDigits = 12;
+    static final int NrDigits = 11;
     int[] Showing;
     int[] OtherShowing;
     int ShowingColor, OtherColor;
@@ -327,7 +327,7 @@ public class Display extends android.view.View
               (
                 /*Draw =*/ Draw,
                 /*Segments =*/ Showing[i],
-                /*XOrigin =*/ (i - 1) * DisplayBounds.right / NrDigits + 10.0f,
+                /*XOrigin =*/ i * DisplayBounds.right / NrDigits,
                 /*YOrigin =*/ DisplayBounds.bottom * 0.8f,
                 /*Size =*/ DisplayBounds.bottom * 0.6f,
                 /*Color =*/ ShowingColor
