@@ -204,8 +204,9 @@ public class Persistent
 
     public static void Save
       (
-        ButtonGrid Buttons,
+        ButtonGrid Buttons, /* ignored unless AllState */
         State Calc,
+        boolean Libs,
         boolean AllState,
           /* true to save entire calculator state, false to only save user-entered program */
         java.io.OutputStream RawOut
@@ -221,6 +222,78 @@ public class Persistent
                 MimeType.write(CalcMimeType);
                 MimeType.close();
               }
+            if (AllState || Libs)
+              {
+              /* save library modules */
+                for (int BankNr = 1; BankNr < Calc.MaxBanks; ++BankNr)
+                  {
+                    if (Calc.Bank[BankNr] != null)
+                      {
+                        final State.ProgBank Bank = Calc.Bank[BankNr];
+                        if (Bank.Card != null)
+                          {
+                            final ZipComponentWriter CardOut =
+                                new ZipComponentWriter
+                                  (
+                                    Out,
+                                    String.format(StdLocale, "card%02d", BankNr),
+                                    true
+                                  );
+                            Bank.Card.compress
+                              (
+                                /*format =*/ android.graphics.Bitmap.CompressFormat.PNG,
+                                  /* good enough, won't be large */
+                                /*quality =*/ 100, /* ignored */
+                                /*stream =*/ CardOut.Out
+                              );
+                            CardOut.close();
+                          } /*if*/
+                        if (Bank.Program != null)
+                          {
+                            final ZipComponentWriter ProgOut =
+                                new ZipComponentWriter
+                                  (
+                                    Out,
+                                    String.format(StdLocale, "prog%02d", BankNr),
+                                    true
+                                  );
+                            java.io.PrintStream POut = new java.io.PrintStream(ProgOut.Out);
+                            POut.println("<state>");
+                            POut.println("    <calc>");
+                            POut.println("        <prog>");
+                            int Cols = 0;
+                            int i = 0;
+                            for (;;)
+                              {
+                                if (i == Bank.Program.length || Cols == 24)
+                                  {
+                                    POut.println();
+                                    Cols = 0;
+                                  } /*if*/
+                                if (i == Bank.Program.length)
+                                    break;
+                                if (Cols != 0)
+                                  {
+                                    POut.print(" ");
+                                  }
+                                else
+                                  {
+                                    POut.print("            ");
+                                  } /*if*/
+                                POut.printf(StdLocale, "%02d", Bank.Program[i]);
+                                ++i;
+                                ++Cols;
+                              } /*for*/
+                            POut.println("        </prog>");
+                            POut.println("    </calc>");
+                            POut.println("</state>");
+                            POut.flush();
+                            ProgOut.close();
+                          } /*if*/
+                      } /*if*/
+                  } /*for*/
+              } /*if*/
+            if (AllState || !Libs)
               {
                 final ZipComponentWriter StateOut = new ZipComponentWriter(Out, "prog00", true);
                 java.io.PrintStream POut = new java.io.PrintStream(StateOut.Out);
@@ -379,7 +452,6 @@ public class Persistent
                       } /*for*/
                     POut.println("        </mem>");
                   } /*if AllState*/
-              /* TBD banks */
                 POut.println("        <prog>");
                   {
                     int Cols = 0;
@@ -396,6 +468,10 @@ public class Persistent
                         if (Cols != 0)
                           {
                             POut.print(" ");
+                          }
+                        else
+                          {
+                            POut.print("            ");
                           } /*if*/
                         POut.printf(StdLocale, "%02d", Calc.Program[i]);
                         ++i;
@@ -405,7 +481,7 @@ public class Persistent
                 POut.println("        </prog>");
                 if (AllState)
                   {
-                    POut.println("        <flags>");
+                    POut.print("        <flags>\n            ");
                     for (int i = 0; i < Calc.Flag.length; ++i)
                       {
                         if (i != 0)
@@ -435,7 +511,7 @@ public class Persistent
                 POut.println("</state>");
                 POut.flush();
                 StateOut.close();
-              }
+              } /*if*/
             Out.finish();
           }
         catch (java.io.IOException Failed)
@@ -446,8 +522,9 @@ public class Persistent
 
     public static void Save
       (
-        ButtonGrid Buttons,
+        ButtonGrid Buttons, /* ignored unless AllState */
         State Calc,
+        boolean Libs,
         boolean AllState, /* true to save entire calculator state, false to only save program */
         String ToFile
       )
@@ -464,7 +541,7 @@ public class Persistent
                 "ti5x.Persistent.Save create error " + Failed.toString()
               );
           } /*try*/
-        Save(Buttons, Calc, AllState, Out);
+        Save(Buttons, Calc, Libs, AllState, Out);
         try
           {
             Out.flush();
@@ -501,6 +578,8 @@ public class Persistent
         protected Display Disp;
         protected ButtonGrid Buttons;
         protected State Calc;
+        protected int BankNr;
+        protected boolean AllState;
 
         private final int AtTopLevel = 0;
         private final int DoingState = 1;
@@ -520,13 +599,17 @@ public class Persistent
           (
             Display Disp,
             ButtonGrid Buttons,
-            State Calc
+            State Calc,
+            int BankNr,
+            boolean AllState
           )
           {
             super();
             this.Disp = Disp;
             this.Buttons = Buttons;
             this.Calc = Calc;
+            this.BankNr = BankNr;
+            this.AllState = AllState;
           } /*CalcStateLoader*/
 
         private void StartContent()
@@ -558,7 +641,7 @@ public class Persistent
               }
             else if (ParseState == DoingState)
               {
-                if (localName == "buttons")
+                if (AllState && localName == "buttons")
                   {
                     ParseState = DoingButtons;
                     Handled = true;
@@ -647,7 +730,7 @@ public class Persistent
               }
             else if (ParseState == DoingCalc)
               {
-                if (localName == "param")
+                if (AllState && localName == "param")
                   {
                     final String Name = attributes.getValue("name").intern();
                     final String Value = attributes.getValue("value").intern();
@@ -770,32 +853,31 @@ public class Persistent
                       } /*if*/
                     Handled = true;
                   }
-                else if (localName == "opstack")
+                else if (AllState && localName == "opstack")
                   {
                     Calc.OpStackNext = 0;
                     ParseState = DoingOpStack;
                     Handled = true;
                   }
-                else if (localName == "mem")
+                else if (AllState && localName == "mem")
                   {
                     ParseState = DoingMem;
                     StartContent();
                     Handled = true;
                   }
-                else if (localName == "prog")
+                else if (localName == "prog") /* only one allowed if not AllState */
                   {
-                  /* TBD banks */
                     ParseState = DoingProg;
                     StartContent();
                     Handled = true;
                   }
-                else if (localName == "flags")
+                else if (AllState && localName == "flags")
                   {
                     ParseState = DoingFlags;
                     StartContent();
                     Handled = true;
                   }
-                else if (localName == "retstack")
+                else if (AllState && localName == "retstack")
                   {
                     Calc.ReturnLast = -1;
                     ParseState = DoingRetStack;
@@ -922,19 +1004,25 @@ public class Persistent
                 if (localName == "state")
                   {
                     ParseState = AtTopLevel;
-                    switch (Calc.CurState)
+                    if (Calc != null)
                       {
-                    case State.ResultState:
-                        Calc.SetX(Calc.X);
-                    break;
-                    case State.ErrorState:
-                        Disp.SetShowingError();
-                    break;
-                    default: /* assume in the middle of number entry */
-                        Calc.SetProgMode(Calc.ProgMode);
-                    break;
-                      } /*switch*/
-                    Buttons.invalidate();
+                        switch (Calc.CurState)
+                          {
+                        case State.ResultState:
+                            Calc.SetX(Calc.X);
+                        break;
+                        case State.ErrorState:
+                            Disp.SetShowingError();
+                        break;
+                        default: /* assume in the middle of number entry */
+                            Calc.SetProgMode(Calc.ProgMode);
+                        break;
+                          } /*switch*/
+                      } /*if*/
+                    if (Buttons != null)
+                      {
+                        Buttons.invalidate();
+                      } /*if*/
                   } /*if*/
             break;
             case DoingButtons:
@@ -1004,6 +1092,19 @@ public class Persistent
             case DoingProg:
                 if (localName == "prog")
                   {
+                    java.util.ArrayList<Byte> Prog = null;
+                    if (BankNr == 0)
+                      {
+                        for (int i = 0; i < Calc.MaxProgram; ++i)
+                          {
+                            Calc.Program[i] = (byte)0;
+                          } /*for*/
+                      }
+                    else
+                      {
+                        Prog = new java.util.ArrayList<Byte>();
+                          /* can be any length, I suppose I should really restrict it to 1000 steps */
+                      } /*if*/
                     int Addr = 0;
                     int i = 0;
                     for (;;)
@@ -1027,18 +1128,39 @@ public class Persistent
                           } /*for*/
                         if (i > Start)
                           {
-                            if (Addr == Calc.MaxProgram)
+                            if (BankNr == 0 && Addr == Calc.MaxProgram)
                               {
                                 throw new DataFormatException
                                   (
-                                    String.format(StdLocale, "too many program steps, only %d allowed", Calc.MaxProgram)
+                                    String.format
+                                      (
+                                        StdLocale,
+                                        "too many program steps, only %d allowed",
+                                        Calc.MaxProgram
+                                      )
                                   );
                               } /*if*/
-                            Calc.Program[Addr++] = (byte)GetInt(ContentStr.substring(Start, i));
+                            final byte val = (byte)GetInt(ContentStr.substring(Start, i));
+                            if (BankNr != 0)
+                              {
+                                Prog.add(val);
+                              }
+                            else
+                              {
+                                Calc.Program[Addr++] = val;
+                              } /*if*/
                           } /*if*/
                         if (i == ContentStr.length())
                             break;
                       } /*for*/
+                    if (BankNr != 0)
+                      {
+                        Calc.Bank[BankNr].Program = new byte[Prog.size()];
+                        for (i = 0; i < Prog.size(); ++i)
+                          {
+                            Calc.Bank[BankNr].Program[i] = Prog.get(i);
+                          } /*for*/
+                      } /*if*/
                     ParseState = DoingCalc;
                   } /*if*/
             break;
@@ -1091,7 +1213,8 @@ public class Persistent
     public static void Load
       (
         String FromFile,
-        int ProgNr,
+        boolean Libs, /* true to load nonzero program banks, false to load bank 0 */
+        boolean AllState, /* true to load all state (including all available program banks) */
         Display Disp,
         HelpCard Help,
         ButtonGrid Buttons,
@@ -1099,7 +1222,6 @@ public class Persistent
       )
     throws DataFormatException
       {
-        final String ProgName = String.format(StdLocale, "prog%02d", ProgNr);
         try
           {
             final java.util.zip.ZipFile In = new java.util.zip.ZipFile
@@ -1108,23 +1230,11 @@ public class Persistent
                 java.util.zip.ZipFile.OPEN_READ
               );
             final ZipEntry MimeType = In.getEntry("mimetype");
-            final ZipEntry CardEntry = In.getEntry(String.format(StdLocale, "card%02d", ProgNr));
-            final ZipEntry StateEntry = In.getEntry(ProgName);
-            if
-              (
-                    MimeType == null
-                ||
-                    StateEntry == null
-              )
+            if (MimeType == null)
               {
                 throw new DataFormatException
                   (
-                    String.format
-                      (
-                        StdLocale,
-                        "missing one or more mandatory archive components: mimetype, %s",
-                        ProgName
-                      )
+                    "missing mandatory archive component: mimetype"
                   );
               } /*if*/
             if
@@ -1140,35 +1250,70 @@ public class Persistent
               {
                 throw new DataFormatException("wrong MIME type");
               } /*if*/
-            if (CardEntry != null)
+            if (!Libs || AllState)
               {
-                Help.SetCardImage
-                  (
-                    android.graphics.BitmapFactory.decodeStream(In.getInputStream(CardEntry))
-                  );
-              }
-            else
-              {
-                Help.SetCardImage(null);
+                Buttons.Reset();
+                Calc.Reset(AllState);
               } /*if*/
-            Buttons.Reset();
-            Calc.Reset();
-            try
+            for (int BankNr = 0;;)
               {
-                javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
-                  (
-                    In.getInputStream(StateEntry),
-                    new CalcStateLoader(Disp, Buttons, Calc)
-                  );
-              }
-            catch (javax.xml.parsers.ParserConfigurationException Bug)
-              {
-                throw new RuntimeException("SAX parser error: " + Bug.toString());
-              }
-            catch (org.xml.sax.SAXException Bad)
-              {
-                throw new DataFormatException("SAX parser error: " + Bad.toString());
-              } /*try*/
+                if (BankNr == Calc.MaxBanks)
+                    break;
+                if (AllState || Libs == (BankNr != 0))
+                  {
+                    final ZipEntry CardEntry =
+                        In.getEntry(String.format(StdLocale, "card%02d", BankNr));
+                    final ZipEntry StateEntry =
+                        In.getEntry(String.format(StdLocale, "prog%02d", BankNr));
+                    System.err.println(String.format(StdLocale, "prog%02d", BankNr) + " entry present: " + (StateEntry != null)); /* debug */
+                    if (StateEntry != null)
+                      {
+                        android.graphics.Bitmap CardImage = null;
+                        if (CardEntry != null)
+                          {
+                            CardImage = android.graphics.BitmapFactory.decodeStream
+                              (
+                                In.getInputStream(CardEntry)
+                              );
+                          } /*if*/
+                        if (BankNr != 0)
+                          {
+                            Calc.Bank[BankNr] =
+                                new State.ProgBank(null /* filled in below */, CardImage);
+                          }
+                        else
+                          {
+                            Calc.Bank[0].Card = CardImage;
+                          } /*if*/
+                        try
+                          {
+                            javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
+                              (
+                                In.getInputStream(StateEntry),
+                                new CalcStateLoader(Disp, Buttons, Calc, BankNr, AllState)
+                              );
+                          }
+                        catch (javax.xml.parsers.ParserConfigurationException Bug)
+                          {
+                            throw new RuntimeException("SAX parser error: " + Bug.toString());
+                          }
+                        catch (org.xml.sax.SAXException Bad)
+                          {
+                            throw new DataFormatException("SAX parser error: " + Bad.toString());
+                          } /*try*/
+                      }
+                    else if (BankNr == 0)
+                      {
+                        throw new DataFormatException
+                          (
+                            "missing mandatory archive component: prog00"
+                          );
+                      } /*if*/
+                  } /*if*/
+                if (!Libs && !AllState)
+                    break;
+                ++BankNr;
+              } /*for*/
           }
         catch (java.io.IOException IOError)
           {

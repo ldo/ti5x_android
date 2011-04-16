@@ -132,7 +132,10 @@ public class State
 
     static final java.util.Locale StdLocale = java.util.Locale.US;
 
-    public void Reset()
+    public void Reset
+      (
+        boolean ClearLibs
+      )
       /* resets to power-up/blank state. */
       {
         OpStackNext = 0;
@@ -155,10 +158,13 @@ public class State
           {
             Program[i] = (byte)0;
           } /*if*/
-        for (int i = 1; i < MaxBanks; ++i)
+        if (ClearLibs)
           {
-            Bank[i] = null;
-          } /*for*/
+            for (int i = 1; i < MaxBanks; ++i)
+              {
+                Bank[i] = null;
+              } /*for*/
+          } /*if*/
         ProgMode = false;
         ResetEntry();
       } /*Reset*/
@@ -178,7 +184,7 @@ public class State
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
         Labels = new java.util.HashMap<Integer, Integer>();
-        Reset();
+        Reset(true);
       } /*State*/
 
     class DelayedStep implements Runnable

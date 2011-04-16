@@ -26,7 +26,7 @@ public class Main extends android.app.Activity
           {
             throw new RuntimeException("ti5x save-state create error " + Eh.toString());
           } /*try*/
-        Persistent.Save(Buttons, Calc, true, CurSave); /* catch RuntimeException? */
+        Persistent.Save(Buttons, Calc, true, true, CurSave); /* catch RuntimeException? */
         try
           {
             CurSave.flush();
@@ -121,7 +121,8 @@ public class Main extends android.app.Activity
             Persistent.Load
               (
                 /*FromFile =*/ getFilesDir().getAbsolutePath() + "/" + SavedStateName,
-                /*ProgNr =*/ 0,
+                /*Libs =*/ true,
+                /*AllState =*/ true,
                 /*Disp =*/ Disp,
                 /*Help =*/ Help,
                 /*Buttons =*/ Buttons,
