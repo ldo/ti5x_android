@@ -436,8 +436,9 @@ public class State
               } /*if*/
             if (X != 0.0)
               {
-                BeforeDecimal = Math.max((int)Math.floor(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
+                BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
                   /* places before decimal point */
+                System.err.println("BeforeDecimal for " + Math.abs(X) + " Exp " + Exp + " = " + BeforeDecimal); /* debug */
               }
             else
               {
