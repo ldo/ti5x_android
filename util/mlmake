@@ -8,6 +8,7 @@
 import sys
 import os
 import subprocess
+import errno
 import zipfile
 
 def mtime_if(filename) :
@@ -22,7 +23,8 @@ def mtime_if(filename) :
 
 utildir = os.path.dirname(sys.argv[0])
 srcdir = os.path.join(os.path.dirname(utildir), "mlsrc")
-dstfile = os.path.join(os.path.dirname(utildir), "res/raw/ml.ti5x")
+dstdir = "res/raw"
+dstfile = os.path.join(os.path.dirname(utildir), os.path.join(dstdir, "ml.ti5x"))
 sys.stderr.write("%s => %s\n" % (srcdir, dstfile)) # debug
 libhelpname = "help.html"
 
@@ -49,6 +51,13 @@ while True : # collect source files for all modules
 #end while
 sys.stderr.write("sources: %s\n" % repr(sources)) # debug
 if not os.path.isfile(dstfile) or os.path.getmtime(dstfile) < mtime :
+    try :
+        os.makedirs(dstdir)
+    except OSError as Err :
+        if Err.errno != errno.EEXIST :
+            raise # else ignore
+        #end if
+    #end try
     dstfile_new = dstfile + "-new"
     dst = zipfile.ZipFile(dstfile_new, mode = "w", compression = zipfile.ZIP_DEFLATED)
     entry = zipfile.ZipInfo()
