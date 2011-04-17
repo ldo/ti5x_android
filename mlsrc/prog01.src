@@ -1,0 +1,37 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl clr
+; clear out registers used for stats calculations
+    ce
+    0
+    x<>t
+    0
+    sto 01
+    sto 02
+    sto 03
+    sto 04
+    sto 05
+    sto 06
+    inv sbr
+
+lbl =
+; self-test diagnostics
+; ???
+; on success, print "MASTER" and print and display result "1"
+    clr
+    op 00
+    30  ; "M"
+    op 03
+    1336371735 ; "ASTER"
+    op 04
+    op 05 ; print line
+    clr
+    1
+    =
+    prt
+    inv sbr

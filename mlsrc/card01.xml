@@ -1,0 +1,7 @@
+<carddef>
+<label slot="titleleft">MASTER LIBRARY DIAGNOSTIC</label>
+<label slot="titleright">ML-01</label>
+<label slot="primecenter">DIAGNOSTIC: <button>SBR</button> <button>=</button></label>
+<label slot="baseleft">L.R. INIT: <button>SBR</button> <button>CLR</button></label>
+<label slot="baseright">PRINT: mm <button>STO</button> 00</label>
+</carddef>
