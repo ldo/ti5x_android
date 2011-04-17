@@ -1082,6 +1082,35 @@ public class State
                 switch (OpNr)
                   {
               /* more TBD */
+                case 9:
+                    if (!ProgRunning && CurBank > 0)
+                      {
+                        final ProgBank Bank = this.Bank[CurBank];
+                        if
+                          (
+                                Bank != null
+                            &&
+                                Bank.Program != null
+                            &&
+                                Bank.Program.length <= MaxProgram
+                          )
+                          {
+                            for (int i = 0; i < Bank.Program.length; ++i)
+                              {
+                                Program[i] = Bank.Program[i];
+                              } /*for*/
+                            for (int i = Bank.Program.length; i < MaxProgram; ++i)
+                              {
+                                Program[i] = 0;
+                              } /*for*/
+                          }
+                        else
+                          {
+                            SetErrorState();
+                          } /*if*/
+                      } /*if*/
+                    OK = true;
+                break;
                 case 10:
                     SetX(Math.signum(X));
                     OK = true;
