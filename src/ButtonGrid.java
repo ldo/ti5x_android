@@ -125,7 +125,7 @@ public class ButtonGrid extends android.view.View
 
     public boolean OverlayVisible;
 
-    final RectF ButtonRelMargins = new RectF(0.07f, 0.5f, 0.07f, 0.05f);
+    final RectF ButtonRelMargins = new RectF(0.175f, 0.5f, 0.175f, 0.05f);
       /* relative bounds of button within grid cell */
     final float CornerRoundness = 1.5f;
 
