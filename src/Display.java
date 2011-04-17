@@ -236,6 +236,7 @@ public class Display extends android.view.View
         size and position, in the specified colour, into the specified canvas. */
       {
         final android.graphics.Paint UsePaint = GraphicsUseful.FillWithColor(Color);
+        UsePaint.setAntiAlias(true);
         XOrigin += Size * SegmentHalfWidth; /* so there is no overhang to the left */
         YOrigin -= Size * SegmentHalfWidth; /* so there is no overhang below */
         final PointF[] ControlPoint = new PointF[]
