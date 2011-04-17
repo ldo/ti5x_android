@@ -101,7 +101,8 @@ public class HelpCard extends android.view.View
                   (
                     0,
                     0,
-                    CardImage.getWidth(),
+                    CardImage.getWidth() * 70.0f / 72.0f,
+                      /* right-hand edge of card disappears in entry slot */
                     CardImage.getHeight()
                   ),
                 /*dst =*/ new android.graphics.RectF(0, 0, CardSize.x, CardSize.y),
