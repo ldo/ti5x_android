@@ -3,10 +3,10 @@
     <string name="app_name">ti5x</string>
 
   <!-- options menu -->
-    <string name="show_overlay">Show Key Codes</string>
-    <string name="show_help">Show Help</string>
+    <string name="show_overlay">Key Codes</string>
+    <string name="show_help">Help</string>
     <string name="save_as">Save...</string>
-    <string name="turn_off">Turn Off</string>
+    <string name="turn_off">Off</string>
 
   <!-- buttons -->
     <string name="save">Save</string>
