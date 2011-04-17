@@ -107,11 +107,13 @@ public class HelpCard extends android.view.View
                 /*dst =*/ new android.graphics.RectF(0, 0, CardSize.x, CardSize.y),
                 /*stf =*/ android.graphics.Matrix.ScaleToFit.CENTER
               );
+            final android.graphics.Paint DrawBits = new android.graphics.Paint();
+            DrawBits.setFilterBitmap(true);
             Draw.drawBitmap
               (
                 /*bitmap =*/ CardImage,
                 /*matrix =*/ ImageMap,
-                /*paint =*/ null
+                /*paint =*/ DrawBits
               );
           } /*if*/
         Draw.drawRect /* on top of CardImage */
