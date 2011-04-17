@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/python3
 #+
 # Very simple symbolic assembler for ti5x programs. Reads a symbolic representation from
 # standard input, and writes a sequence of numeric codes to standard output.

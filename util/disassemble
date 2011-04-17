@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/python3
 #+
 # Very simple symbolic disassembler for ti5x programs. Reads a sequence of numeric codes from
 # standard input, and writes a symbolic representation to standard output.
