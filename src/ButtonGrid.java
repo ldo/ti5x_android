@@ -291,7 +291,8 @@ public class ButtonGrid extends android.view.View
                 TextPaint.setStyle(android.graphics.Paint.Style.FILL);
                 TextPaint.setColor(ThisButton.AltTextColor);
                 TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
-                final float OrigTextSize = TextPaint.getTextSize();
+                TextPaint.setAntiAlias(true);
+                final float OrigTextSize = getResources().getDimension(R.dimen.font_size);
                 TextPaint.setTextSize(OrigTextSize * 0.9f);
                 GraphicsUseful.DrawCenteredText
                   (
