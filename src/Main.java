@@ -116,23 +116,81 @@ public class Main extends android.app.Activity
     public void onResume()
       {
         super.onResume();
-        try
+        boolean RestoredState = false;
           {
+            final String StateFile = getFilesDir().getAbsolutePath() + "/" + SavedStateName;
+            if (new java.io.File(StateFile).exists())
+              {
+                try
+                  {
+                    Persistent.Load
+                      (
+                        /*FromFile =*/ StateFile,
+                        /*Libs =*/ true,
+                        /*AllState =*/ true,
+                        /*Disp =*/ Disp,
+                        /*Help =*/ Help,
+                        /*Buttons =*/ Buttons,
+                        /*Calc =*/ Calc
+                      );
+                    RestoredState = true;
+                  }
+                catch (Persistent.DataFormatException Bad)
+                  {
+                    System.err.printf
+                      (
+                        "ti5x failure to reload state from file \"%s\": %s\n",
+                        StateFile,
+                        Bad.toString()
+                      ); /* debug  */
+                  } /*try*/
+              } /*if*/
+          }
+        if (!RestoredState)
+          {
+          /* initialize state to include Master Library */
+          /* unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
+            so I need to make a temporary copy of the master library out of my raw resources. */
+            final String TempLibName = "temp.ti5x";
+            final String TempLibFile = getFilesDir().getAbsolutePath() + "/" + TempLibName;
+            try
+              {
+                final java.io.InputStream LibFile = getResources().openRawResource(R.raw.ml);
+                final java.io.OutputStream TempLib =
+                    openFileOutput(TempLibName, MODE_WORLD_READABLE);
+                  {
+                    byte[] Buffer = new byte[2048]; /* some convenient size */
+                    for (;;)
+                      {
+                        final int NrBytes = LibFile.read(Buffer);
+                        if (NrBytes <= 0)
+                            break;
+                        TempLib.write(Buffer, 0, NrBytes);
+                      } /*for*/
+                  }
+                TempLib.flush();
+                TempLib.close();
+              }
+            catch (java.io.FileNotFoundException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              }
+            catch (java.io.IOException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              } /*try*/
             Persistent.Load
               (
-                /*FromFile =*/ getFilesDir().getAbsolutePath() + "/" + SavedStateName,
+                /*FromFile =*/ TempLibFile,
                 /*Libs =*/ true,
-                /*AllState =*/ true,
+                /*AllState =*/ false,
                 /*Disp =*/ Disp,
                 /*Help =*/ Help,
                 /*Buttons =*/ Buttons,
                 /*Calc =*/ Calc
               );
-          }
-        catch (Persistent.DataFormatException Bad)
-          {
-            System.err.printf("ti5x failure to reload state from file \"%s\": %s\n", getFilesDir().getAbsolutePath() + "/" + SavedStateName, Bad.toString()); /* debug  */
-          } /*try*/
+            deleteFile(TempLibName);
+          } /*if*/
       } /*onResume*/
 
   } /*Main*/
