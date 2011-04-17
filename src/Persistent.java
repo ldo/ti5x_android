@@ -78,9 +78,10 @@ public class Persistent
   {
     public static final String CalcMimeType = "application/vnd.nz.gen.geek_central.ti5x";
     public static final String CalcExt = ".ti5x";
+    public static final String ProgramsDir = "Programs";
     public static final String[] ExternalCalcDirectories =
         {
-            "Download",
+            ProgramsDir,
         };
 
     public static class DataFormatException extends RuntimeException

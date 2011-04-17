@@ -9,7 +9,9 @@ public class Main extends android.app.Activity
     State Calc;
     protected android.view.MenuItem ToggleOverlayItem;
     protected android.view.MenuItem ShowHelpItem;
+    protected android.view.MenuItem SaveProgramItem;
     protected android.view.MenuItem PowerOffItem;
+    protected final int SaveProgramRequest = 2; /* arbitrary code */
     Boolean ShuttingDown = false;
 
     final String SavedStateName = "state" + Persistent.CalcExt;
@@ -50,6 +52,7 @@ public class Main extends android.app.Activity
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
         ToggleOverlayItem.setCheckable(true);
         ShowHelpItem = TheMenu.add(R.string.show_help);
+        SaveProgramItem = TheMenu.add(getString(R.string.save_as));
         PowerOffItem = TheMenu.add(R.string.turn_off);
         return
             true;
@@ -76,6 +79,15 @@ public class Main extends android.app.Activity
                     .setClass(this, Help.class)
               );
           }
+        else if (TheItem == SaveProgramItem)
+          {
+            startActivityForResult
+              (
+                new android.content.Intent(android.content.Intent.ACTION_PICK)
+                    .setClass(this, SaveAs.class),
+                SaveProgramRequest
+              );
+          }
         else if (TheItem == PowerOffItem)
           {
             ShuttingDown = true;
@@ -86,6 +98,62 @@ public class Main extends android.app.Activity
         return
             Handled;
       } /*onOptionsItemSelected*/
+
+    @Override
+    public void onActivityResult
+      (
+        int RequestCode,
+        int ResultCode,
+        android.content.Intent Data
+      )
+      {
+        if
+          (
+                RequestCode == SaveProgramRequest
+            &&
+                Data != null
+          )
+          {
+            final String TheName =
+                    Data.getData().getPath().substring(1) /* ignoring leading slash */
+                +
+                    Persistent.CalcExt;
+            try
+              {
+                final String SaveDir =
+                        android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
+                    +
+                        "/"
+                    +
+                        Persistent.ProgramsDir;
+                new java.io.File(SaveDir).mkdirs();
+                Persistent.Save
+                  (
+                    /*Buttons =*/ Buttons,
+                    /*Calc =*/ Calc,
+                    /*Libs =*/ false,
+                    /*AllState =*/ false,
+                    /*ToFile =*/ SaveDir + "/" + TheName
+                  );
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ this,
+                    /*text =*/ String.format(getString(R.string.program_saved), TheName),
+                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                  ).show();
+              }
+            catch (RuntimeException Failed)
+              {
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ this,
+                    /*text =*/
+                        String.format(getString(R.string.program_save_error), Failed.toString()),
+                    /*duration =*/ android.widget.Toast.LENGTH_LONG
+                  ).show();
+              } /*try*/
+          } /*if*/
+      } /*onActivityResult*/
 
     @Override
     public void onCreate

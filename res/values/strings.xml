@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ti5x</string>
+
   <!-- options menu -->
     <string name="show_overlay">Show Key Codes</string>
     <string name="show_help">Show Help</string>
+    <string name="save_as">Save...</string>
     <string name="turn_off">Turn Off</string>
+
+  <!-- buttons -->
+    <string name="save">Save</string>
+
+  <!-- prompt strings -->
+    <string name="save_program_as">Save program as:</string>
+
   <!-- messages -->
     <string name="no_help">Sorry, no help available for this module</string>
+    <string name="no_external_storage">No place to save.</string>
+    <string name="please_enter_name">Please enter a name for saving the program.</string>
+    <string name="program_saved">Program saved as “%s”.</string>
+    <string name="program_save_error">Couldn’t save program: %s</string>
 </resources>
