@@ -5,4 +5,6 @@
     <string name="show_overlay">Show Key Codes</string>
     <string name="show_help">Show Help</string>
     <string name="turn_off">Turn Off</string>
+  <!-- messages -->
+    <string name="no_help">Sorry, no help available for this module</string>
 </resources>

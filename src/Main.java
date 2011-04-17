@@ -98,7 +98,7 @@ public class Main extends android.app.Activity
         Disp = (Display)findViewById(R.id.display);
         Help = (HelpCard)findViewById(R.id.help_card);
         Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        Calc = new State(Disp);
+        Calc = new State(Disp, Help);
         Buttons.Calc = Calc;
       } /*onCreate*/
 

@@ -13,7 +13,8 @@ public class State
 
     public boolean InvState = false;
 
-    Display TheDisplay;
+    Display Disp;
+    HelpCard Help;
     String CurDisplay;
     android.os.Handler BGTask;
     Runnable DelayTask = null;
@@ -66,15 +67,18 @@ public class State
       {
         byte[] Program;
         android.graphics.Bitmap Card; /* can be null */
+        byte[] Help; /* can be null, help for program 00 is actually help for entire library module */
 
         public ProgBank
           (
             byte[] Program,
-            android.graphics.Bitmap Card
+            android.graphics.Bitmap Card,
+            byte[] Help
           )
           {
             this.Program = Program;
             this.Card = Card;
+            this.Help = Help;
           } /*ProgBank*/
 
       } /*ProgBank*/
@@ -171,15 +175,17 @@ public class State
 
     public State
       (
-        Display TheDisplay
+        Display Disp,
+        HelpCard Help
       )
       {
-        this.TheDisplay = TheDisplay;
+        this.Disp = Disp;
+        this.Help = Help;
         OpStack = new OpStackEntry[MaxOpStack];
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
         Bank = new ProgBank[MaxBanks];
-        Bank[0] = new ProgBank(Program, null);
+        Bank[0] = new ProgBank(Program, null, null);
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
@@ -212,7 +218,7 @@ public class State
         LastShowing = ToDisplay;
         if (!ProgRunning || ProgRunningSlowly)
           {
-            TheDisplay.SetShowing(ToDisplay);
+            Disp.SetShowing(ToDisplay);
           }
       } /*SetShowing*/
 
@@ -271,7 +277,7 @@ public class State
         ClearDelayedStep();
         if (!ProgRunning || ProgRunningSlowly)
           {
-            TheDisplay.SetShowingError();
+            Disp.SetShowingError();
           } /*if*/
         CurState = ErrorState;
       } /*SetErrorState*/
@@ -945,6 +951,10 @@ public class State
                 else
                   {
                     CurBank = ProgNr;
+                    if (Help != null)
+                      {
+                        Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
+                      } /*if*/
                   } /*if*/
               }
             else
@@ -1422,7 +1432,7 @@ public class State
           } /*if*/
         ProgRunningSlowly = false; /* just in case */
         ProgRunning = true;
-        TheDisplay.SetShowingRunning();
+        Disp.SetShowingRunning();
         RunPC = PC;
         RunBank = CurBank;
         LastBank = CurBank;
@@ -1441,11 +1451,11 @@ public class State
         RunBank = CurBank;
         if (CurState == ErrorState)
           {
-            TheDisplay.SetShowingError();
+            Disp.SetShowingError();
           }
         else
           {
-            TheDisplay.SetShowing(LastShowing);
+            Disp.SetShowing(LastShowing);
           } /*if*/
       } /*StopProgram*/
 
@@ -1459,7 +1469,7 @@ public class State
             ProgRunningSlowly = Slow;
             if (!ProgRunningSlowly)
               {
-                TheDisplay.SetShowingRunning();
+                Disp.SetShowingRunning();
               } /*if*/
           } /*if*/
       } /*SetSlowExecution*/

@@ -225,6 +225,12 @@ public class Persistent
             if (AllState || Libs)
               {
               /* save library modules */
+                if (Calc.Bank[0].Help != null)
+                  {
+                    final ZipComponentWriter LibHelp = new ZipComponentWriter(Out, "help", true);
+                    LibHelp.write(Calc.Bank[0].Help);
+                    LibHelp.close();
+                  } /*if*/
                 for (int BankNr = 1; BankNr < Calc.MaxBanks; ++BankNr)
                   {
                     if (Calc.Bank[BankNr] != null)
@@ -290,6 +296,17 @@ public class Persistent
                             POut.flush();
                             ProgOut.close();
                           } /*if*/
+                        if (Bank.Help != null)
+                          {
+                            final ZipComponentWriter BankHelp = new ZipComponentWriter
+                              (
+                                Out,
+                                String.format(StdLocale, "help%02d", BankNr),
+                                true
+                              );
+                            BankHelp.write(Bank.Help);
+                            BankHelp.close();
+                          } /*if*/
                       } /*if*/
                   } /*for*/
               } /*if*/
@@ -343,16 +360,31 @@ public class Persistent
                         default:
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized Calc.CurState = %d", Calc.CurState)
+                                String.format
+                                  (
+                                    StdLocale,
+                                    "unrecognized Calc.CurState = %d",
+                                    Calc.CurState
+                                  )
                               );
                       /* break; */
                           } /*switch*/
-                        POut.printf(StdLocale, "        <param name=\"state\" value=\"%s\"/>\n", StateName);
+                        POut.printf
+                          (
+                            StdLocale,
+                            "        <param name=\"state\" value=\"%s\"/>\n",
+                            StateName
+                          );
                       }
                     SaveBool(POut, "exponent_entered", Calc.ExponentEntered, 8);
                     if (Calc.CurState != State.ResultState && Calc.CurState != State.ErrorState)
                       {
-                        POut.printf(StdLocale, "        <param name=\"display\" value=\"%s\"/>\n", Calc.CurDisplay);
+                        POut.printf
+                          (
+                            StdLocale,
+                            "        <param name=\"display\" value=\"%s\"/>\n",
+                            Calc.CurDisplay
+                          );
                       } /*if*/
                     SaveBool(POut, "inv", Calc.InvState, 8);
                       {
@@ -1128,7 +1160,7 @@ public class Persistent
                           } /*for*/
                         if (i > Start)
                           {
-                            if (BankNr == 0 && Addr == Calc.MaxProgram)
+                            if (BankNr == 0 ? Addr == Calc.MaxProgram : Addr == 1000)
                               {
                                 throw new DataFormatException
                                   (
@@ -1136,7 +1168,7 @@ public class Persistent
                                       (
                                         StdLocale,
                                         "too many program steps, only %d allowed",
-                                        Calc.MaxProgram
+                                        BankNr == 0 ? Calc.MaxProgram : 1000
                                       )
                                   );
                               } /*if*/
@@ -1255,6 +1287,14 @@ public class Persistent
                 Buttons.Reset();
                 Calc.Reset(AllState);
               } /*if*/
+            if (Libs || AllState)
+              {
+                final ZipEntry LibHelpEntry = In.getEntry("help");
+                if (LibHelpEntry != null)
+                  {
+                    Calc.Bank[0].Help = ReadAll(In.getInputStream(LibHelpEntry));
+                  } /*if*/
+              } /*if*/
             for (int BankNr = 0;;)
               {
                 if (BankNr == Calc.MaxBanks)
@@ -1262,13 +1302,22 @@ public class Persistent
                 if (AllState || Libs == (BankNr != 0))
                   {
                     final ZipEntry CardEntry =
-                        In.getEntry(String.format(StdLocale, "card%02d", BankNr));
+                        BankNr != 0 ?
+                            In.getEntry(String.format(StdLocale, "card%02d", BankNr))
+                        :
+                            null;
                     final ZipEntry StateEntry =
                         In.getEntry(String.format(StdLocale, "prog%02d", BankNr));
+                    final ZipEntry HelpEntry =
+                        In.getEntry
+                          (
+                            BankNr != 0 ? String.format(StdLocale, "help%02d", BankNr) : "help"
+                          );
                     System.err.println(String.format(StdLocale, "prog%02d", BankNr) + " entry present: " + (StateEntry != null)); /* debug */
                     if (StateEntry != null)
                       {
                         android.graphics.Bitmap CardImage = null;
+                        byte[] BankHelp = null;
                         if (CardEntry != null)
                           {
                             CardImage = android.graphics.BitmapFactory.decodeStream
@@ -1276,14 +1325,19 @@ public class Persistent
                                 In.getInputStream(CardEntry)
                               );
                           } /*if*/
+                        if (HelpEntry != null)
+                          {
+                            BankHelp = ReadAll(In.getInputStream(HelpEntry));
+                          } /*if*/
                         if (BankNr != 0)
                           {
                             Calc.Bank[BankNr] =
-                                new State.ProgBank(null /* filled in below */, CardImage);
+                                new State.ProgBank(null /* filled in below */, CardImage, BankHelp);
                           }
                         else
                           {
-                            Calc.Bank[0].Card = CardImage;
+                            /* ignore any CardImage */
+                            Calc.Bank[0].Help = BankHelp;
                           } /*if*/
                         try
                           {

@@ -5,7 +5,9 @@ import android.graphics.RectF;
 public class HelpCard extends android.view.View
   /* help-card display area */
   {
+    final android.content.Context TheContext;
     android.graphics.Bitmap CardImage;
+    byte[] Help;
 
     public HelpCard
       (
@@ -14,22 +16,67 @@ public class HelpCard extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        this.TheContext = TheContext;
         CardImage = null;
+        Help = null;
+        setOnTouchListener
+          (
+            new android.view.View.OnTouchListener()
+              {
+                public boolean onTouch
+                  (
+                    android.view.View TheView,
+                    android.view.MotionEvent TheEvent
+                  )
+                  {
+                    boolean Handled = false;
+                    switch (TheEvent.getAction())
+                      {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                    case android.view.MotionEvent.ACTION_MOVE:
+                        if (Help != null)
+                          {
+                            final android.content.Intent ShowHelp =
+                                new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                            ShowHelp.putExtra("content", Help);
+                            ShowHelp.setClass(HelpCard.this.TheContext, Help.class);
+                            HelpCard.this.TheContext.startActivity(ShowHelp);
+                          }
+                        else
+                          {
+                            android.widget.Toast.makeText
+                              (
+                                /*context =*/ HelpCard.this.TheContext,
+                                /*text =*/ HelpCard.this.TheContext.getString(R.string.no_help),
+                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                              ).show();
+                          } /*if*/
+                        Handled = true;
+                    break;
+                    case android.view.MotionEvent.ACTION_UP:
+                    case android.view.MotionEvent.ACTION_CANCEL:
+                      /* ignore */
+                        Handled = true;
+                    break;
+                      } /*switch*/
+                    return
+                        Handled;
+                  } /*onClick*/
+              }
+          );
       } /*HelpCard*/
 
-    public void SetCardImage
+    public void SetHelp
       (
-        android.graphics.Bitmap NewCardImage
+        android.graphics.Bitmap NewCardImage,
+        byte[] NewHelp
       )
       {
-        if (CardImage != null)
-          {
-            CardImage.recycle();
-          } /*if*/
         CardImage = NewCardImage;
        /* sliding animation TBD */
+        Help = NewHelp;
         invalidate();
-      } /*SetCardImage*/
+      } /*SetHelp*/
 
     @Override
     public void onDraw
