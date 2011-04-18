@@ -963,6 +963,7 @@ public class State
                 if (ProgRunning)
                   {
                     RunBank = ProgNr;
+                      /* TBD what to do about label table? */
                   }
                 else
                   {
@@ -971,6 +972,7 @@ public class State
                       {
                         Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
                       } /*if*/
+                    ResetLabels();
                   } /*if*/
               }
             else
@@ -1129,6 +1131,7 @@ public class State
                               {
                                 Program[i] = 0;
                               } /*for*/
+                            ResetLabels();
                           }
                         else
                           {
