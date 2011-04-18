@@ -175,6 +175,29 @@ class superscript(taggedtext) :
 
 #end superscript
 
+def defsymbol(name, psstr) :
+
+    class newsymbol(taggedtext) :
+
+        def __init__(self) :
+            super().__init__(name, "")
+        #end __init__
+
+    #end newsymbol
+
+#begin defsymbol
+    newsymbol.__name__ = name
+    newsymbol.psstr = psstr
+    return newsymbol
+#end defsymbol
+
+symbols = \
+    {
+        "lambda" : defsymbol("lambda", "(\\154)"),
+        "sigma" : defsymbol("sigma", "(\\163)"),
+        "theta" : defsymbol("theta", "(\\161)"),
+    }
+
 class lamb_da(taggedtext) :
 
     def __init__(self) :
@@ -190,22 +213,6 @@ class rightarrow(taggedtext) :
     #end __init__
 
 #end rightarrow
-
-class sigma(taggedtext) :
-
-    def __init__(self) :
-        super().__init__("sigma", "")
-    #end __init__
-
-#end sigma
-
-class theta(taggedtext) :
-
-    def __init__(self) :
-        super().__init__("theta", "")
-    #end __init__
-
-#end theta
 
 fontname = "Helvetica"
 symbolfontname = "Symbol"
@@ -300,20 +307,18 @@ def parse_template(input) :
                 {
                     "button" : handle_common_tag_start,
                     "/button" : handle_button_end,
-                    "lambda" : handle_common_tag_start,
-                    "/lambda" : make_symbol_def(lamb_da),
                     "rarrow" : handle_common_tag_start,
                     "/rarrow" : make_symbol_def(rightarrow),
-                    "sigma" : handle_common_tag_start,
-                    "/sigma" : make_symbol_def(sigma),
-                    "sub" : handle_common_tag_start,
+                     "sub" : handle_common_tag_start,
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
                     "/sup" : handle_superscript_end,
-                    "theta" : handle_common_tag_start,
-                    "/theta" : make_symbol_def(theta),
                 }
         }
+    for symbol in symbols.values() :
+        element_handlers[2][symbol.__name__] = handle_common_tag_start
+        element_handlers[2]["/" + symbol.__name__] = make_symbol_def(symbol)
+    #end for
 
     def handle_start_element(name, attrs) :
         parse_state["save_content"].append(parse_state["content"])
@@ -528,22 +533,6 @@ def UniWidth(thestr) :
     return UniOp(thestr, "UniWidth")
 #end UniWidth
 
-def symbol(psstr) :
-    return \
-        {
-            "widthadjust" :
-                        "currentfont exch /%s findfont %.2f scalefont setfont"
-                    %
-                        (symbolfontname, basefontsize)
-                +
-                    " %s stringwidth pop add exch setfont" % psstr,
-            "renderbefore" :
-                    "currentfont /%s findfont %.2f scalefont setfont %s show"
-                %
-                    (symbolfontname, basefontsize, psstr),
-            "renderafter" : "setfont",
-        }
-#end symbol
 render_special = \
     { # special actions to modify rendering and width calculation for each tag
         button :
@@ -557,7 +546,6 @@ render_special = \
                     +
                         " %.1f rectstroke" % (card_height / 4 * 0.7),
             },
-        lamb_da : symbol("(\154)"),
         rightarrow :
             {
                 "widthadjust" : "%.2f 0.93 mul add" % basefontsize,
@@ -568,7 +556,6 @@ render_special = \
                         (dingbatsfontname, basefontsize),
                 "renderafter" : "setfont",
             },
-        sigma : symbol("(\163)"),
         subscript :
             {
                 "widthadjust" : "%.2f mul" % subsupscale,
@@ -587,8 +574,23 @@ render_special = \
                         " 0 %.2f rmoveto" % (superoffset * basefontsize),
                 "renderafter" : "0 %.2f rmoveto setfont" % (- superoffset * basefontsize),
             },
-        theta : symbol("(\161)"),
     }
+for symbol in symbols.values() :
+    render_special[symbol] = \
+        {
+            "widthadjust" :
+                        "currentfont exch /%s findfont %.2f scalefont setfont"
+                    %
+                        (symbolfontname, basefontsize)
+                +
+                    " %s stringwidth pop add exch setfont" % symbol.psstr,
+            "renderbefore" :
+                    "currentfont /%s findfont %.2f scalefont setfont %s show"
+                %
+                    (symbolfontname, basefontsize, symbol.psstr),
+            "renderafter" : "setfont",
+        }
+#end for
 
 gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
