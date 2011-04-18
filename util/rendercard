@@ -200,6 +200,7 @@ symbols = \
         "div": defsymbol("div", "(\\270)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
         "mul": defsymbol("mul", "(\\264)"),
+        "rarrow" : defsymbol("rarrow", "(\\256)"),
         "sigma" : defsymbol("sigma", "(\\163)"),
         "theta" : defsymbol("theta", "(\\161)"),
     }
@@ -212,17 +213,8 @@ class lamb_da(taggedtext) :
 
 #end lambda
 
-class rightarrow(taggedtext) :
-
-    def __init__(self) :
-        super().__init__("rarrow", "")
-    #end __init__
-
-#end rightarrow
-
 fontname = "Helvetica"
 symbolfontname = "Symbol"
-dingbatsfontname = "ZapfDingbats"
 basefontsize = 7.0
 subsupscale = 0.8
 suboffset = -0.2
@@ -313,8 +305,6 @@ def parse_template(input) :
                 {
                     "button" : handle_common_tag_start,
                     "/button" : handle_button_end,
-                    "rarrow" : handle_common_tag_start,
-                    "/rarrow" : make_symbol_def(rightarrow),
                      "sub" : handle_common_tag_start,
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
@@ -554,16 +544,6 @@ render_special = \
                         " currentpoint exch pop %.2f sub" % (card_height * 0.03)
                     +
                         " exch %.2f rectstroke" % (card_height / 4 * 0.7),
-            },
-        rightarrow :
-            {
-                "widthadjust" : "%.2f 0.93 mul add" % basefontsize,
-                  # fake it, there being no stringwidth equivalent for glyphshow
-                "renderbefore" :
-                        "currentfont /%s findfont %.2f scalefont setfont /a169 glyphshow"
-                    %
-                        (dingbatsfontname, basefontsize),
-                "renderafter" : "setfont",
             },
         subscript :
             {
