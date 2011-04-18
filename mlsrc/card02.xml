@@ -3,11 +3,11 @@
 <label slot="titleright">ML-02</label>
 <label slot="aprime">i; <rarrow/> x<sub>i</sub></label>
 <label slot="bprime"><rarrow/> A<sup>-1</sup></label>
-<label slot="cprime">j; <rarrow/> a<sub>ij</sub></label>
+<label slot="cprime">j; <rarrow/> a<sub>ij</sub><sup>-1</sup></label>
 <label slot="eprime"><rarrow/> |A|, A<sup>-1</sup></label>
 <label slot="a">n</label>
 <label slot="b">j;a<sub>ij</sub></label>
 <label slot="c"><rarrow/> |A|</label>
 <label slot="d">i;b<sub>i</sub></label>
-<label slot="e">x<sub>i</sub></label>
+<label slot="e">x</label>
 </carddef>
