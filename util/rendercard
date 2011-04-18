@@ -17,6 +17,8 @@
 # where the slot specifies where to position the label (as below), and the content is a
 # mix of straight text and the following special items:
 #
+#     <angle/>
+#         An angle symbol is drawn.
 #     <button>titletext</button>
 #         The titletext is rendered inline with the rest of the text with a box around it.
 #     <darrow/>
@@ -199,6 +201,7 @@ def defsymbol(name, psstr) :
 
 symbols = \
     {
+        "angle" : defsymbol("angle", "(\\320)"),
         "darrow" : defsymbol("darrow", "(\\253)"),
         "div": defsymbol("div", "(\\270)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
