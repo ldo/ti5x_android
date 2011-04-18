@@ -15,11 +15,17 @@
 #     <label slot="slot">content</label>
 #
 # where the slot specifies where to position the label (as below), and the content is a
-# mix of straight text and button definitions that look like this:
+# mix of straight text and the following special items:
 #
 #     <button>titletext</button>
+#         The titletext is rendered inline with the rest of the text with a box around it.
+#     <rarrow/>
+#         A right-arrow character is drawn.
+#     <sub>subscripttext</sub>
+#         The subscripttext is rendered lowered with a smaller font.
+#     <sup>superscripttext</sup>
+#         The superscripttext is rendered raised with a smaller font.
 #
-# The button text is rendered inline with the rest of the text with a box around it.
 # The label slots must be from the following:
 #
 #     titleleft -- second row, left-aligned
@@ -122,18 +128,61 @@ class cdata :
 
 #end cdata
 
-class button :
-    """an inline button label."""
+class taggedtext :
+    """common superclass for various tag types."""
 
-    def __init__(self, text) :
+    def __init__(self, tag, text) :
+        self.tag = tag
         self.text = text
     #end __init__
 
     def __repr__(self) :
-        return repr("<button>%s</button>" % self.text)
+        return repr("<%s>%s</%s>" % (self.tag, self.text, self.tag))
     #end __repr__
 
+#end taggedtext
+
+class button(taggedtext) :
+    """an inline button label."""
+
+    def __init__(self, text) :
+        super().__init__("button", text)
+    #end __init__
+
 #end button
+
+class subscript(taggedtext) :
+    """an inline subscript label."""
+
+    def __init__(self, text) :
+        super().__init__("sub", text)
+    #end __init__
+
+#end subscript
+
+class superscript(taggedtext) :
+    """an inline superscript label."""
+
+    def __init__(self, text) :
+        super().__init__("sup", text)
+    #end __init__
+
+#end superscript
+
+class rightarrow(taggedtext) :
+
+    def __init__(self) :
+        super().__init__("rarrow", "")
+    #end __init__
+
+#end rightarrow
+
+fontname = "Helvetica"
+altfontname = "ZapfDingbats"
+basefontsize = 7.0
+subsupscale = 0.8
+suboffset = -0.2
+superoffset = 0.6
 
 def parse_template(input) :
 
@@ -179,18 +228,32 @@ def parse_template(input) :
 
     def handle_label_end(tag) :
         parse_state["cur_label"]["content"].append(cdata("".join(parse_state["content"])))
-        parse_state["content"] = []
     #end handle_label_end
 
-    def handle_button_def(tag, attrs) :
-        parse_state["cur_label"]["content"].append(cdata("".join(parse_state["save_content"][-1])))
-        parse_state["save_content"][-1] = []
-    #end handle_button_def
+    def handle_common_tag_start(tag, attrs) :
+        # presence of handler just to indicate tag is valid
+        pass
+    #end handle_common_def
+
+    def handle_common_end(tagclass) :
+        parse_state["cur_label"]["content"].append(tagclass("".join(parse_state["content"])))
+    #end handle_common_end
 
     def handle_button_end(tag) :
-        parse_state["cur_label"]["content"].append(button("".join(parse_state["content"])))
-        parse_state["content"] = []
+        handle_common_end(button)
     #end handle_button_end
+
+    def handle_subscript_end(tag) :
+        handle_common_end(subscript)
+    #end handle_button_end
+
+    def handle_superscript_end(tag) :
+        handle_common_end(superscript)
+    #end handle_button_end
+
+    def handle_rightarrow_def(tag) :
+        parse_state["cur_label"]["content"].append(rightarrow())
+    #end handle_rightarrow_def
 
     element_handlers = \
         {
@@ -201,8 +264,14 @@ def parse_template(input) :
                 },
             2 :
                 {
-                    "button" : handle_button_def,
+                    "rarrow" : handle_common_tag_start,
+                    "/rarrow" : handle_rightarrow_def,
+                    "button" : handle_common_tag_start,
                     "/button" : handle_button_end,
+                    "sub" : handle_common_tag_start,
+                    "/sub" : handle_subscript_end,
+                    "sup" : handle_common_tag_start,
+                    "/sup" : handle_superscript_end,
                 }
         }
 
@@ -224,6 +293,11 @@ def parse_template(input) :
             if handlers != None :
                 handler = handlers.get(name)
                 if handler != None :
+                    if parse_state["nest"] == 2 :
+                        parse_state["cur_label"]["content"].append(cdata("".join(parse_state["save_content"][-1])))
+                        parse_state["save_content"][-1] = []
+                    #end if
+                    parse_state["content"] = []
                     parse_state["nest"] += 1
                     handler(name, attrs)
                 else :
@@ -277,7 +351,6 @@ def parse_template(input) :
 #-
 
 debug_ps = False
-FontName = "Helvetica"
 template = parse_template(sys.stdin.detach())
 
 if debug_ps :
@@ -415,7 +488,50 @@ def UniWidth(thestr) :
     return UniOp(thestr, "UniWidth")
 #end UniWidth
 
-gs.write("/%s findfont 7 scalefont setfont\n" % FontName)
+render_special = \
+    { # special actions to modify rendering and width calculation for each tag
+        button :
+            {
+                "widthadjust" : "boxextra 2 mul add",
+                "renderbefore" : "currentpoint pop boxextra 2 div 0 rmoveto\n",
+                "renderafter" :
+                        "boxextra 2 div 0 rmoveto dup currentpoint pop exch sub"
+                    +
+                        " currentpoint exch pop %.2f sub exch" % (card_height * 0.225)
+                    +
+                        " %.1f rectstroke" % (card_height / 4 * 0.7),
+            },
+        rightarrow :
+            {
+                "widthadjust" : "%.2f 0.93 mul add" % basefontsize,
+                  # fake it, there being no stringwidth equivalent for glyphshow
+                "renderbefore" :
+                        "currentfont /%s findfont %.2f scalefont setfont /a169 glyphshow"
+                    %
+                        (altfontname, basefontsize),
+                "renderafter" : "setfont",
+            },
+        subscript :
+            {
+                "widthadjust" : "%.2f mul" % subsupscale,
+                "renderbefore" :
+                        "currentfont dup %.2f scalefont setfont" % subsupscale
+                    +
+                        " 0 %.2f rmoveto" % (suboffset * basefontsize),
+                "renderafter" : "0 %.2f rmoveto setfont" % (- suboffset * basefontsize),
+            },
+        superscript :
+            {
+                "widthadjust" : "%.2f mul" % subsupscale,
+                "renderbefore" :
+                        "currentfont dup %.2f scalefont setfont" % subsupscale
+                    +
+                        " 0 %.2f rmoveto" % (superoffset * basefontsize),
+                "renderafter" : "0 %.2f rmoveto setfont" % (- superoffset * basefontsize),
+            },
+    }
+
+gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
 gs.write("/DeviceRGB setcolorspace\n")
 corner_radius = mm(1.5)
@@ -441,11 +557,38 @@ gs.write \
     %
         (card_width - thumb_margin, card_height * 0.75, - card_height * 0.75)
   )
+def rendercell(items, align) :
+    if align != "left" :
+        gs.write("0\n")
+        for item in items :
+            gs.write(UniWidth(item.text) + " pop")
+            widthadjust = render_special.get(type(item), {}).get("widthadjust")
+            if widthadjust != None :
+                gs.write(" " + widthadjust)
+            #end if
+            gs.write(" add\n")
+        #end for
+        gs.write("-%.1f mul 0 rmoveto\n" % {"center" : 0.5, "right" : 1.0}[align])
+    #end if
+    for item in items :
+        special = render_special.get(type(item), {})
+        renderbefore = special.get("renderbefore")
+        renderafter = special.get("renderafter")
+        if renderbefore != None :
+            gs.write(renderbefore + "\n")
+        #end if
+        gs.write(UniShow(item.text) + "\n")
+        if renderafter != None :
+            gs.write(renderafter + "\n")
+        #end if
+    #end for
+#end rendercell
 for i in range(0, 4) :
     if template[i] != None :
         row = template[i]
         if row["nrcells"] > 1 :
             for col in range(1, row["nrcells"] + 1) :
+                gs.write("%% (row, col) = (%d, %d)\n" % (i, col)) # debug
                 gs.write \
                   (
                         "newpath %.1f %.1f moveto\n"
@@ -456,31 +599,32 @@ for i in range(0, 4) :
                         )
                   )
                 gs.write("0 -%.1f rlineto stroke\n" % (card_height * 0.25))
-                gs.write("0 0 moveto\n") # UniWidth needs currentpoint
                 if col in row :
-                    items = row[col]["content"]
-                    # assume no buttons and always centre-aligned
-                    text = "".join(item.text for item in items)
-                    gs.write(UniWidth(text) + " pop -2 div")
                     gs.write \
                       (
-                            " %.1f add %.1f moveto\n"
+                            "newpath %.1f %.1f moveto "
                         %
                             (
-                                (card_width - thumb_margin) * (col - 0.5) / row["nrcells"],
+                                    label_margin
+                                +
+                                        (card_width - thumb_margin - 2 * label_margin)
+                                    /
+                                        5
+                                    *
+                                        (col - 0.5),
                                 card_height * (4 - i - 0.75) / 4,
                             )
                       )
-                    gs.write(UniShow(text) + "\n")
+                    rendercell(row[col]["content"], "center")
                 #end if
             #end for
         else :
             for align in ("left", "center", "right") :
                 if align in row :
-                    items = row[align]["content"]
+                    gs.write("%% (row, align) = (%d, %s)\n" % (i, align)) # debug
                     gs.write \
                       (
-                            "%.1f %.1f moveto "
+                            "newpath %.1f %.1f moveto "
                         %
                             (
                                     label_margin
@@ -491,28 +635,7 @@ for i in range(0, 4) :
                                 card_height * (4 - i - 0.75) / 4,
                             )
                       )
-                    if align != "left" :
-                        gs.write("0\n")
-                        for item in items :
-                            gs.write(UniWidth(item.text) + " pop")
-                            if isinstance(item, button) :
-                                gs.write(" boxextra add")
-                            #end if
-                            gs.write(" add\n")
-                        #end for
-                        gs.write("-%.1f mul 0 rmoveto\n" % {"center" : 0.5, "right" : 1.0}[align])
-                    #end if
-                    for item in items :
-                        if isinstance(item, button) :
-                            gs.write("currentpoint pop boxextra 2 div 0 rmoveto\n")
-                            gs.write(UniShow(item.text) + "\n")
-                            gs.write("boxextra 2 div 0 rmoveto dup currentpoint pop exch sub\n")
-                            gs.write("%.1f exch\n" % (card_height * (4 - i - 0.89) / 4))
-                            gs.write("%.1f rectstroke\n" % (card_height / 4 * 0.7))
-                        else :
-                            gs.write(UniShow(item.text) + "\n")
-                        #end if
-                    #end for
+                    rendercell(row[align]["content"], align)
                 #end if
             #end for
         #end if
