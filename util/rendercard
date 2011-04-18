@@ -23,10 +23,14 @@
 #         A lambda character is drawn.
 #     <rarrow/>
 #         A right-arrow character is drawn.
+#     <sigma/>
+#         A sigma character is drawn.
 #     <sub>subscripttext</sub>
 #         The subscripttext is rendered lowered with a smaller font.
 #     <sup>superscripttext</sup>
 #         The superscripttext is rendered raised with a smaller font.
+#     <theta/>
+#         A theta character is drawn.
 #
 # The label slots must be from the following:
 #
@@ -187,6 +191,22 @@ class rightarrow(taggedtext) :
 
 #end rightarrow
 
+class sigma(taggedtext) :
+
+    def __init__(self) :
+        super().__init__("sigma", "")
+    #end __init__
+
+#end sigma
+
+class theta(taggedtext) :
+
+    def __init__(self) :
+        super().__init__("theta", "")
+    #end __init__
+
+#end theta
+
 fontname = "Helvetica"
 symbolfontname = "Symbol"
 dingbatsfontname = "ZapfDingbats"
@@ -262,13 +282,12 @@ def parse_template(input) :
         handle_common_end(superscript)
     #end handle_button_end
 
-    def handle_lamb_da_def(tag) :
-        parse_state["cur_label"]["content"].append(lamb_da())
-    #end handle_lambda_def
-
-    def handle_rightarrow_def(tag) :
-        parse_state["cur_label"]["content"].append(rightarrow())
-    #end handle_rightarrow_def
+    def make_symbol_def(tagclass) :
+        def handle_def(tag) :
+            parse_state["cur_label"]["content"].append(tagclass())
+        #end handle_def
+        return handle_def
+    #end make_symbol_def
 
     element_handlers = \
         {
@@ -282,13 +301,17 @@ def parse_template(input) :
                     "button" : handle_common_tag_start,
                     "/button" : handle_button_end,
                     "lambda" : handle_common_tag_start,
-                    "/lambda" : handle_lamb_da_def,
+                    "/lambda" : make_symbol_def(lamb_da),
                     "rarrow" : handle_common_tag_start,
-                    "/rarrow" : handle_rightarrow_def,
+                    "/rarrow" : make_symbol_def(rightarrow),
+                    "sigma" : handle_common_tag_start,
+                    "/sigma" : make_symbol_def(sigma),
                     "sub" : handle_common_tag_start,
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
                     "/sup" : handle_superscript_end,
+                    "theta" : handle_common_tag_start,
+                    "/theta" : make_symbol_def(theta),
                 }
         }
 
@@ -505,6 +528,22 @@ def UniWidth(thestr) :
     return UniOp(thestr, "UniWidth")
 #end UniWidth
 
+def symbol(psstr) :
+    return \
+        {
+            "widthadjust" :
+                        "currentfont exch /%s findfont %.2f scalefont setfont"
+                    %
+                        (symbolfontname, basefontsize)
+                +
+                    " %s stringwidth pop add exch setfont" % psstr,
+            "renderbefore" :
+                    "currentfont /%s findfont %.2f scalefont setfont %s show"
+                %
+                    (symbolfontname, basefontsize, psstr),
+            "renderafter" : "setfont",
+        }
+#end symbol
 render_special = \
     { # special actions to modify rendering and width calculation for each tag
         button :
@@ -518,20 +557,7 @@ render_special = \
                     +
                         " %.1f rectstroke" % (card_height / 4 * 0.7),
             },
-        lamb_da :
-            {
-                "widthadjust" :
-                            "currentfont exch /%s findfont %.2f scalefont setfont"
-                        %
-                            (symbolfontname, basefontsize)
-                    +
-                        " (\154) stringwidth pop add exch setfont",
-                "renderbefore" :
-                        "currentfont /%s findfont %.2f scalefont setfont (\154) show"
-                    %
-                        (symbolfontname, basefontsize),
-                "renderafter" : "setfont",
-            },
+        lamb_da : symbol("(\154)"),
         rightarrow :
             {
                 "widthadjust" : "%.2f 0.93 mul add" % basefontsize,
@@ -542,6 +568,7 @@ render_special = \
                         (dingbatsfontname, basefontsize),
                 "renderafter" : "setfont",
             },
+        sigma : symbol("(\163)"),
         subscript :
             {
                 "widthadjust" : "%.2f mul" % subsupscale,
@@ -560,6 +587,7 @@ render_special = \
                         " 0 %.2f rmoveto" % (superoffset * basefontsize),
                 "renderafter" : "0 %.2f rmoveto setfont" % (- superoffset * basefontsize),
             },
+        theta : symbol("(\161)"),
     }
 
 gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
