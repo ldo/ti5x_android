@@ -1,0 +1,13 @@
+<carddef>
+<label slot="titleleft">MATRIX ADDITION AND MULTIPLICATION</label>
+<label slot="titleright">ML-03</label>
+<label slot="aprime">j;c<sub>ij</sub></label>
+<label slot="bprime">i;x<sub>i</sub></label>
+<label slot="cprime"><rarrow/>Ax</label>
+<label slot="dprime">i;<rarrow/>y<sub>i</sub></label>
+<label slot="a">m,n</label>
+<label slot="b">j;a<sub>ij</sub></label>
+<label slot="c">j;b<sub>ij</sub></label>
+<label slot="d"><lambda/><sub>1</sub>,<lambda/><sub>2</sub></label>
+<label slot="e"><lambda/><sub>1</sub>A + <lambda/><sub>2</sub>B</label>
+</carddef>
