@@ -81,6 +81,7 @@ public class State
     public static class ProgBank
       {
         byte[] Program;
+        java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
         android.graphics.Bitmap Card; /* can be null */
         byte[] Help; /* can be null, help for program 00 is actually help for entire library module */
 
@@ -94,6 +95,7 @@ public class State
             this.Program = Program;
             this.Card = Card;
             this.Help = Help;
+            this.Labels = null;
           } /*ProgBank*/
 
       } /*ProgBank*/
@@ -111,9 +113,7 @@ public class State
         8 => stop on error
         9 => trace calculation on printer
       */
-    public int PC, RunPC, CurBank, RunBank, LastBank;
-    final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
-    boolean GotLabels; /* Labels table is currently valid */
+    public int PC, RunPC, CurBank, RunBank, NextBank;
     public boolean ProgRunning;
     public boolean ProgRunningSlowly;
 
@@ -206,7 +206,6 @@ public class State
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
-        Labels = new java.util.HashMap<Integer, Integer>();
         Reset(true);
       } /*State*/
 
@@ -943,6 +942,7 @@ public class State
           } /*if*/
         PC = 0;
         ReturnLast = -1;
+        ResetLabels();
         T = 0.0;
         for (int i = 0; i < MaxFlags; ++i)
           {
@@ -960,10 +960,10 @@ public class State
           {
             if (ProgNr < MaxBanks && Bank[ProgNr] != null)
               {
+                FillInLabels(ProgNr); /* if not done already */
                 if (ProgRunning)
                   {
-                    RunBank = ProgNr;
-                      /* TBD what to do about label table? */
+                    NextBank = ProgNr;
                   }
                 else
                   {
@@ -972,7 +972,6 @@ public class State
                       {
                         Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
                       } /*if*/
-                    ResetLabels();
                   } /*if*/
               }
             else
@@ -1334,9 +1333,9 @@ public class State
       } /*StepPC*/
 
     public void ResetLabels()
+      /* invalidates labels because of a change to user-entered program contents. */
       {
-        Labels.clear();
-        GotLabels = false;
+        Bank[0].Labels = null;
       } /*ResetLabels*/
 
     public void StoreInstr
@@ -1405,9 +1404,10 @@ public class State
 
     public void StepProgram()
       {
-        FillInLabels();
+        FillInLabels(CurBank);
         RunPC = PC;
         RunBank = CurBank;
+      /* NextBank? */
         Interpret(true);
         CurBank = RunBank; /*is this correct?*/
         PC = RunPC;
@@ -1444,7 +1444,7 @@ public class State
     public void StartProgram()
       {
         ClearDelayedStep();
-        FillInLabels();
+        FillInLabels(CurBank);
         if (ExecuteTask == null)
           {
             ExecuteTask = new ProgRunner();
@@ -1454,7 +1454,7 @@ public class State
         Disp.SetShowingRunning();
         RunPC = PC;
         RunBank = CurBank;
-        LastBank = CurBank;
+        NextBank = RunBank;
         ContinueProgRunner();
       } /*StartProgram*/
 
@@ -1568,9 +1568,9 @@ public class State
               }
             else /* symbolic label */
               {
-                if (Labels.containsKey(NextByte))
+                if (Bank[RunBank].Labels.containsKey(NextByte))
                   {
-                    Result = Labels.get(NextByte);
+                    Result = Bank[RunBank].Labels.get(NextByte);
                   } /*if*/
               } /*if*/
           } /*if*/
@@ -1632,7 +1632,7 @@ public class State
       (
         boolean Call,
         boolean FromInteractive,
-        int Bank,
+        int BankNr,
         int Loc,
         boolean Symbolic,
         boolean Ind
@@ -1652,22 +1652,24 @@ public class State
                   }
                 else if (Symbolic)
                   {
-                    if (!Labels.containsKey(Loc))
+                    if (!Bank[BankNr].Labels.containsKey(Loc))
                         break;
-                    Loc = Labels.get(Loc);
+                    Loc = Bank[BankNr].Labels.get(Loc);
                   } /*if*/
-                if (Loc < 0 || Loc >= this.Bank[Bank].Program.length)
+                if (Loc < 0 || Loc >= Bank[BankNr].Program.length)
                     break;
                 if (Call)
                   {
                     if (ReturnLast == MaxReturnStack)
                         break;
                     ReturnStack[++ReturnLast] =
-                        new ReturnStackEntry(LastBank, RunPC, FromInteractive);
+                        new ReturnStackEntry(RunBank, RunPC, FromInteractive);
                   } /*if*/
                 if (ProgRunning)
                   {
+                    RunBank = BankNr;
                     RunPC = Loc;
+                    FillInLabels(RunBank); /* if not already done */
                   }
                 else
                   {
@@ -1882,9 +1884,11 @@ public class State
         if (Op >= 0)
           {
             boolean WasModifier = false;
-            boolean BankSet = false;
             if (Execute)
               {
+                final int SaveRunBank = RunBank;
+                RunBank = NextBank;
+                boolean BankSet = false;
                 switch (Op)
                   {
                 case 01:
@@ -2156,10 +2160,9 @@ public class State
                     StopProgram();
                 break;
                   } /*switch*/
-                LastBank = RunBank;
                 if (!BankSet)
                   {
-                    RunBank = CurBank;
+                    RunBank = SaveRunBank;
                   } /*if*/
               }
             else
@@ -2203,9 +2206,9 @@ public class State
                 case 76: /*Lbl*/
                       {
                         final int TheLabel = GetProg(false);
-                        if (TheLabel >= 0 && RunPC >= 0 && !Labels.containsKey(TheLabel))
+                        if (TheLabel >= 0 && RunPC >= 0 && !Bank[RunBank].Labels.containsKey(TheLabel))
                           {
-                            Labels.put(TheLabel, RunPC);
+                            Bank[RunBank].Labels.put(TheLabel, RunPC);
                           } /*if*/
                       }
                 break;
@@ -2226,23 +2229,32 @@ public class State
           } /*if*/
       } /*Interpret*/
 
-    public void FillInLabels()
+    void FillInLabels
+      (
+        int BankNr
+      )
       {
-        if (!GotLabels)
+        if (Bank[BankNr].Labels == null)
           {
+            Bank[BankNr].Labels = new java.util.HashMap<Integer, Integer>();
             final boolean SaveInvState = InvState;
+            final int SaveRunPC = RunPC;
             InvState = false; /*?*/
             RunPC = 0;
-            RunBank = CurBank;
+            RunBank = BankNr;
             do
               {
                 Interpret(false);
               }
-            while (RunPC != -1 && RunPC < Bank[RunBank].Program.length);
-            GotLabels = true;
+            while (RunPC != -1 && RunPC < Bank[BankNr].Program.length);
             InvState = SaveInvState;
-            RunPC = PC;
+            RunPC = SaveRunPC;
           } /*if*/
+      } /*FillInLabels*/
+
+    public void FillInLabels()
+      {
+        FillInLabels(CurBank);
       } /*FillInLabels*/
 
   } /*State*/
