@@ -114,8 +114,8 @@ public class State
     public int PC, RunPC, CurBank, RunBank, LastBank;
     final java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
     boolean GotLabels; /* Labels table is currently valid */
-    public boolean ProgRunning = false;
-    public boolean ProgRunningSlowly = false;
+    public boolean ProgRunning;
+    public boolean ProgRunningSlowly;
 
   /* use of memories for stats operations */
     public static final int STATSREG_SIGMAY = 1;
@@ -164,7 +164,9 @@ public class State
         RunPC = 0;
         CurBank = 0;
         ReturnLast = -1;
-        GotLabels = false;
+        ProgRunning = false;
+        ProgRunningSlowly = false;
+        ResetLabels();
         for (int i = 0; i < MaxFlags; ++i)
           {
             Flag[i] = false;
@@ -1676,6 +1678,7 @@ public class State
                 OK = true;
               }
             while (false);
+            System.err.println("ti5x Transfer: OK = " + OK + ", PC = " + PC + ", RunPC = " + RunPC); /* debug */
             if (!OK)
               {
                 SetErrorState();
@@ -2235,6 +2238,7 @@ public class State
             while (RunPC != -1 && RunPC < Bank[RunBank].Program.length);
             GotLabels = true;
             InvState = SaveInvState;
+            RunPC = PC;
           } /*if*/
       } /*FillInLabels*/
 
