@@ -13,6 +13,9 @@
 #
 #     cardnn
 #         infile is the name of a PNG file to be included as the specified card image
+#     cardsrcnn
+#         infile is the name of an XML template file to be rendered through rendercard
+#         and included as the specified card image
 #     help
 #         infile is the name of an HTML text file to be included as help for
 #         the overall library
@@ -70,7 +73,7 @@ for arg in sys.argv[2:] :
     if index not in components :
         components[index] = {}
     #end if
-    assert type in ("card", "help", "prog", "progsrc"), "invalid type"
+    assert type in ("card", "cardsrc", "help", "prog", "progsrc"), "invalid type"
     assert type not in components[index], "duplicate type for component %02d" % index
     components[index][type] = infile
 #end for
@@ -117,7 +120,27 @@ for index in range(0, 100) :
                     b"        </prog>\n    </calc>\n</state>\n"
               )
         #end if
-        for type in ("card", "help") :
+        if "cardsrc" in component :
+            child = subprocess.Popen \
+              (
+                args = (os.path.join(utildir, "rendercard"),),
+                stdin = open(component["cardsrc"], "r"),
+                stdout = subprocess.PIPE,
+                close_fds = True
+              )
+            carddata, _ = child.communicate()
+            if child.returncode != 0 :
+                raise RuntimeError("rendercard %s cmd returned %d" % (component["cardsrc"], status))
+            #end if
+        elif "card" in component :
+            carddata = open(component["card"], "rb").read()
+        else :
+            carddata = None
+        #end if
+        if carddata != None :
+            out.writestr("card%02d" % index, carddata)
+        #end if
+        for type in ("help",) :
             if type in component :
                 out.writestr \
                   (
