@@ -19,6 +19,8 @@
 #
 #     <button>titletext</button>
 #         The titletext is rendered inline with the rest of the text with a box around it.
+#     <darrow/>
+#         A double-headed-arrow character is drawn.
 #     <div/>
 #         A divide symbol is drawn.
 #     <lambda/>
@@ -197,6 +199,7 @@ def defsymbol(name, psstr) :
 
 symbols = \
     {
+        "darrow" : defsymbol("darrow", "(\\253)"),
         "div": defsymbol("div", "(\\270)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
         "mul": defsymbol("mul", "(\\264)"),
