@@ -538,13 +538,16 @@ render_special = \
         button :
             {
                 "widthadjust" : "boxextra 2 mul add",
-                "renderbefore" : "currentpoint pop boxextra 2 div 0 rmoveto\n",
+                "renderbefore" :
+                    "currentpoint pop" # save x position
+                    " boxextra 2 div 0 rmoveto\n", # add box padding on left
                 "renderafter" :
-                        "boxextra 2 div 0 rmoveto dup currentpoint pop exch sub"
+                        "boxextra 2 div 0 rmoveto" # add box padding on right
+                        " dup currentpoint pop exch sub" # width of box
                     +
-                        " currentpoint exch pop %.2f sub exch" % (card_height * 0.225)
+                        " currentpoint exch pop %.2f sub" % (card_height * 0.03)
                     +
-                        " %.1f rectstroke" % (card_height / 4 * 0.7),
+                        " exch %.2f rectstroke" % (card_height / 4 * 0.7),
             },
         rightarrow :
             {
