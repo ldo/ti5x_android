@@ -465,7 +465,6 @@ public class State
               {
                 BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
                   /* places before decimal point */
-                System.err.println("BeforeDecimal for " + Math.abs(X) + " Exp " + Exp + " = " + BeforeDecimal); /* debug */
               }
             else
               {
@@ -1648,7 +1647,6 @@ public class State
                   }
                 else if (Symbolic)
                   {
-                    System.err.println("ti5x Transfer: Labels(" + Labels.size() + ") contains " + Loc + ": " + Labels.containsKey(Loc)); /* debug */
                     if (!Labels.containsKey(Loc))
                         break;
                     Loc = Labels.get(Loc);
