@@ -79,7 +79,7 @@ symbols = \
         "b'" : simpleop(17),
         "c'" : simpleop(18),
         "d'" : simpleop(19),
-        "e'" : simpleop(20),
+        "e'" : simpleop(10),
         "2nd" : {"act" : set_alt_state, "modifier" : True},
         "inv" : simpleop2(22, 27),
         "lnx" : simpleop2(23, 28),
