@@ -19,8 +19,12 @@
 #
 #     <button>titletext</button>
 #         The titletext is rendered inline with the rest of the text with a box around it.
+#     <div/>
+#         A divide symbol is drawn.
 #     <lambda/>
 #         A lambda character is drawn.
+#     <multiply/>
+#         A multiply symbol is drawn.
 #     <rarrow/>
 #         A right-arrow character is drawn.
 #     <sigma/>
@@ -193,7 +197,9 @@ def defsymbol(name, psstr) :
 
 symbols = \
     {
+        "div": defsymbol("div", "(\\270)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
+        "mul": defsymbol("mul", "(\\264)"),
         "sigma" : defsymbol("sigma", "(\\163)"),
         "theta" : defsymbol("theta", "(\\161)"),
     }
