@@ -682,7 +682,6 @@ public class Persistent
           )
           {
             localName = localName.intern();
-            System.err.println("ti5x load state start tag \"" + localName + "\""); /* debug */
             boolean Handled = false;
             AllowContent = false; /* to begin with */
             if (ParseState == AtTopLevel)
@@ -1048,7 +1047,6 @@ public class Persistent
           )
           {
             localName = localName.intern();
-            System.err.println("ti5x load state end tag \"" + localName + "\""); /* debug */
             final String ContentStr = Content != null ? Content.toString() : null;
             Content = null;
             AllowContent = false;
@@ -1276,7 +1274,6 @@ public class Persistent
       )
     throws DataFormatException
       {
-        System.err.println("ti5x start load file " + FromFile); /* debug */
         try
           {
             final java.util.zip.ZipFile In = new java.util.zip.ZipFile
@@ -1340,7 +1337,6 @@ public class Persistent
                           (
                             BankNr != 0 ? String.format(StdLocale, "help%02d", BankNr) : "help"
                           );
-                    System.err.println(String.format(StdLocale, "prog%02d", BankNr) + " entry present: " + (StateEntry != null)); /* debug */
                     if (StateEntry != null)
                       {
                         android.graphics.Bitmap CardImage = null;
@@ -1400,7 +1396,6 @@ public class Persistent
           {
             throw new DataFormatException("I/O error: " + IOError.toString());
           } /*try*/
-        System.err.println("ti5x finish load file " + FromFile); /* debug */
       } /*Load*/
 
     public static void SaveState
