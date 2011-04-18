@@ -309,8 +309,8 @@ public class ButtonGrid extends android.view.View
                 TextPaint.setColor(ThisButton.AltTextColor);
                 TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
                 TextPaint.setAntiAlias(true);
-                final float OrigTextSize = getResources().getDimension(R.dimen.font_size);
-                TextPaint.setTextSize(OrigTextSize * 0.9f);
+                final float BaseTextSize = getResources().getDimension(R.dimen.font_size);
+                TextPaint.setTextSize(BaseTextSize * 0.9f);
                 GraphicsUseful.DrawCenteredText
                   (
                     Draw,
@@ -392,9 +392,9 @@ public class ButtonGrid extends android.view.View
                             ThisButton.BaseCode != 51;
                     if (HasBaseOverlay || HasAltOverlay)
                       {
-                        final float Left = CellBounds.left + (CellBounds.right - CellBounds.left) * 0.2f;
+                        final float Left = CellBounds.left + (CellBounds.right - CellBounds.left) * 0.1f;
                           /* not quite authentic position, but what the hey */
-                        TextPaint.setTextSize(OrigTextSize * 0.6f);
+                        TextPaint.setTextSize(BaseTextSize * 0.6f);
                         TextPaint.setColor(ThisButton.OverlayColor);
                         if (HasBaseOverlay)
                           {
@@ -442,7 +442,7 @@ public class ButtonGrid extends android.view.View
                   } /*if*/
                 TextPaint.setColor(ThisButton.TextColor);
                 TextPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-                TextPaint.setTextSize(OrigTextSize * 1.2f);
+                TextPaint.setTextSize(BaseTextSize * 1.2f);
                 GraphicsUseful.DrawCenteredText
                   (
                     Draw,
