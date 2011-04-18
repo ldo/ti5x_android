@@ -499,21 +499,29 @@ public class State
                   }
                 else
                   {
+                    final int NrDecimals = Math.max(10 - BeforeDecimal, 0);
                     CurDisplay = String.format
                       (
                         StdLocale,
-                        String.format(StdLocale, "%%.%df", Math.max(10 - BeforeDecimal, 0)),
+                        String.format(StdLocale, "%%.%df", NrDecimals),
                         X / Math.pow(10.0, Exp)
                       );
-                    while
-                      (
-                            CurDisplay.length() != 0
-                        &&
-                            CurDisplay.charAt(CurDisplay.length() - 1) == '0'
-                      )
+                    if (NrDecimals > 0)
                       {
-                        CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
-                      } /*while*/
+                        while
+                          (
+                                CurDisplay.length() != 0
+                            &&
+                                CurDisplay.charAt(CurDisplay.length() - 1) == '0'
+                          )
+                          {
+                            CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
+                          } /*while*/
+                      }
+                    else
+                      {
+                        CurDisplay += ".";
+                      } /*if*/
                   } /*if*/
             break;
               } /*switch*/
