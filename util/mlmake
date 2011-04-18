@@ -44,7 +44,6 @@ libhelp = os.path.join(srcdir, libhelpname)
 mtime = mtime_if(libhelp)
 for nr in range(1, 100) :
     # collect source files for all modules
-    nr += 1
     srcfile = os.path.join(srcdir, "prog%02d.src" % nr)
     if os.path.isfile(srcfile) :
         entry = {"nr" : nr, "src" : srcfile}
