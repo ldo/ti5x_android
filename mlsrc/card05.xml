@@ -1,0 +1,11 @@
+<carddef>
+<label slot="titleleft">COMPLEX FUNCTIONS</label>
+<label slot="titleright">ML-05</label>
+<label slot="aprime"><rarrow/>ln X</label>
+<label slot="bprime"><rarrow/>e<sup>x</sup></label>
+<label slot="a">X</label>
+<label slot="b"><rarrow/>r, <theta/></label>
+<label slot="c"><rarrow/>X<sup>2</sup></label>
+<label slot="d"><rarrow/>X<sup>1/2</sup></label>
+<label slot="e"><rarrow/>1/X</label>
+</carddef>

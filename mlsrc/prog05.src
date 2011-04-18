@@ -1,0 +1,72 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl A
+; call first time to enter real part of X
+; call second time to enter imaginary part of X
+    exc 02  ; store user entry in 02
+    sto 01  ; put previous 02 into 01
+    rcl 02  ; show what user entered
+    inv sbr
+
+lbl B
+; convert previously-entered X to polar form
+    sbr tan
+    x<>t
+; fall through to ...
+lbl |x|
+; internal routine, calculate magnitude
+    ( rcl 01 * rcl 01 + rcl 02 * rcl 02 ) sqrt ; magnitude
+    inv sbr
+
+lbl tan
+; internal routine, calculate angle
+    0 x<>t rcl 01 x=t 1/x
+    ( rcl 02 ÷ rcl 01 ) inv tan
+    inv sbr
+lbl 1/x
+; here on real part = 0
+    ( 1 inv sin × rcl 02 op 10 ) ; angle is pi/2 with sign of imaginary part
+    inv sbr
+
+lbl C
+; compute square of X
+    ( rcl 01 * rcl 02 * 2 ) ; imaginary part
+    x<>t
+    ( rcl 01 * rcl 01 - rcl 02 * rcl 02 ) ; real part
+    inv sbr
+
+lbl D
+; compute square root of X
+    ( sbr tan ÷ 2 ) sto 03
+    ( ce sin × sbr |x| sqrt sto 04 ) ; imaginary part
+    x<>t
+    ( rcl 03 cos × rcl 04 ) ; real part
+    inv sbr
+
+lbl E
+; compute reciprocal of X
+    ( rcl 01 * rcl 01 + rcl 02 * rcl 02 ) sto 03
+    ( rcl 02 / rcl 03 ) +/- ; imaginary part of answer
+    x<>t
+    ( rcl 01 / rcl 03 ) ; real part of answer
+    inv sbr
+
+lbl A'
+; compute natural log of X
+    ( sbr tan * pi / 2 / 1 inv sin ) ; imaginary part, always in radians
+    x<>t
+    sbr |x| lnx ; real part
+    inv sbr
+
+lbl B'
+; compute e to the power X
+    ( rcl 02 * 1 inv sin * 2 / pi ) sto 03 ; always interpret angle as radians
+    ( sin * rcl 01 inv lnx sto 04 )
+    x<>t
+    ( rcl 03 cos * rcl 04 )
+    inv sbr
