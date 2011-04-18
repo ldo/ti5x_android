@@ -20,7 +20,6 @@ import sys
 import os
 import subprocess
 import errno
-import zipfile
 
 def mtime_if(filename) :
     """returns the last-modified time of the file if it exists, else 0."""
@@ -70,54 +69,27 @@ if not os.path.isfile(dstfile) or os.path.getmtime(dstfile) < mtime :
         #end if
     #end try
     dstfile_new = dstfile + "-new"
-    dst = zipfile.ZipFile(dstfile_new, mode = "w", compression = zipfile.ZIP_DEFLATED)
-    entry = zipfile.ZipInfo()
-    entry.filename = "mimetype"
-    entry.compress_type = zipfile.ZIP_STORED
-    dst.writestr(entry, b"application/vnd.nz.gen.geek_central.ti5x")
+    args = []
     if os.path.isfile(libhelp) :
-        dst.writestr("help", open(libhelp, "rb").read())
+        args.append("help=%s" % libhelp)
     #end if
     for module in sources :
-        child = subprocess.Popen \
-          (
-            args = (os.path.join(utildir, "assemble"),),
-            stdin = open(module["src"], "r"),
-            stdout = subprocess.PIPE,
-            close_fds = True
-          )
-        data, _ = child.communicate()
-        if child.returncode != 0 :
-            raise RuntimeError("assemble %s cmd returned %d" % (module["src"], status))
-        #end if
-        dst.writestr \
-          (
-            "prog%02d" % module["nr"],
-                b"<state>\n    <calc>\n        <prog>\n"
-            +
-                data
-            +
-                b"        </prog>\n    </calc>\n</state>\n"
-          )
         if "card" in module :
-            child = subprocess.Popen \
-              (
-                args = (os.path.join(utildir, "rendercard"),),
-                stdin = open(module["card"], "r"),
-                stdout = subprocess.PIPE,
-                close_fds = True
-              )
-            data, _ = child.communicate()
-            if child.returncode != 0 :
-                raise RuntimeError("rendercard %s cmd returned %d" % (module["card"], status))
-            #end if
-            dst.writestr("card%02d" % module["nr"], data)
+            args.append("cardsrc%02d=%s" % (module["nr"], module["card"]))
         #end if
         if "help" in module :
-            dst.writestr("help%02d" % module["nr"], open(module["help"], "rb").read())
+            args.append("help%02d=%s" % (module["nr"], module["help"]))
         #end if
+        args.append("progsrc%02d=%s" % (module["nr"], module["src"]))
     #end for
-    dst.close()
+    status = subprocess.Popen \
+      (
+        args = [os.path.join(utildir, "makeprog"), dstfile_new] + args,
+        close_fds = True
+      ).wait()
+    if status != 0 :
+        raise RuntimeError("makeprog cmd returned %d" % status)
+    #end if
     os.rename(dstfile_new, dstfile)
     sys.stderr.write("%s rebuilt\n" % dstfile)
 else :
