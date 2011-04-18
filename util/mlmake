@@ -35,7 +35,7 @@ def mtime_if(filename) :
 utildir = os.path.dirname(sys.argv[0])
 srcdir = os.path.join(os.path.dirname(utildir), "mlsrc")
 dstdir = "res/raw"
-dstfile = os.path.join(os.path.dirname(utildir), os.path.join(dstdir, "ml.ti5x"))
+dstfile = os.path.join(os.path.dirname(utildir), os.path.join(dstdir, "ml.ti5l"))
 sys.stderr.write("%s => %s\n" % (srcdir, dstfile)) # debug
 libhelpname = "help.html"
 

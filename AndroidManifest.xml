@@ -25,6 +25,9 @@
             android:name="Help"
         />
         <activity
+            android:name="Picker"
+        />
+        <activity
             android:name="SaveAs"
         />
     </application>

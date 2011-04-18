@@ -1329,7 +1329,7 @@ public class State
           } /*if*/
       } /*StepPC*/
 
-    void ResetLabels()
+    public void ResetLabels()
       {
         Labels.clear();
         GotLabels = false;
@@ -1648,6 +1648,7 @@ public class State
                   }
                 else if (Symbolic)
                   {
+                    System.err.println("ti5x Transfer: Labels(" + Labels.size() + ") contains " + Loc + ": " + Labels.containsKey(Loc)); /* debug */
                     if (!Labels.containsKey(Loc))
                         break;
                     Loc = Labels.get(Loc);

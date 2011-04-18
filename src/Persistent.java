@@ -93,12 +93,17 @@ public class Persistent
   /* saving/loading of libraries and calculator state. */
   {
     public static final String CalcMimeType = "application/vnd.nz.gen.geek_central.ti5x";
-    public static final String CalcExt = ".ti5x";
-    public static final String ProgramsDir = "Programs";
+    public static final String StateExt = ".ti5s"; /* for saved calculator state */
+    public static final String ProgExt = ".ti5p"; /* for saved user program */
+    public static final String LibExt = ".ti5l"; /* for library */
+    public static final String ProgramsDir = "Programs"; /* where to save user programs */
     public static final String[] ExternalCalcDirectories =
+      /* where to load programs/libraries from */
         {
             ProgramsDir,
+            "Download",
         };
+    public static final String SavedStateName = "state" + StateExt;
 
     public static class DataFormatException extends RuntimeException
       /* indicates a problem parsing a saved state file. */
@@ -889,7 +894,7 @@ public class Persistent
                       {
                         Calc.PC = GetInt(Value);
                       }
-                    else if (Name == "Bank")
+                    else if (Name == "bank")
                       {
                         Calc.CurBank = GetInt(Value);
                       }
@@ -1271,6 +1276,7 @@ public class Persistent
       )
     throws DataFormatException
       {
+        System.err.println("ti5x start load file " + FromFile); /* debug */
         try
           {
             final java.util.zip.ZipFile In = new java.util.zip.ZipFile
@@ -1303,6 +1309,10 @@ public class Persistent
               {
                 Buttons.Reset();
                 Calc.Reset(AllState);
+              }
+            else
+              {
+                Calc.ResetLabels(); /* at least */
               } /*if*/
             if (Libs || AllState)
               {
@@ -1390,6 +1400,128 @@ public class Persistent
           {
             throw new DataFormatException("I/O error: " + IOError.toString());
           } /*try*/
+        System.err.println("ti5x finish load file " + FromFile); /* debug */
       } /*Load*/
+
+    public static void SaveState
+      (
+        android.content.Context ctx,
+        ButtonGrid Buttons,
+        State Calc
+      )
+      /* saves the entire current calculator state for later restoration. */
+      {
+        ctx.deleteFile(SavedStateName); /* if it exists */
+        java.io.FileOutputStream CurSave;
+        try
+          {
+            CurSave = ctx.openFileOutput(SavedStateName, ctx.MODE_WORLD_READABLE);
+          }
+        catch (java.io.FileNotFoundException Eh)
+          {
+            throw new RuntimeException("ti5x save-state create error " + Eh.toString());
+          } /*try*/
+        Save(Buttons, Calc, true, true, CurSave); /* catch RuntimeException? */
+        try
+          {
+            CurSave.flush();
+            CurSave.close();
+          }
+        catch (java.io.IOException Failed)
+          {
+            throw new RuntimeException
+              (
+                "ti5x state save error " + Failed.toString()
+              );
+          } /*try*/
+      } /*SaveState*/
+
+    public static void RestoreState
+      (
+        android.content.Context ctx,
+        Display Disp,
+        HelpCard Help,
+        ButtonGrid Buttons,
+        State Calc
+      )
+      /* restores the entire calculator state, using the previously-saved
+        state if available, otherwise (re)initializes to default state. */
+      {
+        boolean RestoredState = false;
+          {
+            final String StateFile = ctx.getFilesDir().getAbsolutePath() + "/" + SavedStateName;
+            if (new java.io.File(StateFile).exists())
+              {
+                try
+                  {
+                    Load
+                      (
+                        /*FromFile =*/ StateFile,
+                        /*Libs =*/ true,
+                        /*AllState =*/ true,
+                        /*Disp =*/ Disp,
+                        /*Help =*/ Help,
+                        /*Buttons =*/ Buttons,
+                        /*Calc =*/ Calc
+                      );
+                    RestoredState = true;
+                  }
+                catch (DataFormatException Bad)
+                  {
+                    System.err.printf
+                      (
+                        "ti5x failure to reload state from file \"%s\": %s\n",
+                        StateFile,
+                        Bad.toString()
+                      ); /* debug  */
+                  } /*try*/
+              } /*if*/
+          }
+        if (!RestoredState)
+          {
+          /* initialize state to include Master Library */
+          /* unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
+            so I need to make a temporary copy of the master library out of my raw resources. */
+            final String TempLibName = "temp.ti5x";
+            final String TempLibFile = ctx.getFilesDir().getAbsolutePath() + "/" + TempLibName;
+            try
+              {
+                final java.io.InputStream LibFile = ctx.getResources().openRawResource(R.raw.ml);
+                final java.io.OutputStream TempLib =
+                    ctx.openFileOutput(TempLibName, ctx.MODE_WORLD_READABLE);
+                  {
+                    byte[] Buffer = new byte[2048]; /* some convenient size */
+                    for (;;)
+                      {
+                        final int NrBytes = LibFile.read(Buffer);
+                        if (NrBytes <= 0)
+                            break;
+                        TempLib.write(Buffer, 0, NrBytes);
+                      } /*for*/
+                  }
+                TempLib.flush();
+                TempLib.close();
+              }
+            catch (java.io.FileNotFoundException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              }
+            catch (java.io.IOException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              } /*try*/
+            Load
+              (
+                /*FromFile =*/ TempLibFile,
+                /*Libs =*/ true,
+                /*AllState =*/ false,
+                /*Disp =*/ Disp,
+                /*Help =*/ Help,
+                /*Buttons =*/ Buttons,
+                /*Calc =*/ Calc
+              );
+            ctx.deleteFile(TempLibName);
+          } /*if*/
+      } /*RestoreState*/
 
   } /*Persistent*/

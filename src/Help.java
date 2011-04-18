@@ -18,6 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class Help extends android.app.Activity
   {
+    public static String ContentID = "nz.gen.geek-central.JigsawPuzzleMaker.HelpContent";
     android.webkit.WebView HelpView;
 
     @Override
@@ -30,7 +31,7 @@ public class Help extends android.app.Activity
         setContentView(R.layout.help);
         HelpView = (android.webkit.WebView)findViewById(R.id.help_view);
         final android.content.Intent MyIntent = getIntent();
-        final byte[] Content = MyIntent.getByteArrayExtra("content");
+        final byte[] Content = MyIntent.getByteArrayExtra(ContentID);
         if (Content != null)
           {
           /* show the specified module help */

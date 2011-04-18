@@ -53,7 +53,7 @@ public class HelpCard extends android.view.View
                           {
                             final android.content.Intent ShowHelp =
                                 new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                            ShowHelp.putExtra("content", Help);
+                            ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Help);
                             ShowHelp.setClass(HelpCard.this.TheContext, Help.class);
                             HelpCard.this.TheContext.startActivity(ShowHelp);
                           }

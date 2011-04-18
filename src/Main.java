@@ -24,39 +24,14 @@ public class Main extends android.app.Activity
     State Calc;
     protected android.view.MenuItem ToggleOverlayItem;
     protected android.view.MenuItem ShowHelpItem;
+    protected android.view.MenuItem LoadProgramItem;
     protected android.view.MenuItem SaveProgramItem;
     protected android.view.MenuItem PowerOffItem;
+    protected final int LoadProgramRequest = 1; /* arbitrary code */
     protected final int SaveProgramRequest = 2; /* arbitrary code */
     Boolean ShuttingDown = false;
 
-    final String SavedStateName = "state" + Persistent.CalcExt;
-
-    void SaveState()
-      {
-        deleteFile(SavedStateName); /* if it exists */
-        java.io.FileOutputStream CurSave;
-        try
-          {
-            CurSave = openFileOutput(SavedStateName, MODE_WORLD_READABLE);
-          }
-        catch (java.io.FileNotFoundException Eh)
-          {
-            throw new RuntimeException("ti5x save-state create error " + Eh.toString());
-          } /*try*/
-        Persistent.Save(Buttons, Calc, true, true, CurSave); /* catch RuntimeException? */
-        try
-          {
-            CurSave.flush();
-            CurSave.close();
-          }
-        catch (java.io.IOException Failed)
-          {
-            throw new RuntimeException
-              (
-                "ti5x state save error " + Failed.toString()
-              );
-          } /*try*/
-      } /*SaveState*/
+    static final java.util.Locale StdLocale = java.util.Locale.US;
 
     @Override
     public boolean onCreateOptionsMenu
@@ -67,6 +42,7 @@ public class Main extends android.app.Activity
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
         ToggleOverlayItem.setCheckable(true);
         ShowHelpItem = TheMenu.add(R.string.show_help);
+        LoadProgramItem = TheMenu.add(getString(R.string.load_prog));
         SaveProgramItem = TheMenu.add(getString(R.string.save_as));
         PowerOffItem = TheMenu.add(R.string.turn_off);
         return
@@ -84,7 +60,7 @@ public class Main extends android.app.Activity
           {
             Buttons.OverlayVisible = !Buttons.OverlayVisible;
             Buttons.invalidate();
-            ToggleOverlayItem.setChecked(Buttons.OverlayVisible);
+            ToggleOverlayItem.setChecked(Buttons.OverlayVisible); /* doesn't seem to work */
           }
         else if (TheItem == ShowHelpItem)
           {
@@ -92,6 +68,15 @@ public class Main extends android.app.Activity
               (
                 new android.content.Intent(android.content.Intent.ACTION_VIEW)
                     .setClass(this, Help.class)
+              );
+          }
+        else if (TheItem == LoadProgramItem)
+          {
+            startActivityForResult
+              (
+                new android.content.Intent(android.content.Intent.ACTION_PICK)
+                    .setClass(this, Picker.class),
+                LoadProgramRequest
               );
           }
         else if (TheItem == SaveProgramItem)
@@ -106,7 +91,7 @@ public class Main extends android.app.Activity
         else if (TheItem == PowerOffItem)
           {
             ShuttingDown = true;
-            deleteFile(SavedStateName); /* lose any saved state */
+            deleteFile(Persistent.SavedStateName); /* lose any saved state */
             finish(); /* start afresh next time */
             Handled = true;
           } /*if*/
@@ -124,6 +109,69 @@ public class Main extends android.app.Activity
       {
         if
           (
+                RequestCode == LoadProgramRequest
+            &&
+                Data != null
+          )
+          {
+            final String ProgName = Data.getData().getPath();
+            final String PickedExt = Data.getStringExtra(Picker.ExtID);
+            final boolean IsLib = PickedExt == Persistent.LibExt;
+          /* It appears onActivityResult is liable to be called before
+            onResume. Therefore I do additional restoring/saving state
+            here to ensure the saved state includes the newly-loaded
+            program/library. */
+            Persistent.RestoreState(this, Disp, Help, Buttons, Calc); /* if not already done */
+            try
+              {
+                Persistent.Load
+                  (
+                    /*FromFile =*/ ProgName,
+                    /*Libs =*/ IsLib,
+                    /*AllState =*/ false,
+                    /*Disp =*/ Disp,
+                    /*Help =*/ Help,
+                    /*Buttons =*/ Buttons,
+                    /*Calc =*/ Calc
+                  );
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ this,
+                    /*text =*/
+                        String.format
+                          (
+                            StdLocale,
+                            getString
+                              (
+                                IsLib ?
+                                    R.string.library_loaded
+                                :
+                                    R.string.program_loaded
+                              ),
+                              new java.io.File(ProgName).getName()
+                          ),
+                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                  ).show();
+              }
+            catch (Persistent.DataFormatException Failed)
+              {
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ this,
+                    /*text =*/
+                        String.format
+                          (
+                            StdLocale,
+                            getString(R.string.file_load_error),
+                            Failed.toString()
+                          ),
+                    /*duration =*/ android.widget.Toast.LENGTH_LONG
+                  ).show();
+              } /*try*/
+            Persistent.SaveState(this, Buttons, Calc);
+          }
+        else if
+          (
                 RequestCode == SaveProgramRequest
             &&
                 Data != null
@@ -132,7 +180,7 @@ public class Main extends android.app.Activity
             final String TheName =
                     Data.getData().getPath().substring(1) /* ignoring leading slash */
                 +
-                    Persistent.CalcExt;
+                    Persistent.ProgExt;
             try
               {
                 final String SaveDir =
@@ -153,7 +201,7 @@ public class Main extends android.app.Activity
                 android.widget.Toast.makeText
                   (
                     /*context =*/ this,
-                    /*text =*/ String.format(getString(R.string.program_saved), TheName),
+                    /*text =*/ String.format(StdLocale, getString(R.string.program_saved), TheName),
                     /*duration =*/ android.widget.Toast.LENGTH_SHORT
                   ).show();
               }
@@ -163,7 +211,7 @@ public class Main extends android.app.Activity
                   (
                     /*context =*/ this,
                     /*text =*/
-                        String.format(getString(R.string.program_save_error), Failed.toString()),
+                        String.format(StdLocale, getString(R.string.program_save_error), Failed.toString()),
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
               } /*try*/
@@ -191,7 +239,7 @@ public class Main extends android.app.Activity
         super.onPause();
         if (!ShuttingDown)
           {
-            SaveState();
+            Persistent.SaveState(this, Buttons, Calc);
           } /*if*/
       } /*onPause*/
 
@@ -199,81 +247,7 @@ public class Main extends android.app.Activity
     public void onResume()
       {
         super.onResume();
-        boolean RestoredState = false;
-          {
-            final String StateFile = getFilesDir().getAbsolutePath() + "/" + SavedStateName;
-            if (new java.io.File(StateFile).exists())
-              {
-                try
-                  {
-                    Persistent.Load
-                      (
-                        /*FromFile =*/ StateFile,
-                        /*Libs =*/ true,
-                        /*AllState =*/ true,
-                        /*Disp =*/ Disp,
-                        /*Help =*/ Help,
-                        /*Buttons =*/ Buttons,
-                        /*Calc =*/ Calc
-                      );
-                    RestoredState = true;
-                  }
-                catch (Persistent.DataFormatException Bad)
-                  {
-                    System.err.printf
-                      (
-                        "ti5x failure to reload state from file \"%s\": %s\n",
-                        StateFile,
-                        Bad.toString()
-                      ); /* debug  */
-                  } /*try*/
-              } /*if*/
-          }
-        if (!RestoredState)
-          {
-          /* initialize state to include Master Library */
-          /* unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
-            so I need to make a temporary copy of the master library out of my raw resources. */
-            final String TempLibName = "temp.ti5x";
-            final String TempLibFile = getFilesDir().getAbsolutePath() + "/" + TempLibName;
-            try
-              {
-                final java.io.InputStream LibFile = getResources().openRawResource(R.raw.ml);
-                final java.io.OutputStream TempLib =
-                    openFileOutput(TempLibName, MODE_WORLD_READABLE);
-                  {
-                    byte[] Buffer = new byte[2048]; /* some convenient size */
-                    for (;;)
-                      {
-                        final int NrBytes = LibFile.read(Buffer);
-                        if (NrBytes <= 0)
-                            break;
-                        TempLib.write(Buffer, 0, NrBytes);
-                      } /*for*/
-                  }
-                TempLib.flush();
-                TempLib.close();
-              }
-            catch (java.io.FileNotFoundException Failed)
-              {
-                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-              }
-            catch (java.io.IOException Failed)
-              {
-                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-              } /*try*/
-            Persistent.Load
-              (
-                /*FromFile =*/ TempLibFile,
-                /*Libs =*/ true,
-                /*AllState =*/ false,
-                /*Disp =*/ Disp,
-                /*Help =*/ Help,
-                /*Buttons =*/ Buttons,
-                /*Calc =*/ Calc
-              );
-            deleteFile(TempLibName);
-          } /*if*/
+        Persistent.RestoreState(this, Disp, Help, Buttons, Calc);
       } /*onResume*/
 
   } /*Main*/
