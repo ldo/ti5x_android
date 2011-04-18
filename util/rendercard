@@ -607,11 +607,11 @@ for i in range(0, 4) :
                             (
                                     label_margin
                                 +
-                                        (card_width - thumb_margin - 2 * label_margin)
+                                        (card_width - thumb_margin)
                                     /
                                         5
                                     *
-                                        (col - 0.5),
+                                        (col - 0.6),
                                 card_height * (4 - i - 0.75) / 4,
                             )
                       )
