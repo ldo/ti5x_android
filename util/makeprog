@@ -13,6 +13,9 @@
 #
 #     cardnn
 #         infile is the name of a PNG file to be included as the specified card image
+#     help
+#         infile is the name of an HTML text file to be included as help for
+#         the overall library
 #     helpnn
 #         infile is the name of an HTML text file to be included as help for the
 #         specified program number
@@ -26,7 +29,8 @@
 #
 # To build a program file, include just a prog00 or progsrc00 component.
 # To build a library file, include one or more components from prog01/progsrc01
-# up to prog99/progsrc99, optionally together with corresponding card and help components.
+# up to prog99/progsrc99, optionally together with corresponding cardnn and helpnn components
+# and a help component.
 #
 # Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
@@ -56,8 +60,12 @@ if len(sys.argv) < 2 :
 outfile = sys.argv[1]
 components = {}
 for arg in sys.argv[2:] :
-    type, index, infile = re.search(r"^([a-z]+)(\d+)\=(.+)$", arg).groups()
-    index = int(index)
+    type, index, infile = re.search(r"^([a-z]+)(\d*)\=(.+)$", arg).groups()
+    if type == "help" and len(index) == 0 :
+        index = 0
+    else :
+        index = int(index)
+    #end if
     assert index < 100, "component index out of range"
     if index not in components :
         components[index] = {}
@@ -67,7 +75,7 @@ for arg in sys.argv[2:] :
     components[index][type] = infile
 #end for
 for index in components :
-    if "prog" not in components[index] and "progsrc" not in components[index] :
+    if index != 0 and "prog" not in components[index] and "progsrc" not in components[index] :
         raise RuntimeError("no prog or progsrc for component %02d" % index)
     #end if
 #end for
@@ -93,21 +101,29 @@ for index in range(0, 100) :
             if child.returncode != 0 :
                 raise RuntimeError("assemble %s cmd returned %d" % (component["progsrc"], status))
             #end if
-        else :
+        elif "prog" in component :
             prog = open(component["prog"], "rb").read()
+        else :
+            prog = None
         #end if
-        out.writestr \
-          (
-            "prog%02d" % index,
-                b"<state>\n    <calc>\n        <prog>\n"
-            +
-                b"".join(b" " * 12 + line + b"\n" for line in prog.rstrip(b"\n").split(b"\n"))
-            +
-                b"        </prog>\n    </calc>\n</state>\n"
-          )
+        if prog != None :
+            out.writestr \
+              (
+                "prog%02d" % index,
+                    b"<state>\n    <calc>\n        <prog>\n"
+                +
+                    b"".join(b" " * 12 + line + b"\n" for line in prog.rstrip(b"\n").split(b"\n"))
+                +
+                    b"        </prog>\n    </calc>\n</state>\n"
+              )
+        #end if
         for type in ("card", "help") :
             if type in component :
-                out.writestr("%s%02d" % (type, index), open(component[type], "rb").read())
+                out.writestr \
+                  (
+                    ("help", "%s%02d" % (type, index))[type != "help" or index != 0],
+                    open(component[type], "rb").read()
+                  )
             #end if
         #end for
     #end if
