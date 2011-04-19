@@ -224,16 +224,19 @@ public class Display extends android.view.View
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
       } /*SetShowingRunning*/
 
-    public void SetShowingError()
+    public void SetShowingError
+      (
+        String ToShow
+      )
       {
-        SetShowing(new int[] {SegmentCode('E'), SegmentCode('r'), SegmentCode('r'), SegmentCode('o'), SegmentCode('r')});
+        SetShowing(ToShow);
         for (int i = 0; i < OtherShowing.length; ++i)
           {
-            OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
+            OtherShowing[i] = 0;
           } /*for*/
         ShowingColor = ColorScheme.LEDLight;
         OtherColor = ColorScheme.LEDLight;
-        AnimDelay = 1.0f;
+        AnimDelay = 0.5f;
         IdleTask = new Flashing();
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
       } /*SetShowingError*/

@@ -1461,7 +1461,7 @@ public class Persistent
                     Calc.SetX(Calc.X);
                 break;
                 case State.ErrorState:
-                    Disp.SetShowingError();
+                    Disp.SetShowingError(Calc.CurDisplay);
                 break;
                   } /*switch*/
                 Calc.SetProgMode(Calc.ProgMode);

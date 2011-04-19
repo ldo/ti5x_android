@@ -30,7 +30,7 @@ public class State
 
     Display Disp;
     HelpCard Help;
-    String CurDisplay;
+    String CurDisplay; /* current number display */
     android.os.Handler BGTask;
     Runnable DelayTask = null;
     Runnable ExecuteTask = null;
@@ -304,7 +304,7 @@ public class State
         ClearDelayedStep();
         if (!ProgRunning || ProgRunningSlowly)
           {
-            Disp.SetShowingError();
+            Disp.SetShowingError(LastShowing);
           } /*if*/
         CurState = ErrorState;
       } /*SetErrorState*/
@@ -1550,7 +1550,7 @@ public class State
         RunBank = CurBank;
         if (InErrorState())
           {
-            Disp.SetShowingError();
+            Disp.SetShowingError(LastShowing);
           }
         else
           {
