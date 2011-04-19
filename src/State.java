@@ -1576,19 +1576,14 @@ public class State
 
     public void ResetProg()
       {
+        StopProgram();
         for (int i = 0; i < MaxFlags; ++i)
           {
             Flag[i] = false;
           } /*for*/
-        if (ProgRunning)
-          {
-            RunPC = 0;
-          }
-        else
-          {
-            PC = 0;
-          } /*if*/
+        PC = 0;
         ReturnLast = -1;
+        SelectProgram(0, false);
       } /*ResetProg*/
 
     int GetProg
@@ -2174,7 +2169,6 @@ public class State
                 break;
                 case 81:
                     ResetProg();
-                    StopProgram();
                 break;
                 case 83: /*GTO Ind*/
                     Transfer(false, false, RunBank, GetLoc(true), false, true);
