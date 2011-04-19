@@ -21,8 +21,10 @@ import android.graphics.RectF;
 public class HelpCard extends android.view.View
   {
     final android.content.Context TheContext;
-    android.graphics.Bitmap CardImage;
+    android.graphics.Bitmap CardImage, NewCardImage;
     byte[] Help;
+
+    final float SlideDuration = 0.5f; /* seconds */
 
     public HelpCard
       (
@@ -81,16 +83,88 @@ public class HelpCard extends android.view.View
           );
       } /*HelpCard*/
 
+    void SlideInNewCard()
+      {
+        clearAnimation();
+        CardImage = NewCardImage;
+        if (CardImage != null)
+          {
+            final android.view.animation.Animation SlideIn =
+                new android.view.animation.TranslateAnimation
+                  (
+                    /*fromXDelta =*/ getWidth(),
+                    /*toXDelta =*/ 0.0f,
+                    /*fromYDelta =*/ 0.0f,
+                    /*toYDelta =*/ 0.0f
+                  );
+            SlideIn.setDuration((int)(SlideDuration * 1000));
+            startAnimation(SlideIn);
+          } /*if*/
+      } /*SlideInNewCard*/
+
+    void SlideOutOldCard()
+      {
+        clearAnimation(); /* if any */
+        final android.view.animation.Animation SlideOut =
+            new android.view.animation.TranslateAnimation
+              (
+                /*fromXDelta =*/ 0.0f,
+                /*toXDelta =*/ getWidth(),
+                /*fromYDelta =*/ 0.0f,
+                /*toYDelta =*/ 0.0f
+              );
+        SlideOut.setDuration((int)(SlideDuration * 1000));
+        SlideOut.setAnimationListener
+          (
+            new android.view.animation.Animation.AnimationListener()
+              {
+
+                public void onAnimationStart
+                  (
+                    android.view.animation.Animation TheAnimation
+                  )
+                  {
+                  /* nothing interesting */
+                  } /*onAnimationStart*/
+
+                public void onAnimationEnd
+                  (
+                    android.view.animation.Animation TheAnimation
+                  )
+                  {
+                    SlideInNewCard();
+                  } /*onAnimationEnd*/
+
+                public void onAnimationRepeat
+                  (
+                    android.view.animation.Animation TheAnimation
+                  )
+                  {
+                  /* won't occur */
+                  } /*onAnimationRepeat*/
+
+              } /*AnimationListener*/
+          );
+        startAnimation(SlideOut);
+      } /*SlideOutOldCard*/
+
     public void SetHelp
       (
         android.graphics.Bitmap NewCardImage,
         byte[] NewHelp
       )
       {
-        CardImage = NewCardImage;
-       /* sliding animation TBD */
+        this.NewCardImage = NewCardImage;
+        if (CardImage != null)
+          {
+            SlideOutOldCard();
+          }
+        else if (NewCardImage != null)
+          {
+            SlideInNewCard();
+          } /*if*/
         Help = NewHelp;
-        invalidate();
+      /* invalidate(); */ /* leave it to animation */
       } /*SetHelp*/
 
     @Override
