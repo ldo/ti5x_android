@@ -224,6 +224,67 @@ public class Persistent
             Result;
       } /*GetDouble*/
 
+    static void SaveProg
+      (
+        byte[] Program,
+        java.io.PrintStream POut,
+        int Indent
+      )
+      /* outputs a <prog> section to POut containing the contents of Program. Trailing
+        zeroes are omitted. */
+      {
+        POut.print(String.format(StdLocale, String.format(StdLocale, "%%%ds<prog>\n", Indent), ""));
+        int Cols = 0;
+        int i = 0;
+        int LastNonzero = -1;
+        for (;;)
+          {
+            if (i == Program.length)
+              {
+                if (Cols != 0)
+                  {
+                    POut.println();
+                  } /*if*/
+                break;
+              } /*if*/
+            if (Program[i] != 0)
+              {
+                for (int j = LastNonzero + 1; j <= i; ++j)
+                  {
+                    if (Cols == 24)
+                      {
+                        POut.print("\n");
+                        Cols = 0;
+                      } /*if*/
+                    if (Cols != 0)
+                      {
+                        POut.print(" ");
+                      }
+                    else
+                      {
+                        POut.print
+                          (
+                            String.format
+                              (
+                                StdLocale,
+                                String.format(StdLocale, "%%%ds", Indent + 4),
+                                ""
+                              )
+                          );
+                      } /*if*/
+                    POut.printf(StdLocale, "%02d", Program[j]);
+                    ++Cols;
+                  } /*for*/
+                LastNonzero = i;
+              } /*if*/
+            ++i;
+          } /*for*/
+        POut.print
+          (
+            String.format(StdLocale, String.format(StdLocale, "%%%ds</prog>\n", Indent), "")
+          );
+      } /*SaveProg*/
+
     public static void Save
       (
         ButtonGrid Buttons, /* ignored unless AllState */
@@ -288,31 +349,7 @@ public class Persistent
                             java.io.PrintStream POut = new java.io.PrintStream(ProgOut.Out);
                             POut.println("<state>");
                             POut.println("    <calc>");
-                            POut.println("        <prog>");
-                            int Cols = 0;
-                            int i = 0;
-                            for (;;)
-                              {
-                                if (i == Bank.Program.length || Cols == 24)
-                                  {
-                                    POut.println();
-                                    Cols = 0;
-                                  } /*if*/
-                                if (i == Bank.Program.length)
-                                    break;
-                                if (Cols != 0)
-                                  {
-                                    POut.print(" ");
-                                  }
-                                else
-                                  {
-                                    POut.print("            ");
-                                  } /*if*/
-                                POut.printf(StdLocale, "%02d", Bank.Program[i]);
-                                ++i;
-                                ++Cols;
-                              } /*for*/
-                            POut.println("        </prog>");
+                            SaveProg(Bank.Program, POut, 8);
                             POut.println("    </calc>");
                             POut.println("</state>");
                             POut.flush();
@@ -506,33 +543,7 @@ public class Persistent
                       } /*for*/
                     POut.println("        </mem>");
                   } /*if AllState*/
-                POut.println("        <prog>");
-                  {
-                    int Cols = 0;
-                    int i = 0;
-                    for (;;)
-                      {
-                        if (i == Calc.Program.length || Cols == 24)
-                          {
-                            POut.println();
-                            Cols = 0;
-                          } /*if*/
-                        if (i == Calc.Program.length)
-                            break;
-                        if (Cols != 0)
-                          {
-                            POut.print(" ");
-                          }
-                        else
-                          {
-                            POut.print("            ");
-                          } /*if*/
-                        POut.printf(StdLocale, "%02d", Calc.Program[i]);
-                        ++i;
-                        ++Cols;
-                      } /*for*/
-                  }
-                POut.println("        </prog>");
+                SaveProg(Calc.Program, POut, 8);
                 if (AllState)
                   {
                     POut.print("        <flags>\n            ");
