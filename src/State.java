@@ -913,7 +913,20 @@ public class State
 
     void ShowCurProg()
       {
-        SetShowing(String.format(StdLocale, "%03d %02d", PC, (int)Program[PC]));
+        SetShowing
+          (
+            CurBank != 0 ?
+                String.format
+                  (
+                    StdLocale,
+                    "%02d %03d %02d",
+                    CurBank,
+                    PC,
+                    (int)Bank[CurBank].Program[PC]
+                  )
+            :
+                String.format(StdLocale, "%03d %02d", PC, (int)Program[PC])
+          );
       } /*ShowCurProg*/
 
     public void SetProgMode
@@ -1324,7 +1337,7 @@ public class State
       {
         if (Forward)
           {
-            if (PC < MaxProgram - 1)
+            if (PC < Bank[CurBank].Program.length - 1)
               {
                 ++PC;
                 ShowCurProg();
@@ -1345,6 +1358,12 @@ public class State
       {
         Bank[0].Labels = null;
       } /*ResetLabels*/
+
+    public boolean ProgramWritable()
+      /* can the user enter code into the currently-selected bank. */
+      {
+        return CurBank == 0;
+      } /*ProgramWritable*/
 
     public void StoreInstr
       (

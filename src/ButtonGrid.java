@@ -860,71 +860,74 @@ public class ButtonGrid extends android.view.View
             if (!Handled)
               {
               /* check for functions needing further entry */
-                Handled = true; /* next assumption */
-                switch (ButtonCode)
+                if (!Calc.ProgMode || Calc.ProgramWritable())
                   {
-                case 36: /* Pgm */
-                case 42: /* STO */
-                case 43: /* RCL */
-                case 44: /* SUM */
-                case 48: /* Exc */
-                case 49: /* Prd */
-                case 69: /* Op */
-                    DigitsNeeded = 2;
-                    AcceptInd = true;
-                break;
-                case 58: /* Fix */
-                    if (!Calc.InvState)
+                    Handled = true; /* next assumption */
+                    switch (ButtonCode)
                       {
-                        DigitsNeeded = 1;
+                    case 36: /* Pgm */
+                    case 42: /* STO */
+                    case 43: /* RCL */
+                    case 44: /* SUM */
+                    case 48: /* Exc */
+                    case 49: /* Prd */
+                    case 69: /* Op */
+                        DigitsNeeded = 2;
                         AcceptInd = true;
-                      }
-                    else
-                      {
-                        Handled = false; /* no special handling required */
-                      } /*if*/
-                break;
-                case 67: /* x = t */
-                case 77: /* x ≥ t */
-                    DigitsNeeded = 3;
-                    AcceptInd = true;
-                    AcceptSymbolic = true;
-                break;
-                case 61: /* GTO */
-                case 71: /* SBR */
-                    if (ButtonCode == 71 && Calc.InvState)
-                      {
-                        Handled = false; /* special handling for INV SBR happens below */
-                      }
-                    else
-                      {
+                    break;
+                    case 58: /* Fix */
+                        if (!Calc.InvState)
+                          {
+                            DigitsNeeded = 1;
+                            AcceptInd = true;
+                          }
+                        else
+                          {
+                            Handled = false; /* no special handling required */
+                          } /*if*/
+                    break;
+                    case 67: /* x = t */
+                    case 77: /* x ≥ t */
                         DigitsNeeded = 3;
                         AcceptInd = true;
                         AcceptSymbolic = true;
+                    break;
+                    case 61: /* GTO */
+                    case 71: /* SBR */
+                        if (ButtonCode == 71 && Calc.InvState)
+                          {
+                            Handled = false; /* special handling for INV SBR happens below */
+                          }
+                        else
+                          {
+                            DigitsNeeded = 3;
+                            AcceptInd = true;
+                            AcceptSymbolic = true;
+                          } /*if*/
+                    break;
+                    case 76: /* Lbl */
+                        NextLiteral = true;
+                    break;
+                    case 86: /* St flg */
+                        DigitsNeeded = 1;
+                        AcceptInd = true;
+                    break;
+                    case 87: /* If flg */
+                    case 97: /* Dsz */
+                        DigitsNeeded = 1;
+                        AcceptInd = true;
+                        AcceptSymbolic = false;
+                        GotFirstOperand = false;
+                    break;
+                    default:
+                      /* wasn't one of these after all */
+                        Handled = false;
+                    break;
+                      } /*ButtonCode*/
+                    if (Handled)
+                      {
+                        CollectingForFunction = ButtonCode;
                       } /*if*/
-                break;
-                case 76: /* Lbl */
-                    NextLiteral = true;
-                break;
-                case 86: /* St flg */
-                    DigitsNeeded = 1;
-                    AcceptInd = true;
-                break;
-                case 87: /* If flg */
-                case 97: /* Dsz */
-                    DigitsNeeded = 1;
-                    AcceptInd = true;
-                    AcceptSymbolic = false;
-                    GotFirstOperand = false;
-                break;
-                default:
-                  /* wasn't one of these after all */
-                    Handled = false;
-                break;
-                  } /*ButtonCode*/
-                if (Handled)
-                  {
-                    CollectingForFunction = ButtonCode;
                   } /*if*/
               } /*if*/
             if (!Handled && ButtonCode == 40 /*Ind*/)
@@ -937,81 +940,96 @@ public class ButtonGrid extends android.view.View
               /* deal with everything not already handled */
                 if (Calc.ProgMode)
                   {
-                    switch (ButtonCode) /* undo effect of 2nd key on buttons with no alt function */
+                    if
+                      (
+                            Calc.ProgramWritable()
+                        ||
+                            ButtonCode == 31 /*LRN*/
+                        ||
+                            ButtonCode == 41 /*SST*/
+                        ||
+                            ButtonCode == 51 /*BST*/
+                      )
                       {
-                    case 27: /* INV */
-                        ButtonCode = 22;
-                    break;
-                    case 20: /* CLR */
-                        ButtonCode = 25;
-                    break;
-                    case 96: /* R/S */
-                        ButtonCode = 91;
-                    break;
-                      } /*switch*/
-                    switch (ButtonCode) /* special handling of program-editing/viewing functions and number entry */
-                      {
-                    case 21:
-                    case 26:
-                        AltState = !AltState;
-                        WasModifier = true;
-                    break;
-                    case 22:
-                        Calc.StoreInstr(22);
-                        Calc.InvState = !Calc.InvState;
-                        WasModifier = true;
-                    break;
-                    case 31: /*LRN*/
-                        Calc.SetProgMode(false);
-                        ResetOperands();
-                    break;
-                  /* 40 handled above */
-                    case 41: /*SST*/
-                        Calc.StepPC(true);
-                        ResetOperands();
-                    break;
-                    case 46: /*Ins*/
-                        Calc.InsertAtCurInstr();
-                        ResetOperands();
-                    break;
-                    case 51: /*BST*/
-                        Calc.StepPC(false);
-                        ResetOperands();
-                    break;
-                    case 56: /*Del*/
-                        Calc.DeleteCurInstr();
-                        ResetOperands();
-                    break;
-                    case 62: /*digit 7*/
-                    case 63: /*digit 8*/
-                    case 64: /*digit 9*/
-                        Calc.StoreInstr(ButtonCode - 55);
-                    break;
-                    case 71: /*SBR*/
-                        if (Calc.InvState)
+                        switch (ButtonCode) /* undo effect of 2nd key on buttons with no alt function */
                           {
-                            Calc.StorePrevInstr(92);
-                          } /*if*/
-                      /* else handled above */
-                    break;
-                    case 72: /*digit 4*/
-                    case 73: /*digit 5*/
-                    case 74: /*digit 6*/
-                        Calc.StoreInstr(ButtonCode - 68);
-                    break;
-                  /* 76 handled above */
-                    case 82: /*digit 1*/
-                    case 83: /*digit 2*/
-                    case 84: /*digit 3*/
-                        Calc.StoreInstr(ButtonCode - 81);
-                    break;
-                    case 92: /*digit 0*/
-                        Calc.StoreInstr(0);
-                    break;
-                    default:
-                        Calc.StoreInstr(ButtonCode);
-                    break;
-                      } /*switch*/
+                        case 27: /* INV */
+                            ButtonCode = 22;
+                        break;
+                        case 20: /* CLR */
+                            ButtonCode = 25;
+                        break;
+                        case 96: /* R/S */
+                            ButtonCode = 91;
+                        break;
+                          } /*switch*/
+                        switch (ButtonCode)
+                          /* special handling of program-editing/viewing functions
+                            and number entry */
+                          {
+                        case 21:
+                        case 26:
+                            AltState = !AltState;
+                            WasModifier = true;
+                        break;
+                        case 22:
+                            Calc.StoreInstr(22);
+                            Calc.InvState = !Calc.InvState;
+                            WasModifier = true;
+                        break;
+                        case 31: /*LRN*/
+                            Calc.SetProgMode(false);
+                            ResetOperands();
+                        break;
+                      /* 40 handled above */
+                        case 41: /*SST*/
+                            Calc.StepPC(true);
+                            ResetOperands();
+                        break;
+                        case 46: /*Ins*/
+                            Calc.InsertAtCurInstr();
+                            ResetOperands();
+                        break;
+                        case 51: /*BST*/
+                            Calc.StepPC(false);
+                            ResetOperands();
+                        break;
+                        case 56: /*Del*/
+                            Calc.DeleteCurInstr();
+                            ResetOperands();
+                        break;
+                        case 62: /*digit 7*/
+                        case 63: /*digit 8*/
+                        case 64: /*digit 9*/
+                            Calc.StoreInstr(ButtonCode - 55);
+                        break;
+                        case 71: /*SBR*/
+                            if (Calc.InvState)
+                              {
+                                Calc.StorePrevInstr(92);
+                              } /*if*/
+                          /* else handled above */
+                        break;
+                        case 72: /*digit 4*/
+                        case 73: /*digit 5*/
+                        case 74: /*digit 6*/
+                            Calc.StoreInstr(ButtonCode - 68);
+                        break;
+                      /* 76 handled above */
+                        case 82: /*digit 1*/
+                        case 83: /*digit 2*/
+                        case 84: /*digit 3*/
+                            Calc.StoreInstr(ButtonCode - 81);
+                        break;
+                        case 92: /*digit 0*/
+                            Calc.StoreInstr(0);
+                        break;
+                        default:
+                            Calc.StoreInstr(ButtonCode);
+                        break;
+                          } /*switch*/
+                      } /*if*/
+                      /* else ignore program entry attempts */
                   }
                 else /* calculation mode */
                   {
