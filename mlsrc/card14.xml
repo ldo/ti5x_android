@@ -1,0 +1,6 @@
+<carddef>
+<label slot="titleleft">NORMAL DISTRIBUTION</label>
+<label slot="titleright">ML-14</label>
+<label slot="a">x<rarrow/>Z(x)</label>
+<label slot="b">Q(x)</label>
+</carddef>

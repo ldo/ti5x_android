@@ -1,0 +1,37 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl A
+; height of normal curve
+    sto 03 ; save x for B
+    (
+        ( ce x² +/- / 2 ) inv lnx
+    ÷
+        ( 2 * pi ) sqrt
+    )
+    sto 01 ; save result for B
+    inv sbr
+
+lbl B
+; outlying area on normal curve
+    ( rcl 03 * .2316419 + 1 ) 1/x sto 02
+    (
+        rcl 01
+    ×
+        (
+            .319381530 * rcl 02
+        +
+            .356563782 +/- * rcl 02 * rcl 02
+        +
+            1.781477937 * rcl 02 * rcl 02 * rcl 02
+        +
+            1.821255978 +/- * rcl 02 * rcl 02 * rcl 02 * rcl 02
+        +
+            1.330274429 * rcl 02 * rcl 02 * rcl 02 * rcl 02 * rcl 02
+        )
+    )
+    inv sbr
