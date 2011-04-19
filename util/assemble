@@ -354,17 +354,25 @@ while True :
                             #end if
                         else :
                             # not expecting special operand, so just output keystrokes for entering number
+                            was_signed = False
                             for digit in cursym :
                                 if digit == "-" :
-                                    out(94) # "+/-"
+                                    was_signed = True
                                 elif digit >= "0" and digit <= "9" :
                                     out(ord(digit) - 48)
                                 elif digit == "." :
                                     out(93) # "."
                                 elif digit == "e" or digit == "E" :
+                                    if was_signed :
+                                        out(94) # "+/-"
+                                        was_signed = False
+                                    #end if
                                     out(52) # "EE"
                                 #end if
                             #end for
+                            if was_signed :
+                                out(94) # "+/-"
+                            #end if
                         #end if
                     elif symbol != None :
                         was_modifier = False
