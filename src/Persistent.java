@@ -1455,6 +1455,7 @@ public class Persistent
           /* ensure all state is properly in sync */
             if (Calc != null)
               {
+                Calc.SelectProgram(Calc.CurBank, false);
                 switch (Calc.CurState)
                   {
                 case State.ResultState:
