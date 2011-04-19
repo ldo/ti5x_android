@@ -83,6 +83,8 @@ public class HelpCard extends android.view.View
           );
       } /*HelpCard*/
 
+  /* fixme: red overlap doesn't correctly appear next to card as it slides in or out */
+
     void SlideInNewCard()
       {
         clearAnimation();
@@ -99,6 +101,10 @@ public class HelpCard extends android.view.View
                   );
             SlideIn.setDuration((int)(SlideDuration * 1000));
             startAnimation(SlideIn);
+          }
+        else
+          {
+            invalidate(); /* make sure red overlap is properly drawn */
           } /*if*/
       } /*SlideInNewCard*/
 
