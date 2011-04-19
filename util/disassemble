@@ -158,6 +158,14 @@ def report_error(msg) :
     expect = None
 #end report_error
 
+show_location = False
+
+if len(sys.argv) == 2 and sys.argv[1] == "--locations" :
+    show_location = True
+elif len(sys.argv) > 1 :
+    raise RuntimeError("unexpected args")
+#end if
+
 was_modifier = False
 inv_state = False
 expect = None
@@ -171,6 +179,7 @@ was_newline = True
 loc = None
 lastcode = None
 line_nr = 0
+loc = -1
 while True :
     if len(curline) == 0 and not EOF :
         curline += sys.stdin.readline()
@@ -216,6 +225,7 @@ while True :
                 val = None
             #end if
             if val != None :
+                loc += 1
                 if expect != None :
                     if expect == "loc2" :
                         sys.stdout.write("%03d" % (loc * 100 + val))
@@ -268,6 +278,9 @@ while True :
                     #end if
                 elif val < 10 or val == 93 and not decimal_seen :
                     # digit
+                    if not last_was_digit and show_location :
+                        sys.stdout.write("%03d: " % loc)
+                    #end if
                     if val < 10 :
                         sys.stdout.write(chr(val + 48))
                     else :
@@ -284,6 +297,9 @@ while True :
                     if val in codes :
                         code = codes[val]
                         if "sym" in code :
+                            if show_location and not inv_state :
+                                sys.stdout.write("%03d: " % loc)
+                            #end if
                             sys.stdout.write(code["sym"])
                         else :
                             report_error("code %02d has no symbol" % val)
@@ -291,6 +307,9 @@ while True :
                         was_modifier = "modifier" in code
                         if "act" in code :
                             code["act"]()
+                            if expect != None :
+                                lastcode = {} # just to trigger end-of-operand processing
+                            #end if
                         elif "expect" in code :
                             lastcode = dict((k, code[k]) for k in code if k not in ("expect", "expect2"))
                             if "expect2" in code :
@@ -298,8 +317,9 @@ while True :
                             #end if
                             expect = code["expect"]
                             sys.stdout.write(" ")
-                        elif was_modifier :
-                            sys.stdout.write(" ")
+                        #end if
+                        if expect != None or was_modifier :
+                            sys.stdout.write(" ") # separate following op/operands
                         else :
                             sys.stdout.write("\n")
                         #end if

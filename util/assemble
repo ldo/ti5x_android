@@ -57,9 +57,10 @@ def transferop(basecode, indcode = None) :
 #end transferop
 
 def sbr() :
-    global expect, pending_out
+    global expect, pending_out, loc
     if pending_out == 22 :
         pending_out = None
+        loc -= 1
         out(92)
         expect = None
     else :
@@ -217,9 +218,10 @@ def flushout() :
 
 def out(b) :
     """outputs a single instruction byte."""
-    global pending_out
+    global pending_out, loc
     flushout()
     pending_out = b
+    loc += 1
 #end out
 
 curline = ""
@@ -228,6 +230,7 @@ cursym = None
 in_comment = False
 line_nr = 0
 was_newline = True
+loc = 0
 while True :
     if len(curline) == 0 and not EOF :
         curline += sys.stdin.readline()
@@ -273,140 +276,147 @@ while True :
             if ch > " " :
                 cursym += ch
             else : # got a complete symbol
-                lookup = cursym.lower()
-                symbol = symbols.get(lookup)
-                numeric = re.search(r"^[\+\-]?(?:\d+(?:\.\d*)?|\.\d+?)(?:[eE][\+\-]?\d+)?$", cursym) != None
-                integral = re.search(r"^\d+$", cursym) != None
-                if expect != None :
-                    if expect != "label" and symbol != None and symbol.get("isind", False) :
-                        if ind_state :
-                            report_error("redundant \"ind\"")
-                        #end if
-                        ind_state = True
-                        expect = "reg"
-                    #end if
-                    # ensure opcode has been output, if not already done so
-                    if "op" in lastsym :
-                        if ind_state and "indop" in lastsym :
-                            out(lastsym[("indop", "altindop")[alt_state]])
-                        else :
-                            out(lastsym[("op", "altop")[alt_state]])
-                            if ind_state :
-                                out(40)
-                            #end if
-                        #end if
-                        for k in ("op", "altop", "indop", "altindop") :
-                            lastsym.pop(k, None)
-                        #end for
-                    elif ind_state :
-                        out(40)
-                    #end if
-                    ind_state = False
-                #end if
-                if numeric :
-                    if expect != None :
-                        assert expect in ("label", "flag", "reg", "loc")
-                        if integral :
-                            opval = int(cursym)
-                            if expect == "loc" :
-                                if opval < 1000 :
-                                    out(opval // 100)
-                                    out(opval % 100)
-                                else :
-                                    report_error("address can't be > 999")
-                                #end if
-                            elif expect == "reg" :
-                                if opval < 100 :
-                                    out(opval)
-                                else :
-                                    report_error("reg/op/pgm number can't be > 99")
-                                #end if
-                            elif expect == "flag" :
-                                if opval < 10 :
-                                    out(opval)
-                                else :
-                                    report_error("reg/flag number can't be > 9")
-                                #end if
-                            else : # expect = "label"
-                                report_error("expecting %s" % expect)
-                            #end if
-                        else :
-                            report_error("expecting integer")
-                        #end if
-                        if lastsym != None :
-                            expect = lastsym.get("expect") # further operand?
-                            if expect != None :
-                                del lastsym["expect"]
-                            else :
-                                lastsym = None # all done
-                            #end if
-                        else :
-                            pass # cleared on error
-                        #end if
-                    else :
-                        # not expecting special operand, so just output keystrokes for entering number
-                        for digit in cursym :
-                            if digit == "-" :
-                                out(94) # "+/-"
-                            elif digit >= "0" and digit <= "9" :
-                                out(ord(digit) - 48)
-                            elif digit == "." :
-                                out(93) # "."
-                            elif digit == "e" or digit == "E" :
-                                out(52) # "EE"
-                            #end if
-                        #end for
-                    #end if
-                elif symbol != None :
-                    was_modifier = False
-                    if expect != None :
-                        if symbol.get("isind", False) :
-                            if expect == "label" :
-                                report_error("cannot use \"ind\" as label")
-                                expect = None
-                            else :
-                                pass # already handled above
-                            #end if
-                        elif expect == "loc" or expect == "label" :
-                            which = ("op", "altop")[alt_state]
-                            if which in symbol :
-                                out(symbol[which])
-                            else :
-                                report_error("cannot use \"%s\" as label -- no %s" % (cursym, which))
-                            #end if
-                            expect = None
-                        else :
-                            report_error("not expecting symbol for %s" % expect)
-                            expect = None
-                        #end if
-                        if expect == None :
-                            lastsym = None
-                        #end if
-                    elif symbol.get("isind", False) :
-                        report_error("dangling \"ind\"")
-                    else :
-                        if "act" in symbol :
-                            symbol["act"]()
-                        else :
-                            expect = symbol.get("expect")
-                            if expect == None :
-                                out(symbol[("op", "altop")[alt_state]])
-                            #end if
-                        #end if
-                        if expect != None :
-                            lastsym = dict((k, symbol[k]) for k in symbol if k not in ("expect", "expect2"))
-                            if "expect2" in symbol :
-                                lastsym["expect"] = symbol["expect2"]
-                            #end if
-                        else :
-                            lastsym = None
-                        #end if
-                        if not symbol.get("modifier", False) :
-                            alt_state = False
-                        #end if
+                if re.search(r"^\d+\:$", cursym) != None :
+                    expectloc = int(cursym[:-1])
+                    if expectloc != loc :
+                        report_error("location mismatch, expecting %03d, actually %3d" % (expectloc, loc))
                     #end if
                 else :
-                    report_error("unrecognized symbol \"%s\"" % cursym)
+                    lookup = cursym.lower()
+                    symbol = symbols.get(lookup)
+                    numeric = re.search(r"^[\+\-]?(?:\d+(?:\.\d*)?|\.\d+?)(?:[eE][\+\-]?\d+)?$", cursym) != None
+                    integral = re.search(r"^\d+$", cursym) != None
+                    if expect != None :
+                        if expect != "label" and symbol != None and symbol.get("isind", False) :
+                            if ind_state :
+                                report_error("redundant \"ind\"")
+                            #end if
+                            ind_state = True
+                            expect = "reg"
+                        #end if
+                        # ensure opcode has been output, if not already done so
+                        if "op" in lastsym :
+                            if ind_state and "indop" in lastsym :
+                                out(lastsym[("indop", "altindop")[alt_state]])
+                            else :
+                                out(lastsym[("op", "altop")[alt_state]])
+                                if ind_state :
+                                    out(40)
+                                #end if
+                            #end if
+                            for k in ("op", "altop", "indop", "altindop") :
+                                lastsym.pop(k, None)
+                            #end for
+                        elif ind_state :
+                            out(40)
+                        #end if
+                        ind_state = False
+                    #end if
+                    if numeric :
+                        if expect != None :
+                            assert expect in ("label", "flag", "reg", "loc")
+                            if integral :
+                                opval = int(cursym)
+                                if expect == "loc" :
+                                    if opval < 1000 :
+                                        out(opval // 100)
+                                        out(opval % 100)
+                                    else :
+                                        report_error("address can't be > 999")
+                                    #end if
+                                elif expect == "reg" :
+                                    if opval < 100 :
+                                        out(opval)
+                                    else :
+                                        report_error("reg/op/pgm number can't be > 99")
+                                    #end if
+                                elif expect == "flag" :
+                                    if opval < 10 :
+                                        out(opval)
+                                    else :
+                                        report_error("reg/flag number can't be > 9")
+                                    #end if
+                                else : # expect = "label"
+                                    report_error("expecting %s" % expect)
+                                #end if
+                            else :
+                                report_error("expecting integer")
+                            #end if
+                            if lastsym != None :
+                                expect = lastsym.get("expect") # further operand?
+                                if expect != None :
+                                    del lastsym["expect"]
+                                else :
+                                    lastsym = None # all done
+                                #end if
+                            else :
+                                pass # cleared on error
+                            #end if
+                        else :
+                            # not expecting special operand, so just output keystrokes for entering number
+                            for digit in cursym :
+                                if digit == "-" :
+                                    out(94) # "+/-"
+                                elif digit >= "0" and digit <= "9" :
+                                    out(ord(digit) - 48)
+                                elif digit == "." :
+                                    out(93) # "."
+                                elif digit == "e" or digit == "E" :
+                                    out(52) # "EE"
+                                #end if
+                            #end for
+                        #end if
+                    elif symbol != None :
+                        was_modifier = False
+                        if expect != None :
+                            if symbol.get("isind", False) :
+                                if expect == "label" :
+                                    report_error("cannot use \"ind\" as label")
+                                    expect = None
+                                else :
+                                    pass # already handled above
+                                #end if
+                            elif expect == "loc" or expect == "label" :
+                                which = ("op", "altop")[alt_state]
+                                if which in symbol :
+                                    out(symbol[which])
+                                else :
+                                    report_error("cannot use \"%s\" as label -- no %s" % (cursym, which))
+                                #end if
+                                expect = None
+                            else :
+                                report_error("not expecting symbol for %s" % expect)
+                                expect = None
+                            #end if
+                            if expect == None :
+                                lastsym = None
+                            #end if
+                        elif symbol.get("isind", False) :
+                            report_error("dangling \"ind\"")
+                        else :
+                            if "act" in symbol :
+                                symbol["act"]()
+                            else :
+                                expect = symbol.get("expect")
+                                if expect == None :
+                                    out(symbol[("op", "altop")[alt_state]])
+                                #end if
+                            #end if
+                            if expect != None :
+                                lastsym = dict((k, symbol[k]) for k in symbol if k not in ("expect", "expect2"))
+                                if "expect2" in symbol :
+                                    lastsym["expect"] = symbol["expect2"]
+                                #end if
+                            else :
+                                lastsym = None
+                            #end if
+                            if not symbol.get("modifier", False) :
+                                alt_state = False
+                            #end if
+                        #end if
+                    else :
+                        report_error("unrecognized symbol \"%s\"" % cursym)
+                    #end if
                 #end if
                 cursym = None
                 if EOF :
