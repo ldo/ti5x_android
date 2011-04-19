@@ -15,4 +15,8 @@ public class ColorScheme
     public static final int ButtonBrown = 0xff4e3836;
     public static final int ButtonYellow = 0xffcc9858;
     public static final int OverlayBlue = 0xff1c929a;
+
+  /* printer */
+    public static final int PaperColor = 0xffe8e8e8; /* not fully white */
+    public static final int InkColor = 0xff656565; /* not fully black */
   } /*ColorScheme*/

@@ -22,6 +22,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="PrinterView"
+        />
+        <activity
             android:name="Help"
         />
         <activity

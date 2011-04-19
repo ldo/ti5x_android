@@ -24,6 +24,7 @@ public class Main extends android.app.Activity
     State Calc;
     protected android.view.MenuItem ToggleOverlayItem;
     protected android.view.MenuItem ShowHelpItem;
+    protected android.view.MenuItem ShowPrinterItem;
     protected android.view.MenuItem LoadProgramItem;
     protected android.view.MenuItem SaveProgramItem;
     protected android.view.MenuItem PowerOffItem;
@@ -42,6 +43,7 @@ public class Main extends android.app.Activity
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
         ToggleOverlayItem.setCheckable(true);
         ShowHelpItem = TheMenu.add(R.string.show_help);
+        ShowPrinterItem = TheMenu.add(R.string.show_printer);
         LoadProgramItem = TheMenu.add(getString(R.string.load_prog));
         SaveProgramItem = TheMenu.add(getString(R.string.save_as));
         PowerOffItem = TheMenu.add(R.string.turn_off);
@@ -68,6 +70,14 @@ public class Main extends android.app.Activity
               (
                 new android.content.Intent(android.content.Intent.ACTION_VIEW)
                     .setClass(this, Help.class)
+              );
+          }
+        else if (TheItem == ShowPrinterItem)
+          {
+            startActivity
+              (
+                new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                    .setClass(this, PrinterView.class)
               );
           }
         else if (TheItem == LoadProgramItem)
@@ -229,7 +239,8 @@ public class Main extends android.app.Activity
         Disp = (Display)findViewById(R.id.display);
         Help = (HelpCard)findViewById(R.id.help_card);
         Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        Calc = new State(Disp, Help);
+        final Printer Print = new Printer();
+        Calc = new State(Disp, Help, Print);
         Buttons.Calc = Calc;
       } /*onCreate*/
 

@@ -30,6 +30,7 @@ public class State
 
     Display Disp;
     HelpCard Help;
+    Printer Print;
     String CurDisplay; /* current number display */
     android.os.Handler BGTask;
     Runnable DelayTask = null;
@@ -112,7 +113,8 @@ public class State
 
   /* special flag numbers: */
     public final static int FLAG_ERROR_COND = 7;
-      /* can be set by Op 18/19 to indicate error/no-error */
+      /* can be set by Op 18/19 to indicate error/no-error, and
+        by Op 40 to indicate printer present */
     public final static int FLAG_STOP_ON_ERROR = 8; /* if set, program stops on error */
     public final static int FLAG_TRACE_PRINT = 9; /* TBD if set, calculation is traced on printer */
 
@@ -203,11 +205,13 @@ public class State
     public State
       (
         Display Disp,
-        HelpCard Help
+        HelpCard Help,
+        Printer Print
       )
       {
         this.Disp = Disp;
         this.Help = Help;
+        this.Print = Print;
         OpStack = new OpStackEntry[MaxOpStack];
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
@@ -1171,7 +1175,10 @@ public class State
                     OK = true;
                 break;
                 case 5:
-                  /* ignore for now -- no printer support */
+                    if (Print != null)
+                      {
+                        Print.Render(PrintRegister);
+                      } /*if*/
                     OK = true;
                 break;
               /* more TBD */
@@ -1306,7 +1313,10 @@ public class State
                 break;
               /* 20-39 handled above */
                 case 40:
-                  /* no-op, no printer support for now */
+                    if (Print != null)
+                      {
+                        Flag[FLAG_ERROR_COND] = true;
+                      } /*if*/
                     OK = true;
                 break;
                   } /*switch*/

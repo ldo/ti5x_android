@@ -5,6 +5,7 @@
   <!-- options menu -->
     <string name="show_overlay">Key Codes</string>
     <string name="show_help">Help</string>
+    <string name="show_printer">Printer</string>
     <string name="load_prog">Load...</string>
     <string name="save_as">Save...</string>
     <string name="turn_off">Off</string>
