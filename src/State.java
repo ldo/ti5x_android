@@ -119,6 +119,7 @@ public class State
     public int PC, RunPC, CurBank, RunBank, NextBank;
     public boolean ProgRunning;
     public boolean ProgRunningSlowly;
+    public boolean SaveRunningSlowly;
 
   /* use of memories for stats operations */
     public static final int STATSREG_SIGMAY = 1;
@@ -1508,6 +1509,7 @@ public class State
           {
             if (ProgRunningSlowly)
               {
+                Disp.SetShowing(LastShowing);
                 BGTask.postDelayed(ExecuteTask, 250);
               }
             else
@@ -1527,6 +1529,7 @@ public class State
             ExecuteTask = new ProgRunner();
           } /*if*/
         ProgRunningSlowly = false; /* just in case */
+        SaveRunningSlowly = false;
         ProgRunning = true;
         Disp.SetShowingRunning();
         RunPC = PC;
@@ -1545,7 +1548,7 @@ public class State
           } /*if*/
         PC = RunPC;
         RunBank = CurBank;
-        if (CurState == ErrorState)
+        if (InErrorState())
           {
             Disp.SetShowingError();
           }
@@ -1563,6 +1566,7 @@ public class State
         if (ProgRunningSlowly != Slow)
           {
             ProgRunningSlowly = Slow;
+            SaveRunningSlowly = Slow;
             if (!ProgRunningSlowly)
               {
                 Disp.SetShowingRunning();
@@ -1966,6 +1970,7 @@ public class State
                 final int SaveRunBank = RunBank;
                 RunBank = NextBank;
                 boolean BankSet = false;
+                ProgRunningSlowly = SaveRunningSlowly; /* undo previous Pause, if any */
                 switch (Op)
                   {
                 case 01:
@@ -2117,7 +2122,7 @@ public class State
                     Operator(STACKOP_MUL);
                 break;
                 case 66: /*Pause*/
-                  /* TBD */
+                    ProgRunningSlowly = true; /* will revert to SaveRunningSlowly next time */
                 break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
