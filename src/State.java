@@ -113,7 +113,7 @@ public class State
   /* special flag numbers: */
     public final static int FLAG_ERROR_COND = 7;
       /* can be set by Op 18/19 to indicate error/no-error */
-    public final static int FLAG_STOP_ON_ERROR = 8; /* TBD if set, program stops on error */
+    public final static int FLAG_STOP_ON_ERROR = 8; /* if set, program stops on error */
     public final static int FLAG_TRACE_PRINT = 9; /* TBD if set, calculation is traced on printer */
 
     public int PC, RunPC, CurBank, RunBank, NextBank;
@@ -307,6 +307,10 @@ public class State
             Disp.SetShowingError(LastShowing);
           } /*if*/
         CurState = ErrorState;
+        if (Flag[FLAG_STOP_ON_ERROR])
+          {
+            StopProgram();
+          } /*if*/
       } /*SetErrorState*/
 
     public boolean InErrorState()
@@ -1505,7 +1509,7 @@ public class State
 
     void ContinueProgRunner()
       {
-        if (ProgRunning && !InErrorState())
+        if (ProgRunning)
           {
             if (ProgRunningSlowly)
               {
