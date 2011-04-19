@@ -391,7 +391,6 @@ public class Persistent
                     SaveBool(POut, "is_symbolic", Buttons.IsSymbolic, 8);
                     SaveBool(POut, "got_ind", Buttons.GotInd, 8);
                     SaveInt(POut, "collecting_for_function", Buttons.CollectingForFunction, 8);
-                    SaveInt(POut, "button_code", Buttons.ButtonCode, 8);
                     POut.println("    </buttons>");
                   } /*if*/
                 POut.println("    <calc>");
@@ -777,10 +776,6 @@ public class Persistent
                     else if (Name == "collecting_for_function")
                       {
                         Buttons.CollectingForFunction = GetInt(Value);
-                      }
-                    else if (Name == "button_code")
-                      {
-                        Buttons.ButtonCode = GetInt(Value);
                       }
                     else
                       {

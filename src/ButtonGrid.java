@@ -157,7 +157,7 @@ public class ButtonGrid extends android.view.View
     public int AccumDigits, FirstOperand;
     public boolean GotFirstOperand, GotFirstInd, IsSymbolic, GotInd;
     public int CollectingForFunction;
-    public int ButtonCode;
+    int ButtonCode;
 
     public void Reset()
       /* resets to power-up state. */
