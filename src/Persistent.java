@@ -1079,25 +1079,6 @@ public class Persistent
                 if (localName == "state")
                   {
                     ParseState = AtTopLevel;
-                    if (Calc != null)
-                      {
-                        switch (Calc.CurState)
-                          {
-                        case State.ResultState:
-                            Calc.SetX(Calc.X);
-                        break;
-                        case State.ErrorState:
-                            Disp.SetShowingError();
-                        break;
-                        default: /* assume in the middle of number entry */
-                            Calc.SetProgMode(Calc.ProgMode);
-                        break;
-                          } /*switch*/
-                      } /*if*/
-                    if (Buttons != null)
-                      {
-                        Buttons.invalidate();
-                      } /*if*/
                   } /*if*/
             break;
             case DoingButtons:
@@ -1344,6 +1325,7 @@ public class Persistent
       )
     throws DataFormatException
       {
+        boolean OK = false;
         try
           {
             final java.util.zip.ZipFile In = new java.util.zip.ZipFile
@@ -1461,11 +1443,34 @@ public class Persistent
                     break;
                 ++BankNr;
               } /*for*/
+          /* all successfully done */
+            OK = true;
           }
         catch (java.io.IOException IOError)
           {
             throw new DataFormatException("I/O error: " + IOError.toString());
           } /*try*/
+        if (OK)
+          {
+          /* ensure all state is properly in sync */
+            if (Calc != null)
+              {
+                switch (Calc.CurState)
+                  {
+                case State.ResultState:
+                    Calc.SetX(Calc.X);
+                break;
+                case State.ErrorState:
+                    Disp.SetShowingError();
+                break;
+                  } /*switch*/
+                Calc.SetProgMode(Calc.ProgMode);
+              } /*if*/
+            if (Buttons != null)
+              {
+                Buttons.invalidate();
+              } /*if*/
+          } /*if*/
       } /*Load*/
 
     public static void SaveState
