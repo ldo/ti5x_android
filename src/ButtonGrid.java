@@ -1249,13 +1249,23 @@ public class ButtonGrid extends android.view.View
                   /* 96 same as 91 */
                   /* 97 handled above */
                     case 98:
-                      /* TBD */
+                        if (Calc.Print != null)
+                          {
+                            Calc.Print.Advance();
+                          } /*if*/
                     break;
                     case 99:
-                      /* TBD */
+                        if (Calc.Print != null && Calc.LastShowing != null)
+                          {
+                          /* TBD not right positioning, also need to add question mark if error condition */
+                            Calc.Print.TextLine(Calc.LastShowing);
+                          } /*if*/
                     break;
                     case 90:
-                      /* TBD */
+                        if (Calc.Print != null)
+                          {
+                          /* TBD */
+                          } /*if*/
                     break;
                       } /*switch*/
                   } /*if ProgMode*/

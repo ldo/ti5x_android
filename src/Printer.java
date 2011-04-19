@@ -28,7 +28,7 @@ public class Printer
 
     final static int DotSize = 2;
     final static int DotGap = 1;
-    final static int CharColumns = 20;
+    public final static int CharColumns = 20;
     final static int CharWidth = 5;
     final static int CharHeight = 7;
     final static int CharHorGap = 1;
@@ -224,5 +224,145 @@ public class Printer
             ShowingView.invalidate();
           } /*if*/
       } /*Render*/
+
+    public void TextLine
+      (
+        String Line
+      )
+      {
+        final byte[] Rendered = new byte[CharColumns];
+        for (int i = 0; i < Math.min(Line.length(), CharColumns); ++i)
+          {
+            final char ch = Line.charAt(i);
+            int glyph = 0;
+            if (ch == ' ')
+              {
+                glyph = 0;
+              }
+            else if (ch >= 'A' && ch <= 'E')
+              {
+                glyph = 13 + (int)ch - (int)'A';
+              }
+            else if (ch >= 'F' && ch <= 'L')
+              {
+                glyph = 21 + (int)ch - (int)'F';
+              }
+            else if (ch >= 'M' && ch <= 'T')
+              {
+                glyph = 30 + (int)ch - (int)'M';
+              }
+            else if (ch >= 'U' && ch <= 'Z')
+              {
+                glyph = 41 + (int)ch - (int)'U';
+              }
+            else if (ch >= '0' && ch <= '6')
+              {
+                glyph = 1 + (int)ch - (int)'0';
+              }
+            else if (ch >= '7' && ch <= '9')
+              {
+                glyph = 10 + (int)ch - (int)'7';
+              }
+            else if (ch == '.')
+              {
+                glyph = 40;
+              }
+            else if (ch == '+')
+              {
+                glyph = 47;
+              }
+            else if (ch == '-')
+              {
+                glyph = 20;
+              }
+            else if (ch == '*')
+              {
+                glyph = 51;
+              }
+            else if (ch == '×')
+              {
+                glyph = 50;
+              }
+            else if (ch == '÷')
+              {
+                glyph = 72;
+              }
+            else if (ch == '√')
+              {
+                glyph = 52;
+              }
+            else if (ch == 'π')
+              {
+                glyph = 53;
+              }
+            else if (ch == 'e')
+              {
+                glyph = 54;
+              }
+            else if (ch == '(')
+              {
+                glyph = 55;
+              }
+            else if (ch == ')')
+              {
+                glyph = 56;
+              }
+            else if (ch == ',')
+              {
+                glyph = 57;
+              }
+            else if (ch == '↑')
+              {
+                glyph = 60;
+              }
+            else if (ch == '%')
+              {
+                glyph = 61;
+              }
+          /* 62 -- double-arrow? */
+            else if (ch == '/')
+              {
+                glyph = 63;
+              }
+            else if (ch == '=')
+              {
+                glyph = 64;
+              }
+          /* 65 -- raised dot? */
+          /* 66 -- superscript x? */
+          /* 67 -- xbar? */
+            else if (ch == '²')
+              {
+                glyph = 70;
+              }
+            else if (ch == '?')
+              {
+                glyph = 71;
+              }
+            else if (ch == '!') /*?*/
+              {
+                glyph = 73;
+              }
+            else if (ch == '♊') /* Gemini! */
+              {
+                glyph = 74; /* looks like pi with extra bar across bottom */
+              }
+          /* 75 -- bottom triangle symbol? */
+            else if (ch == 'Π')
+              {
+                glyph = 76;
+              }
+            else if (ch == '∑')
+              {
+                glyph = 77;
+              }
+            else
+              {
+              /* leave at 0 = blank */
+              } /*if*/
+            Rendered[i] = (byte)glyph;
+          } /*for*/
+        Render(Rendered);
+      } /*TextLine*/
 
   } /*Printer*/

@@ -220,7 +220,7 @@ public class State
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
-        PrintRegister = new byte[20];
+        PrintRegister = new byte[Printer.CharColumns];
         Reset(true);
       } /*State*/
 
@@ -1181,7 +1181,29 @@ public class State
                       } /*if*/
                     OK = true;
                 break;
-              /* more TBD */
+              /* 6 TBD */
+                case 7:
+                    if (Print != null)
+                      {
+                        Enter();
+                        final int PlotX = (int)X;
+                        if (PlotX >= 0 && PlotX < Printer.CharColumns)
+                          {
+                            final byte[] Plot = new byte[Printer.CharColumns];
+                            for (int i = 0; i < Printer.CharColumns; ++i)
+                              {
+                                Plot[i] = (byte)(i == PlotX ? 51 : 0);
+                              } /*for*/
+                            Print.Render(Plot);
+                          }
+                        else
+                          {
+                            SetErrorState();
+                          } /*if*/
+                      } /*if*/
+                    OK = true;
+                break;
+              /* 8 TBD */
                 case 9:
                     if (!ProgRunning && CurBank > 0)
                       {
@@ -1325,6 +1347,7 @@ public class State
             if (!OK)
               {
                 SetErrorState();
+                StopProgram();
               } /*if*/
           } /*if*/
       } /*SpecialOp*/
