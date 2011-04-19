@@ -570,6 +570,16 @@ public class Persistent
                           );
                       } /*for*/
                     POut.println("        </retstack>");
+                    POut.print("        <printreg>\n            ");
+                    for (int i = 0; i < Calc.PrintRegister.length; ++i)
+                      {
+                        if (i != 0)
+                          {
+                            POut.print(" ");
+                          } /*if*/
+                        POut.printf("%d", Calc.PrintRegister[i]);
+                      } /*for*/
+                    POut.println("\n        </printreg>");
                   } /*if*/
                 POut.println("    </calc>");
                 POut.println("</state>");
@@ -654,6 +664,7 @@ public class Persistent
         private final int DoingProg = 12;
         private final int DoingFlags = 13;
         private final int DoingRetStack = 14;
+        private final int DoingPrintReg = 15;
         private int ParseState = AtTopLevel;
         private boolean DoneState = false;
         private boolean AllowContent;
@@ -941,6 +952,12 @@ public class Persistent
                     Calc.ReturnLast = -1;
                     ParseState = DoingRetStack;
                     Handled = true;
+                  }
+                else if (AllState && localName == "printreg")
+                  {
+                    ParseState = DoingPrintReg;
+                    StartContent();
+                    Handled = true;
                   } /*if*/
               }
             else if (ParseState == DoingOpStack)
@@ -1103,6 +1120,53 @@ public class Persistent
             case DoingRetStack:
                 if (localName == "retstack")
                   {
+                    ParseState = DoingCalc;
+                  } /*if*/
+            break;
+            case DoingPrintReg:
+                if (localName == "printreg")
+                  {
+                    int Place = 0;
+                    int i = 0;
+                    for (;;)
+                      {
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) > ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        final int Start = i;
+                        for (;;)
+                          {
+                            if (i == ContentStr.length())
+                                break;
+                            if (ContentStr.charAt(i) <= ' ')
+                                break;
+                            ++i;
+                          } /*for*/
+                        if (i > Start)
+                          {
+                            if (Place == Calc.PrintRegister.length)
+                              {
+                                throw new DataFormatException
+                                  (
+                                    String.format
+                                      (
+                                        StdLocale,
+                                        "too many columns in print register, only %d allowed",
+                                        Calc.PrintRegister.length
+                                      )
+                                  );
+                              } /*if*/
+                            Calc.PrintRegister[Place++] =
+                                (byte)GetInt(ContentStr.substring(Start, i));
+                          } /*if*/
+                        if (i == ContentStr.length())
+                            break;
+                      } /*for*/
                     ParseState = DoingCalc;
                   } /*if*/
             break;

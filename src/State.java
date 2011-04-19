@@ -109,10 +109,13 @@ public class State
     public final byte[] Program;
     public final ProgBank[] Bank; /* Bank[0].Program always points to Program */
     public final boolean[] Flag;
-      /* TBD special interpretation of flags:
-        8 => stop on error
-        9 => trace calculation on printer
-      */
+
+  /* special flag numbers: */
+    public final static int FLAG_ERROR_COND = 7;
+      /* can be set by Op 18/19 to indicate error/no-error */
+    public final static int FLAG_STOP_ON_ERROR = 8; /* TBD if set, program stops on error */
+    public final static int FLAG_TRACE_PRINT = 9; /* TBD if set, calculation is traced on printer */
+
     public int PC, RunPC, CurBank, RunBank, NextBank;
     public boolean ProgRunning;
     public boolean ProgRunningSlowly;
@@ -148,6 +151,8 @@ public class State
     public int ReturnLast;
 
     String LastShowing = null;
+
+    public final byte[] PrintRegister;
 
     static final java.util.Locale StdLocale = java.util.Locale.US;
 
@@ -187,6 +192,10 @@ public class State
               } /*for*/
           } /*if*/
         ProgMode = false;
+        for (int i = 0; i < PrintRegister.length; ++i)
+          {
+            PrintRegister[i] = 0;
+          } /*for*/
         ResetEntry();
       } /*Reset*/
 
@@ -206,6 +215,7 @@ public class State
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
+        PrintRegister = new byte[20];
         Reset(true);
       } /*State*/
 
@@ -1129,6 +1139,36 @@ public class State
                   } /*if*/
                 switch (OpNr)
                   {
+                case 0:
+                    for (int i = 0; i < PrintRegister.length; ++i)
+                      {
+                        PrintRegister[i] = 0;
+                      } /*for*/
+                    OK = true;
+                break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                      {
+                        final int ColStart = (OpNr - 1) * 5;
+                        long Contents = (long)X;
+                        SetX(Contents); /* manual says integer part of display is discarded as a side-effect */
+                        for (int i = 5;;)
+                          {
+                            if (i == 0)
+                                break;
+                            --i;
+                            PrintRegister[i + ColStart] = (byte)(Contents % 100);
+                            Contents /= 100;
+                          } /*for*/
+                      }
+                    OK = true;
+                break;
+                case 5:
+                  /* ignore for now -- no printer support */
+                    OK = true;
+                break;
               /* more TBD */
                 case 9:
                     if (!ProgRunning && CurBank > 0)
@@ -1252,8 +1292,18 @@ public class State
                     SetX(MaxProgram - 1.0 + (MaxMemories - 1.0) / 100.0);
                     OK = true;
                 break;
-              /* more TBD */
+                case 18:
+                case 19:
+                    if (OpNr == (InErrorState() ? 19 : 18))
+                      {
+                        Flag[FLAG_ERROR_COND] = true;
+                      } /*if*/
+                break;
               /* 20-39 handled above */
+                case 40:
+                  /* no-op, no printer support for now */
+                    OK = true;
+                break;
                   } /*switch*/
               }
             while (false);
