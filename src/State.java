@@ -441,9 +441,9 @@ public class State
                     X != 0
                 &&
                     (
-                        Math.abs(X) < 5.0 * Math.pow(10.0, -10.0)
+                        Math.abs(X) < 5.0 * Math.pow(10.0, -9.0)
                     ||
-                        Math.abs(X) > Math.pow(10.0, 10.0)
+                        Math.abs(X) >= Math.pow(10.0, 10.0)
                     )
               )
               {
