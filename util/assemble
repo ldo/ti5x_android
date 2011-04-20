@@ -89,7 +89,8 @@ symbols = \
         "cp" : simpleop(29),
         "clr" : simpleop2(25, 20),
         # no "lrn"
-        "pgm" : regop(36, 62), # TBD does this have special meaning with INV?,
+        "pgm" : regop(36, 62),
+        "pg*" : {"op" : 62, "expect" : "reg"},
         "x<>t" : simpleop2(32, 37),
         "p->r" : simpleop(37),
         "x2" : simpleop2(33, 38),
@@ -101,10 +102,14 @@ symbols = \
         # no "sst"
         # no "ins"
         "sto" : regop(42, 72), # I don't correctly handle "2nd STO"
+        "st*" : {"op" : 72, "expect" : "reg"},
         "cms" : simpleop(47),
         "rcl" : regop2(43, 48, 73, 63),
+        "rc*" : {"op" : 73, "expect" : "reg"},
         "exc" : regop(48, 63),
+        "ex*" : {"op" : 63, "expect" : "reg"},
         "sum" : regop2(44, 49, 74, 64),
+        "sm*" : {"op" : 74, "expect" : "reg"},
         "prd" : regop(49, 64),
         "y**x" : simpleop(45),
         "ind" : {"modifier" : True, "isind" : True}, # special handling by parser
@@ -141,6 +146,7 @@ symbols = \
         "+" : simpleop2(85, 80),
         "grad" : simpleop(80),
         "r/s" : simpleop2(91, 96),
+        "write" : simpleop(96),
         "dsz" : {"op" : 97, "expect" : "flag", "expect2" : "loc"},
         "." : simpleop2(93, 98),
         "adv" : simpleop(98),
@@ -161,7 +167,10 @@ del s
 # synonyms
 symbols["x⇌t"] = symbols["x<>t"]
 symbols["x-t"] = symbols["x<>t"]
+symbols["x/t"] = symbols["x<>t"]
+symbols["x%t"] = symbols["x<>t"]
 symbols["p→r"] = symbols["p->r"]
+symbols["p/r"] = symbols["p->r"]
 symbols["sqr"] = symbols["x2"]
 symbols["x²"] = symbols["x2"]
 symbols["√x"] = symbols["sqrt"]
@@ -170,9 +179,15 @@ symbols["pow"] = symbols["y**x"]
 symbols["abs"] = symbols["|x|"]
 symbols["/"] = symbols["÷"]
 symbols["*"] = symbols["×"]
+symbols["eq"] = symbols["x=t"]
+symbols["ge"] = symbols["x≥t"]
 symbols["x>=t"] = symbols["x≥t"]
 symbols["∑x"] = symbols["sigma"]
+symbols["s+"] = symbols["sigma"]
+symbols["sta"] = symbols["sigma"]
 symbols["π"] = symbols["pi"]
+symbols["dms"] = symbols["d.ms"]
+symbols["wrt"] = symbols["write"]
 
 def report_error(msg) :
     sys.stderr.write("Assembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
