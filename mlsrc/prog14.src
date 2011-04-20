@@ -2,6 +2,8 @@
 ; My (partial) recreation of the "Master Library" module
 ; that came with the original TI-58C/59 calculators.
 ;
+; NOTE: I'm not sure this one is correct.
+;
 ; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 ;-
 
