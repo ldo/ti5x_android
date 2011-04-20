@@ -23,6 +23,8 @@
 #         The titletext is rendered inline with the rest of the text with a box around it.
 #     <darrow/>
 #         A double-headed-arrow character is drawn.
+#     <Delta/>
+#         A capital-delta character is drawn.
 #     <div/>
 #         A divide symbol is drawn.
 #     <lambda/>
