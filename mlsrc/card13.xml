@@ -1,0 +1,14 @@
+<carddef>
+<label slot="titleleft">CURVE SOLUTION</label>
+<label slot="titleright">ML-13</label>
+<label slot="aprime"><theta/>´</label>
+<label slot="bprime">r´</label>
+<label slot="cprime">s´</label>
+<label slot="dprime">c´</label>
+<label slot="eprime">a´</label>
+<label slot="a"><theta/></label>
+<label slot="b">r</label>
+<label slot="c">s</label>
+<label slot="d">c</label>
+<label slot="e">A´</label>
+</carddef>

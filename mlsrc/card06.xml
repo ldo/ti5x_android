@@ -1,0 +1,11 @@
+<carddef>
+<label slot="titleleft">COMPLEX TRIG FUNCTIONS</label>
+<label slot="titleright">ML-06</label>
+<label slot="bprime"><rarrow/>sin<sup>-1</sup> X</label>
+<label slot="cprime"><rarrow/>cos<sup>-1</sup> X</label>
+<label slot="dprime"><rarrow/>tan<sup>-1</sup> X</label>
+<label slot="a">X</label>
+<label slot="b"><rarrow/>sin X</label>
+<label slot="c"><rarrow/>cos X</label>
+<label slot="d"><rarrow/>tan X</label>
+</carddef>

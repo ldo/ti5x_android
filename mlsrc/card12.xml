@@ -1,0 +1,12 @@
+<carddef>
+<label slot="titleleft">TRIANGLE SOLUTION (2)</label>
+<label slot="titleright">ML-12</label>
+<label slot="aprime">ASA <angle/> A´</label>
+<label slot="bprime">SAA <angle/> B´</label>
+<label slot="cprime">AREA</label>
+<label slot="a">a</label>
+<label slot="b"><angle/> A, <angle/> B</label>
+<label slot="c"><angle/> C</label>
+<label slot="d">b</label>
+<label slot="e">c</label>
+</carddef>

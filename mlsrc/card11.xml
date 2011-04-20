@@ -1,0 +1,13 @@
+<carddef>
+<label slot="titleleft">TRIANGLE SOLUTION (1)</label>
+<label slot="titleright">ML-11</label>
+<label slot="aprime">SSS <angle/> A´</label>
+<label slot="bprime"><angle/> B´</label>
+<label slot="cprime"><angle/> C´ <angle/> A´</label>
+<label slot="eprime">INIT</label>
+<label slot="a">a</label>
+<label slot="b">b</label>
+<label slot="c">c, <angle/> A, <angle/> C</label>
+<label slot="d">SSA c´</label>
+<label slot="e">SAS c´</label>
+</carddef>

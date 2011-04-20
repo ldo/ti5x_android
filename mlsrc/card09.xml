@@ -1,0 +1,8 @@
+<carddef>
+<label slot="titleleft">SIMPSON’S APPROXIMATION (CONTINUOUS)</label>
+<label slot="titleright">ML-09</label>
+<label slot="a">x<sub>0</sub></label>
+<label slot="b">x<sub>n</sub></label>
+<label slot="c">n</label>
+<label slot="d"><rarrow/>I</label>
+</carddef>

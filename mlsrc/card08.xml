@@ -1,0 +1,9 @@
+<carddef>
+<label slot="titleleft">ZEROS OF FUNCTIONS</label>
+<label slot="titleright">ML-08</label>
+<label slot="a">a</label>
+<label slot="b">b</label>
+<label slot="c"><Delta/>x</label>
+<label slot="d"><epsilon/></label>
+<label slot="e"><rarrow/>x</label>
+</carddef>

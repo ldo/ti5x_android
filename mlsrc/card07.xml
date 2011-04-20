@@ -1,0 +1,7 @@
+<carddef>
+<label slot="titleleft">POLYNOMIAL EVALUATION</label>
+<label slot="titleright">ML-07</label>
+<label slot="a">n</label>
+<label slot="b">i;a<sub>i</sub></label>
+<label slot="c">x<rarrow/>P(x)</label>
+</carddef>

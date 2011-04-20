@@ -1,0 +1,8 @@
+<carddef>
+<label slot="titleleft">SIMPSON’S APPROXIMATION (DISCRETE)</label>
+<label slot="titleright">ML-10</label>
+<label slot="a">n</label>
+<label slot="b">h</label>
+<label slot="c">i,f<sub>i</sub></label>
+<label slot="d"><rarrow/>I</label>
+</carddef>
