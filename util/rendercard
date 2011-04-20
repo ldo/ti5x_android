@@ -41,6 +41,8 @@
 #         The superscripttext is rendered raised with a smaller font.
 #     <theta/>
 #         A theta character is drawn.
+#     <xbar/>
+#         An x with a bar over it is drawn.
 #
 # The label slots must be from the following:
 #
@@ -183,6 +185,18 @@ class superscript(taggedtext) :
 
 #end superscript
 
+class xbar(taggedtext) :
+
+    def __init__(self) :
+        super().__init__("xbar", "")
+    #end __init__
+
+    def __repr__(self) :
+        return "<xbar/>"
+    #end __repr__
+
+#end xbar
+
 def defsymbol(name, psstr) :
 
     class newsymbol(taggedtext) :
@@ -281,11 +295,15 @@ def parse_template(input) :
 
     def handle_subscript_end(tag) :
         handle_common_end(subscript)
-    #end handle_button_end
+    #end handle_subscript_end
 
     def handle_superscript_end(tag) :
         handle_common_end(superscript)
-    #end handle_button_end
+    #end handle_superscript_end
+
+    def handle_xbar_end(tag) :
+        parse_state["cur_label"]["content"].append(xbar())
+    #end handle_xbar_end
 
     def make_symbol_def(tagclass) :
         def handle_def(tag) :
@@ -309,6 +327,8 @@ def parse_template(input) :
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
                     "/sup" : handle_superscript_end,
+                    "xbar" : handle_common_tag_start,
+                    "/xbar" : handle_xbar_end,
                 }
         }
     for symbol in symbols.values() :
@@ -562,6 +582,17 @@ render_special = \
                     +
                         " 0 %.2f rmoveto" % (superoffset * basefontsize),
                 "renderafter" : "0 %.2f rmoveto setfont" % (- superoffset * basefontsize),
+            },
+        xbar :
+            {
+                "widthadjust" : "(x) stringwidth pop add",
+                "renderbefore" : "",
+                "renderafter" :
+                        "currentpoint %.2f 0.65 mul add" % basefontsize
+                    +
+                        " (x) show currentpoint 4 2 roll"
+                        " newpath 2 copy moveto exch pop 2 index exch lineto stroke"
+                        " moveto",
             },
     }
 for symbol in symbols.values() :
