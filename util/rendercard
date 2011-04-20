@@ -31,6 +31,8 @@
 #         A lambda character is drawn.
 #     <mul/>
 #         A multiply symbol is drawn.
+#     <noverr/>
+#         A letter n and letter r are drawn vertically aligned.
 #     <rarrow/>
 #         A right-arrow character is drawn.
 #     <sigma/>
@@ -185,6 +187,18 @@ class superscript(taggedtext) :
 
 #end superscript
 
+class noverr(taggedtext) :
+
+    def __init__(self) :
+        super().__init__("noverr", "")
+    #end __init__
+
+    def __repr__(self) :
+        return "<xbar/>"
+    #end __repr__
+
+#end noverr
+
 class xbar(taggedtext) :
 
     def __init__(self) :
@@ -214,7 +228,7 @@ def defsymbol(name, psstr) :
 #end defsymbol
 
 symbols = \
-    {
+    { # based on symbol font
         "angle" : defsymbol("angle", "(\\320)"),
         "darrow" : defsymbol("darrow", "(\\253)"),
         "Delta" : defsymbol("Delta", "(\\104)"),
@@ -301,10 +315,6 @@ def parse_template(input) :
         handle_common_end(superscript)
     #end handle_superscript_end
 
-    def handle_xbar_end(tag) :
-        parse_state["cur_label"]["content"].append(xbar())
-    #end handle_xbar_end
-
     def make_symbol_def(tagclass) :
         def handle_def(tag) :
             parse_state["cur_label"]["content"].append(tagclass())
@@ -327,11 +337,13 @@ def parse_template(input) :
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
                     "/sup" : handle_superscript_end,
-                    "xbar" : handle_common_tag_start,
-                    "/xbar" : handle_xbar_end,
                 }
         }
     for symbol in symbols.values() :
+        element_handlers[2][symbol.__name__] = handle_common_tag_start
+        element_handlers[2]["/" + symbol.__name__] = make_symbol_def(symbol)
+    #end for
+    for symbol in (noverr, xbar) :
         element_handlers[2][symbol.__name__] = handle_common_tag_start
         element_handlers[2]["/" + symbol.__name__] = make_symbol_def(symbol)
     #end for
@@ -564,6 +576,21 @@ render_special = \
                         " currentpoint exch pop %.2f sub" % (card_height * 0.03)
                     +
                         " exch %.2f rectstroke" % (card_height / 4 * 0.7),
+            },
+        noverr :
+            {
+                "widthadjust" :
+                    "currentfont dup 0.6 scalefont setfont exch (n) stringwidth pop"
+                    " %.2f 0.2 mul add add exch setfont" % basefontsize,
+                "renderbefore" : "",
+                "renderafter" :
+                        "%.2f 0.1 mul 0 rmoveto currentfont dup 0.6 scalefont setfont " % basefontsize
+                    +
+                        "currentpoint 0 %.2f 0.3 mul rmoveto (n) show" % basefontsize
+                    +
+                        " moveto currentpoint exch pop 0 %.2f -0.2 mul rmoveto" % basefontsize
+                    +
+                        " (r) show currentpoint pop %.2f 0.1 mul add exch moveto setfont" % basefontsize,
             },
         subscript :
             {
