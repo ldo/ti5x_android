@@ -201,7 +201,9 @@ symbols = \
     {
         "angle" : defsymbol("angle", "(\\320)"),
         "darrow" : defsymbol("darrow", "(\\253)"),
+        "Delta" : defsymbol("Delta", "(\\104)"),
         "div": defsymbol("div", "(\\270)"),
+        "epsilon": defsymbol("epsilon", "(\\145)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
         "mul": defsymbol("mul", "(\\264)"),
         "rarrow" : defsymbol("rarrow", "(\\256)"),
