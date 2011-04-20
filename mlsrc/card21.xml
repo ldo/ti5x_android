@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">HI-LO GAME</label>
 <label slot="titleright">ML-21</label>
 <label slot="aprime">M INIT</label>

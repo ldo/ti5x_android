@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">SIMPSON’S APPROXIMATION (CONTINUOUS)</label>
 <label slot="titleright">ML-09</label>
 <label slot="a">x<sub>0</sub></label>

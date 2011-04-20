@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">NORMAL DISTRIBUTION</label>
 <label slot="titleright">ML-14</label>
 <label slot="a">x<rarrow/>Z(x)</label>

@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">DAY OF WEEK, DAYS BETWEEN DATES</label>
 <label slot="titleright">ML-20</label>
 <!-- fixme: need to be able to merge aprime and bprime slots -->

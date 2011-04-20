@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">COMPOUND INTEREST</label>
 <label slot="titleright">ML-18</label>
 <!-- note in the n|i there should be a horizontal line (connected

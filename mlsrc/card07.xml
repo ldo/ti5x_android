@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">POLYNOMIAL EVALUATION</label>
 <label slot="titleright">ML-07</label>
 <label slot="a">n</label>

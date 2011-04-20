@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">COMBINATIONS, PERMUTATIONS, FACTORIALS</label>
 <label slot="titleright">ML-16</label>
 <label slot="a">n</label>

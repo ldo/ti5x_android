@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">MATRIX ADDITION AND MULTIPLICATION</label>
 <label slot="titleright">ML-03</label>
 <label slot="aprime">j;c<sub>ij</sub></label>

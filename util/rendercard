@@ -5,7 +5,7 @@
 #
 # The XML template looks like this:
 #
-#     <carddef>
+#     <carddef style="user|system">
 #         label
 #         label ...
 #     </carddef>
@@ -247,6 +247,13 @@ basefontsize = 7.0
 subsupscale = 0.8
 suboffset = -0.2
 superoffset = 0.6
+orange = tuple(i / 255 for i in (0x95, 0x50, 0x1c))
+black = (0.0, 0.0, 0.0)
+colors = \
+    {
+        "user" : {"fg" : black, "bg" : orange},
+        "system" : {"fg" : orange, "bg" : black},
+    }
 
 def parse_template(input) :
 
@@ -353,6 +360,10 @@ def parse_template(input) :
         parse_state["content"] = []
         if parse_state["nest"] == 0 :
             if name == "carddef" :
+                require_attrs(name, attrs, ("style",))
+                global card_style
+                card_style = attrs["style"]
+                assert card_style in ("user", "system"), "invalid card style %s" % card_style
                 parse_state["nest"] = 1
                 parse_state["main_seen"] = True
             else :
@@ -425,6 +436,7 @@ def parse_template(input) :
 
 debug_ps = False
 template = parse_template(sys.stdin.detach())
+# fudge: card_style passed back in global
 
 if debug_ps :
     args = ("cat",)
@@ -643,7 +655,7 @@ gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
 gs.write("/DeviceRGB setcolorspace\n")
 corner_radius = mm(1.5)
-gs.write("0 0 0 setcolor newpath %.1f 0 moveto\n" % (corner_radius))
+gs.write("%.3f %.3f %.3f setcolor newpath %.1f 0 moveto\n" % (colors[card_style]["bg"] + (corner_radius,)))
 gs.write("%.1f 0 rlineto\n" % (card_width - 2 * corner_radius))
 gs.write("%.1f %.1f %.1f 270 360 arc\n" % (card_width - corner_radius, corner_radius, corner_radius))
 gs.write("0 %.1f rlineto\n" % (card_height - 2 * corner_radius))
@@ -653,7 +665,7 @@ gs.write("%.1f %.1f %.1f 90 180 arc\n" % (corner_radius, card_height - corner_ra
 gs.write("0 %.1f rlineto\n" % (2 * corner_radius - card_height))
 gs.write("%.1f %.1f %.1f 180 270 arc\n" % (corner_radius, corner_radius, corner_radius))
 gs.write("closepath fill\n")
-gs.write("%.3f %.3f %.3f setcolor\n" % tuple(i / 255 for i in (0x95, 0x50, 0x1c)))
+gs.write("%.3f %.3f %.3f setcolor\n" % colors[card_style]["fg"])
 gs.write("0.5 setlinewidth\n")
 gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * 0.75, card_width))
 for i in (1, 2) :

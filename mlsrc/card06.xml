@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">COMPLEX TRIG FUNCTIONS</label>
 <label slot="titleright">ML-06</label>
 <label slot="bprime"><rarrow/>sin<sup>-1</sup> X</label>

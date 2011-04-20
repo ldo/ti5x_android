@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">COMPLEX ARITHMETIC</label>
 <label slot="titleright">ML-04</label>
 <label slot="aprime">Y</label>

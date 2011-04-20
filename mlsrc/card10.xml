@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">SIMPSON’S APPROXIMATION (DISCRETE)</label>
 <label slot="titleright">ML-10</label>
 <label slot="a">n</label>

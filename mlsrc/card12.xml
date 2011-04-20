@@ -1,4 +1,4 @@
-<carddef>
+<carddef style="system">
 <label slot="titleleft">TRIANGLE SOLUTION (2)</label>
 <label slot="titleright">ML-12</label>
 <label slot="aprime">ASA <angle/> A´</label>
