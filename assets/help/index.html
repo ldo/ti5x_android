@@ -50,8 +50,11 @@
 <LI><A HREF="#Trigonometry">Trigonometry</A>
 <LI><A HREF="#Statistics">Statistics Functions</A>
 <LI><A HREF="#ProgramEntry">Program Entry</A>
+<LI><A HREF="#Flags">Flags</A>
 <LI><A HREF="#ProgramExecution">Program Execution</A>
 <LI><A HREF="#LibraryPrograms">Library Programs</A>
+<LI><A HREF="#Printer">Printer Emulation</A>
+<LI><A HREF="#OptionsMenu">Options Menu</A>
 </UL>
 
 <H2><A NAME="BasicOps"></A>Basic Operation</H2>
@@ -106,6 +109,8 @@ with its log base 10.
 <LI><SPAN CLASS="brownbutton">1/x</SPAN> — replaces last-entered number with its reciprocal.
 <LI><SPAN CLASS="brownbutton">x⇌t</SPAN> — interchanges contents of X (displayed number) and
 T registers.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <I>nn</I> —
+performs various special operations, depending on the value of <I>nn</I>.
 </UL>
 
 <P>If you use both <SPAN CLASS="yellowbutton">2nd</SPAN> and <SPAN CLASS="brownbutton">INV</SPAN>,
@@ -232,14 +237,16 @@ program. These are numbered from <B>000</B> to <B>959</B>.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN> — in calculation mode,
 set all program locations to zero.
 <LI><SPAN CLASS="brownbutton">LRN</SPAN> — toggle between calculation and program-entry modes.
-<LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction. In program-entry
-mode: advance to the next program location:
-<LI><SPAN CLASS="brownbutton">BST</SPAN> — in program-entry mode: go to the previous program location.
+<LI><SPAN CLASS="brownbutton">SST</SPAN> — in program-entry mode: skip to the following program
+location.
+<LI><SPAN CLASS="brownbutton">BST</SPAN> — in program-entry mode: step back to the previous
+program location.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ins</SPAN> — in program-entry mode,
 insert a zero at the current location and move the following instructions down one.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Del</SPAN> — in program-entry mode,
 delete the instruction at the current location and move the following instructions up one.
 </UL>
+<P>Other keys will enter keystrokes that will perform their function when executed.
 
 <H2><A NAME="ProgramExecution"></A>Program Execution</H2>
 <UL>
@@ -254,22 +261,80 @@ calculation mode, set the current location to that labelled by the following key
 specified number.
 <LI><SPAN CLASS="brownbutton">R/S</SPAN> — in calculation mode, start execution at the current
 location, or stop execution if already running.
+<LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction.
 <LI><SPAN CLASS="brownbutton">RST</SPAN> — clear all flags and the subroutine return stack,
 and set the current location to <B>000</B>.
 </UL>
+<P>While a program is running, you can hold down the
+<SPAN CLASS="brownbutton">GTO</SPAN>/<SPAN CLASS="alttext">Pause</SPAN>
+key to slow down execution and see intermediate results appearing in the display. Release
+to resume full-speed execution.
 
 <H2><A NAME="LibraryPrograms"></A>Library Programs</H2>
 <P>It is possible to load external library modules into the calculator. One module,
 the “Master Library”, comes preloaded with the calculator. A library module can provide
 up to 99 separate program banks, which can be selected for execution instead of program
-bank <B>00</B>, which is where your user-entered program is kept.
+bank <B>00</B>, which is where your user-entered program is kept. Only one library module
+can be loaded at a time.
 <UL>
-<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <I>nn</I> — select program bank <I>nn</I> from loaded
-library module (if <I>nn</I> in [<B>01</B> .. <B>99</B>]), or select user-entered program
-bank (if <I>nn</I> = <B>00</B>). If the selected program bank has a help card, it will
-appear just under the display.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <I>nn</I>
+— select program bank <I>nn</I> from loaded library module (if <I>nn</I> in
+[<B>01</B> .. <B>99</B>]), or select user-entered program bank (if <I>nn</I> = <B>00</B>).
+If the selected program bank has a help card, it will appear just under the display.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>09</B> — copies
 the currently-selected program bank into the user program area.
+</UL>
+
+<P><B>Extension:</B> pressing <SPAN CLASS="brownbutton">LRN</SPAN> while a nonzero program
+number is selected will display the contents of the selected program, rather than the
+user-program-entry area. The program number additionally appears to the left of the program
+location number. Library programs cannot be edited.
+
+<H2><A NAME="Printer"></A>Printer Emulation</H2>
+<P>The app also includes emulation for a connected PC-100<I>x</I> dot-matrix printer
+capable of printing 20 text columns per line, from a limited character set. The printer
+output can be viewed by selecting the “Printer” item from the options menu.
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>00</B> —
+initialize the print register to all blanks.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>01</B> —
+load the 10-digit integer part of the displayed value into the leftmost 5 columns of the
+print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>02</B> —
+load the 10-digit integer part of the displayed value into the next-to-leftmost 5 columns of the
+print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>03</B> —
+load the 10-digit integer part of the displayed value into the next-to-rightmost 5 columns of the
+print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>04</B> —
+load the 10-digit integer part of the displayed value into the rightmost 5 columns of the
+print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>05</B> —
+print the contents of the print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>07</B> —
+plot an asterisk preceded by <I>n</i> spaces, where <I>n</I> (which must be in [0 .. 19])
+is taken from the integer part of the displayed number.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>40</B> —
+set flag 7 to indicate that a printer is attached.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Adv</SPAN> — advance
+the paper by 1 line.
+</UL>
+
+<H2><A NAME="OptionsMenu"></A>Options Menu</H2>
+<P>Pressing the Android Menu button brings up a menu with the following options:
+<UL>
+<LI>Key Codes — toggle the display of program key codes next to the corresponding keys.
+<LI>Help — bring up this help page.
+<LI>Printer — bring up the virtual printer display. (Use the Back button to return to
+the main calculator display.)
+<LI>Load... — load a library module or saved program from a file on the SD card.
+The list to pick from is built from the contents of the “Programs” and “Download”
+directories.
+<LI>Save... — save the user-entered program to a file on the SD card. The file is
+saved in the “Programs” directory.
+<LI>Off — simulate a complete power down and quit the app. <B>This completely wipes all user
+program and memory contents.</B> The next time the app is started, it will initialize
+as though freshly installed.
 </UL>
 
 </BODY>
