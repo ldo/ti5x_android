@@ -1,0 +1,7 @@
+<carddef>
+<label slot="titleleft">MOVING AVERAGES</label>
+<label slot="titleright">ML-17</label>
+<label slot="eprime">INIT</label>
+<label slot="a">NUMBER</label>
+<label slot="b">m<rarrow/>AVG</label>
+</carddef>

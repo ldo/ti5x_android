@@ -1,0 +1,12 @@
+<carddef>
+<label slot="titleleft">HI-LO GAME</label>
+<label slot="titleright">ML-21</label>
+<label slot="aprime">M INIT</label>
+<label slot="bprime">M LO</label>
+<label slot="cprime">M HI</label>
+<label slot="dprime">M CORR</label>
+<label slot="a">INIT</label>
+<label slot="b">GO</label>
+<label slot="c">GUESS</label>
+<label slot="d">SCORE</label>
+</carddef>

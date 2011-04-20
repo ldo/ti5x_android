@@ -1,0 +1,10 @@
+<carddef>
+<label slot="titleleft">RANDOM NUMBER GENERATOR</label>
+<label slot="titleright">ML-15</label>
+<label slot="cprime">No. (<xbar/>, <sigma/>)</label>
+<label slot="eprime">INIT</label>
+<label slot="a">A, <xbar/></label>
+<label slot="b">B, <sigma/></label>
+<label slot="c">No. (A, B)</label>
+<label slot="e">SEED</label>
+</carddef>

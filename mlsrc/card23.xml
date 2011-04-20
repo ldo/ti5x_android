@@ -1,0 +1,11 @@
+<carddef>
+<label slot="titleleft">DMS OPERATIONS</label>
+<label slot="titleright">ML-23</label>
+<!-- fixme: need to be able to merge aprime and bprime slots -->
+<label slot="aprime">(d d. m</label>
+<label slot="bprime">m s s)</label>
+<label slot="a">n</label>
+<label slot="b">±p <rarrow/> n ± p</label>
+<label slot="c">a <rarrow/> n × a</label>
+<label slot="d">a <rarrow/> n ÷ a</label>
+</carddef>

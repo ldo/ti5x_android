@@ -1,0 +1,15 @@
+<carddef>
+<label slot="titleleft">COMPOUND INTEREST</label>
+<label slot="titleright">ML-18</label>
+<!-- note in the n|i there should be a horizontal line (connected
+    to the vertical one) over the n -->
+<label slot="aprime">S<sub>n|i</sub></label>
+<label slot="bprime">(1 + i)S<sub>n|i</sub></label>
+<label slot="cprime">a<sub>n|i</sub></label>
+<label slot="dprime">(1 + i)a<sub>n|i</sub></label>
+<label slot="eprime">INIT</label>
+<label slot="a">N</label>
+<label slot="b">%I</label>
+<label slot="c">PV</label>
+<label slot="d">FV</label>
+</carddef>

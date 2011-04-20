@@ -1,0 +1,11 @@
+<carddef>
+<label slot="titleleft">DAY OF WEEK, DAYS BETWEEN DATES</label>
+<label slot="titleright">ML-20</label>
+<!-- fixme: need to be able to merge aprime and bprime slots -->
+<label slot="aprime">(M M D D</label>
+<label slot="bprime">Y Y Y Y)</label>
+<label slot="a">DATE 1</label>
+<label slot="b">DATE 2</label>
+<label slot="c">No. DAYS</label>
+<label slot="d">D <rarrow/> D of W</label>
+</carddef>

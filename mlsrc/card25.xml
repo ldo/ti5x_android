@@ -1,0 +1,14 @@
+<carddef>
+<label slot="titleleft">UNIT CONVERSIONS (2)</label>
+<label slot="titleright">ML-25</label>
+<label slot="aprime">°C <rarrow/> °F</label>
+<label slot="bprime">lit <rarrow/> oz</label>
+<label slot="cprime">lit <rarrow/> US gal</label>
+<label slot="dprime">gm <rarrow/> oz</label>
+<label slot="eprime">kg <rarrow/> lb</label>
+<label slot="a">°F <rarrow/> °C</label>
+<label slot="b">oz <rarrow/> lit</label>
+<label slot="c">US gal <rarrow/> lit</label>
+<label slot="d">oz <rarrow/> gm</label>
+<label slot="e">lb <rarrow/> kg</label>
+</carddef>

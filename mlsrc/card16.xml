@@ -1,0 +1,9 @@
+<carddef>
+<label slot="titleleft">COMBINATIONS, PERMUTATIONS, FACTORIALS</label>
+<label slot="titleright">ML-16</label>
+<label slot="a">n</label>
+<label slot="b">r</label>
+<label slot="c">n!</label>
+<label slot="d">P(<noverr/>)</label>
+<label slot="e">C(<noverr/>)</label>
+</carddef>

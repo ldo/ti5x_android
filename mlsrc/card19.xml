@@ -1,0 +1,14 @@
+<carddef>
+<label slot="titleleft">ANNUITIES</label>
+<label slot="titleright">ML-19</label>
+<label slot="aprime">Sinking Fund</label>
+<label slot="bprime">Ann Due/FV</label>
+<label slot="cprime">Ord Ann/PV</label>
+<label slot="dprime">Ann Due/PV</label>
+<label slot="eprime">INIT</label>
+<label slot="a">N</label>
+<label slot="b">%I</label>
+<label slot="c">PMT</label>
+<label slot="d">PV/FV</label>
+<label slot="e">B.PMT</label>
+</carddef>

@@ -1,0 +1,13 @@
+<carddef>
+<label slot="titleleft">CHECKING/SAVINGS ACCOUNT</label>
+<label slot="titleright">ML-22</label>
+<label slot="aprime">Checking</label>
+<label slot="bprime">Savings</label>
+<label slot="cprime">I %/Yr</label>
+<label slot="dprime">Periods/Yr</label>
+<label slot="a">Balance</label>
+<label slot="b">Deposit</label>
+<label slot="c">Withdrawal</label>
+<label slot="d">No. Periods</label>
+<label slot="e">New Bal.</label>
+</carddef>
