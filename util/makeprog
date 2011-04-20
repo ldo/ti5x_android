@@ -86,7 +86,7 @@ out = zipfile.ZipFile(outfile, mode = "w", compression = zipfile.ZIP_DEFLATED)
 mimetype = zipfile.ZipInfo()
 mimetype.filename = "mimetype"
 mimetype.compress_type = zipfile.ZIP_STORED
-mimetype.external_attr = 0o600 << 16
+mimetype.external_attr = 0o644 << 16
 mimetype.date_time = (2011, 4, 14, 13, 8, 44) # about when I first got mlmake working
 out.writestr(mimetype, b"application/vnd.nz.gen.geek_central.ti5x")
 for index in range(0, 100) :
