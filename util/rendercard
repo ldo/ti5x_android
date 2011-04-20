@@ -66,8 +66,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #-
 
-from __future__ import \
-    division
 from functools import \
     reduce
 import sys
@@ -210,14 +208,6 @@ symbols = \
         "sigma" : defsymbol("sigma", "(\\163)"),
         "theta" : defsymbol("theta", "(\\161)"),
     }
-
-class lamb_da(taggedtext) :
-
-    def __init__(self) :
-        super().__init__("lambda", "")
-    #end __init__
-
-#end lambda
 
 fontname = "Helvetica"
 symbolfontname = "Symbol"
