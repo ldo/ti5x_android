@@ -50,7 +50,14 @@
 <LI><A HREF="#Trigonometry">Trigonometry</A>
 <LI><A HREF="#Statistics">Statistics Functions</A>
 <LI><A HREF="#ProgramEntry">Program Entry</A>
+<UL>
+<LI><A HREF="#ControlTransfer">Transfer of Control</A>
+<LI><A HREF="#Comparisons">Comparisons</A>
 <LI><A HREF="#Flags">Flags</A>
+<LI><A HREF="#Looping">Looping</A>
+<LI><A HREF="#OtherControl">Other Control</A>
+<LI><A HREF="#UserDefinedKeys">User-Defined Keys</A>
+</UL>
 <LI><A HREF="#ProgramExecution">Program Execution</A>
 <LI><A HREF="#LibraryPrograms">Library Programs</A>
 <LI><A HREF="#Printer">Printer Emulation</A>
@@ -59,8 +66,12 @@
 
 <H2><A NAME="BasicOps"></A>Basic Operation</H2>
 <UL>
-<LI><SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN>,
-<SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN> etc — number entry.
+<LI><SPAN CLASS="whitebutton">&nbsp;0&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN>,
+<SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN>,
+<SPAN CLASS="whitebutton">&nbsp;4&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN>,
+<SPAN CLASS="whitebutton">&nbsp;6&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;7&nbsp;</SPAN>,
+<SPAN CLASS="whitebutton">&nbsp;8&nbsp;</SPAN>, <SPAN CLASS="whitebutton">&nbsp;9&nbsp;</SPAN>,
+— number entry.
 <LI><SPAN CLASS="whitebutton">&nbsp;.&nbsp;</SPAN> — decimal point. Also lets you continue
 mantissa entry after entering exponent.
 <LI><SPAN CLASS="brownbutton">EE</SPAN> — enter exponent
@@ -126,6 +137,9 @@ the displayed number with its integer part.
 the displayed number with its absolute value.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>10</B> —
 signum: replace displayed number with <B>1</B> if positive or <B>-1</B> if negative.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Nop</SPAN> — does nothing.
+May be inserted in program sequences in place of deleted instructions to avoid changing
+the positions of following instructions.
 </UL>
 
 <H2><A NAME="Memories"></A>Memories</H2>
@@ -247,6 +261,93 @@ insert a zero at the current location and move the following instructions down o
 delete the instruction at the current location and move the following instructions up one.
 </UL>
 <P>Other keys will enter keystrokes that will perform their function when executed.
+<P>Note that all register, flag and location operands allow indirection: simply enter
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ind</SPAN> <I>nn</I> in place
+of the operand to specify the register which will supply the value of the operand.
+
+<H3><A NAME="ControlTransfer"></A>Transfer of Control</H3>
+
+<P><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN> followed
+by just about any other key (except the above program-entry functions, the digit keys
+or <SPAN CLASS="alttext">Ind</SPAN>) to use that key to label the current location.
+The same label key can then be specified as the <I>loc</I> operand to any of the branch/call/loop
+instructions.
+<UL>
+<LI><SPAN CLASS="brownbutton">GTO</SPAN> <I>loc</I> — unconditional transfer of control to <I>loc</I>.
+<LI><SPAN CLASS="brownbutton">SBR</SPAN> <I>loc</I> — unconditional transfer of control to
+<I>loc</I>, until the next <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SBR</SPAN>
+instruction is executed, in which case control returns here to continue from the following
+instruction.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SBR</SPAN> — return
+from the last subroutine entered.
+</UL>
+
+<H3><A NAME="Comparisons"></A>Comparisons</H3>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x=t</SPAN> <I>loc</I> —
+if X is equal to T, branch to location <I>loc</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN>  <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x=t</SPAN> <I>loc</I> — if X is not equal to T, branch to location <I>loc</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x≥t</SPAN> <I>loc</I> —
+if X is greater than or equal to T, branch to location <I>loc</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN>  <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">x≥t</SPAN> <I>loc</I> — if X is less than T, branch to location <I>loc</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN> — when executed
+in a program, this just clears the T-register. It does <I>not</I> clear the program.
+</UL>
+
+<H3><A NAME="Flags"></A>Flags</H3>
+<P>There are 10 flags (numbered 0 to 9), each of which may be set, unset, or tested.</P>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">St flg</SPAN> <I>n</I> —
+set flag <I>n</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">St flg</SPAN> <I>n</I> — clear flag <I>n</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">If flg</SPAN> <I>n</I> <I>loc</I> —
+if flag <I>n</I> is set, branch to location <I>loc</I>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">If flg</SPAN> <I>n</I> <I>loc</I> — if flag <I>n</I> is unset, branch to
+location <I>loc</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>18</B> —
+if there is no error condition, set flag 7, otherwise leave it unchanged.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>19</B> —
+if there is an error condition, set flag 7, otherwise leave it unchanged.
+</UL>
+
+<P>Stop on error: if flag 8 is set when an error condition occurs during program execution,
+execution immediately stops.
+
+<H3><A NAME="Looping"></A>Looping</H3>
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Dsz</SPAN> <I>n</I> <I>loc</I> —
+decrement register <B>0</B><I>n</I>, and branch to <I>loc</I> if its new value is nonzero,
+otherwise continue with the following instruction.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Dsz</SPAN> <I>n</I> <I>loc</I> —
+decrement register <B>0</B><I>n</I>, and branch to <I>loc</I> if its new value is zero,
+otherwise continue with the following instruction.
+</UL>
+
+<H3><A NAME="OtherControl"></A>Other Control</H3>
+<UL>
+<LI><SPAN CLASS="brownbutton">R/S</SPAN> — when this is encountered in a program,
+execution stops. The user may resume from that point by pressing
+<SPAN CLASS="brownbutton">R/S</SPAN>.
+</UL>
+
+<H3><A NAME="UserDefinedKeys"></A>User-Defined Keys</H3>
+<P>The keys <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN>,
+<SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>,
+<SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN>,
+<SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>,
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">D´</SPAN>,
+<SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN> and
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">E´</SPAN>
+may be used as labels just like most other keys. They are special in that
+they can be invoked as subroutines without being prefixed with
+<SPAN CLASS="brownbutton">SBR</SPAN>. They are intended to behave as user-definable
+function keys.
 
 <H2><A NAME="ProgramExecution"></A>Program Execution</H2>
 <UL>
