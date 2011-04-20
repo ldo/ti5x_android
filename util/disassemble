@@ -24,10 +24,7 @@ def simple(sym) :
 #end simple
 
 def regop(op, hassym) :
-    entry = {"expect" : "reg"}
-    if hassym :
-        entry["sym"] = op
-    #end if
+    entry = {"expect" : "reg", "sym" : op, "hassym" : hassym}
     return entry
 #end regop
 
@@ -144,8 +141,8 @@ codes = \
         95 : simple("="),
         96 : simple("2nd R/S"),
         97 : {"sym" : "Dsz", "expect" : "flag", "expect2" : "loc"},
-        98 : simple("Prt"),
-        99 : simple("prt"),
+        98 : simple("Adv"),
+        99 : simple("Prt"),
         90 : simple("List"),
     }
 
@@ -179,7 +176,7 @@ was_newline = True
 loc = None
 lastcode = None
 line_nr = 0
-loc = -1
+curloc = -1
 while True :
     if len(curline) == 0 and not EOF :
         curline += sys.stdin.readline()
@@ -225,7 +222,7 @@ while True :
                 val = None
             #end if
             if val != None :
-                loc += 1
+                curloc += 1
                 if expect != None :
                     if expect == "loc2" :
                         sys.stdout.write("%03d" % (loc * 100 + val))
@@ -260,7 +257,7 @@ while True :
                         #end if
                     elif expect == "label" :
                         expect = None
-                        if val in codes and "sym" in codes[val] :
+                        if val in codes and codes[val].get("hassym", True) :
                             sys.stdout.write(codes[val]["sym"])
                         else :
                             report_error("cannot use code %02d as label" % val)
@@ -279,7 +276,7 @@ while True :
                 elif val < 10 or val == 93 and not decimal_seen :
                     # digit
                     if not last_was_digit and show_location :
-                        sys.stdout.write("%03d: " % loc)
+                        sys.stdout.write("%03d: " % curloc)
                     #end if
                     if val < 10 :
                         sys.stdout.write(chr(val + 48))
@@ -296,14 +293,10 @@ while True :
                     #end if
                     if val in codes :
                         code = codes[val]
-                        if "sym" in code :
-                            if show_location and not inv_state :
-                                sys.stdout.write("%03d: " % loc)
-                            #end if
-                            sys.stdout.write(code["sym"])
-                        else :
-                            report_error("code %02d has no symbol" % val)
+                        if show_location and not inv_state :
+                            sys.stdout.write("%03d: " % curloc)
                         #end if
+                        sys.stdout.write(code["sym"])
                         was_modifier = "modifier" in code
                         if "act" in code :
                             code["act"]()
@@ -316,7 +309,6 @@ while True :
                                 lastcode["expect"] = code["expect2"]
                             #end if
                             expect = code["expect"]
-                            sys.stdout.write(" ")
                         #end if
                         if expect != None or was_modifier :
                             sys.stdout.write(" ") # separate following op/operands
