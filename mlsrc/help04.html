@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-04 — Complex Arithmetic</H1>
+
+<P>First, enter complex number X which is the first operand for the remaining
+operations: enter the real part of X, then press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>,
+then enter the imaginary part, and press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> again.
+Then, enter complex number Y which is the second operand: enter the real part of Y, then press
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;A´&nbsp;</SPAN>, then
+enter the imaginary part, and press <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="brownbutton">&nbsp;A´&nbsp;</SPAN> again.
+<P>The remaining functions return the real part of the result in the display, and the
+imaginary part in the T register. They also replace the X operand with the result,
+ready for further operations:
+<DL class="deflist">
+<DT><SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+    <DD>Compute X + Y.
+<DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;B´&nbsp;</SPAN>
+    <DD>Compute X - Y.
+<DT><SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+    <DD>Compute X x Y.
+<DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;C´&nbsp;</SPAN>
+    <DD>Compute X ÷ Y.
+<DT><SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>
+    <DD>Compute X<SUP>Y</SUP>.
+<DT><SPAN CLASS="brownbutton">&nbsp;D´&nbsp;</SPAN>
+    <DD>Compute log<SUB>X</SUB>Y.
+<DT><SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN>
+    <DD>Compute the Xth root of Y.
+<DT><SPAN CLASS="brownbutton">&nbsp;E´&nbsp;</SPAN>
+    <DD>Interchange the values of X and Y.
+</DL>
+<P>Registers used: 01-06.
+
+</BODY>

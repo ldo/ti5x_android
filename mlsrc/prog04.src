@@ -1,0 +1,173 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; The original code is documented as only using 4 registers.
+; I can't figure out how to do that (undocumented functions?)
+; so I'm using 6.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl A
+; call first time to enter real part of X
+; call second time to enter imaginary part of X
+    exc 02  ; store user entry in 02
+    sto 01  ; put previous 02 into 01
+    rcl 02  ; show what user entered
+    inv sbr
+
+lbl A'
+; call first time to enter real part of Y
+; call second time to enter imaginary part of Y
+    exc 04  ; store user entry in 04
+    sto 03  ; put previous 04 into 03
+    rcl 04  ; show what user entered
+    inv sbr
+
+lbl B
+; X := X + Y
+    rcl 03 sum 01
+    rcl 04 sum 02
+    rcl 02  ; imaginary part of result
+    x<>t
+    rcl 01  ; real part of result
+    inv sbr
+
+lbl B'
+; X := X - Y
+    rcl 03 inv sum 01
+    rcl 04 inv sum 02
+    rcl 02  ; imaginary part of result
+    x<>t
+    rcl 01  ; real part of result
+    inv sbr
+
+lbl C
+; X := X * Y
+    ( rcl 01 * rcl 03 - rcl 02 * rcl 04 ) ; real part of answer
+    x<>t
+    ( rcl 01 * rcl 04 + rcl 02 * rcl 03 ) ; imaginary part of answer
+    sto 02      ; replace X
+    x<>t
+    sto 01      ; replace X
+    inv sbr
+
+lbl C'
+; X := X / Y
+    ( rcl 03 * rcl 03 + rcl 04 * rcl 04 ) ; square of magnitude of Y
+    inv prd 01 ; prescale X for answer
+    inv prd 02
+    ( rcl 01 * rcl 03 + rcl 02 * rcl 04 ) ; real part of answer
+    x<>t
+    ( rcl 02 * rcl 03 - rcl 01 * rcl 04 ) ; imaginary part of answer
+    sto 02      ; replace X
+    x<>t
+    sto 01      ; replace X
+    inv sbr
+
+lbl tan
+; internal routine, calculate angle of temp. Zaps T-register.
+    cp
+    rcl 06 x=t int
+    rcl 05 x=t 1/x
+    x>=t sqrt
+    ( rcl 06 ÷ rcl 05 ) inv tan
+    ( ce - ( ce op 10 × 1 inv sin × 2 ) )
+    inv sbr
+lbl sqrt
+    ( rcl 06 ÷ rcl 05 ) inv tan
+    inv sbr
+lbl int
+; here on imaginary part = 0
+    rcl 05 x>=t fix
+    ( 1 inv sin × 2 ) ; real part negative => return pi
+    inv sbr
+lbl fix
+    ( 0 )       ; else return 0
+    inv sbr
+lbl 1/x
+; here on real part = 0
+    ( 1 inv sin × rcl 06 op 10 ) ; angle is pi/2 with sign of imaginary part
+    inv sbr
+
+lbl |x|
+; internal routine, calculate magnitude of temp
+    ( rcl 05 * rcl 05 + rcl 06 * rcl 06 ) sqrt
+    inv sbr
+lbl lnx
+; internal routine, temp := natural log of temp and also leave result in display+T registers
+    ( sbr tan * pi / 2 / 1 inv sin ) ; imaginary part, always in radians
+    x<>t ; do above first because it zaps T.
+    sbr |x| lnx ; real part
+    x<>t
+    sto 06
+    x<>t
+    sto 05
+    inv sbr
+
+lbl D
+; X := Y ** X
+    rcl 03 sto 05 ; temp := Y
+    rcl 04 sto 06
+    sbr lnx ; temp := ln Y
+    ( rcl 01 * rcl 05 - rcl 02 * rcl 06 ) ; real part of X * ln Y
+    x<>t
+    ( rcl 01 * rcl 06 + rcl 02 * rcl 05 ) ; imaginary part of X * ln Y
+    sto 06      ; replace temp
+    x<>t
+    sto 05      ; replace temp
+; fall through to...
+lbl y**x
+; internal routine, X := e**temp and also leave X in display+T registers
+    ( rcl 06 * 1 inv sin * 2 / pi ) sto 01 ; always interpret angle as radians
+    ( sin * rcl 05 inv lnx sto 02 )
+    x<>t
+    ( rcl 01 cos * rcl 02 ) sto 01
+    x<>t sto 02 x<>t
+    inv sbr
+
+lbl D'
+; X := log of X to base Y
+    rcl 01 sto 05 ; temp := X
+    rcl 02 sto 06
+    sbr lnx ; temp := ln X
+    sto 01 ; X := ln X
+    x<>t
+    sto 02
+    rcl 03 sto 05 ; temp := Y
+    rcl 04 sto 06
+    sbr lnx ; temp := ln Y
+    ( rcl 05 * rcl 05 + rcl 06 * rcl 06 ) ; square of magnitude of temp
+    inv prd 01 ; prescale X for answer
+    inv prd 02
+    ( rcl 01 * rcl 05 + rcl 02 * rcl 06 ) ; real part of answer
+    x<>t
+    ( rcl 02 * rcl 05 - rcl 01 * rcl 06 ) ; imaginary part of answer
+    sto 02      ; replace X
+    x<>t
+    sto 01      ; replace X
+    inv sbr
+
+lbl E
+; X := Xth root of Y
+    rcl 03 sto 05 ; temp := Y
+    rcl 04 sto 06
+    sbr lnx ; temp := ln Y
+    ( rcl 01 * rcl 01 + rcl 02 * rcl 02 ) ; square of magnitude of X
+    inv prd 05 ; prescale temp for quotient
+    inv prd 06
+    ( rcl 01 * rcl 05 + rcl 02 * rcl 06 ) ; real part of quotient
+    x<>t
+    ( rcl 02 * rcl 05 - rcl 01 * rcl 06 ) ; imaginary part of quotient
+    sto 06 ; temp := quotient
+    x<>t
+    sto 05
+    gto y**x ; X := e**quotient = e**(ln Y / ln X) = Xth root of Y
+
+lbl E'
+; exchange X and Y
+    rcl 03 exc 01 sto 03
+    rcl 04 exc 02 sto 04
+    0 ce
+    inv sbr
