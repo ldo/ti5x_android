@@ -37,6 +37,21 @@
     font-weight : bold;
     color : #bdaa7d;
   } /*alttext*/
+
+TABLE.keycodes
+  {
+    border-collapse : collapse;
+  }
+TABLE.keycodes > TBODY > TR > TD
+  {
+    border : 1px solid;
+    border-color : #C0C0C0;
+    padding : 0.25em;
+  }
+TABLE.keycodes > TBODY > TR > TD.unused
+  {
+    background : #D5D5D5;
+  }
 </STYLE>
 </HEAD>
 <BODY>
@@ -57,6 +72,7 @@
 <LI><A HREF="#Looping">Looping</A>
 <LI><A HREF="#OtherControl">Other Control</A>
 <LI><A HREF="#UserDefinedKeys">User-Defined Keys</A>
+<LI><A HREF="#KeyCodes">Key Codes</A>
 </UL>
 <LI><A HREF="#ProgramExecution">Program Execution</A>
 <LI><A HREF="#LibraryPrograms">Library Programs</A>
@@ -348,6 +364,163 @@ may be used as labels just like most other keys. They are special in that
 they can be invoked as subroutines without being prefixed with
 <SPAN CLASS="brownbutton">SBR</SPAN>. They are intended to behave as user-definable
 function keys.
+
+<H3><A NAME="KeyCodes"></A>Key Codes</H3>
+<P>Note that some codes represent <I>merged</I> keystrokes. This not only saves
+space; some sequences cannot be represented unambiguously otherwise
+(<SPAN CLASS="alttext">Ind</SPAN> versus register 40).
+<TABLE CLASS="keycodes">
+<TR>
+<TD>01 <SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN></TD>
+<TD>02 <SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN></TD>
+<TD>03 <SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN></TD>
+<TD>04 <SPAN CLASS="whitebutton">&nbsp;4&nbsp;</SPAN></TD>
+<TD>05 <SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN></TD>
+</TR>
+<TR>
+<TD>06 <SPAN CLASS="whitebutton">&nbsp;6&nbsp;</SPAN></TD>
+<TD>07 <SPAN CLASS="whitebutton">&nbsp;7&nbsp;</SPAN></TD>
+<TD>08 <SPAN CLASS="whitebutton">&nbsp;8&nbsp;</SPAN></TD>
+<TD>09 <SPAN CLASS="whitebutton">&nbsp;9&nbsp;</SPAN></TD>
+<TD>00 <SPAN CLASS="whitebutton">&nbsp;0&nbsp;</SPAN></TD>
+</TR>
+
+<TR>
+<TD>11 <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN></TD>
+<TD>12 <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN></TD>
+<TD>13 <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN></TD>
+<TD>14 <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN></TD>
+<TD>15 <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN></TD>
+</TR>
+<TR>
+<TD>16 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">&nbsp;A´&nbsp;</SPAN></TD>
+<TD>17 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">&nbsp;B´&nbsp;</SPAN></TD>
+<TD>18 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">&nbsp;C´&nbsp;</SPAN></TD>
+<TD>19 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">&nbsp;D´&nbsp;</SPAN></TD>
+<TD>10 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">&nbsp;E´&nbsp;</SPAN></TD>
+</TR>
+
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>22 <SPAN CLASS="brownbutton">INV</SPAN></TD>
+<TD>23 <SPAN CLASS="brownbutton">ln<I>x</I></SPAN></TD>
+<TD>24 <SPAN CLASS="brownbutton">CE</SPAN></TD>
+<TD>25 <SPAN CLASS="yellowbutton">CLR</SPAN></TD>
+</TR>
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>27 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">INV</SPAN></TD>
+<TD>28 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Log</SPAN></TD>
+<TD>29 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN></TD>
+<TD>20 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="yellowbutton">CLR</SPAN></TD>
+</TR>
+
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>32 <SPAN CLASS="brownbutton">x⇌t</SPAN></TD>
+<TD>33 <SPAN CLASS="brownbutton">x²</SPAN></TD>
+<TD>34 <SPAN CLASS="brownbutton">√x</SPAN></TD>
+<TD>35 <SPAN CLASS="brownbutton">1/x</SPAN></TD>
+</TR>
+<TR>
+<TD>36 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN></TD>
+<TD>37 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">P→R</SPAN></TD>
+<TD>38 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">sin</SPAN></TD>
+<TD>39 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">cos</SPAN></TD>
+<TD>30 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">tan</SPAN></TD>
+</TR>
+
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>42 <SPAN CLASS="brownbutton">STO</SPAN></TD>
+<TD>43 <SPAN CLASS="brownbutton">RCL</SPAN></TD>
+<TD>44 <SPAN CLASS="brownbutton">SUM</SPAN></TD>
+<TD>45 <SPAN CLASS="brownbutton">y**x</SPAN></TD>
+</TR>
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>47 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CMs</SPAN></TD>
+<TD>48 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Exc</SPAN></TD>
+<TD>49 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prd</SPAN></TD>
+<TD>40 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ind</SPAN></TD>
+</TR>
+
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>52 <SPAN CLASS="brownbutton">EE</SPAN></TD>
+<TD>53 <SPAN CLASS="brownbutton">&nbsp;(&nbsp;</SPAN></TD>
+<TD>54 <SPAN CLASS="brownbutton">&nbsp;)&nbsp;</SPAN></TD>
+<TD>55 <SPAN CLASS="yellowbutton">&nbsp;÷&nbsp;</SPAN></TD>
+</TR>
+<TR>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>57 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Eng</SPAN></TD>
+<TD>58 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Fix</SPAN></TD>
+<TD>59 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Int</SPAN></TD>
+<TD>50 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">|x|</SPAN></TD>
+</TR>
+
+<TR>
+<TD>61 <SPAN CLASS="brownbutton">GTO</SPAN></TD>
+<TD>62 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>63 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Exc</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>64 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prd</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>65 <SPAN CLASS="yellowbutton">&nbsp;×&nbsp;</SPAN>
+</TR>
+<TR>
+<TD>66 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pause</SPAN></TD>
+<TD>67 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x=t</SPAN></TD>
+<TD>68 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Nop</SPAN></TD>
+<TD>69 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN></TD>
+<TD>60 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Deg</SPAN></TD>
+</TR>
+
+<TR>
+<TD>71 <SPAN CLASS="brownbutton">SBR</SPAN></TD>
+<TD>72 <SPAN CLASS="brownbutton">STO</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>73 <SPAN CLASS="brownbutton">RCL</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>74 <SPAN CLASS="brownbutton">SUM</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>75 <SPAN CLASS="yellowbutton">&nbsp;-&nbsp;</SPAN>
+</TR>
+<TR>
+<TD>76 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN></TD>
+<TD>77 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x≥t</SPAN></TD>
+<TD>78 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">∑x</SPAN</TD>
+<TD>79 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">mean(x)</SPAN</TD>
+<TD>70 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Rad</SPAN></TD>
+</TR>
+
+<TR>
+<TD>81 <SPAN CLASS="brownbutton">RST</SPAN></TD>
+<TD CLASS="unused">&nbsp;</TD>
+<TD>83 <SPAN CLASS="brownbutton">GTO</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>84 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>  <SPAN CLASS="alttext">Ind</SPAN></TD>
+<TD>85 <SPAN CLASS="yellowbutton">&nbsp;+&nbsp;</SPAN>
+</TR>
+<TR>
+<TD>86 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">St flg</SPAN></TD>
+<TD>87 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">If flg</SPAN></TD>
+<TD>88 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">D.MS</SPAN></TD>
+<TD>89 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN></TD>
+<TD>80 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Grad</SPAN></TD>
+</TR>
+
+<TR>
+<TD>91 <SPAN CLASS="brownbutton">R/S</SPAN></TD>
+<TD>92 <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SBR</SPAN></TD>
+<TD>93 <SPAN CLASS="whitebutton">&nbsp;.&nbsp;</SPAN></TD>
+<TD>94 <SPAN CLASS="whitebutton">+/-</SPAN></TD>
+<TD>95 <SPAN CLASS="yellowbutton">&nbsp;=&nbsp;</SPAN>
+</TR>
+<TR>
+<TD>96 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">R/S</SPAN></TD>
+<TD>97 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Dsz</SPAN></TD>
+<TD>98 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Adv</SPAN></TD>
+<TD>99 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN></TD>
+<TD>90 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">List</SPAN></TD>
+</TR>
+
+</TABLE>
 
 <H2><A NAME="ProgramExecution"></A>Program Execution</H2>
 <UL>
