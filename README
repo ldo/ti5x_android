@@ -25,4 +25,7 @@ Contents:
     INSTALL -- build/installation instructions
     COPYING -- licence (GPLv3)
 
-Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+Note all text files are in UTF-8 encoding, and literal Unicode
+characters abound. In this day and age, why not?
+
+Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
