@@ -416,11 +416,13 @@ def parse_template(input) :
     parser.StartElementHandler = handle_start_element
     parser.EndElementHandler = handle_end_element
     parser.CharacterDataHandler = handle_cdata
-    result[0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
     parser.ParseFile(input)
       # can raise expat.ExpatError
     if not parse_state["main_seen"] :
         raise RuntimeError("missing \"carddef\" element")
+    #end if
+    if card_style == "system" :
+        result[0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
     #end if
     for i in (2, 3) :
         if result[i] == None :
