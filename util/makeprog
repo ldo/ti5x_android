@@ -137,7 +137,7 @@ for index in range(0, 100) :
               )
             carddata, _ = child.communicate()
             if child.returncode != 0 :
-                raise RuntimeError("rendercard %s cmd returned %d" % (component["cardsrc"], status))
+                raise RuntimeError("rendercard %s cmd returned %d" % (component["cardsrc"], child.returncode))
             #end if
         elif "card" in component :
             carddata = open(component["card"], "rb").read()
