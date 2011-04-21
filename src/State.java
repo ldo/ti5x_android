@@ -1977,7 +1977,7 @@ public class State
               } /*if*/
             if (Reg >= 0 && Reg < MaxMemories)
               {
-                Memory[Reg] = Math.max(Memory[Reg] - 1.0, 0.0);
+                Memory[Reg] = Math.max(Math.abs(Memory[Reg]) - 1.0, 0.0) * Math.signum(Memory[Reg]);
                 if (InvState == (Memory[Reg] == 0.0))
                   {
                     Transfer(false, false, Bank, Target, TargetSymbolic, TargetInd);
