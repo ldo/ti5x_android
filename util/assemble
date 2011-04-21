@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 #+
-# Very simple symbolic assembler for ti5x programs. Reads a symbolic representation from
-# standard input, and writes a sequence of numeric codes to standard output.
+# Very simple symbolic assembler for ti5x programs. Reads a symbolic representation
+# from standard input, and writes a sequence of numeric codes to standard output.
+# Also supports location markers (sequence of digits ending with colon), and reports
+# an error if the current location does not equal the specified value.
 #
 # Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
