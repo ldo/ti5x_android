@@ -159,6 +159,8 @@ public class ButtonGrid extends android.view.View
     public int CollectingForFunction;
     int ButtonCode;
 
+    long LastClick = 0;
+
     public void Reset()
       /* resets to power-up state. */
       {
@@ -196,6 +198,8 @@ public class ButtonGrid extends android.view.View
                       {
                     case android.view.MotionEvent.ACTION_DOWN:
                     case android.view.MotionEvent.ACTION_MOVE:
+                        final long ThisClick = java.lang.System.currentTimeMillis();
+                        if (ThisClick - LastClick > 200) /* debounce */
                           {
                             final RectF GridBounds =
                                 new RectF(0.0f, 0.0f, TheView.getWidth(), TheView.getHeight());
@@ -246,7 +250,8 @@ public class ButtonGrid extends android.view.View
                                 TheView.invalidate();
                               } /*if*/
                             Handled = true;
-                          }
+                            LastClick = ThisClick;
+                          } /*if*/
                     break;
                     case android.view.MotionEvent.ACTION_UP:
                     case android.view.MotionEvent.ACTION_CANCEL:
