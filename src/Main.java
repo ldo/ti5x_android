@@ -22,8 +22,9 @@ public class Main extends android.app.Activity
     HelpCard Help;
     ButtonGrid Buttons;
     State Calc;
+    protected android.view.MenuItem ShowCalcHelpItem;
+    protected android.view.MenuItem ShowModuleHelpItem;
     protected android.view.MenuItem ToggleOverlayItem;
-    protected android.view.MenuItem ShowHelpItem;
     protected android.view.MenuItem ShowPrinterItem;
     protected android.view.MenuItem LoadProgramItem;
     protected android.view.MenuItem SaveProgramItem;
@@ -41,9 +42,10 @@ public class Main extends android.app.Activity
         android.view.Menu TheMenu
       )
       {
+        ShowCalcHelpItem = TheMenu.add(R.string.show_calc_help);
         ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
-        ToggleOverlayItem.setCheckable(true);
-        ShowHelpItem = TheMenu.add(R.string.show_help);
+        ToggleOverlayItem.setCheckable(true); /* doesn't seem to work */
+        ShowModuleHelpItem = TheMenu.add(R.string.show_module_help);
         ShowPrinterItem = TheMenu.add(R.string.show_printer);
         LoadProgramItem = TheMenu.add(getString(R.string.load_prog));
         SaveProgramItem = TheMenu.add(getString(R.string.save_as));
@@ -59,19 +61,39 @@ public class Main extends android.app.Activity
       )
       {
         boolean Handled = false;
-        if (TheItem == ToggleOverlayItem)
-          {
-            Buttons.OverlayVisible = !Buttons.OverlayVisible;
-            Buttons.invalidate();
-            ToggleOverlayItem.setChecked(Buttons.OverlayVisible); /* doesn't seem to work */
-          }
-        else if (TheItem == ShowHelpItem)
+        if (TheItem == ShowCalcHelpItem)
           {
             startActivity
               (
                 new android.content.Intent(android.content.Intent.ACTION_VIEW)
                     .setClass(this, Help.class)
               );
+          }
+        else if (TheItem == ShowModuleHelpItem)
+          {
+            if (Calc != null && Calc.ModuleHelp != null)
+              {
+                final android.content.Intent ShowHelp =
+                    new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Calc.ModuleHelp);
+                ShowHelp.setClass(this, Help.class);
+                startActivity(ShowHelp);
+              }
+            else
+              {
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ this,
+                    /*text =*/ getString(R.string.no_help),
+                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                  ).show();
+              } /*if*/
+          }
+        else if (TheItem == ToggleOverlayItem)
+          {
+            Buttons.OverlayVisible = !Buttons.OverlayVisible;
+            Buttons.invalidate();
+            ToggleOverlayItem.setChecked(Buttons.OverlayVisible); /* doesn't seem to work */
           }
         else if (TheItem == ShowPrinterItem)
           {

@@ -30,7 +30,8 @@
 #         infile is the name of a text file containing program source to be assembled
 #         and loaded into the specified program bank
 #
-# To build a program file, include just a prog00 or progsrc00 component.
+# To build a program file, include just a prog00 or progsrc00 component, plus optionally
+# a card00 or cardsrc00 component, and a help00 component.
 # To build a library file, include one or more components from prog01/progsrc01
 # up to prog99/progsrc99, optionally together with corresponding cardnn and helpnn components
 # and a help component.
@@ -78,7 +79,13 @@ for arg in sys.argv[2:] :
     components[index][type] = infile
 #end for
 for index in components :
-    if index != 0 and "prog" not in components[index] and "progsrc" not in components[index] :
+    if (
+            (index != 0 or len(components) == 1)
+        and
+            "prog" not in components[index]
+        and
+            "progsrc" not in components[index]
+    ) :
         raise RuntimeError("no prog or progsrc for component %02d" % index)
     #end if
 #end for
@@ -144,7 +151,7 @@ for index in range(0, 100) :
             if type in component :
                 out.writestr \
                   (
-                    ("help", "%s%02d" % (type, index))[type != "help" or index != 0],
+                    ("help", "%s%02d" % (type, index))[type != "help" or index != 0 or len(components) == 1],
                     open(component[type], "rb").read()
                   )
             #end if

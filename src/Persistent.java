@@ -1368,7 +1368,7 @@ public class Persistent
                 final ZipEntry LibHelpEntry = In.getEntry("help");
                 if (LibHelpEntry != null)
                   {
-                    Calc.Bank[0].Help = ReadAll(In.getInputStream(LibHelpEntry));
+                    Calc.ModuleHelp = ReadAll(In.getInputStream(LibHelpEntry));
                   } /*if*/
               } /*if*/
             for (int BankNr = 0;;)
@@ -1378,17 +1378,14 @@ public class Persistent
                 if (AllState || Libs == (BankNr != 0))
                   {
                     final ZipEntry CardEntry =
-                        BankNr != 0 ?
+                        AllState || !Libs || BankNr != 0 ?
                             In.getEntry(String.format(StdLocale, "card%02d", BankNr))
                         :
                             null;
                     final ZipEntry StateEntry =
                         In.getEntry(String.format(StdLocale, "prog%02d", BankNr));
                     final ZipEntry HelpEntry =
-                        In.getEntry
-                          (
-                            BankNr != 0 ? String.format(StdLocale, "help%02d", BankNr) : "help"
-                          );
+                        In.getEntry(String.format(StdLocale, "help%02d", BankNr));
                     if (StateEntry != null)
                       {
                         android.graphics.Bitmap CardImage = null;
@@ -1411,7 +1408,8 @@ public class Persistent
                           }
                         else
                           {
-                            /* ignore any CardImage */
+                          /* don't overwrite Calc.Bank[0].Program */
+                            Calc.Bank[0].Card = CardImage;
                             Calc.Bank[0].Help = BankHelp;
                           } /*if*/
                         try
@@ -1439,7 +1437,7 @@ public class Persistent
                           );
                       } /*if*/
                   } /*if*/
-                if (!Libs && !AllState)
+                if (!Libs && !AllState) /* only bank 0 for programs */
                     break;
                 ++BankNr;
               } /*for*/

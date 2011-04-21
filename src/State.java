@@ -109,6 +109,7 @@ public class State
     public final double[] Memory;
     public final byte[] Program;
     public final ProgBank[] Bank; /* Bank[0].Program always points to Program */
+    public byte[] ModuleHelp;
     public final boolean[] Flag;
 
   /* special flag numbers: */
@@ -193,6 +194,7 @@ public class State
               {
                 Bank[i] = null;
               } /*for*/
+            ModuleHelp = null;
           } /*if*/
         ProgMode = false;
         for (int i = 0; i < PrintRegister.length; ++i)
@@ -988,6 +990,13 @@ public class State
           {
             Flag[i] = false;
           } /*for*/
+      /* wipe any loaded help as well */
+        if (CurBank == 0)
+          {
+            Help.SetHelp(null, null);
+          } /*if*/
+        Bank[0].Card = null;
+        Bank[0].Help = null;
       } /*ClearProgram*/
 
     public void SelectProgram
