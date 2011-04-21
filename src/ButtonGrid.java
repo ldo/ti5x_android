@@ -980,6 +980,7 @@ public class ButtonGrid extends android.view.View
                         case 31: /*LRN*/
                             Calc.SetProgMode(false);
                             ResetOperands();
+                            Persistent.SaveState(getContext(), this, Calc); /* why not */
                         break;
                       /* 40 handled above */
                         case 41: /*SST*/
