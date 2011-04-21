@@ -1613,14 +1613,19 @@ public class State
 
     public void ResetProg()
       {
-        StopProgram();
         for (int i = 0; i < MaxFlags; ++i)
           {
             Flag[i] = false;
           } /*for*/
-        PC = 0;
+        if (ProgRunning)
+          {
+            RunPC = 0;
+          }
+        else
+          {
+            PC = 0;
+          } /*if*/
         ReturnLast = -1;
-        SelectProgram(0, false);
       } /*ResetProg*/
 
     int GetProg
