@@ -30,7 +30,8 @@ public class Main extends android.app.Activity
     protected android.view.MenuItem PowerOffItem;
     protected final int LoadProgramRequest = 1; /* arbitrary code */
     protected final int SaveProgramRequest = 2; /* arbitrary code */
-    Boolean ShuttingDown = false;
+    boolean ShuttingDown = false;
+    boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
     static final java.util.Locale StdLocale = java.util.Locale.US;
 
@@ -131,7 +132,11 @@ public class Main extends android.app.Activity
             onResume. Therefore I do additional restoring/saving state
             here to ensure the saved state includes the newly-loaded
             program/library. */
-            Persistent.RestoreState(this, Disp, Help, Buttons, Calc); /* if not already done */
+            if (!StateLoaded)
+              {
+                Persistent.RestoreState(this, Disp, Help, Buttons, Calc); /* if not already done */
+                StateLoaded = true;
+              } /*if*/
             try
               {
                 Persistent.Load
@@ -258,7 +263,11 @@ public class Main extends android.app.Activity
     public void onResume()
       {
         super.onResume();
-        Persistent.RestoreState(this, Disp, Help, Buttons, Calc);
+        if (!StateLoaded)
+          {
+            Persistent.RestoreState(this, Disp, Help, Buttons, Calc);
+            StateLoaded = true;
+          } /*if*/
       } /*onResume*/
 
   } /*Main*/
