@@ -24,9 +24,24 @@ lbl |x|
     inv sbr
 
 lbl tan
-; internal routine, calculate angle
-    0 x<>t rcl 01 x=t 1/x
+; internal routine, calculate angle of X
+    cp
+    rcl 02 x=t int
+    rcl 01 x=t 1/x
+    x>=t sqrt
     ( rcl 02 ÷ rcl 01 ) inv tan
+    ( ce - ( ce op 10 × 1 inv sin × 2 ) )
+    inv sbr
+lbl sqrt
+    ( rcl 02 ÷ rcl 01 ) inv tan
+    inv sbr
+lbl int
+; here on imaginary part = 0
+    rcl 01 x>=t fix
+    ( 1 inv sin × 2 ) ; real part negative => return pi
+    inv sbr
+lbl fix
+    ( 0 )       ; else return 0
     inv sbr
 lbl 1/x
 ; here on real part = 0
