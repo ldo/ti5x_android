@@ -61,14 +61,15 @@
 </UL>
 <P>To compute the missing value, enter 0 before pressing the corresponding key, i.e.
 <UL>
-<LI>0 <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — compute number of periods
-<LI>0 <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — compute percent interest rate per period
-<LI>0 <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — compute present value
-<LI>0 <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — compute future value
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — compute number of periods N = ln(FV / PV) ÷ ln(1 + i)
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — compute percent interest rate per period %I = [(FV / PV)<SUP>1/N</SUP> - 1] × 100
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — compute present value PV = FV × (1 + i)<SUP>-N</SUP>
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — compute future value FV = PV × (1 + i)<SUP>N</SUP>
 </UL>
+<P>where i = %I ÷ 100.
 
 <P>The following functions assume that <I>N</I> and <I>%I</I> have already been computed
-or entered (i = %I ÷ 100):
+or entered:
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> — Sinking Fund,
 S<SUB>n|i</SUB> = [(1 + i)<SUP>N</SUP> - 1] ÷ i
