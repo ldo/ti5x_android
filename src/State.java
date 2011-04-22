@@ -1785,26 +1785,33 @@ public class State
                   } /*if*/
                 if (Loc < 0 || Loc >= Bank[BankNr].Program.length)
                     break;
-                if (Call)
+                if (InvState) /* extension! */
                   {
-                    if (ReturnLast == MaxReturnStack)
-                        break;
-                    ReturnStack[++ReturnLast] =
-                        new ReturnStackEntry(RunBank, RunPC, FromInteractive);
-                  } /*if*/
-                if (ProgRunning)
-                  {
-                    RunBank = BankNr;
-                    RunPC = Loc;
-                    FillInLabels(RunBank); /* if not already done */
+                    SetX(Loc);
                   }
                 else
                   {
-                    PC = Loc;
-                  } /*if*/
-                if (Call && FromInteractive)
-                  {
-                    StartProgram();
+                    if (Call)
+                      {
+                        if (ReturnLast == MaxReturnStack)
+                            break;
+                        ReturnStack[++ReturnLast] =
+                            new ReturnStackEntry(RunBank, RunPC, FromInteractive);
+                      } /*if*/
+                    if (ProgRunning)
+                      {
+                        RunBank = BankNr;
+                        RunPC = Loc;
+                        FillInLabels(RunBank); /* if not already done */
+                      }
+                    else
+                      {
+                        PC = Loc;
+                      } /*if*/
+                    if (Call && FromInteractive)
+                      {
+                        StartProgram();
+                      } /*if*/
                   } /*if*/
               /* all successfully done */
                 OK = true;
