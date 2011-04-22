@@ -415,10 +415,12 @@ while True :
                                 which = ("op", "altop")[alt_state]
                                 if which in symbol :
                                     out(symbol[which])
+                                    expect = None
+                                elif symbol["act"] == set_alt_state :
+                                    symbol["act"]()
                                 else :
                                     report_error("cannot use \"%s\" as label -- no %s" % (cursym, which))
                                 #end if
-                                expect = None
                             else :
                                 report_error("not expecting symbol for %s" % expect)
                                 expect = None
