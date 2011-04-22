@@ -1942,6 +1942,7 @@ public class State
       {
         if (NewPC >= 0)
           {
+            Enter();
             if
               (
                 InvState ?
