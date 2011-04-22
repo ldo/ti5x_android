@@ -240,6 +240,9 @@ def flushout() :
 def out(b) :
     """outputs a single instruction byte."""
     global pending_out, loc
+    if loc == 1000 :
+        report_error("program too large, can't exceed 1000 steps")
+    #end if
     flushout()
     pending_out = b
     loc += 1
