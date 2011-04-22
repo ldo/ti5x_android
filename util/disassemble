@@ -149,10 +149,13 @@ codes = \
         90 : simple("List"),
     }
 
+exitstatus = 0 # to begin with
+
 def report_error(msg) :
+    global inv_state, was_modifier, expect, exitstatus
     sys.stderr.write("Disassembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
+    exitstatus = 2
     # reset everything to try to recover from error:
-    global inv_state, was_modifier, expect
     inv_state = False
     was_modifier = False
     expect = None
@@ -336,3 +339,4 @@ while True :
 if last_was_digit :
     sys.stdout.write("\n")
 #end if
+sys.exit(exitstatus)

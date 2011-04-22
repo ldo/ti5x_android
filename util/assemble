@@ -195,10 +195,13 @@ symbols["π"] = symbols["pi"]
 symbols["dms"] = symbols["d.ms"]
 symbols["wrt"] = symbols["write"]
 
+exitstatus = 0 # to begin with
+
 def report_error(msg) :
+    global alt_state, inv_state, was_modifier, expect, lastsym, exitstatus
     sys.stderr.write("Assembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
+    exitstatus = 2
     # reset everything to try to recover from error:
-    global alt_state, inv_state, was_modifier, expect, lastsym
     alt_state = False
     inv_state = False
     was_modifier = False
@@ -461,3 +464,4 @@ flushout()
 if outcount != 0 :
     sys.stdout.write("\n")
 #end if
+sys.exit(exitstatus)
