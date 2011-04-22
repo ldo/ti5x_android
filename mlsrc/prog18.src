@@ -1,0 +1,79 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl E'
+; initialize
+; nothing to do in my version
+    inv sbr
+
+lbl A
+; enter/compute N
+    cp inv x=t int
+; compute N
+    ( ( rcl 04 / rcl 03 ) lnx / rcl 09 lnx )
+lbl int
+; enter N
+    sto 01
+    inv sbr
+
+lbl B
+; enter/compute %I (interest rate per period)
+    cp x=t fix
+; enter %I
+    sto 02
+    ( ce / 100 ) sto 08
+    ( ce + 1 ) sto 09
+    rcl 02
+    inv sbr
+lbl fix
+; compute %I
+    ( ( rcl 04 / rcl 03 ) inv ** rcl 01 ) sto 09 ; 1 + i
+    ( ce - 1 ) sto 08 ; i (= %I/100)
+    ( ce * 100 ) sto 02 ; %I
+    inv sbr
+
+lbl C
+; enter/compute PV
+    cp inv x=t mean
+; compute PV
+    ( rcl 04 * rcl 09 ** rcl 01 +/- )
+lbl mean
+; enter PV
+    sto 03
+    inv sbr
+
+lbl D
+; enter/compute FV
+    cp inv x=t sigma
+; compute FV
+    ( rcl 03 * rcl 09 ** rcl 01 )
+lbl sigma
+; enter FV
+    sto 04
+    inv sbr
+
+; following assume N and %I already entered or computed
+
+lbl A'
+; sinking fund
+    ( ( rcl 09 ** rcl 01 - 1 ) / rcl 08 )
+    inv sbr
+
+lbl B'
+; annuity due/FV
+    ( ( rcl 09 ** ( rcl 01 + 1 ) - rcl 09 ) / rcl 08 )
+    inv sbr
+
+lbl C'
+; ordinary annuity/PV
+    ( ( 1 - rcl 09 ** rcl 01 +/- ) / rcl 08 )
+    inv sbr
+
+lbl D'
+; annuity due/PV
+    ( ( rcl 09  - rcl 09 ** ( 1 - rcl 01 ) ) / rcl 08 )
+    inv sbr

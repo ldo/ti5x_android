@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-18 — Compound Interest</H1>
+
+<P>Enter 3 of the following 4 quantities, in any order:
+<UL>
+<LI><I>N</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — enter number of periods
+<LI><I>%I</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — enter percent interest rate per period
+<LI><I>PV</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — enter present value
+<LI><I>FV</I> <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — enter future value
+</UL>
+<P>To compute the missing value, enter 0 before pressing the corresponding key, i.e.
+<UL>
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — compute number of periods
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — compute percent interest rate per period
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — compute present value
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — compute future value
+</UL>
+
+<P>The following functions assume that <I>N</I> and <I>%I</I> have already been computed
+or entered (i = %I ÷ 100):
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> — Sinking Fund,
+S<SUB>n|i</SUB> = [(1 + i)<SUP>N</SUP> - 1] ÷ i
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN> — Annuity Due/FV,
+(1 + i)S<SUB>n|i</SUB> = [(1 + i)<SUP>N + 1</SUP> - (1 + i)] ÷ i
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN> — Ordinary Annuity/PV,
+a<SUB>n|i</SUB> = [1 - (1 + i)<SUP>-N</SUP>] ÷ i
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">D´</SPAN> — Annuity Due/PV,
+(1 + i)a<SUB>n|i</SUB> = [(1 + i) - (1 + i)<SUP>1 - N</SUP>] ÷ i
+</UL>
+
+<P>Registers used: 01-04, 08, 09.
+
+</BODY>
