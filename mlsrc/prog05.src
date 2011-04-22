@@ -53,6 +53,10 @@ lbl C
     ( rcl 01 * rcl 02 * 2 ) ; imaginary part
     x<>t
     ( rcl 01 * rcl 01 - rcl 02 * rcl 02 ) ; real part
+    x<>t
+    sto 02 ; replace X
+    x<>t
+    sto 01
     inv sbr
 
 lbl D
@@ -61,6 +65,10 @@ lbl D
     ( ce sin × sbr |x| sqrt sto 04 ) ; imaginary part
     x<>t
     ( rcl 03 cos × rcl 04 ) ; real part
+    x<>t
+    sto 02 ; replace X
+    x<>t
+    sto 01
     inv sbr
 
 lbl E
@@ -69,6 +77,10 @@ lbl E
     ( rcl 02 / rcl 03 ) +/- ; imaginary part of answer
     x<>t
     ( rcl 01 / rcl 03 ) ; real part of answer
+    x<>t
+    sto 02 ; replace X
+    x<>t
+    sto 01
     inv sbr
 
 lbl A'
@@ -76,6 +88,10 @@ lbl A'
     ( sbr tan * pi / 2 / 1 inv sin ) ; imaginary part, always in radians
     x<>t
     sbr |x| lnx ; real part
+    x<>t
+    sto 02 ; replace X
+    x<>t
+    sto 01
     inv sbr
 
 lbl B'
@@ -84,4 +100,8 @@ lbl B'
     ( sin * rcl 01 inv lnx sto 04 )
     x<>t
     ( rcl 03 cos * rcl 04 )
+    x<>t
+    sto 02 ; replace X
+    x<>t
+    sto 01
     inv sbr
