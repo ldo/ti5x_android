@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-19 — Annuities</H1>
+
+<P>First, initialize the program with
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">E´</SPAN>.
+<P>Then, choose which type of computation to perform:
+<UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> — Sinking Fund
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN> — Annuity Due/FV
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN> — Ordinary Annuity/PV
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">D´</SPAN> — Annuity Due/PV
+</UL>
+
+<P>Then, enter 4 of the following 5 quantities, in any order:
+
+<UL>
+<LI><I>N</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — enter number of periods
+<LI><I>%I</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — enter percent interest rate per period
+<LI><I>PMT</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — enter periodic payment amount
+<LI><I>PV/FV</I> <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — enter present value or future
+value (depending on computation chosen)
+<LI><I>BAL</I> <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN> — enter balloon payment
+(<B>note:</B> if this amount is 0, just skip its entry, don’t enter 0)
+</UL>
+
+<P>To compute the missing value, enter 0 before pressing the corresponding key, i.e.
+<UL>
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN> — compute number of periods N
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> — compute percent interest rate per period %I
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> — compute payment per period
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN> — compute present value or future value
+<LI>0 <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN> — compute balloon payment
+</UL>
+
+<H2>Formulas Used</H2>
+<P>In the following formulas, i = %I ÷ 100. In all cases, %I is computed using Newton-Raphson
+iteration.
+
+<H3>Sinking Fund</H3>
+<P>FV = PMT × [(1 + i)<SUP>N</SUP> - 1] ÷ i
+<P>N = ln (FV × i ÷ PMT + 1) ÷ ln (1 + i)
+<P>PMT = FV × i ÷ [(1 + i)<SUP>N</SUP> - 1]
+
+<H3>Annuity Due/FV</H3>
+<P>FV = PMT × (1 + i) × ((1 + i)<SUP>N</SUP> - 1) ÷ i
+<P>N = ln (FV × i ÷ PMT + 1 + i) ÷ ln (1 + i) - 1
+<P>PMT = FV ÷ [(1 + i) × ((1 + i)<SUP>N</SUP> - 1) ÷ i]
+
+<H3>Ordinary Annuity/PV</H3>
+<P>PV = PMT × (1 - (1 + i)<SUP>-N</SUP>) ÷ i + BAL × (1 + i)<SUP>-N</SUP>
+<P>N = ln ((PMT - i × BAL) ÷ (PMT - i × PV )) ÷ ln (1 + i)
+<P>PMT = (PV - BAL × (1 + i)<SUP>-N</SUP>) ÷ ((1 - (1 + i)<SUP>-N</SUP>) ÷ i)
+<P>BAL = (PV - PMT × (1 - (1 + i)<SUP>-N</SUP>) ÷ i) ÷ (1 + i)<SUP>-N</SUP>
+
+<H3>Annuity Due/PV</H3>
+<P>PV = PMT × (1 + i) × (1 - (1 + i)<SUP>-N</SUP>) ÷ i + BAL × (1 + i)<SUP>-N</SUP>
+<P>N = ln ((PMT × (1 + i) ÷ i - BAL) ÷ (PMT × (1 + i) ÷  i - PV)) ÷ ln (1 + i)
+<P>PMT = (PV - BAL × (1 + i)<SUP>-N</SUP>) ÷ ((1 + i) × (1 - (1 + i)<SUP>-N</SUP>) ÷ i)
+<P>BAL = (PV - PMT × (1 + i) × (1 - (1 + i)<SUP>-N</SUP>) ÷ i) ÷ (1 + i)<SUP>-N</SUP>
+
+<P>Registers used: 01-14.
+
+</BODY>

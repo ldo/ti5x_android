@@ -1,0 +1,383 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Common register usage:
+;     01 -- N
+;     02 -- %I
+;     03 PMT
+;     04 PV/FV
+;     05 B.PMT
+;     08 i = I ÷ 100
+;     09 1 + i
+;     10-14 -- computation-specific function pointers
+;-
+
+lbl E'
+; initialize
+    0 sto 05 ; just ensure balloon payment is 0, because 0 value cannot be entered
+    inv sbr
+
+;+
+; Choice of calculation to perform
+; NOTE: this code uses my INV GTO extension, which
+; returns a location in the X register instead of
+; transferring control to it
+;-
+
+lbl A'
+; choose Sinking Fund computation
+    inv gto inv sto 10 ; set up function pointers for actual computations
+    inv gto 2nd inv sto 11
+    inv gto lnx sto 12
+    inv gto eng sto 06
+    inv gto log sto 13
+    inv gto 2nd clr sto 14 ; no balloon payment
+    ( 0 )
+    inv sbr
+
+lbl B'
+; choose Annuity Due/FV computation
+    inv gto x<>t sto 10 ; set up function pointers for actual computations
+    inv gto p->r sto 11
+    inv gto x2 sto 12
+    inv gto fix sto 06
+    inv gto sin sto 13
+    inv gto 2nd clr sto 14 ; no balloon payment
+    ( 0 )
+    inv sbr
+
+lbl C'
+; choose Ordinary Annuity/PV computation
+    inv gto sqrt sto 10 ; set up function pointers for actual computations
+    inv gto cos sto 11
+    inv gto 1/x sto 12
+    inv gto prd sto 06
+    inv gto tan sto 13
+    inv gto pgm sto 14
+    ( 0 )
+    inv sbr
+
+lbl D'
+; choose Annuity Due/PV computation
+    inv gto sto sto 10 ; set up function pointers for actual computations
+    inv gto cms sto 11
+    inv gto rcl sto 12
+    inv gto y**x sto 06
+    inv gto exc sto 13
+    inv gto sum sto 14
+    ( 0 )
+    inv sbr
+
+lbl A
+; enter/compute N
+    cp inv x=t dsz
+    sbr ind 11
+lbl dsz
+; here to enter N
+    sto 01
+    inv sbr
+
+lbl B
+; enter/compute %I
+    cp inv x=t .
+; compute %I via Newton-Raphson iteration
+    1.1 sto 09 ; initial approximation to 1 + i
+    ( 10 ** 13 +/- ) x<>t ; error threshold -- is 13 figures enough?
+lbl list
+    ( rcl 09 - 1 ) sto 08 ; computations also need i
+    ( sbr ind 13 ÷ sbr ind 06 ) sto 07 ; iteration correction factor
+    ( ce |x| ÷ rcl 09 |x| ) ; relative to (approximate) answer
+    inv x≥t stflg ; exit loop if small enough
+    rcl 07 inv sum 09 ; else accumulate correction
+    gto list ; try again
+lbl stflg
+; approximation good enough
+    ( rcl 09 - 1 ) sto 08 ; compute i
+    ( ce * 100 ) sto 02 ; and %I
+    inv sbr
+lbl .
+; here to enter %I
+    sto 02
+    ( ce / 100 ) sto 08
+    ( ce + 1 ) sto 09
+    rcl 02
+    inv sbr
+
+lbl C
+; enter/compute PMT
+    cp inv x=t adv
+    sbr ind 12
+lbl adv
+; here to enter PMT
+    sto 03
+    inv sbr
+
+lbl D
+; enter/compute PV/FV
+    cp inv x=t +/-
+    sbr ind 10
+lbl +/-
+; here to enter PV/FV
+    sto 04
+    inv sbr
+
+lbl E
+; enter/compute BAL
+    cp inv x=t prt
+    sbr ind 14
+lbl prt
+; here to enter BAL
+    sto 05
+    inv sbr
+
+lbl 2nd clr
+; error routine for missing function
+    ce 0 1/x
+    inv sbr
+
+;+
+; Sinking Fund computation
+; labels:
+;     inv -- compute FV
+;     2nd inv -- compute N
+;     lnx -- compute PMT
+;     log -- function which equals 0 for correct (1 + i)
+;     eng -- derivative of above function
+;-
+
+lbl inv
+; compute FV
+    ( rcl 03 × sbr ifflg )
+    inv sbr
+
+lbl 2nd inv
+; compute N
+    ( ( rcl 04 × rcl 08 ÷ rcl 03 + 1 ) lnx ÷ rcl 09 lnx )
+    inv sbr
+
+lbl lnx
+; compute PMT
+    ( rcl 04 × rcl 08 ÷ ( rcl 09 ** rcl 01 - 1 ) )
+    inv sbr
+
+lbl eng
+; derivative for iterating i + 1 = PMT * N * (1 + 1) ** (N - 1) - FV
+    ( rcl 03 * rcl 01 * rcl 09 ** ( rcl 01 - 1 ) - rcl 04 )
+    inv sbr
+
+lbl log
+; function to solve for i + 1
+; PMT * ((1 + i) ** N - 1) - i * FV = 0
+    ( rcl 03 * ( rcl 09 ** rcl 01 - 1 ) - rcl 08 * rcl 04 )
+    inv sbr
+
+;+
+; Annuity Due/FV computation
+; labels:
+;     x<>t -- compute FV
+;     p->r -- compute N
+;     x2 -- compute PMT
+;     sin -- function which equals 0 for correct (1 + i)
+;     fix -- derivative of above function
+;-
+
+lbl x<>t
+; compute FV
+    ( rcl 03 × rcl 09 × sbr ifflg )
+    inv sbr
+
+lbl p->r
+; compute N
+    ( ( rcl 04 ÷ rcl 03 × rcl 08 + rcl 09 ) lnx ÷ rcl 09 lnx - 1 )
+    inv sbr
+
+lbl x2
+; compute PMT
+    ( rcl 04 ÷ ( rcl 09 × sbr ifflg ) )
+    inv sbr
+
+lbl fix
+; derivative for iterating i + 1
+; = PMT * ((1 + i) ** N - 1) + PMT * (1 + i) * (N * (1 + i) ** (N - 1)) - FV
+    (
+        rcl 03 × ( rcl 09 ** rcl 01 - 1 )
+    +
+        rcl 03 × rcl 09 × rcl 01 × rcl 09 ** ( rcl 01 - 1 )
+    -
+        rcl 04
+    )
+    inv sbr
+
+lbl sin
+; function to solve for i + 1
+; PMT * (1 + i) * ((1 + i) ** N - 1) - i * FV = 0
+    ( rcl 03 × rcl 09 × ( rcl 09 ** rcl 01 - 1 ) - rcl 08 × rcl 04 )
+    inv sbr
+
+;+
+; Ordinary Annuity/PV computation
+; labels:
+;     sqrt -- compute PV
+;     cos -- compute N
+;     1/x -- compute PMT
+;     tan -- function which equals 0 for correct (1 + i)
+;     prd -- derivative of above function
+;     pgm -- compute BAL
+;-
+
+lbl sqrt
+; compute PV
+    (
+        rcl 03 × sbr d.ms
+    +
+        rcl 05 × rcl 09 ** rcl 01 +/-
+    )
+    inv sbr
+
+lbl cos
+; compute N
+    (
+        ( ( rcl 03 - rcl 08 * rcl 05 ) ÷ ( rcl 03 - rcl 08 * rcl 04 ) ) lnx
+    ÷
+        rcl 09 lnx
+    )
+    inv sbr
+
+lbl 1/x
+; compute PMT
+    (
+        ( rcl 04 - rcl 05 * rcl 09 ** rcl 01 +/- )
+    ÷
+        sbr d.ms
+    )
+    inv sbr
+
+lbl prd
+; derivative for iterating i + 1
+; = BAL * (1 + i) ** (-N) - PMT * N * (1 + i) ** (-N - 1) - BAL * i * N * (1 + i) ** (-N - 1) - PV
+    (
+        rcl 05 × rcl 09 ** rcl 01 +/-
+    -
+        rcl 03 × rcl 01 × rcl 09 ** ( rcl 01 + 1 ) +/-
+    -
+        rcl 05 × rcl 08 × rcl 01 × rcl 09 ** ( rcl 01 + 1 ) +/-
+    -
+        rcl 04
+    )
+    inv sbr
+
+lbl tan
+; function to solve for i + 1
+; PMT * (1 - (1 + i) ** -N) + BAL * i * (1 + i) ** -N - i * PV = 0
+    (
+        rcl 03 × ( 1 - rcl 09 ** rcl 01 +/- )
+    +
+        rcl 05 × rcl 08 × rcl 09 ** rcl 01 +/-
+    -
+        rcl 08 × rcl 04
+    )
+    inv sbr
+
+lbl pgm
+; compute BAL
+    (
+        ( rcl 04 - rcl 3 × sbr d.ms )
+    ÷
+        ( rcl 09 ** rcl 01 +/- )
+    )
+    inv sbr
+
+;+
+; Annuity Due/PV computation
+; labels:
+;     sto -- compute PV
+;     cms -- compute N
+;     rcl -- compute PMT
+;     exc -- function which equals 0 for correct (1 + i)
+;     y**x -- derivative of above function
+;     sum -- compute BAL
+;-
+
+lbl sto
+; compute PV
+    (
+        rcl 03 × rcl 09 × sbr d.ms
+    +
+        rcl 05 × rcl 09 ** rcl 01 +/-
+    )
+    inv sbr
+
+lbl cms
+; compute N
+    (
+        ( ( rcl 03 * rcl 09 ÷ rcl 08 - rcl 05 ) ÷ ( rcl 03 * rcl 09 ÷ rcl 08 - rcl 04 ) ) lnx
+    ÷
+        rcl 09 lnx
+    )
+    inv sbr
+
+lbl rcl
+; compute PMT
+    (
+        ( rcl 04 - rcl 05 × rcl 09 ** rcl 01 +/- )
+    ÷
+        ( rcl 09 × sbr d.ms )
+    )
+    inv sbr
+
+lbl y**x
+; derivative for iterating i + 1
+; = PMT * ( 1 - (1 + i) ** -N) - PMT * (1 + i) * N * (1 + i) ** (-N - 1)
+;   + BAL * (1 + i) ** -N - BAL * N * (1 + i) ** (-N - 1) - PV
+    (
+        rcl 03 × ( 1 - rcl 09 ** rcl 01 +/- )
+    -
+        rcl 03 × rcl 09 × rcl 01 × rcl 09 ** ( rcl 01 + 1 ) +/-
+    +
+        rcl 05 × rcl 09 ** rcl 01 +/-
+    -
+        rcl 05 × rcl 01 × rcl 09 ** ( rcl 01 + 1 ) +/-
+    -
+        rcl 04
+    )
+    inv sbr
+
+lbl exc
+; function to solve for i + 1
+; PMT * (1 + i) * (1 - (1 + i) ** -N) + BAL * i * (1 + i) ** -N - i * PV = 0
+    (
+        rcl 03 × rcl 09 × ( 1 - rcl 09 ** rcl 01 +/- )
+    +
+        rcl 05 × rcl 08 × rcl 09 ** rcl 01 +/-
+    -
+        rcl 08 × rcl 04
+    )
+    inv sbr
+
+lbl sum
+; compute BAL
+    (
+        ( rcl 04 - rcl 03 × rcl 09 × sbr d.ms )
+    ÷
+        rcl 09 ** rcl 01 +/-
+    )
+    inv sbr
+
+;+
+; common routines to save space
+;-
+
+lbl ifflg
+; compute ((1 + i) ** N - 1) ÷ i
+    ( ( rcl 09 ** rcl 01 - 1 ) ÷ rcl 08 )
+    inv sbr
+
+lbl d.ms
+; compute (1 - (1 + i) ** -N) ÷ i
+    ( ( 1 - rcl 09 ** rcl 01 +/- ) ÷ rcl 08 )
+    inv sbr
