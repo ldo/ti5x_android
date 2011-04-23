@@ -199,7 +199,7 @@ public class ButtonGrid extends android.view.View
                     case android.view.MotionEvent.ACTION_DOWN:
                     case android.view.MotionEvent.ACTION_MOVE:
                         final long ThisClick = java.lang.System.currentTimeMillis();
-                        if (ThisClick - LastClick > 200) /* debounce */
+                        if (ThisClick - LastClick > 100) /* debounce */
                           {
                             final RectF GridBounds =
                                 new RectF(0.0f, 0.0f, TheView.getWidth(), TheView.getHeight());
