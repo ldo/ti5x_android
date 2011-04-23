@@ -1797,12 +1797,10 @@ public class State
                     break;
                 if (Type == TRANSFER_TYPE_LEA) /* extension! */
                   {
-                    System.err.printf("SetX to %03d\n", Loc); /* debug */
                     SetX(Loc);
                   }
                 else
                   {
-                    System.err.println("ti5x about to Transfer: OK = " + OK + ", Loc = " + Loc); /* debug */
                     if (Type == TRANSFER_TYPE_CALL || Type == TRANSFER_TYPE_INTERACTIVE_CALL)
                       {
                         if (ReturnLast == MaxReturnStack)
@@ -1830,7 +1828,6 @@ public class State
                 OK = true;
               }
             while (false);
-            System.err.println("ti5x Transfer: OK = " + OK + ", PC = " + PC + ", RunPC = " + RunPC); /* debug */
             if (!OK)
               {
                 SetErrorState();
@@ -1968,7 +1965,6 @@ public class State
         if (NewPC >= 0)
           {
             Enter();
-            System.err.println("ti5x CompareBranch: InvState = " + InvState + ", Greater = " + Greater + ", Condition = " + (InvState ? Greater ? X < T : X != T : Greater ? X >= T : X == T)); /* debug */
             if
               (
                 InvState ?
@@ -1983,7 +1979,6 @@ public class State
                         X == T
               )
               {
-                System.err.printf("ti5x CompareBranch going to addr %02d:%03d ind %s\n", Bank, NewPC, Ind ? "Y" : "N"); /* debug */
                 Transfer
                   (
                     /*Type =*/ TRANSFER_TYPE_GTO,
