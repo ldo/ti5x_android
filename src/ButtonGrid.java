@@ -760,7 +760,23 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 Calc.FillInLabels();
-                                Calc.Transfer(false, false, Calc.CurBank, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                Calc.Transfer
+                                  (
+                                    /*Type =*/
+                                        Calc.InvState ?
+                                            Calc.TRANSFER_TYPE_LEA /*extension!*/
+                                        :
+                                            Calc.TRANSFER_TYPE_GTO,
+                                    /*BankNr =*/ Calc.CurBank,
+                                    /*Loc =*/ IsSymbolic ? ButtonCode : AccumDigits,
+                                    /*LocType =*/
+                                        IsSymbolic ?
+                                            Calc.TRANSFER_LOC_SYMBOLIC
+                                        : GotInd ?
+                                            Calc.TRANSFER_LOC_INDIRECT
+                                        :
+                                            Calc.TRANSFER_LOC_DIRECT
+                                  );
                               } /*if*/
                         break;
                         case 71: /*SBR*/
@@ -772,7 +788,19 @@ public class ButtonGrid extends android.view.View
                             else
                               {
                                 Calc.FillInLabels();
-                                Calc.Transfer(true, true, Calc.CurBank, IsSymbolic ? ButtonCode : AccumDigits, IsSymbolic, GotInd);
+                                Calc.Transfer
+                                  (
+                                    /*Type =*/ Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
+                                    /*BankNr =*/ Calc.CurBank,
+                                    /*Loc =*/ IsSymbolic ? ButtonCode : AccumDigits,
+                                    /*LocType =*/
+                                        IsSymbolic ?
+                                            Calc.TRANSFER_LOC_SYMBOLIC
+                                        : GotInd ?
+                                            Calc.TRANSFER_LOC_INDIRECT
+                                        :
+                                            Calc.TRANSFER_LOC_DIRECT
+                                  );
                               } /*if*/
                         break;
                         case 76: /*Lbl*/
@@ -813,20 +841,32 @@ public class ButtonGrid extends android.view.View
                                   }
                                 else
                                   {
-                                    if (CollectingForFunction == 87)
+                                    if (CollectingForFunction == 87) /*If flg*/
                                       {
                                         Calc.BranchIfFlag
                                           (
                                             FirstOperand, GotFirstInd,
-                                            Calc.CurBank, AccumDigits, IsSymbolic, GotInd
+                                            Calc.CurBank, AccumDigits,
+                                            IsSymbolic ?
+                                                Calc.TRANSFER_LOC_SYMBOLIC
+                                            : GotInd ?
+                                                Calc.TRANSFER_LOC_INDIRECT
+                                            :
+                                                Calc.TRANSFER_LOC_DIRECT
                                           );
                                       }
-                                    else
+                                    else /*Dsz*/
                                       {
                                         Calc.DecrementSkip
                                           (
                                             FirstOperand, GotFirstInd,
-                                            Calc.CurBank, AccumDigits, IsSymbolic, GotInd
+                                            Calc.CurBank, AccumDigits,
+                                            IsSymbolic ?
+                                                Calc.TRANSFER_LOC_SYMBOLIC
+                                            : GotInd ?
+                                                Calc.TRANSFER_LOC_INDIRECT
+                                            :
+                                                Calc.TRANSFER_LOC_DIRECT
                                           );
                                       } /*if*/
                                   } /*if*/
@@ -1051,7 +1091,13 @@ public class ButtonGrid extends android.view.View
                     case 19:
                     case 10:
                         Calc.FillInLabels();
-                        Calc.Transfer(true, true, Calc.CurBank, ButtonCode, true, false);
+                        Calc.Transfer
+                          (
+                            /*Type =*/ Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
+                            /*BankNr =*/ Calc.CurBank,
+                            /*Loc =*/ ButtonCode,
+                            /*LocType =*/ Calc.TRANSFER_LOC_SYMBOLIC
+                          );
                     break;
                     case 21:
                     case 26:

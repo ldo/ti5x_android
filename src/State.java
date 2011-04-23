@@ -1755,29 +1755,39 @@ public class State
             Result;
       } /*GetUnitOp*/
 
+  /* transfer types */
+    public static final int TRANSFER_TYPE_GTO = 1; /* goto that address */
+    public static final int TRANSFER_TYPE_CALL = 2; /* call that address, return to current address */
+    public static final int TRANSFER_TYPE_INTERACTIVE_CALL = 3;
+      /* call that address, return to calculation mode */
+    public static final int TRANSFER_TYPE_LEA = 4; /* extension: load that address into X */
+
+  /* location types */
+    public static final int TRANSFER_LOC_DIRECT = 1; /* Loc is integer address */
+    public static final int TRANSFER_LOC_SYMBOLIC = 2; /* Loc is label keycode */
+    public static final int TRANSFER_LOC_INDIRECT = 3; /* Loc is number of register containing address */
+
     public void Transfer
       (
-        boolean Call,
-        boolean FromInteractive,
+        int Type, /* one of the above TRANSFER_TYPE_xxx values */
         int BankNr,
         int Loc,
-        boolean Symbolic,
-        boolean Ind
+        int LocType /* one of the above TRANSFER_LOC_xxx values */
       )
-      /* implements GTO and SBR. */
+      /* implements GTO and SBR. Also called from other functions to implement branches. */
       {
         if (Loc >= 0)
           {
             boolean OK = false;
             do /*once*/
               {
-                if (Ind)
+                if (LocType == TRANSFER_LOC_INDIRECT)
                   {
                     if (Loc >= MaxMemories)
                         break;
                     Loc = (int)Memory[Loc];
                   }
-                else if (Symbolic)
+                else if (LocType == TRANSFER_LOC_SYMBOLIC)
                   {
                     if (!Bank[BankNr].Labels.containsKey(Loc))
                         break;
@@ -1785,18 +1795,20 @@ public class State
                   } /*if*/
                 if (Loc < 0 || Loc >= Bank[BankNr].Program.length)
                     break;
-                if (InvState) /* extension! */
+                if (Type == TRANSFER_TYPE_LEA) /* extension! */
                   {
+                    System.err.printf("SetX to %03d\n", Loc); /* debug */
                     SetX(Loc);
                   }
                 else
                   {
-                    if (Call)
+                    System.err.println("ti5x about to Transfer: OK = " + OK + ", Loc = " + Loc); /* debug */
+                    if (Type == TRANSFER_TYPE_CALL || Type == TRANSFER_TYPE_INTERACTIVE_CALL)
                       {
                         if (ReturnLast == MaxReturnStack)
                             break;
                         ReturnStack[++ReturnLast] =
-                            new ReturnStackEntry(RunBank, RunPC, FromInteractive);
+                            new ReturnStackEntry(RunBank, RunPC, Type == TRANSFER_TYPE_INTERACTIVE_CALL);
                       } /*if*/
                     if (ProgRunning)
                       {
@@ -1806,9 +1818,10 @@ public class State
                       }
                     else
                       {
+                      /* interactive, assert BankNr = CurBank */
                         PC = Loc;
                       } /*if*/
-                    if (Call && FromInteractive)
+                    if (Type == TRANSFER_TYPE_INTERACTIVE_CALL)
                       {
                         StartProgram();
                       } /*if*/
@@ -1907,8 +1920,7 @@ public class State
         boolean FlagNrInd,
         int Bank,
         int Target,
-        boolean TargetSymbolic,
-        boolean TargetInd
+        int TargetType /* one of the above TRANSFER_LOC_xxx values */
       )
       {
         if (FlagNr >= 0 && Target >= 0)
@@ -1928,7 +1940,13 @@ public class State
               {
                 if (InvState != Flag[FlagNr])
                   {
-                    Transfer(false, false, Bank, Target, TargetSymbolic, TargetInd);
+                    Transfer
+                      (
+                        /*Type =*/ TRANSFER_TYPE_GTO,
+                        /*BankNr =*/ Bank,
+                        /*Loc =*/ Target,
+                        /*LocType =*/ TargetType
+                      );
                   } /*if*/
               }
             else
@@ -1950,6 +1968,7 @@ public class State
         if (NewPC >= 0)
           {
             Enter();
+            System.err.println("ti5x CompareBranch: InvState = " + InvState + ", Greater = " + Greater + ", Condition = " + (InvState ? Greater ? X < T : X != T : Greater ? X >= T : X == T)); /* debug */
             if
               (
                 InvState ?
@@ -1964,7 +1983,14 @@ public class State
                         X == T
               )
               {
-                Transfer(false, false, Bank, NewPC, false, Ind);
+                System.err.printf("ti5x CompareBranch going to addr %02d:%03d ind %s\n", Bank, NewPC, Ind ? "Y" : "N"); /* debug */
+                Transfer
+                  (
+                    /*Type =*/ TRANSFER_TYPE_GTO,
+                    /*BankNr =*/ Bank,
+                    /*Loc =*/ NewPC,
+                    /*LocType =*/ Ind ? TRANSFER_LOC_INDIRECT : TRANSFER_LOC_DIRECT
+                  );
               } /*if*/
           } /*if*/
       } /*CompareBranch*/
@@ -1975,8 +2001,7 @@ public class State
         boolean RegInd,
         int Bank,
         int Target,
-        boolean TargetSymbolic,
-        boolean TargetInd
+        int TargetType /* one of the above TRANSFER_LOC_xxx values */
       )
       {
         if (Reg >= 0 && Target >= 0)
@@ -1997,7 +2022,13 @@ public class State
                 Memory[Reg] = Math.max(Math.abs(Memory[Reg]) - 1.0, 0.0) * Math.signum(Memory[Reg]);
                 if (InvState == (Memory[Reg] == 0.0))
                   {
-                    Transfer(false, false, Bank, Target, TargetSymbolic, TargetInd);
+                    Transfer
+                      (
+                        /*Type =*/ TRANSFER_TYPE_GTO,
+                        /*BankNr =*/ Bank,
+                        /*Loc =*/ Target,
+                        /*LocType =*/ TargetType
+                      );
                   } /*if*/
               }
             else
@@ -2049,7 +2080,7 @@ public class State
                 case 18:
                 case 19:
                 case 10:
-                    Transfer(true, false, RunBank, Op, true, false);
+                    Transfer(TRANSFER_TYPE_CALL, RunBank, Op, TRANSFER_LOC_SYMBOLIC);
                 break;
                 case 22:
                 case 27:
@@ -2160,7 +2191,17 @@ public class State
                     Abs();
                 break;
                 case 61: /*GTO*/
-                    Transfer(false, false, RunBank, GetLoc(true), false, false);
+                    Transfer
+                      (
+                        /*Type =*/
+                            InvState ?
+                                TRANSFER_TYPE_LEA /*extension!*/
+                            :
+                                TRANSFER_TYPE_GTO,
+                        /*BankNr =*/ RunBank,
+                        /*Loc =*/ GetLoc(true),
+                        /*LocType =*/ TRANSFER_LOC_DIRECT
+                      );
                 break;
                 case 62: /*Pgm Ind*/
                     SelectProgram(GetProg(true), true);
@@ -2198,7 +2239,7 @@ public class State
                       }
                     else
                       {
-                        Transfer(true, false, RunBank, GetLoc(true), false, false);
+                        Transfer(TRANSFER_TYPE_CALL, RunBank, GetLoc(true), TRANSFER_LOC_DIRECT);
                       } /*if*/
                 break;
                 case 72:
@@ -2230,7 +2271,17 @@ public class State
                     ResetProg();
                 break;
                 case 83: /*GTO Ind*/
-                    Transfer(false, false, RunBank, GetLoc(true), false, true);
+                    Transfer
+                      (
+                        /*Type =*/
+                            InvState ?
+                                TRANSFER_TYPE_LEA /*extension!*/
+                            :
+                                TRANSFER_TYPE_GTO,
+                        /*BankNr =*/ RunBank,
+                        /*Loc =*/ GetLoc(true),
+                        /*LocType =*/ TRANSFER_LOC_INDIRECT
+                      );
                 break;
                 case 84:
                     SpecialOp(GetProg(true), true);
@@ -2245,7 +2296,7 @@ public class State
                       {
                         final int FlagNr = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        BranchIfFlag(FlagNr, false, RunBank, Target, false, false);
+                        BranchIfFlag(FlagNr, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
                 break;
                 case 88:
@@ -2278,7 +2329,7 @@ public class State
                       {
                         final int Reg = GetUnitOp(true);
                         final int Target = GetLoc(true);
-                        DecrementSkip(Reg, false, RunBank, Target, false, false);
+                        DecrementSkip(Reg, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
                 break;
                 case 98:
