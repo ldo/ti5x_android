@@ -109,7 +109,7 @@ for index in range(0, 100) :
               )
             prog, _ = child.communicate()
             if child.returncode != 0 :
-                raise RuntimeError("assemble %s cmd returned %d" % (component["progsrc"], status))
+                raise RuntimeError("assemble %s cmd returned %d" % (component["progsrc"], child.returncode))
             #end if
         elif "prog" in component :
             prog = open(component["prog"], "rb").read()
