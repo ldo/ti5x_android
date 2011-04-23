@@ -1185,7 +1185,13 @@ public class ButtonGrid extends android.view.View
                     case 60:
                         Calc.SetAngMode(Calc.ANG_DEG);
                     break;
-                  /* 71 handled above */
+                    case 71:
+                        if (Calc.InvState)
+                          {
+                            Calc.Return();
+                          } /*if*/
+                        /* else handled above */
+                    break;
                     case 72:
                         Calc.Digit('4');
                     break;
