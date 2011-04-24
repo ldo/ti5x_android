@@ -145,6 +145,7 @@ public class State
             boolean FromInteractive
           )
           {
+            this.BankNr = BankNr;
             this.Addr = Addr;
             this.FromInteractive = FromInteractive;
           } /*ReturnStackEntry*/
@@ -1563,7 +1564,6 @@ public class State
         FillInLabels(CurBank);
         RunPC = PC;
         RunBank = CurBank;
-      /* NextBank? */
         Interpret(true);
         CurBank = RunBank; /*is this correct?*/
         PC = RunPC;
@@ -1695,7 +1695,8 @@ public class State
 
     int GetLoc
       (
-        boolean Executing
+        boolean Executing,
+        int BankNr /* for interpreting symbolic label */
       )
       /* fetches a program location from the instruction stream, or -1 on failure.
         Assumes Labels has been filled in. */
@@ -1727,9 +1728,9 @@ public class State
               }
             else /* symbolic label */
               {
-                if (Bank[RunBank].Labels.containsKey(NextByte))
+                if (Bank[BankNr].Labels.containsKey(NextByte))
                   {
-                    Result = Bank[RunBank].Labels.get(NextByte);
+                    Result = Bank[BankNr].Labels.get(NextByte);
                   } /*if*/
               } /*if*/
           } /*if*/
@@ -1821,6 +1822,7 @@ public class State
                   }
                 else if (LocType == TRANSFER_LOC_SYMBOLIC)
                   {
+                    FillInLabels(BankNr); /* if not already done */
                     if (!Bank[BankNr].Labels.containsKey(Loc))
                         break;
                     Loc = Bank[BankNr].Labels.get(Loc);
@@ -1844,7 +1846,6 @@ public class State
                       {
                         RunBank = BankNr;
                         RunPC = Loc;
-                        FillInLabels(RunBank); /* if not already done */
                       }
                     else
                       {
@@ -2079,8 +2080,6 @@ public class State
             boolean WasModifier = false;
             if (Execute)
               {
-                final int SaveRunBank = RunBank;
-                RunBank = NextBank;
                 boolean BankSet = false;
                 ProgRunningSlowly = SaveRunningSlowly; /* undo previous Pause, if any */
                 switch (Op)
@@ -2107,7 +2106,7 @@ public class State
                 case 18:
                 case 19:
                 case 10:
-                    Transfer(TRANSFER_TYPE_CALL, RunBank, Op, TRANSFER_LOC_SYMBOLIC);
+                    Transfer(TRANSFER_TYPE_CALL, NextBank, Op, TRANSFER_LOC_SYMBOLIC);
                 break;
                 case 22:
                 case 27:
@@ -2225,8 +2224,8 @@ public class State
                                 TRANSFER_TYPE_LEA /*extension!*/
                             :
                                 TRANSFER_TYPE_GTO,
-                        /*BankNr =*/ RunBank,
-                        /*Loc =*/ GetLoc(true),
+                        /*BankNr =*/ NextBank,
+                        /*Loc =*/ GetLoc(true, NextBank),
                         /*LocType =*/ TRANSFER_LOC_DIRECT
                       );
                 break;
@@ -2248,7 +2247,7 @@ public class State
                 break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
-                    CompareBranch(Op == 77, RunBank, GetLoc(true), false);
+                    CompareBranch(Op == 77, RunBank, GetLoc(true, RunBank), false);
                 break;
                 case 68: /*Nop*/
                   /* No effect */
@@ -2266,7 +2265,7 @@ public class State
                       }
                     else
                       {
-                        Transfer(TRANSFER_TYPE_CALL, RunBank, GetLoc(true), TRANSFER_LOC_DIRECT);
+                        Transfer(TRANSFER_TYPE_CALL, NextBank, GetLoc(true, NextBank), TRANSFER_LOC_DIRECT);
                       } /*if*/
                 break;
                 case 72:
@@ -2305,8 +2304,8 @@ public class State
                                 TRANSFER_TYPE_LEA /*extension!*/
                             :
                                 TRANSFER_TYPE_GTO,
-                        /*BankNr =*/ RunBank,
-                        /*Loc =*/ GetLoc(true),
+                        /*BankNr =*/ NextBank,
+                        /*Loc =*/ GetLoc(true, NextBank),
                         /*LocType =*/ TRANSFER_LOC_INDIRECT
                       );
                 break;
@@ -2322,7 +2321,7 @@ public class State
                 case 87: /*If flg*/
                       {
                         final int FlagNr = GetUnitOp(true);
-                        final int Target = GetLoc(true);
+                        final int Target = GetLoc(true, RunBank);
                         BranchIfFlag(FlagNr, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
                 break;
@@ -2355,7 +2354,7 @@ public class State
                 case 97: /*Dsz*/
                       {
                         final int Reg = GetUnitOp(true);
-                        final int Target = GetLoc(true);
+                        final int Target = GetLoc(true, RunBank);
                         DecrementSkip(Reg, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
                 break;
@@ -2375,7 +2374,7 @@ public class State
                   } /*switch*/
                 if (!BankSet)
                   {
-                    RunBank = SaveRunBank;
+                    NextBank = RunBank;
                   } /*if*/
               }
             else
@@ -2406,14 +2405,16 @@ public class State
                     GetProg(false);
                 break;
                 case 61: /*GTO*/
+                    GetLoc(false, RunBank /* irrelevant */);
+                break;
                 case 67: /*x=t*/
                 case 77: /*x≥t*/
-                    GetLoc(false);
+                    GetLoc(false, RunBank);
                 break;
                 case 71: /*SBR*/
                     if (!InvState) /* in case it wasn't merged */
                       {
-                        GetLoc(false);
+                        GetLoc(false, RunBank /* irrelevant */);
                       } /*if*/
                 break;
                 case 76: /*Lbl*/
@@ -2431,7 +2432,7 @@ public class State
                 case 87: /*If flg*/
                 case 97: /*Dsz*/
                     GetUnitOp(false); /*register/flag*/
-                    GetLoc(false); /*branch target*/
+                    GetLoc(false, RunBank); /*branch target*/
                 break;
                   } /*switch*/
               } /*if*/
