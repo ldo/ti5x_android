@@ -48,7 +48,7 @@ public class GraphicsUseful
           (
             TheText,
             x, /* depend on UsePaint to align horizontally */
-            y + (TextBounds.bottom - TextBounds.top) / 2.0f,
+            y - (TextBounds.bottom + TextBounds.top) / 2.0f,
             UsePaint
           );
       } /*DrawCenteredText*/
