@@ -35,6 +35,7 @@ public class State
     android.os.Handler BGTask;
     Runnable DelayTask = null;
     Runnable ExecuteTask = null;
+    java.security.SecureRandom Random = new java.security.SecureRandom();
 
     public static final int FORMAT_FIXED = 0;
     public static final int FORMAT_FLOAT = 1;
@@ -1348,6 +1349,37 @@ public class State
                       {
                         Flag[FLAG_ERROR_COND] = true;
                       } /*if*/
+                    OK = true;
+                break;
+                case 50: /* extension! */
+                    SetX(System.currentTimeMillis() / 1000.0);
+                    OK = true;
+                break;
+                case 51: /* extension! */
+                      {
+                        byte[] V = new byte[7];
+                        Random.nextBytes(V);
+                        SetX
+                          (
+                                (double)(
+                                    ((long)V[0] & 255)
+                                |
+                                    ((long)V[1] & 255) << 8
+                                |
+                                    ((long)V[2] & 255) << 16
+                                |
+                                    ((long)V[3] & 255) << 24
+                                |
+                                    ((long)V[4] & 255) << 32
+                                |
+                                    ((long)V[5] & 255) << 40
+                                |
+                                    ((long)V[6] & 255) << 48
+                                )
+                            /
+                                (double)0x0100000000000000L
+                          );
+                      }
                     OK = true;
                 break;
                   } /*switch*/
