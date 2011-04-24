@@ -48,7 +48,6 @@ public class Picker extends android.app.Activity
 
     class SelectedItemAdapter extends android.widget.ArrayAdapter<PickerItem>
       {
-
         final int ResID;
         final android.view.LayoutInflater TemplateInflater;
         PickerItem CurSelected;
@@ -79,7 +78,8 @@ public class Picker extends android.app.Activity
                         CurSelected.Selected = false;
                         LastChecked.setChecked(false);
                       } /*if*/
-                    LastChecked = (android.widget.RadioButton)TheView;
+                    LastChecked = (android.widget.RadioButton)
+                        ((android.view.ViewGroup)TheView).findViewById(R.id.prog_item_checked);
                     CurSelected = MyItem;
                     MyItem.Selected = true;
                     LastChecked.setChecked(true);
@@ -121,7 +121,7 @@ public class Picker extends android.app.Activity
             android.widget.RadioButton ThisChecked =
                 (android.widget.RadioButton)TheView.findViewById(R.id.prog_item_checked);
             ThisChecked.setChecked(ThisItem.Selected);
-            ThisChecked.setOnClickListener(new OnSetCheck(ThisItem));
+            TheView.setOnClickListener(new OnSetCheck(ThisItem));
             return
                 TheView;
           } /*getView*/
@@ -243,7 +243,7 @@ public class Picker extends android.app.Activity
                         finish();
                       } /*if*/
                   } /*onClick*/
-              }
+              } /*OnClickListener*/
           );
       } /*onCreate*/
 
