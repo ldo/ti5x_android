@@ -156,7 +156,7 @@ the displayed number with its integer part.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">|x|</SPAN> — replace
 the displayed number with its absolute value.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>10</B> —
-signum: replace displayed number with <B>1</B> if positive or <B>-1</B> if negative.
+signum: replace displayed number with <B>1</B> if positive, <B>0</B> if zero, or <B>-1</B> if negative.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Nop</SPAN> — does nothing.
 May be inserted in program sequences in place of deleted instructions to avoid changing
 the positions of following instructions.
@@ -303,6 +303,13 @@ from the last subroutine entered.
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">GTO</SPAN> <I>loc</I> —
 <B>extension:</B> put the address of <I>loc</I> into the display register.
 </UL>
+<P>Any of the preceding that take a <I>loc</I> operand may be prefixed by
+<SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Pgm</SPAN> <I>nn</I> (or <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Pgm</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Ind</SPAN> <I>nn</I>) to refer to the specified location
+in library program <I>nn</I> (or the library program given by the contents of register <I>nn</I>)
+rather than the current program.
 
 <H3><A NAME="Comparisons"></A>Comparisons</H3>
 <UL>
