@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-15 — Random Number Generator</H1>
+
+<P>This program provides functions to generate random numbers uniformly-distributed
+over a specified interval, or normally-distributed with a specified mean and standard
+deviation. Note this implementation does <I>not</I> use low-quality linear-congruential
+pseudorandom number generation; instead, it relies on a cryptographically-strong
+algorithm seeded by system entropy.
+
+<P>First of all, press <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">E´</SPAN>
+to initialize statistics gathering.
+<P>Then, enter the parameters for the random variable: for a uniform distribution,
+<UL>
+<LI><I>lowbound</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI><I>highbound</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+</UL>
+<P>or, for a normal distribution:
+<UL>
+<LI><I>mean</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI><I>stddev</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+</UL>
+<P>Then, press <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> to generate the next
+uniformly-distributed random number, or press <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">C´</SPAN> to generate the next normally-distributed number.
+
+<P>After having generated a few numbers, you can examine their statistics with the
+usual functions:
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">mean(x)</SPAN> to show
+their mean, and <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">mean(x)</SPAN> to see their standard deviation.
+<SPAN CLASS="brownbutton">RCL</SPAN> <B>03</B> shows how many numbers you have generated.
+
+<P>Registers used: 01-06, 09-11.
+
+</BODY>

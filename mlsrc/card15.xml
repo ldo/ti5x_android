@@ -6,5 +6,5 @@
 <label slot="a">A, <xbar/></label>
 <label slot="b">B, <sigma/></label>
 <label slot="c">No. (A, B)</label>
-<label slot="e">SEED</label>
+<!-- <label slot="e">SEED</label> --> <!-- not implemented -->
 </carddef>

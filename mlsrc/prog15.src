@@ -1,0 +1,50 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; This implementation of random numbers does not use
+; the low-quality linear-congruential method. Instead, it
+; relies on the Op 51 extension in my ti5x emulator to
+; return a cryptographically-strong random value. This
+; is automatically seeded from system entropy, so there
+; is no function provided to manually seed it.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl E´
+; initialize
+    pgm 01 sbr clr ; initialize stats registers
+    inv sbr
+
+; lbl E (enter seed) not implemented
+
+lbl A
+; enter lower limit for uniform distribution, or mean for normal distribution
+    sto 10
+    inv sbr
+
+lbl B
+; enter upper limit for uniform distribution, or standard deviation for normal distribution
+    sto 11
+    inv sbr
+
+lbl C
+; generate uniformly-distributed random variable
+    ( op 51 * ( rcl 11 - rcl 10 ) + rcl 10 ) sto 09
+    ∑x ; accumulate statistics
+    rcl 09
+    inv sbr
+
+lbl C´
+; generate normally-distributed random variable
+    ( ( op 51 lnx × 2 +/- ) sqrt × ( op 51 × 1 inv sin × 4 ) cos × rcl 11 + rcl 10 ) sto 09
+    ∑x ; accumulate statistics
+    rcl 09
+    inv sbr
+
+lbl d.ms
+; generate random variable uniformly distributed over [0.0 .. 1.0)
+; without accumulating statistics
+    op 51
+    inv sbr
