@@ -167,6 +167,9 @@ for s in symbols.values() :
 #end for
 del s
 # synonyms
+for ch in ("a", "b", "c", "d", "e") :
+    symbols[ch + "´"] = symbols[ch + "'"]
+#end for
 symbols["x⇌t"] = symbols["x<>t"]
 symbols["x-t"] = symbols["x<>t"]
 symbols["x/t"] = symbols["x<>t"]
