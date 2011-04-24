@@ -64,7 +64,7 @@ public class HelpCard extends android.view.View
                             android.widget.Toast.makeText
                               (
                                 /*context =*/ HelpCard.this.TheContext,
-                                /*text =*/ HelpCard.this.TheContext.getString(R.string.no_help),
+                                /*text =*/ HelpCard.this.TheContext.getString(R.string.no_prog_help),
                                 /*duration =*/ android.widget.Toast.LENGTH_SHORT
                               ).show();
                           } /*if*/

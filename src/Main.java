@@ -84,7 +84,7 @@ public class Main extends android.app.Activity
                 android.widget.Toast.makeText
                   (
                     /*context =*/ this,
-                    /*text =*/ getString(R.string.no_help),
+                    /*text =*/ getString(R.string.no_module_help),
                     /*duration =*/ android.widget.Toast.LENGTH_SHORT
                   ).show();
               } /*if*/

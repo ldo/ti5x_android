@@ -22,7 +22,8 @@
     <string name="libraries">Libraries</string>
 
   <!-- messages -->
-    <string name="no_help">Sorry, no help available for this module</string>
+    <string name="no_prog_help">Sorry, no help available for this program</string>
+    <string name="no_module_help">Sorry, no help available for this module</string>
     <string name="no_external_storage">No place to save.</string>
     <string name="please_enter_name">Please enter a name for saving the program.</string>
     <string name="program_loaded">Loaded program “%s”.</string>
