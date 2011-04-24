@@ -308,13 +308,13 @@ public class Persistent
             if (AllState || Libs)
               {
               /* save library modules */
-                if (Calc.Bank[0].Help != null)
+                if (Calc.ModuleHelp != null)
                   {
                     final ZipComponentWriter LibHelp = new ZipComponentWriter(Out, "help", true);
-                    LibHelp.write(Calc.Bank[0].Help);
+                    LibHelp.write(Calc.ModuleHelp);
                     LibHelp.close();
                   } /*if*/
-                for (int BankNr = 1; BankNr < Calc.MaxBanks; ++BankNr)
+                for (int BankNr = 0; BankNr < Calc.MaxBanks; ++BankNr)
                   {
                     if (Calc.Bank[BankNr] != null)
                       {
@@ -337,7 +337,7 @@ public class Persistent
                               );
                             CardOut.close();
                           } /*if*/
-                        if (Bank.Program != null)
+                        if (BankNr != 0 && Bank.Program != null)
                           {
                             final ZipComponentWriter ProgOut =
                                 new ZipComponentWriter
