@@ -783,7 +783,7 @@ public class State
 
     double TrigScale()
       {
-        Double Scale = 0.0;
+        double Scale = 0.0;
         switch (CurAng)
           {
         case ANG_RAD:
@@ -873,7 +873,7 @@ public class State
     public void Int()
       {
         Enter();
-        final Double IntPart = Math.floor(Math.abs(X));
+        final double IntPart = Math.floor(Math.abs(X));
         if (InvState)
           {
             SetX((Math.abs(X) - IntPart) * Math.signum(X));
@@ -900,8 +900,8 @@ public class State
     public void Polar()
       {
         Enter();
-        final Double Scale = TrigScale();
-        Double NewX, NewY;
+        final double Scale = TrigScale();
+        double NewX, NewY;
         if (InvState)
           {
             NewX = Math.sqrt(X * X + T * T);
@@ -919,9 +919,9 @@ public class State
     public void D_MS()
       {
         Enter();
-        final Double Sign = Math.signum(X);
-        final Double Degrees = Math.floor(Math.abs(X));
-        final Double Fraction = Math.abs(X) - Degrees;
+        final double Sign = Math.signum(X);
+        final double Degrees = Math.floor(Math.abs(X));
+        final double Fraction = Math.abs(X) - Degrees;
         if (InvState)
           {
             final double Minutes = Math.floor(Fraction * 60.0 + 0.1 /*fudge for rounding errors */);
@@ -929,7 +929,7 @@ public class State
           }
         else
           {
-            final Double Minutes = Math.floor(Fraction * 100.0 + 0.1 /*fudge for rounding errors */);
+            final double Minutes = Math.floor(Fraction * 100.0 + 0.1 /*fudge for rounding errors */);
             SetX((Degrees + Minutes / 60.0 + (Fraction * 100.0 - Minutes) / 36.0) * Sign);
           } /*if*/
       } /*D_MS*/
