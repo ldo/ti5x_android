@@ -151,7 +151,6 @@ public class ButtonGrid extends android.view.View
 
     public int SelectedButton = -1;
 
-    public State Calc;
     public int DigitsNeeded;
     public boolean AcceptSymbolic, AcceptInd, NextLiteral;
     public int AccumDigits, FirstOperand;
@@ -257,9 +256,9 @@ public class ButtonGrid extends android.view.View
                     case android.view.MotionEvent.ACTION_CANCEL:
                         if (SelectedButton != -1)
                           {
-                            if (SelectedButton == 61 && Calc != null && Calc.ProgRunning)
+                            if (SelectedButton == 61 && Global.Calc != null && Global.Calc.ProgRunning)
                               {
-                                Calc.SetSlowExecution(false);
+                                Global.Calc.SetSlowExecution(false);
                               } /*if*/
                             SelectedButton = -1;
                             TheView.invalidate();
@@ -482,29 +481,29 @@ public class ButtonGrid extends android.view.View
       {
         if (SeparateInd && GotInd)
           {
-            Calc.StoreInstr(40);
+            Global.Calc.StoreInstr(40);
           } /*if*/
         if (IsSymbolic)
           {
-            Calc.StoreInstr(ButtonCode);
+            Global.Calc.StoreInstr(ButtonCode);
           }
         else
           {
             if (NrDigits < 3 || GotInd)
               {
-                Calc.StoreInstr(AccumDigits);
+                Global.Calc.StoreInstr(AccumDigits);
               }
             else
               {
-                Calc.StoreInstr(AccumDigits / 100);
-                Calc.StoreInstr(AccumDigits % 100);
+                Global.Calc.StoreInstr(AccumDigits / 100);
+                Global.Calc.StoreInstr(AccumDigits % 100);
               } /*if*/
           } /*if*/
       } /*StoreOperand*/
 
     public void Invoke()
       {
-        if (Calc != null && SelectedButton > 0)
+        if (Global.Calc != null && SelectedButton > 0)
           {
             boolean WasModifier = false;
             boolean Handled = false;
@@ -516,17 +515,17 @@ public class ButtonGrid extends android.view.View
               {
                 ButtonCode = SelectedButton;
               } /*if*/
-            if (Calc.ProgRunning)
+            if (Global.Calc.ProgRunning)
               {
                 switch (ButtonCode)
                   {
                 case 61:
                 case 66: /*Pause, actually will always be 61 (GTO)*/
-                    Calc.SetSlowExecution(true);
+                    Global.Calc.SetSlowExecution(true);
                 break;
                 case 91: /*R/S*/
                 case 96:
-                    Calc.StopProgram();
+                    Global.Calc.StopProgram();
                 break;
                   } /*switch*/
                 Handled = true; /* ignore everything else */
@@ -545,7 +544,7 @@ public class ButtonGrid extends android.view.View
                     else if (NextLiteral)
                       {
                       /* note I can't use Ind as label because I can't goto/gosub it */
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                       }
                     else
                       {
@@ -563,7 +562,7 @@ public class ButtonGrid extends android.view.View
                 case 64: /*digit 9*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                       }
                     else
                       {
@@ -575,7 +574,7 @@ public class ButtonGrid extends android.view.View
                 case 74: /*digit 6*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                       }
                     else
                       {
@@ -587,7 +586,7 @@ public class ButtonGrid extends android.view.View
                 case 84: /*digit 3*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                       }
                     else
                       {
@@ -597,7 +596,7 @@ public class ButtonGrid extends android.view.View
                 case 92: /*digit 0*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                       }
                     else
                       {
@@ -647,167 +646,167 @@ public class ButtonGrid extends android.view.View
                         switch (CollectingForFunction)
                           {
                         case 36: /*Pgm*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 62 : 36);
+                                Global.Calc.StoreInstr(GotInd ? 62 : 36);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.SelectProgram(AccumDigits, GotInd);
+                                Global.Calc.SelectProgram(AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 42: /*STO*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 72 : 42);
+                                Global.Calc.StoreInstr(GotInd ? 72 : 42);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.MemoryOp(Calc.MEMOP_STO, AccumDigits, GotInd);
+                                Global.Calc.MemoryOp(Global.Calc.MEMOP_STO, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 43: /*RCL*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 73 : 43);
+                                Global.Calc.StoreInstr(GotInd ? 73 : 43);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.MemoryOp(Calc.MEMOP_RCL, AccumDigits, GotInd);
+                                Global.Calc.MemoryOp(Global.Calc.MEMOP_RCL, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 44: /*SUM*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 74 : 44);
+                                Global.Calc.StoreInstr(GotInd ? 74 : 44);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.MemoryOp(Calc.MEMOP_ADD, AccumDigits, GotInd);
+                                Global.Calc.MemoryOp(Global.Calc.MEMOP_ADD, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 48: /*Exc*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 63 : 48);
+                                Global.Calc.StoreInstr(GotInd ? 63 : 48);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.MemoryOp(Calc.MEMOP_EXC, AccumDigits, GotInd);
+                                Global.Calc.MemoryOp(Global.Calc.MEMOP_EXC, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 49: /*Prd*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 64 : 49);
+                                Global.Calc.StoreInstr(GotInd ? 64 : 49);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.MemoryOp(Calc.MEMOP_MUL, AccumDigits, GotInd);
+                                Global.Calc.MemoryOp(Global.Calc.MEMOP_MUL, AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 58: /*Fix*/
-                          /* assert not Calc.InvState */
-                            if (Calc.ProgMode)
+                          /* assert not Global.Calc.InvState */
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(58);
+                                Global.Calc.StoreInstr(58);
                                 StoreOperand(1, true);
                               }
                             else
                               {
-                                Calc.SetDisplayMode(Calc.FORMAT_FIXED, AccumDigits);
+                                Global.Calc.SetDisplayMode(Global.Calc.FORMAT_FIXED, AccumDigits);
                               } /*if*/
                         break;
                         case 67: /*x=t*/
                         case 77: /*x≥t*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(CollectingForFunction);
+                                Global.Calc.StoreInstr(CollectingForFunction);
                                 StoreOperand(3, true);
                               }
                             else
                               {
-                                Calc.CompareBranch
+                                Global.Calc.CompareBranch
                                   (
                                     CollectingForFunction == 77,
-                                    Calc.CurBank, AccumDigits, GotInd
+                                    Global.Calc.CurBank, AccumDigits, GotInd
                                   );
                               } /*if*/
                         break;
                         case 69: /*Op*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 84 : 69);
+                                Global.Calc.StoreInstr(GotInd ? 84 : 69);
                                 StoreOperand(2, false);
                               }
                             else
                               {
-                                Calc.SpecialOp(AccumDigits, GotInd);
+                                Global.Calc.SpecialOp(AccumDigits, GotInd);
                               } /*if*/
                         break;
                         case 61: /*GTO*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(GotInd ? 83 : 61);
+                                Global.Calc.StoreInstr(GotInd ? 83 : 61);
                                 StoreOperand(3, false);
                               }
                             else
                               {
-                                Calc.FillInLabels();
-                                Calc.Transfer
+                                Global.Calc.FillInLabels();
+                                Global.Calc.Transfer
                                   (
                                     /*Type =*/
-                                        Calc.InvState ?
-                                            Calc.TRANSFER_TYPE_LEA /*extension!*/
+                                        Global.Calc.InvState ?
+                                            Global.Calc.TRANSFER_TYPE_LEA /*extension!*/
                                         :
-                                            Calc.TRANSFER_TYPE_GTO,
-                                    /*BankNr =*/ Calc.CurBank,
+                                            Global.Calc.TRANSFER_TYPE_GTO,
+                                    /*BankNr =*/ Global.Calc.CurBank,
                                     /*Loc =*/ IsSymbolic ? ButtonCode : AccumDigits,
                                     /*LocType =*/
                                         IsSymbolic ?
-                                            Calc.TRANSFER_LOC_SYMBOLIC
+                                            Global.Calc.TRANSFER_LOC_SYMBOLIC
                                         : GotInd ?
-                                            Calc.TRANSFER_LOC_INDIRECT
+                                            Global.Calc.TRANSFER_LOC_INDIRECT
                                         :
-                                            Calc.TRANSFER_LOC_DIRECT
+                                            Global.Calc.TRANSFER_LOC_DIRECT
                                   );
                               } /*if*/
                         break;
                         case 71: /*SBR*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(71);
+                                Global.Calc.StoreInstr(71);
                                 StoreOperand(3, true);
                               }
                             else
                               {
-                                Calc.FillInLabels();
-                                Calc.Transfer
+                                Global.Calc.FillInLabels();
+                                Global.Calc.Transfer
                                   (
-                                    /*Type =*/ Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
-                                    /*BankNr =*/ Calc.CurBank,
+                                    /*Type =*/ Global.Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
+                                    /*BankNr =*/ Global.Calc.CurBank,
                                     /*Loc =*/ IsSymbolic ? ButtonCode : AccumDigits,
                                     /*LocType =*/
                                         IsSymbolic ?
-                                            Calc.TRANSFER_LOC_SYMBOLIC
+                                            Global.Calc.TRANSFER_LOC_SYMBOLIC
                                         : GotInd ?
-                                            Calc.TRANSFER_LOC_INDIRECT
+                                            Global.Calc.TRANSFER_LOC_INDIRECT
                                         :
-                                            Calc.TRANSFER_LOC_DIRECT
+                                            Global.Calc.TRANSFER_LOC_DIRECT
                                   );
                               } /*if*/
                         break;
                         case 76: /*Lbl*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(76);
-                                Calc.StoreInstr(ButtonCode); /* always symbolic */
+                                Global.Calc.StoreInstr(76);
+                                Global.Calc.StoreInstr(ButtonCode); /* always symbolic */
                               }
                             else
                               {
@@ -815,58 +814,58 @@ public class ButtonGrid extends android.view.View
                               } /*if*/
                         break;
                         case 86: /*St flg*/
-                            if (Calc.ProgMode)
+                            if (Global.Calc.ProgMode)
                               {
-                                Calc.StoreInstr(86);
+                                Global.Calc.StoreInstr(86);
                                 StoreOperand(1, true);
                               }
                             else
                               {
-                                Calc.SetFlag(AccumDigits, GotInd, !Calc.InvState);
+                                Global.Calc.SetFlag(AccumDigits, GotInd, !Global.Calc.InvState);
                               } /*if*/
                         break;
                         case 87: /*If flg*/
                         case 97: /*Dsz*/
                             if (GotFirstOperand)
                               {
-                                if (Calc.ProgMode)
+                                if (Global.Calc.ProgMode)
                                   {
-                                    Calc.StoreInstr(CollectingForFunction);
+                                    Global.Calc.StoreInstr(CollectingForFunction);
                                     if (GotFirstInd)
                                       {
-                                        Calc.StoreInstr(40);
+                                        Global.Calc.StoreInstr(40);
                                       } /*if*/
-                                    Calc.StoreInstr(FirstOperand);
+                                    Global.Calc.StoreInstr(FirstOperand);
                                     StoreOperand(3, true);
                                   }
                                 else
                                   {
                                     if (CollectingForFunction == 87) /*If flg*/
                                       {
-                                        Calc.BranchIfFlag
+                                        Global.Calc.BranchIfFlag
                                           (
                                             FirstOperand, GotFirstInd,
-                                            Calc.CurBank, AccumDigits,
+                                            Global.Calc.CurBank, AccumDigits,
                                             IsSymbolic ?
-                                                Calc.TRANSFER_LOC_SYMBOLIC
+                                                Global.Calc.TRANSFER_LOC_SYMBOLIC
                                             : GotInd ?
-                                                Calc.TRANSFER_LOC_INDIRECT
+                                                Global.Calc.TRANSFER_LOC_INDIRECT
                                             :
-                                                Calc.TRANSFER_LOC_DIRECT
+                                                Global.Calc.TRANSFER_LOC_DIRECT
                                           );
                                       }
                                     else /*Dsz*/
                                       {
-                                        Calc.DecrementSkip
+                                        Global.Calc.DecrementSkip
                                           (
                                             FirstOperand, GotFirstInd,
-                                            Calc.CurBank, AccumDigits,
+                                            Global.Calc.CurBank, AccumDigits,
                                             IsSymbolic ?
-                                                Calc.TRANSFER_LOC_SYMBOLIC
+                                                Global.Calc.TRANSFER_LOC_SYMBOLIC
                                             : GotInd ?
-                                                Calc.TRANSFER_LOC_INDIRECT
+                                                Global.Calc.TRANSFER_LOC_INDIRECT
                                             :
-                                                Calc.TRANSFER_LOC_DIRECT
+                                                Global.Calc.TRANSFER_LOC_DIRECT
                                           );
                                       } /*if*/
                                   } /*if*/
@@ -892,7 +891,7 @@ public class ButtonGrid extends android.view.View
                       }
                     else
                       {
-                        Calc.SetErrorState();
+                        Global.Calc.SetErrorState();
                         Handled = true;
                       } /*if*/
                     if (Finished)
@@ -905,7 +904,7 @@ public class ButtonGrid extends android.view.View
             if (!Handled)
               {
               /* check for functions needing further entry */
-                if (!Calc.ProgMode || Calc.ProgramWritable())
+                if (!Global.Calc.ProgMode || Global.Calc.ProgramWritable())
                   {
                     Handled = true; /* next assumption */
                     switch (ButtonCode)
@@ -921,7 +920,7 @@ public class ButtonGrid extends android.view.View
                         AcceptInd = true;
                     break;
                     case 58: /* Fix */
-                        if (!Calc.InvState)
+                        if (!Global.Calc.InvState)
                           {
                             DigitsNeeded = 1;
                             AcceptInd = true;
@@ -939,7 +938,7 @@ public class ButtonGrid extends android.view.View
                     break;
                     case 61: /* GTO */
                     case 71: /* SBR */
-                        if (ButtonCode == 71 && Calc.InvState)
+                        if (ButtonCode == 71 && Global.Calc.InvState)
                           {
                             Handled = false; /* special handling for INV SBR happens below */
                           }
@@ -983,11 +982,11 @@ public class ButtonGrid extends android.view.View
             if (!Handled)
               {
               /* deal with everything not already handled */
-                if (Calc.ProgMode)
+                if (Global.Calc.ProgMode)
                   {
                     if
                       (
-                            Calc.ProgramWritable()
+                            Global.Calc.ProgramWritable()
                         ||
                             ButtonCode == 31 /*LRN*/
                         ||
@@ -1018,59 +1017,59 @@ public class ButtonGrid extends android.view.View
                             WasModifier = true;
                         break;
                         case 22:
-                            Calc.StoreInstr(22);
-                            Calc.InvState = !Calc.InvState;
+                            Global.Calc.StoreInstr(22);
+                            Global.Calc.InvState = !Global.Calc.InvState;
                             WasModifier = true;
                         break;
                         case 31: /*LRN*/
-                            Calc.SetProgMode(false);
+                            Global.Calc.SetProgMode(false);
                             ResetOperands();
                         break;
                       /* 40 handled above */
                         case 41: /*SST*/
-                            Calc.StepPC(true);
+                            Global.Calc.StepPC(true);
                             ResetOperands();
                         break;
                         case 46: /*Ins*/
-                            Calc.InsertAtCurInstr();
+                            Global.Calc.InsertAtCurInstr();
                             ResetOperands();
                         break;
                         case 51: /*BST*/
-                            Calc.StepPC(false);
+                            Global.Calc.StepPC(false);
                             ResetOperands();
                         break;
                         case 56: /*Del*/
-                            Calc.DeleteCurInstr();
+                            Global.Calc.DeleteCurInstr();
                             ResetOperands();
                         break;
                         case 62: /*digit 7*/
                         case 63: /*digit 8*/
                         case 64: /*digit 9*/
-                            Calc.StoreInstr(ButtonCode - 55);
+                            Global.Calc.StoreInstr(ButtonCode - 55);
                         break;
                         case 71: /*SBR*/
-                            if (Calc.InvState)
+                            if (Global.Calc.InvState)
                               {
-                                Calc.StorePrevInstr(92);
+                                Global.Calc.StorePrevInstr(92);
                               } /*if*/
                           /* else handled above */
                         break;
                         case 72: /*digit 4*/
                         case 73: /*digit 5*/
                         case 74: /*digit 6*/
-                            Calc.StoreInstr(ButtonCode - 68);
+                            Global.Calc.StoreInstr(ButtonCode - 68);
                         break;
                       /* 76 handled above */
                         case 82: /*digit 1*/
                         case 83: /*digit 2*/
                         case 84: /*digit 3*/
-                            Calc.StoreInstr(ButtonCode - 81);
+                            Global.Calc.StoreInstr(ButtonCode - 81);
                         break;
                         case 92: /*digit 0*/
-                            Calc.StoreInstr(0);
+                            Global.Calc.StoreInstr(0);
                         break;
                         default:
-                            Calc.StoreInstr(ButtonCode);
+                            Global.Calc.StoreInstr(ButtonCode);
                         break;
                           } /*switch*/
                       } /*if*/
@@ -1090,13 +1089,13 @@ public class ButtonGrid extends android.view.View
                     case 18:
                     case 19:
                     case 10:
-                        Calc.FillInLabels();
-                        Calc.Transfer
+                        Global.Calc.FillInLabels();
+                        Global.Calc.Transfer
                           (
-                            /*Type =*/ Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
-                            /*BankNr =*/ Calc.CurBank,
+                            /*Type =*/ Global.Calc.TRANSFER_TYPE_INTERACTIVE_CALL,
+                            /*BankNr =*/ Global.Calc.CurBank,
                             /*Loc =*/ ButtonCode,
-                            /*LocType =*/ Calc.TRANSFER_LOC_SYMBOLIC
+                            /*LocType =*/ Global.Calc.TRANSFER_LOC_SYMBOLIC
                           );
                     break;
                     case 21:
@@ -1106,118 +1105,118 @@ public class ButtonGrid extends android.view.View
                     break;
                     case 22:
                     case 27:
-                        Calc.InvState = !Calc.InvState;
+                        Global.Calc.InvState = !Global.Calc.InvState;
                         WasModifier = true;
                     break;
                     case 23:
-                        Calc.Ln();
+                        Global.Calc.Ln();
                     break;
                     case 24:
-                        Calc.ClearEntry();
+                        Global.Calc.ClearEntry();
                     break;
                     case 25:
                     case 20:
-                        Calc.ClearAll();
+                        Global.Calc.ClearAll();
                     break;
                   /* 26 same as 21 */
                   /* 27 same as 22 */
                     case 28:
-                        Calc.Log();
+                        Global.Calc.Log();
                     break;
                     case 29:
-                        Calc.ClearProgram();
+                        Global.Calc.ClearProgram();
                     break;
                   /* 20 same as 25 */
                     case 31: /*LRN*/
-                        Calc.SetProgMode(true);
+                        Global.Calc.SetProgMode(true);
                         ResetOperands();
                     break;
                     case 32:
-                        Calc.SwapT();
+                        Global.Calc.SwapT();
                     break;
                     case 33:
-                        Calc.Square();
+                        Global.Calc.Square();
                     break;
                     case 34:
-                        Calc.Sqrt();
+                        Global.Calc.Sqrt();
                     break;
                     case 35:
-                        Calc.Reciprocal();
+                        Global.Calc.Reciprocal();
                     break;
                   /* 36 handled above */
                     case 37:
-                        Calc.Polar();
+                        Global.Calc.Polar();
                     break;
                     case 38:
-                        Calc.Sin();
+                        Global.Calc.Sin();
                     break;
                     case 39:
-                        Calc.Cos();
+                        Global.Calc.Cos();
                     break;
                     case 30:
-                        Calc.Tan();
+                        Global.Calc.Tan();
                     break;
                     case 41:
-                        Calc.StepProgram();
+                        Global.Calc.StepProgram();
                     break;
                   /* 42, 43, 44 handled above */
                     case 45:
-                        Calc.Operator(Calc.STACKOP_EXP);
+                        Global.Calc.Operator(Global.Calc.STACKOP_EXP);
                     break;
                     case 46:
                       /* ignore? */
                     break;
                     case 47:
-                        Calc.ClearMemories();
+                        Global.Calc.ClearMemories();
                     break;
                   /* 48, 49, 40 handled above */
                     case 51:
                       /* ignore */
                     break;
                     case 52:
-                        Calc.EnterExponent();
+                        Global.Calc.EnterExponent();
                     break;
                     case 53:
-                        Calc.LParen();
+                        Global.Calc.LParen();
                     break;
                     case 54:
-                        Calc.RParen();
+                        Global.Calc.RParen();
                     break;
                     case 55:
-                        Calc.Operator(Calc.STACKOP_DIV);
+                        Global.Calc.Operator(Global.Calc.STACKOP_DIV);
                     break;
                     case 56:
                       /* ignore */
                     break;
                     case 57:
-                        Calc.SetDisplayMode
+                        Global.Calc.SetDisplayMode
                           (
-                            Calc.InvState ? Calc.FORMAT_FIXED : Calc.FORMAT_ENG,
+                            Global.Calc.InvState ? Global.Calc.FORMAT_FIXED : Global.Calc.FORMAT_ENG,
                             -1
                           );
                     break;
                     case 58:
-                      /* assert Calc.InvState */
-                        Calc.SetDisplayMode(Calc.FORMAT_FIXED, -1);
+                      /* assert Global.Calc.InvState */
+                        Global.Calc.SetDisplayMode(Global.Calc.FORMAT_FIXED, -1);
                     break;
                     case 59:
-                        Calc.Int();
+                        Global.Calc.Int();
                     break;
                     case 50:
-                        Calc.Abs();
+                        Global.Calc.Abs();
                     break;
                   /* 61 handled above */
                     case 62:
-                        Calc.Digit('7');
+                        Global.Calc.Digit('7');
                     break;
                     case 63:
-                        Calc.Digit('8');
+                        Global.Calc.Digit('8');
                     break;
                     case 64:
-                        Calc.Digit('9');
+                        Global.Calc.Digit('9');
                     break;
                     case 65:
-                        Calc.Operator(Calc.STACKOP_MUL);
+                        Global.Calc.Operator(Global.Calc.STACKOP_MUL);
                     break;
                     case 66: /*Pause*/
                       /* ignore */
@@ -1225,102 +1224,102 @@ public class ButtonGrid extends android.view.View
                   /* 67 handled above */
                     case 68: /*Nop*/
                       /* No effect */
-                        Persistent.SaveState(getContext(), this, Calc); /* why not */
+                        Persistent.SaveState(getContext()); /* why not */
                     break;
                   /* 69 handled above */
                     case 60:
-                        Calc.SetAngMode(Calc.ANG_DEG);
+                        Global.Calc.SetAngMode(Global.Calc.ANG_DEG);
                     break;
                     case 71:
-                        if (Calc.InvState)
+                        if (Global.Calc.InvState)
                           {
-                            Calc.Return();
+                            Global.Calc.Return();
                           } /*if*/
                         /* else handled above */
                     break;
                     case 72:
-                        Calc.Digit('4');
+                        Global.Calc.Digit('4');
                     break;
                     case 73:
-                        Calc.Digit('5');
+                        Global.Calc.Digit('5');
                     break;
                     case 74:
-                        Calc.Digit('6');
+                        Global.Calc.Digit('6');
                     break;
                     case 75:
-                        Calc.Operator(Calc.STACKOP_SUB);
+                        Global.Calc.Operator(Global.Calc.STACKOP_SUB);
                     break;
                     case 76:
                       /* ignore */
                     break;
                   /* 77 handled above */
                     case 78:
-                        Calc.StatsSum();
+                        Global.Calc.StatsSum();
                     break;
                     case 79:
-                        Calc.StatsResult();
+                        Global.Calc.StatsResult();
                     break;
                     case 70:
-                        Calc.SetAngMode(Calc.ANG_RAD);
+                        Global.Calc.SetAngMode(Global.Calc.ANG_RAD);
                     break;
                     case 81:
-                        Calc.ResetProg();
+                        Global.Calc.ResetProg();
                     break;
                     case 82:
-                        Calc.Digit('1');
+                        Global.Calc.Digit('1');
                     break;
                     case 83:
-                        Calc.Digit('2');
+                        Global.Calc.Digit('2');
                     break;
                     case 84:
-                        Calc.Digit('3');
+                        Global.Calc.Digit('3');
                     break;
                     case 85:
-                        Calc.Operator(Calc.STACKOP_ADD);
+                        Global.Calc.Operator(Global.Calc.STACKOP_ADD);
                     break;
                   /* 86, 87 handled above */
                     case 88:
-                        Calc.D_MS();
+                        Global.Calc.D_MS();
                     break;
                     case 89:
-                        Calc.Pi();
+                        Global.Calc.Pi();
                     break;
                     case 80:
-                        Calc.SetAngMode(Calc.ANG_GRAD);
+                        Global.Calc.SetAngMode(Global.Calc.ANG_GRAD);
                     break;
                     case 91:
                     case 96:
-                        Calc.StartProgram();
+                        Global.Calc.StartProgram();
                     break;
                     case 92:
-                        Calc.Digit('0');
+                        Global.Calc.Digit('0');
                     break;
                     case 93:
-                        Calc.DecimalPoint();
+                        Global.Calc.DecimalPoint();
                     break;
                     case 94:
-                        Calc.ChangeSign();
+                        Global.Calc.ChangeSign();
                     break;
                     case 95:
-                        Calc.Equals();
+                        Global.Calc.Equals();
                     break;
                   /* 96 same as 91 */
                   /* 97 handled above */
                     case 98:
-                        if (Calc.Print != null)
+                        if (Global.Print != null)
                           {
-                            Calc.Print.Advance();
+                            Global.Print.Advance();
                           } /*if*/
                     break;
                     case 99:
-                        if (Calc.Print != null && Calc.LastShowing != null)
+                        if (Global.Print != null && Global.Calc.LastShowing != null)
                           {
                           /* TBD not right positioning, also need to add question mark if error condition */
-                            Calc.Print.TextLine(Calc.LastShowing);
+                            Global.Print.TextLine(Global.Calc.LastShowing);
                           } /*if*/
                     break;
                     case 90:
-                        if (Calc.Print != null)
+                        if (Global.Print != null)
                           {
                           /* TBD */
                           } /*if*/
@@ -1332,13 +1331,13 @@ public class ButtonGrid extends android.view.View
               {
                 AltState = false;
               } /*if*/
-            if (Calc.InErrorState())
+            if (Global.Calc.InErrorState())
               {
                 ResetOperands(); /* abandon */ /* is this necessary? */
               } /*if*/
             if (!WasModifier && CollectingForFunction < 0)
               {
-                Calc.InvState = false;
+                Global.Calc.InvState = false;
               } /*if*/
           } /*if*/
       } /*Invoke*/

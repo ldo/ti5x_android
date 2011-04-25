@@ -1474,9 +1474,7 @@ public class Persistent
 
     public static void SaveState
       (
-        android.content.Context ctx,
-        ButtonGrid Buttons,
-        State Calc
+        android.content.Context ctx
       )
       /* saves the entire current calculator state for later restoration. */
       {
@@ -1490,7 +1488,7 @@ public class Persistent
           {
             throw new RuntimeException("ti5x save-state create error " + Eh.toString());
           } /*try*/
-        Save(Buttons, Calc, true, true, CurSave); /* catch RuntimeException? */
+        Save(Global.Buttons, Global.Calc, true, true, CurSave); /* catch RuntimeException? */
         try
           {
             CurSave.flush();
@@ -1507,11 +1505,7 @@ public class Persistent
 
     public static void RestoreState
       (
-        android.content.Context ctx,
-        Display Disp,
-        HelpCard Help,
-        ButtonGrid Buttons,
-        State Calc
+        android.content.Context ctx
       )
       /* restores the entire calculator state, using the previously-saved
         state if available, otherwise (re)initializes to default state. */
@@ -1528,10 +1522,10 @@ public class Persistent
                         /*FromFile =*/ StateFile,
                         /*Libs =*/ true,
                         /*AllState =*/ true,
-                        /*Disp =*/ Disp,
-                        /*Help =*/ Help,
-                        /*Buttons =*/ Buttons,
-                        /*Calc =*/ Calc
+                        /*Disp =*/ Global.Disp,
+                        /*Help =*/ Global.Help,
+                        /*Buttons =*/ Global.Buttons,
+                        /*Calc =*/ Global.Calc
                       );
                     RestoredState = true;
                   }
@@ -1584,10 +1578,10 @@ public class Persistent
                 /*FromFile =*/ TempLibFile,
                 /*Libs =*/ true,
                 /*AllState =*/ false,
-                /*Disp =*/ Disp,
-                /*Help =*/ Help,
-                /*Buttons =*/ Buttons,
-                /*Calc =*/ Calc
+                /*Disp =*/ Global.Disp,
+                /*Help =*/ Global.Help,
+                /*Buttons =*/ Global.Buttons,
+                /*Calc =*/ Global.Calc
               );
             ctx.deleteFile(TempLibName);
           } /*if*/

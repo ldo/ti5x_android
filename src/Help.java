@@ -18,7 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class Help extends android.app.Activity
   {
-    public static String ContentID = "nz.gen.geek-central.JigsawPuzzleMaker.HelpContent";
+    public static String ContentID = "nz.gen.geek-central.ti5x.HelpContent";
     android.webkit.WebView HelpView;
 
     @Override

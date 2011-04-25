@@ -18,7 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class Picker extends android.app.Activity
   {
-    public static String ExtID = "nz.gen.geek-central.JigsawPuzzleMaker.PickerExt";
+    public static String ExtID = "nz.gen.geek-central.ti5x.PickerExt";
     android.widget.ListView PickerListView;
     SelectedItemAdapter PickerList;
     String SelectedExt;

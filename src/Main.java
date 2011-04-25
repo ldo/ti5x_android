@@ -18,10 +18,6 @@ package nz.gen.geek_central.ti5x;
 
 public class Main extends android.app.Activity
   {
-    Display Disp;
-    HelpCard Help;
-    ButtonGrid Buttons;
-    State Calc;
     protected android.view.MenuItem ShowCalcHelpItem;
     protected android.view.MenuItem ShowModuleHelpItem;
     protected android.view.MenuItem ToggleOverlayItem;
@@ -71,11 +67,11 @@ public class Main extends android.app.Activity
           }
         else if (TheItem == ShowModuleHelpItem)
           {
-            if (Calc != null && Calc.ModuleHelp != null)
+            if (Global.Calc != null && Global.Calc.ModuleHelp != null)
               {
                 final android.content.Intent ShowHelp =
                     new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Calc.ModuleHelp);
+                ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Global.Calc.ModuleHelp);
                 ShowHelp.setClass(this, Help.class);
                 startActivity(ShowHelp);
               }
@@ -91,9 +87,9 @@ public class Main extends android.app.Activity
           }
         else if (TheItem == ToggleOverlayItem)
           {
-            Buttons.OverlayVisible = !Buttons.OverlayVisible;
-            Buttons.invalidate();
-            ToggleOverlayItem.setChecked(Buttons.OverlayVisible); /* doesn't seem to work */
+            Global.Buttons.OverlayVisible = !Global.Buttons.OverlayVisible;
+            Global.Buttons.invalidate();
+            ToggleOverlayItem.setChecked(Global.Buttons.OverlayVisible); /* doesn't seem to work */
           }
         else if (TheItem == ShowPrinterItem)
           {
@@ -156,7 +152,7 @@ public class Main extends android.app.Activity
             program/library. */
             if (!StateLoaded)
               {
-                Persistent.RestoreState(this, Disp, Help, Buttons, Calc); /* if not already done */
+                Persistent.RestoreState(this); /* if not already done */
                 StateLoaded = true;
               } /*if*/
             try
@@ -166,10 +162,10 @@ public class Main extends android.app.Activity
                     /*FromFile =*/ ProgName,
                     /*Libs =*/ IsLib,
                     /*AllState =*/ false,
-                    /*Disp =*/ Disp,
-                    /*Help =*/ Help,
-                    /*Buttons =*/ Buttons,
-                    /*Calc =*/ Calc
+                    /*Disp =*/ Global.Disp,
+                    /*Help =*/ Global.Help,
+                    /*Buttons =*/ Global.Buttons,
+                    /*Calc =*/ Global.Calc
                   );
                 android.widget.Toast.makeText
                   (
@@ -205,7 +201,7 @@ public class Main extends android.app.Activity
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
               } /*try*/
-            Persistent.SaveState(this, Buttons, Calc);
+            Persistent.SaveState(this);
           }
         else if
           (
@@ -229,8 +225,8 @@ public class Main extends android.app.Activity
                 new java.io.File(SaveDir).mkdirs();
                 Persistent.Save
                   (
-                    /*Buttons =*/ Buttons,
-                    /*Calc =*/ Calc,
+                    /*Buttons =*/ Global.Buttons,
+                    /*Calc =*/ Global.Calc,
                     /*Libs =*/ false,
                     /*AllState =*/ false,
                     /*ToFile =*/ SaveDir + "/" + TheName
@@ -263,12 +259,11 @@ public class Main extends android.app.Activity
       {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        Disp = (Display)findViewById(R.id.display);
-        Help = (HelpCard)findViewById(R.id.help_card);
-        Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        final Printer Print = new Printer();
-        Calc = new State(Disp, Help, Print);
-        Buttons.Calc = Calc;
+        Global.Disp = (Display)findViewById(R.id.display);
+        Global.Help = (HelpCard)findViewById(R.id.help_card);
+        Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
+        Global.Print = new Printer();
+        Global.Calc = new State();
       } /*onCreate*/
 
     @Override
@@ -277,7 +272,7 @@ public class Main extends android.app.Activity
         super.onPause();
         if (!ShuttingDown)
           {
-            Persistent.SaveState(this, Buttons, Calc);
+            Persistent.SaveState(this);
           } /*if*/
       } /*onPause*/
 
@@ -287,7 +282,7 @@ public class Main extends android.app.Activity
         super.onResume();
         if (!StateLoaded)
           {
-            Persistent.RestoreState(this, Disp, Help, Buttons, Calc);
+            Persistent.RestoreState(this);
             StateLoaded = true;
           } /*if*/
       } /*onResume*/

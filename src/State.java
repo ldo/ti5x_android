@@ -28,9 +28,6 @@ public class State
 
     public boolean InvState = false;
 
-    Display Disp;
-    HelpCard Help;
-    Printer Print;
     String CurDisplay; /* current number display */
     android.os.Handler BGTask;
     Runnable DelayTask = null;
@@ -206,16 +203,8 @@ public class State
         ResetEntry();
       } /*Reset*/
 
-    public State
-      (
-        Display Disp,
-        HelpCard Help,
-        Printer Print
-      )
+    public State()
       {
-        this.Disp = Disp;
-        this.Help = Help;
-        this.Print = Print;
         OpStack = new OpStackEntry[MaxOpStack];
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
@@ -253,7 +242,7 @@ public class State
         LastShowing = ToDisplay;
         if (!ProgRunning || ProgRunningSlowly)
           {
-            Disp.SetShowing(ToDisplay);
+            Global.Disp.SetShowing(ToDisplay);
           }
       } /*SetShowing*/
 
@@ -312,7 +301,7 @@ public class State
         ClearDelayedStep();
         if (!ProgRunning || ProgRunningSlowly)
           {
-            Disp.SetShowingError(LastShowing);
+            Global.Disp.SetShowingError(LastShowing);
           } /*if*/
         CurState = ErrorState;
         if (Flag[FLAG_STOP_ON_ERROR])
@@ -996,7 +985,7 @@ public class State
       /* wipe any loaded help as well */
         if (CurBank == 0)
           {
-            Help.SetHelp(null, null);
+            Global.Help.SetHelp(null, null);
           } /*if*/
         Bank[0].Card = null;
         Bank[0].Help = null;
@@ -1020,9 +1009,9 @@ public class State
                 else
                   {
                     CurBank = ProgNr;
-                    if (Help != null)
+                    if (Global.Help != null)
                       {
-                        Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
+                        Global.Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
                       } /*if*/
                   } /*if*/
               }
@@ -1187,15 +1176,15 @@ public class State
                     OK = true;
                 break;
                 case 5:
-                    if (Print != null)
+                    if (Global.Print != null)
                       {
-                        Print.Render(PrintRegister);
+                        Global.Print.Render(PrintRegister);
                       } /*if*/
                     OK = true;
                 break;
               /* 6 TBD */
                 case 7:
-                    if (Print != null)
+                    if (Global.Print != null)
                       {
                         Enter();
                         final int PlotX = (int)X;
@@ -1206,7 +1195,7 @@ public class State
                               {
                                 Plot[i] = (byte)(i == PlotX ? 51 : 0);
                               } /*for*/
-                            Print.Render(Plot);
+                            Global.Print.Render(Plot);
                           }
                         else
                           {
@@ -1347,7 +1336,7 @@ public class State
                 break;
               /* 20-39 handled above */
                 case 40:
-                    if (Print != null)
+                    if (Global.Print != null)
                       {
                         Flag[FLAG_ERROR_COND] = true;
                       } /*if*/
@@ -1588,7 +1577,7 @@ public class State
           {
             if (ProgRunningSlowly)
               {
-                Disp.SetShowing(LastShowing);
+                Global.Disp.SetShowing(LastShowing);
                 BGTask.postDelayed(ExecuteTask, 250);
               }
             else
@@ -1610,7 +1599,7 @@ public class State
         ProgRunningSlowly = false; /* just in case */
         SaveRunningSlowly = false;
         ProgRunning = true;
-        Disp.SetShowingRunning();
+        Global.Disp.SetShowingRunning();
         RunPC = PC;
         RunBank = CurBank;
         NextBank = RunBank;
@@ -1629,11 +1618,11 @@ public class State
         RunBank = CurBank;
         if (InErrorState())
           {
-            Disp.SetShowingError(LastShowing);
+            Global.Disp.SetShowingError(LastShowing);
           }
         else
           {
-            Disp.SetShowing(LastShowing);
+            Global.Disp.SetShowing(LastShowing);
           } /*if*/
       } /*StopProgram*/
 
@@ -1648,7 +1637,7 @@ public class State
             SaveRunningSlowly = Slow;
             if (!ProgRunningSlowly)
               {
-                Disp.SetShowingRunning();
+                Global.Disp.SetShowingRunning();
               } /*if*/
           } /*if*/
       } /*SetSlowExecution*/
