@@ -873,7 +873,8 @@ public class State
     public void Int()
       {
         Enter();
-        final double IntPart = Math.floor(Math.abs(X));
+        final double RoundFactor = 10e+13; /* round X to 13 figures before truncating */
+        final double IntPart = Math.floor(Math.abs(Math.rint(X * RoundFactor) / RoundFactor));
         if (InvState)
           {
             SetX((Math.abs(X) - IntPart) * Math.signum(X));
