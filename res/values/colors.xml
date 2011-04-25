@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ <!-- background -->
+    <color name="dark">#ff222424</color>
+    <color name="white">#ffbdaa7d</color>
+
+<!-- display -->
+    <color name="led_light">#fff10a34</color> <!-- normal colour -->
+    <color name="led_dim">#ffb20727</color> <!-- dimmer version of above -->
+    <color name="led_off">#8031010a</color> <!-- dimmest of all, translucent -->
+
+<!-- buttons -->
+    <color name="button_brown">#ff4e3836</color>
+    <color name="button_yellow">#ffcc9858</color>
+    <color name="overlay_blue">#ff1c929a</color>
+
+<!-- printer -->
+    <color name="paper">#ffe8e8e8</color> <!-- not fully white -->
+    <color name="ink">#ff656565</color> <!-- not fully black -->
+</resources>

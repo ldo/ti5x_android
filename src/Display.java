@@ -27,6 +27,7 @@ public class Display extends android.view.View
     static final float SegmentMargin = 0.025f; /* as fraction of size */
     static final float Slant = 0.1f; /* tangent of slant angle to right from vertical */
     static final int NrDigits = 12;
+    final int LEDLight, LEDDim, LEDOff;
     int[] Showing;
     int[] OtherShowing;
     int ShowingColor, OtherColor;
@@ -41,6 +42,10 @@ public class Display extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        final android.content.res.Resources Res = TheContext.getResources();
+        LEDLight = Res.getColor(R.color.led_light);
+        LEDDim = Res.getColor(R.color.led_dim);
+        LEDOff = Res.getColor(R.color.led_off);
         Showing = new int[NrDigits];
         for (int i = 0; i < NrDigits; ++i)
           {
@@ -148,7 +153,7 @@ public class Display extends android.view.View
             --i;
             Showing[i] = SegmentCode(' ');
           } /*for*/
-        ShowingColor = ColorScheme.LEDLight;
+        ShowingColor = LEDLight;
         invalidate();
       } /*SetShowing*/
 
@@ -178,7 +183,7 @@ public class Display extends android.view.View
           {
             Showing[--j] = 0;
           } /*while*/
-        ShowingColor = ColorScheme.LEDLight;
+        ShowingColor = LEDLight;
         invalidate();
       } /*SetShowing*/
 
@@ -217,8 +222,8 @@ public class Display extends android.view.View
             OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
           } /*for*/
         SetShowing(OtherShowing);
-        ShowingColor = ColorScheme.LEDLight;
-        OtherColor = ColorScheme.LEDDim;
+        ShowingColor = LEDLight;
+        OtherColor = LEDDim;
         AnimDelay = 0.25f;
         IdleTask = new Flashing();
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
@@ -234,8 +239,8 @@ public class Display extends android.view.View
           {
             OtherShowing[i] = 0;
           } /*for*/
-        ShowingColor = ColorScheme.LEDLight;
-        OtherColor = ColorScheme.LEDLight;
+        ShowingColor = LEDLight;
+        OtherColor = LEDLight;
         AnimDelay = 0.5f;
         IdleTask = new Flashing();
         Idler.postDelayed(IdleTask, (int)(AnimDelay * 1000.0f));
@@ -339,7 +344,7 @@ public class Display extends android.view.View
         super.onDraw(Draw);
         final android.graphics.RectF DisplayBounds =
             new android.graphics.RectF(0, 0, getWidth(), getHeight());
-        Draw.drawRect(DisplayBounds, GraphicsUseful.FillWithColor(ColorScheme.LEDOff));
+        Draw.drawRect(DisplayBounds, GraphicsUseful.FillWithColor(LEDOff));
         for (int i = 0; i < Showing.length; ++i)
           {
             RenderSegments

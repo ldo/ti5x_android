@@ -39,6 +39,9 @@ public class Printer
     final int PaperHeight = (CharLines * CharHeight + (CharLines + 1) * CharVertGap) * (DotSize + DotGap) + DotGap;
     final int LineHeight = (CharHeight + CharVertGap) * (DotSize + DotGap);
 
+    final int PaperColor;
+    final int InkColor;
+
     static final int[][] Chars =
         {
             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, /*00*/
@@ -107,9 +110,15 @@ public class Printer
             {0x1f, 0x02, 0x04, 0x08, 0x04, 0x02, 0x1f}, /*77*/
         };
 
-    public Printer()
+    public Printer
+      (
+        android.content.Context ctx
+      )
       {
         Self = this;
+        final android.content.res.Resources Res = ctx.getResources();
+        PaperColor = Res.getColor(R.color.paper);
+        InkColor = Res.getColor(R.color.ink);
         Paper = android.graphics.Bitmap.createBitmap
           (
             /*width =*/ PaperWidth,
@@ -117,7 +126,7 @@ public class Printer
             /*config =*/ android.graphics.Bitmap.Config.ARGB_8888
           );
         PaperDraw = new android.graphics.Canvas(Paper);
-        PaperDraw.drawPaint(GraphicsUseful.FillWithColor(ColorScheme.PaperColor));
+        PaperDraw.drawPaint(GraphicsUseful.FillWithColor(PaperColor));
         Paper.prepareToDraw();
       } /*Printer*/
 
@@ -149,7 +158,7 @@ public class Printer
         PaperDraw.drawRect /* fill in newly-scrolled-in area */
           (
             new android.graphics.Rect(0, PaperHeight - LineHeight, PaperWidth, PaperHeight),
-            GraphicsUseful.FillWithColor(ColorScheme.PaperColor)
+            GraphicsUseful.FillWithColor(PaperColor)
           );
         Paper.prepareToDraw();
         if (ShowingView != null)
@@ -168,7 +177,7 @@ public class Printer
         for (int i = 0; i < Line.length; ++i)
           {
           /* initialize background */
-            Line[i] = ColorScheme.PaperColor;
+            Line[i] = PaperColor;
           } /*for*/
         for (int CharCol = 0; CharCol < Math.min(PrintReg.length, CharColumns); ++CharCol)
           {
@@ -201,7 +210,7 @@ public class Printer
                               {
                                 for (int j = 0; j < DotSize; ++j)
                                   {
-                                    Line[Origin + i * PaperWidth + j] = ColorScheme.InkColor;
+                                    Line[Origin + i * PaperWidth + j] = InkColor;
                                   } /*for*/
                               } /*for*/
                           } /*if*/

@@ -23,6 +23,7 @@ public class HelpCard extends android.view.View
     final android.content.Context TheContext;
     android.graphics.Bitmap CardImage, NewCardImage;
     byte[] Help;
+    final int Dark, LEDOff;
 
     final float SlideDuration = 0.5f; /* seconds */
 
@@ -34,6 +35,9 @@ public class HelpCard extends android.view.View
       {
         super(TheContext, TheAttributes);
         this.TheContext = TheContext;
+        final android.content.res.Resources Res = TheContext.getResources();
+        Dark = Res.getColor(R.color.dark);
+        LEDOff = Res.getColor(R.color.led_off);
         CardImage = null;
         Help = null;
         setOnTouchListener
@@ -185,7 +189,7 @@ public class HelpCard extends android.view.View
         Draw.drawRect
           (
             new RectF(0.0f, 0.0f, CardSize.x, CardSize.y),
-            GraphicsUseful.FillWithColor(ColorScheme.Dark)
+            GraphicsUseful.FillWithColor(Dark)
           );
         if (CardImage != null)
           {
@@ -215,7 +219,7 @@ public class HelpCard extends android.view.View
         Draw.drawRect /* on top of CardImage */
           (
             new RectF(0.0f, 0.0f, CardSize.x, CardSize.y * 0.25f),
-            GraphicsUseful.FillWithColor(ColorScheme.LEDOff)
+            GraphicsUseful.FillWithColor(LEDOff)
           );
       } /*onDraw*/
 

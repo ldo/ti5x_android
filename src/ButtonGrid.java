@@ -29,6 +29,8 @@ public class ButtonGrid extends android.view.View
 
     static final java.util.Locale StdLocale = java.util.Locale.US;
 
+    final int Dark, White, ButtonBrown, ButtonYellow, OverlayBlue;
+
     class ButtonDef
       /* defines appearance of a button */
       {
@@ -48,89 +50,92 @@ public class ButtonGrid extends android.view.View
             this.AltText = AltText;
             this.TextColor = TextColor;
             this.ButtonColor = ButtonColor;
-            this.AltTextColor = ColorScheme.White;
-            this.OverlayColor = ColorScheme.OverlayBlue;
-            this.BGColor = ColorScheme.Dark;
+            this.AltTextColor = White;
+            this.OverlayColor = OverlayBlue;
+            this.BGColor = Dark;
           } /*ButtonDef*/
 
       } /*ButtonDef*/
 
-    ButtonDef[][] ButtonDefs =
-        {
-            new ButtonDef[]
-                {
-                    new ButtonDef("A", "A´", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("B", "B´", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("C", "C´", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("D", "D´", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("E", "E´", ColorScheme.White, ColorScheme.ButtonBrown),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("2nd", "", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                    new ButtonDef("INV", "", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("lnx", "log", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("CE", "CP", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("CLR", "", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("LRN", "Pgm", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("x⇌t", "P→R", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("x²", "sin", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("√x", "cos", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("1/x", "tan", ColorScheme.White, ColorScheme.ButtonBrown),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("SST", "Ins", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("STO", "CMs", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("RCL", "Exc", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("SUM", "Prd", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("y**x", "Ind", ColorScheme.White, ColorScheme.ButtonBrown),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("BST", "Del", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("EE", "Eng", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("(", "Fix", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef(")", "Int", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("÷", "|x|", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("GTO", "Pause", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("7", "x=t", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("8", "Nop", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("9", "Op", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("×", "Deg", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("SBR", "Lbl", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("4", "x≥t", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("5", "∑x", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("6", "mean(x)", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("-", "Rad", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("RST", "St flg", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("1", "If flg", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("2", "D.MS", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("3", "π", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("+", "Grad", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-            new ButtonDef[]
-                {
-                    new ButtonDef("R/S", "", ColorScheme.White, ColorScheme.ButtonBrown),
-                    new ButtonDef("0", "Dsz", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef(".", "Adv", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("+/-", "Prt", ColorScheme.Dark, ColorScheme.White),
-                    new ButtonDef("=", "List", ColorScheme.Dark, ColorScheme.ButtonYellow),
-                },
-        };
+    ButtonDef[][] ButtonDefs;
+
+    void MakeButtonDefs()
       {
+        ButtonDefs = new ButtonDef[][]
+            {
+                new ButtonDef[]
+                    {
+                        new ButtonDef("A", "A´", White, ButtonBrown),
+                        new ButtonDef("B", "B´", White, ButtonBrown),
+                        new ButtonDef("C", "C´", White, ButtonBrown),
+                        new ButtonDef("D", "D´", White, ButtonBrown),
+                        new ButtonDef("E", "E´", White, ButtonBrown),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("2nd", "", Dark, ButtonYellow),
+                        new ButtonDef("INV", "", White, ButtonBrown),
+                        new ButtonDef("lnx", "log", White, ButtonBrown),
+                        new ButtonDef("CE", "CP", White, ButtonBrown),
+                        new ButtonDef("CLR", "", Dark, ButtonYellow),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("LRN", "Pgm", White, ButtonBrown),
+                        new ButtonDef("x⇌t", "P→R", White, ButtonBrown),
+                        new ButtonDef("x²", "sin", White, ButtonBrown),
+                        new ButtonDef("√x", "cos", White, ButtonBrown),
+                        new ButtonDef("1/x", "tan", White, ButtonBrown),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("SST", "Ins", White, ButtonBrown),
+                        new ButtonDef("STO", "CMs", White, ButtonBrown),
+                        new ButtonDef("RCL", "Exc", White, ButtonBrown),
+                        new ButtonDef("SUM", "Prd", White, ButtonBrown),
+                        new ButtonDef("y**x", "Ind", White, ButtonBrown),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("BST", "Del", White, ButtonBrown),
+                        new ButtonDef("EE", "Eng", White, ButtonBrown),
+                        new ButtonDef("(", "Fix", White, ButtonBrown),
+                        new ButtonDef(")", "Int", White, ButtonBrown),
+                        new ButtonDef("÷", "|x|", Dark, ButtonYellow),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("GTO", "Pause", White, ButtonBrown),
+                        new ButtonDef("7", "x=t", Dark, White),
+                        new ButtonDef("8", "Nop", Dark, White),
+                        new ButtonDef("9", "Op", Dark, White),
+                        new ButtonDef("×", "Deg", Dark, ButtonYellow),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("SBR", "Lbl", White, ButtonBrown),
+                        new ButtonDef("4", "x≥t", Dark, White),
+                        new ButtonDef("5", "∑x", Dark, White),
+                        new ButtonDef("6", "mean(x)", Dark, White),
+                        new ButtonDef("-", "Rad", Dark, ButtonYellow),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("RST", "St flg", White, ButtonBrown),
+                        new ButtonDef("1", "If flg", Dark, White),
+                        new ButtonDef("2", "D.MS", Dark, White),
+                        new ButtonDef("3", "π", Dark, White),
+                        new ButtonDef("+", "Grad", Dark, ButtonYellow),
+                    },
+                new ButtonDef[]
+                    {
+                        new ButtonDef("R/S", "", White, ButtonBrown),
+                        new ButtonDef("0", "Dsz", Dark, White),
+                        new ButtonDef(".", "Adv", Dark, White),
+                        new ButtonDef("+/-", "Prt", Dark, White),
+                        new ButtonDef("=", "List", Dark, ButtonYellow),
+                    },
+            };
         for (int Row = 0; Row < NrButtonRows; ++Row)
           {
             for (int Col = 0; Col < NrButtonCols; ++Col)
@@ -138,7 +143,7 @@ public class ButtonGrid extends android.view.View
                 ButtonDefs[Row][Col].BaseCode = (Row + 1) * 10 + Col + 1;
               } /*for*/
           } /*for*/
-      }
+      } /*MakeButtonDefs*/
 
     public boolean OverlayVisible;
 
@@ -176,6 +181,13 @@ public class ButtonGrid extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        final android.content.res.Resources Res = TheContext.getResources();
+        Dark = Res.getColor(R.color.dark);
+        White = Res.getColor(R.color.white);
+        ButtonBrown = Res.getColor(R.color.button_brown);
+        ButtonYellow = Res.getColor(R.color.button_yellow);
+        OverlayBlue = Res.getColor(R.color.overlay_blue);
+        MakeButtonDefs();
         MakeNoise = new android.media.SoundPool(1, android.media.AudioManager.STREAM_MUSIC, 0);
         if (MakeNoise != null)
           {
@@ -348,7 +360,7 @@ public class ButtonGrid extends android.view.View
                       );
                     if (ThisButton.BaseCode != SelectedButton)
                       {
-                        final GraphicsUseful.HSVA Darken = new GraphicsUseful.HSVA(ColorScheme.Dark);
+                        final GraphicsUseful.HSVA Darken = new GraphicsUseful.HSVA(Dark);
                         TextPaint.setColor
                           (
                             new GraphicsUseful.HSVA

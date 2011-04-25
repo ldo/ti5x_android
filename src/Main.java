@@ -262,7 +262,7 @@ public class Main extends android.app.Activity
         Global.Disp = (Display)findViewById(R.id.display);
         Global.Help = (HelpCard)findViewById(R.id.help_card);
         Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
-        Global.Print = new Printer();
+        Global.Print = new Printer(this);
         Global.Calc = new State();
       } /*onCreate*/
 
