@@ -244,9 +244,9 @@ symbols = \
 fontname = "Helvetica"
 symbolfontname = "Symbol"
 basefontsize = 7.0
-subsupscale = 0.8
-suboffset = -0.2
-superoffset = 0.6
+subsupscale = 0.8 # relative scaling for superscript/subscript text
+suboffset = -0.2 # vertical offset for subscript, relative to basefontsize
+superoffset = 0.6 # vertical offset for superscript, relative to basefontsize
 orange = tuple(i / 255 for i in (0x95, 0x50, 0x1c))
 black = (0.0, 0.0, 0.0)
 colors = \
@@ -652,6 +652,20 @@ for symbol in symbols.values() :
             "renderafter" : "setfont",
         }
 #end for
+render_special[symbols["rarrow"]] = \
+    { # symbol right-arrow is too long, make it shorter
+        "widthadjust" :
+                    "currentfont exch /%s findfont %.2f scalefont setfont"
+                %
+                    (symbolfontname, basefontsize)
+            +
+                " (\\256) stringwidth pop 2 div add exch setfont",
+        "renderbefore" :
+                "currentfont /%s findfont matrix %.2f dup 2 div exch 3 2 roll scale makefont setfont (\\256) show"
+            %
+                (symbolfontname, basefontsize),
+        "renderafter" : "setfont",
+    }
 
 gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
