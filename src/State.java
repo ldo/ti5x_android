@@ -159,6 +159,18 @@ public class State
 
     static final java.util.Locale StdLocale = java.util.Locale.US;
 
+    double RoundTo
+      (
+        double X,
+        int NrFigures
+      )
+      /* returns X rounded to the specified number of significant figures. */
+      {
+        final double RoundFactor = Math.pow(10, NrFigures);
+        return
+            Math.rint(X * RoundFactor) / RoundFactor;
+      } /*RoundTo*/
+
     public void Reset
       (
         boolean ClearLibs
@@ -411,7 +423,6 @@ public class State
 
     public void EnterExponent()
       {
-      /* InvState TBD */
         switch (CurState)
           {
         case EntryState:
@@ -425,10 +436,18 @@ public class State
             ExponentEntered = true;
         break;
         case ResultState:
-            if (CurFormat != FORMAT_FLOAT)
+            if (InvState)
               {
-                CurFormat = FORMAT_FLOAT;
-                SetX(X); /* will cause redisplay */
+                if (CurFormat != FORMAT_FIXED)
+                  {
+                    CurFormat = FORMAT_FIXED;
+                    CurNrDecimals = -1;
+                    SetX(X); /* will cause redisplay */
+                  } /*if*/
+              }
+            else
+              {
+                SetX(RoundTo(X, 10)); /* as per manual */
               } /*if*/
         break;
           } /*switch*/
@@ -862,8 +881,7 @@ public class State
     public void Int()
       {
         Enter();
-        final double RoundFactor = 10e+13; /* round X to 13 figures before truncating */
-        final double IntPart = Math.floor(Math.abs(Math.rint(X * RoundFactor) / RoundFactor));
+        final double IntPart = Math.floor(Math.abs(RoundTo(X, 13)));
         if (InvState)
           {
             SetX((Math.abs(X) - IntPart) * Math.signum(X));
