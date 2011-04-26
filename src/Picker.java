@@ -165,10 +165,6 @@ public class Picker extends android.app.Activity
       {
         SelectedExt = Ext;
         PickerList.clear();
-        if (IncludeMasterLibrary)
-          {
-            PickerList.add(new PickerItem(null));
-          } /*if*/
           {
             final String ExternalStorage =
                 android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -187,6 +183,10 @@ public class Picker extends android.app.Activity
                   } /* if*/
               } /*for*/
           }
+        if (IncludeMasterLibrary)
+          {
+            PickerList.add(new PickerItem(null));
+          } /*if*/
         PickerList.notifyDataSetChanged();
       } /*PopulatePickerList*/
 
