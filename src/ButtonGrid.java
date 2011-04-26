@@ -35,8 +35,27 @@ public class ButtonGrid extends android.view.View
       /* defines appearance of a button */
       {
         int BaseCode;
-        final String Text, AltText;
+        final String Text, AltText, MergedText;
         final int TextColor, ButtonColor, AltTextColor, OverlayColor, BGColor;
+
+        public ButtonDef
+          (
+            String Text,
+            String AltText,
+            String MergedText, /* may be null */
+            int TextColor,
+            int ButtonColor
+          )
+          {
+            this.Text = Text;
+            this.AltText = AltText;
+            this.MergedText = MergedText;
+            this.TextColor = TextColor;
+            this.ButtonColor = ButtonColor;
+            this.AltTextColor = White;
+            this.OverlayColor = OverlayBlue;
+            this.BGColor = Dark;
+          } /*ButtonDef*/
 
         public ButtonDef
           (
@@ -46,13 +65,7 @@ public class ButtonGrid extends android.view.View
             int ButtonColor
           )
           {
-            this.Text = Text;
-            this.AltText = AltText;
-            this.TextColor = TextColor;
-            this.ButtonColor = ButtonColor;
-            this.AltTextColor = White;
-            this.OverlayColor = OverlayBlue;
-            this.BGColor = Dark;
+            this(Text, AltText, null, TextColor, ButtonColor);
           } /*ButtonDef*/
 
       } /*ButtonDef*/
@@ -106,31 +119,31 @@ public class ButtonGrid extends android.view.View
                 new ButtonDef[]
                     {
                         new ButtonDef("GTO", "Pause", White, ButtonBrown),
-                        new ButtonDef("7", "x=t", Dark, White),
-                        new ButtonDef("8", "Nop", Dark, White),
-                        new ButtonDef("9", "Op", Dark, White),
+                        new ButtonDef("7", "x=t", "Pgm Ind", Dark, White),
+                        new ButtonDef("8", "Nop", "Exc Ind", Dark, White),
+                        new ButtonDef("9", "Op", "Prd Ind", Dark, White),
                         new ButtonDef("×", "Deg", Dark, ButtonYellow),
                     },
                 new ButtonDef[]
                     {
                         new ButtonDef("SBR", "Lbl", White, ButtonBrown),
-                        new ButtonDef("4", "x≥t", Dark, White),
-                        new ButtonDef("5", "∑x", Dark, White),
-                        new ButtonDef("6", "mean(x)", Dark, White),
+                        new ButtonDef("4", "x≥t", "STO Ind", Dark, White),
+                        new ButtonDef("5", "∑x", "RCL Ind", Dark, White),
+                        new ButtonDef("6", "mean(x)", "SUM Ind", Dark, White),
                         new ButtonDef("-", "Rad", Dark, ButtonYellow),
                     },
                 new ButtonDef[]
                     {
                         new ButtonDef("RST", "St flg", White, ButtonBrown),
                         new ButtonDef("1", "If flg", Dark, White),
-                        new ButtonDef("2", "D.MS", Dark, White),
-                        new ButtonDef("3", "π", Dark, White),
+                        new ButtonDef("2", "D.MS", "GTO Ind", Dark, White),
+                        new ButtonDef("3", "π", "Op Ind", Dark, White),
                         new ButtonDef("+", "Grad", Dark, ButtonYellow),
                     },
                 new ButtonDef[]
                     {
                         new ButtonDef("R/S", "", White, ButtonBrown),
-                        new ButtonDef("0", "Dsz", Dark, White),
+                        new ButtonDef("0", "Dsz", "INV SBR", Dark, White),
                         new ButtonDef(".", "Adv", Dark, White),
                         new ButtonDef("+/-", "Prt", Dark, White),
                         new ButtonDef("=", "List", Dark, ButtonYellow),
@@ -392,6 +405,7 @@ public class ButtonGrid extends android.view.View
                   }
                 if (OverlayVisible)
                   {
+                    TextPaint.setTextAlign(android.graphics.Paint.Align.LEFT);
                     final boolean HasBaseOverlay =
                             ThisButton.BaseCode != 21
                         &&
@@ -406,9 +420,10 @@ public class ButtonGrid extends android.view.View
                             ThisButton.BaseCode != 41
                         &&
                             ThisButton.BaseCode != 51;
-                    if (HasBaseOverlay || HasAltOverlay)
+                    final boolean HasMergedOverlay = ThisButton.MergedText != null;
+                    if (HasBaseOverlay || HasAltOverlay || HasMergedOverlay)
                       {
-                        final float Left = CellBounds.left + (CellBounds.right - CellBounds.left) * 0.1f;
+                        final float Left = CellBounds.left + (CellBounds.right - CellBounds.left) * 0.0f;
                           /* not quite authentic position, but what the hey */
                         TextPaint.setTextSize(BaseTextSize * 0.6f);
                         TextPaint.setColor(ThisButton.OverlayColor);
@@ -440,7 +455,23 @@ public class ButtonGrid extends android.view.View
                               (
                                 String.format(StdLocale, "%02d", BaseCode),
                                 Left,
-                                CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 0.5f,
+                                CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 0.2f,
+                                TextPaint
+                              );
+                          } /*if*/
+                        if (HasMergedOverlay)
+                          {
+                            Draw.drawText
+                              (
+                                String.format
+                                  (
+                                    StdLocale,
+                                    "%02d  %s",
+                                    ThisButton.BaseCode,
+                                    ThisButton.MergedText
+                                  ),
+                                Left,
+                                CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 0.8f,
                                 TextPaint
                               );
                           } /*if*/
@@ -448,7 +479,14 @@ public class ButtonGrid extends android.view.View
                           {
                             Draw.drawText
                               (
-                                String.format(StdLocale, "%02d", ThisButton.BaseCode / 10 * 10 + (ThisButton.BaseCode % 10 + 5) % 10),
+                                String.format
+                                  (
+                                    StdLocale,
+                                    "%02d",
+                                        ThisButton.BaseCode / 10 * 10
+                                    +
+                                        (ThisButton.BaseCode % 10 + 5) % 10
+                                  ),
                                 Left,
                                 CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 1.4f,
                                 TextPaint
@@ -456,6 +494,7 @@ public class ButtonGrid extends android.view.View
                           } /*if*/
                       } /*if*/
                   } /*if*/
+                TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
                 TextPaint.setColor(ThisButton.TextColor);
                 TextPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
                 TextPaint.setTextSize(BaseTextSize * 1.2f);
