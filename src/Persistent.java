@@ -1,6 +1,6 @@
 package nz.gen.geek_central.ti5x;
 /*
-    Saving/loading of libraries and calculator state
+    Saving/loading of programs, program libraries and calculator state
 
     Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -1472,6 +1472,55 @@ public class Persistent
           } /*if*/
       } /*Load*/
 
+    public static void LoadMasterLibrary
+      (
+        android.content.Context ctx
+      )
+      /* loads the included Master Library module into the calculator state. */
+      {
+      /* Unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
+        so I need to make a temporary copy of the master library out of my raw resources. */
+        final String TempLibName = "temp.ti5x"; /* name for temporary copy */
+        final String TempLibFile = ctx.getFilesDir().getAbsolutePath() + "/" + TempLibName;
+        try
+          {
+            final java.io.InputStream LibFile = ctx.getResources().openRawResource(R.raw.ml);
+            final java.io.OutputStream TempLib =
+                ctx.openFileOutput(TempLibName, ctx.MODE_WORLD_READABLE);
+              {
+                byte[] Buffer = new byte[2048]; /* some convenient size */
+                for (;;)
+                  {
+                    final int NrBytes = LibFile.read(Buffer);
+                    if (NrBytes <= 0)
+                        break;
+                    TempLib.write(Buffer, 0, NrBytes);
+                  } /*for*/
+              }
+            TempLib.flush();
+            TempLib.close();
+          }
+        catch (java.io.FileNotFoundException Failed)
+          {
+            throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+          }
+        catch (java.io.IOException Failed)
+          {
+            throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+          } /*try*/
+        Load
+          (
+            /*FromFile =*/ TempLibFile,
+            /*Libs =*/ true,
+            /*AllState =*/ false,
+            /*Disp =*/ Global.Disp,
+            /*Help =*/ Global.Help,
+            /*Buttons =*/ Global.Buttons,
+            /*Calc =*/ Global.Calc
+          );
+        ctx.deleteFile(TempLibName);
+      } /*LoadMasterLibrary*/
+
     public static void SaveState
       (
         android.content.Context ctx
@@ -1543,47 +1592,7 @@ public class Persistent
         if (!RestoredState)
           {
           /* initialize state to include Master Library */
-          /* unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
-            so I need to make a temporary copy of the master library out of my raw resources. */
-            final String TempLibName = "temp.ti5x";
-            final String TempLibFile = ctx.getFilesDir().getAbsolutePath() + "/" + TempLibName;
-            try
-              {
-                final java.io.InputStream LibFile = ctx.getResources().openRawResource(R.raw.ml);
-                final java.io.OutputStream TempLib =
-                    ctx.openFileOutput(TempLibName, ctx.MODE_WORLD_READABLE);
-                  {
-                    byte[] Buffer = new byte[2048]; /* some convenient size */
-                    for (;;)
-                      {
-                        final int NrBytes = LibFile.read(Buffer);
-                        if (NrBytes <= 0)
-                            break;
-                        TempLib.write(Buffer, 0, NrBytes);
-                      } /*for*/
-                  }
-                TempLib.flush();
-                TempLib.close();
-              }
-            catch (java.io.FileNotFoundException Failed)
-              {
-                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-              }
-            catch (java.io.IOException Failed)
-              {
-                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-              } /*try*/
-            Load
-              (
-                /*FromFile =*/ TempLibFile,
-                /*Libs =*/ true,
-                /*AllState =*/ false,
-                /*Disp =*/ Global.Disp,
-                /*Help =*/ Global.Help,
-                /*Buttons =*/ Global.Buttons,
-                /*Calc =*/ Global.Calc
-              );
-            ctx.deleteFile(TempLibName);
+            LoadMasterLibrary(ctx);
           } /*if*/
       } /*RestoreState*/
 

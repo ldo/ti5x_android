@@ -145,7 +145,8 @@ public class Main extends android.app.Activity
           {
             final String ProgName = Data.getData().getPath();
             final String PickedExt = Data.getStringExtra(Picker.ExtID);
-            final boolean IsLib = PickedExt == Persistent.LibExt;
+            final boolean IsLib = PickedExt.intern() == Persistent.LibExt.intern();
+            final boolean LoadingMasterLibrary = IsLib && ProgName.intern() == "/";
           /* It appears onActivityResult is liable to be called before
             onResume. Therefore I do additional restoring/saving state
             here to ensure the saved state includes the newly-loaded
@@ -157,16 +158,23 @@ public class Main extends android.app.Activity
               } /*if*/
             try
               {
-                Persistent.Load
-                  (
-                    /*FromFile =*/ ProgName,
-                    /*Libs =*/ IsLib,
-                    /*AllState =*/ false,
-                    /*Disp =*/ Global.Disp,
-                    /*Help =*/ Global.Help,
-                    /*Buttons =*/ Global.Buttons,
-                    /*Calc =*/ Global.Calc
-                  );
+                if (LoadingMasterLibrary)
+                  {
+                    Persistent.LoadMasterLibrary(this);
+                  }
+                else
+                  {
+                    Persistent.Load
+                      (
+                        /*FromFile =*/ ProgName,
+                        /*Libs =*/ IsLib,
+                        /*AllState =*/ false,
+                        /*Disp =*/ Global.Disp,
+                        /*Help =*/ Global.Help,
+                        /*Buttons =*/ Global.Buttons,
+                        /*Calc =*/ Global.Calc
+                      );
+                  } /*if*/
                 android.widget.Toast.makeText
                   (
                     /*context =*/ this,
@@ -181,7 +189,10 @@ public class Main extends android.app.Activity
                                 :
                                     R.string.program_loaded
                               ),
-                              new java.io.File(ProgName).getName()
+                            LoadingMasterLibrary ?
+                                getString(R.string.master_library)
+                            :
+                                new java.io.File(ProgName).getName()
                           ),
                     /*duration =*/ android.widget.Toast.LENGTH_SHORT
                   ).show();

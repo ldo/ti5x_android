@@ -41,7 +41,10 @@ public class Picker extends android.app.Activity
           {
           /* display name for item is leaf filename */
             return
-                new java.io.File(FullPath).getName();
+                FullPath != null ?
+                    new java.io.File(FullPath).getName()
+                :
+                    getString(R.string.master_library);
           } /*toString*/
 
       } /*PickerItem*/
@@ -132,13 +135,16 @@ public class Picker extends android.app.Activity
       /* handler for radio buttons selecting which category of files to display */
       {
         final String Ext;
+        final boolean IncludeMasterLibrary;
 
         OnSelectCategory
           (
-            String Ext
+            String Ext,
+            boolean IncludeMasterLibrary
           )
           {
             this.Ext = Ext;
+            this.IncludeMasterLibrary = IncludeMasterLibrary;
           } /*OnSelectCategory*/
 
         public void onClick
@@ -146,18 +152,23 @@ public class Picker extends android.app.Activity
             android.view.View TheView
           )
           {
-            PopulatePickerList(Ext);
+            PopulatePickerList(Ext, IncludeMasterLibrary);
           } /*onClick*/
 
       } /*OnSelectCategory*/
 
     void PopulatePickerList
       (
-        String Ext
+        String Ext,
+        boolean IncludeMasterLibrary
       )
       {
         SelectedExt = Ext;
         PickerList.clear();
+        if (IncludeMasterLibrary)
+          {
+            PickerList.add(new PickerItem(null));
+          } /*if*/
           {
             final String ExternalStorage =
                 android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -197,10 +208,10 @@ public class Picker extends android.app.Activity
                 (android.widget.RadioButton)findViewById(R.id.select_libraries);
             SelectedExt = Persistent.ProgExt;
             SelectSaved.setChecked(Persistent.ProgExt == SelectedExt);
-            SelectSaved.setOnClickListener(new OnSelectCategory(Persistent.ProgExt));
+            SelectSaved.setOnClickListener(new OnSelectCategory(Persistent.ProgExt, false));
             SelectLib.setChecked(Persistent.LibExt == SelectedExt);
-            SelectLib.setOnClickListener(new OnSelectCategory(Persistent.LibExt));
-            PopulatePickerList(SelectedExt);
+            SelectLib.setOnClickListener(new OnSelectCategory(Persistent.LibExt, true));
+            PopulatePickerList(SelectedExt, Persistent.LibExt == SelectedExt);
           }
         findViewById(R.id.prog_select).setOnClickListener
           (
@@ -235,7 +246,13 @@ public class Picker extends android.app.Activity
                                   (
                                     android.net.Uri.fromFile
                                       (
-                                        new java.io.File(Selected.FullPath)
+                                        new java.io.File
+                                          (
+                                            Selected.FullPath != null ?
+                                                Selected.FullPath
+                                            :
+                                                ""
+                                          )
                                       )
                                   )
                                 .putExtra(ExtID, SelectedExt)

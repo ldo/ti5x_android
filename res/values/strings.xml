@@ -20,6 +20,7 @@
     <string name="prog_prompt">Program to load:</string>
     <string name="saved_progs">Saved Programs</string>
     <string name="libraries">Libraries</string>
+    <string name="master_library">Master Library (Built-In)</string>
 
   <!-- messages -->
     <string name="no_prog_help">Sorry, no help available for this program</string>
