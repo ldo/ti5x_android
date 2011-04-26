@@ -19,7 +19,6 @@ package nz.gen.geek_central.ti5x;
 public class PrinterView extends android.app.Activity
   {
     android.widget.ImageView PaperView;
-    Printer Print;
 
     @Override
     public void onCreate
@@ -30,16 +29,15 @@ public class PrinterView extends android.app.Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.printer);
         PaperView = (android.widget.ImageView)findViewById(R.id.paper);
-        Print = Printer.Self;
       } /*onCreate*/
 
     @Override
     public void onPause()
       {
         super.onPause();
-        if (Print != null)
+        if (Global.Print != null)
           {
-            Print.ShowingView = null;
+            Global.Print.ShowingView = null;
           } /*if*/
       } /*onPause*/
 
@@ -47,10 +45,10 @@ public class PrinterView extends android.app.Activity
     public void onResume()
       {
         super.onResume();
-        if (Print != null)
+        if (Global.Print != null)
           {
             final android.graphics.Matrix FitWidth = new android.graphics.Matrix();
-            final float ScaleFactor = (float)PaperView.getWidth() / (float)Print.Paper.getWidth();
+            final float ScaleFactor = (float)PaperView.getWidth() / (float)Global.Print.Paper.getWidth();
             System.err.println("PrinterView scale factor = " + ScaleFactor); /* debug */
             FitWidth.postScale
               (
@@ -59,11 +57,11 @@ public class PrinterView extends android.app.Activity
                 (float)PaperView.getWidth() / 2.0f,
                 /* (float)PaperView.getHeight() */ 0.0f
               );
-            PaperView.setImageBitmap(Print.Paper);
+            PaperView.setImageBitmap(Global.Print.Paper);
             PaperView.setScaleType(android.widget.ImageView.ScaleType.MATRIX);
             PaperView.setScaleType(android.widget.ImageView.ScaleType.FIT_END); /* debug */
             PaperView.setImageMatrix(FitWidth);
-            Print.ShowingView = PaperView;
+            Global.Print.ShowingView = PaperView;
           } /*if*/
       } /*onResume*/
 

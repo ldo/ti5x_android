@@ -18,8 +18,6 @@ package nz.gen.geek_central.ti5x;
 
 public class Printer
   {
-    public static Printer Self; /* for use by PrinterView */
-
     public android.graphics.Bitmap Paper;
       /* the idea is that this is low-resolution but will be displayed scaled up
         to make matrix dots more visible */
@@ -115,7 +113,6 @@ public class Printer
         android.content.Context ctx
       )
       {
-        Self = this;
         final android.content.res.Resources Res = ctx.getResources();
         PaperColor = Res.getColor(R.color.paper);
         InkColor = Res.getColor(R.color.ink);
