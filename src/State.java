@@ -571,7 +571,7 @@ public class State
           } /*if*/
         if (Flag[FLAG_TRACE_PRINT] && Global.Print != null)
           {
-            PrintDisplay();
+            PrintDisplay(false);
           } /*if*/
       } /*SetX*/
 
@@ -962,11 +962,15 @@ public class State
           );
       } /*ShowCurProg*/
 
-    public void PrintDisplay()
+    public void PrintDisplay
+      (
+        boolean Labelled
+      )
       {
         if (Global.Print != null && CurDisplay != null)
           {
-            Global.Print.TextLine
+            final byte[] Translated = new byte[Printer.CharColumns];
+            Global.Print.Translate
               (
                     String.format
                       (
@@ -982,10 +986,17 @@ public class State
                 +
                     CurDisplay
                 +
-                    (InErrorState() ? "?" : " ")
-                +
-                    "    "
+                    (InErrorState() ? "?" : " "),
+                Translated
               );
+            if (Labelled)
+              {
+                for (int i = Printer.CharColumns - 5; i < Printer.CharColumns; ++i)
+                  {
+                    Translated[i] = PrintRegister[i];
+                  } /*for*/
+              } /*if*/
+            Global.Print.Render(Translated);
           } /*if*/
       } /*PrintDisplay*/
 
@@ -1229,7 +1240,10 @@ public class State
                       } /*if*/
                     OK = true;
                 break;
-              /* 6 TBD */
+                case 6:
+                    PrintDisplay(true);
+                    OK = true;
+                break;
                 case 7:
                     if (Global.Print != null)
                       {
@@ -2402,7 +2416,7 @@ public class State
                       } /*if*/
                 break;
                 case 99:
-                    PrintDisplay();
+                    PrintDisplay(false);
                 break;
                 case 90:
                   /* TBD */

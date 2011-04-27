@@ -235,15 +235,15 @@ public class Printer
           } /*if*/
       } /*Render*/
 
-    public void TextLine
+    public void Translate
       (
-        String Line
+        String Chars,
+        byte[] Translated
       )
       {
-        final byte[] Rendered = new byte[CharColumns];
-        for (int i = 0; i < Math.min(Line.length(), CharColumns); ++i)
+        for (int i = 0; i < Math.min(Chars.length(), Translated.length); ++i)
           {
-            final char ch = Line.charAt(i);
+            final char ch = Chars.charAt(i);
             int glyph = 0;
             if (ch == ' ')
               {
@@ -370,9 +370,22 @@ public class Printer
               {
               /* leave at 0 = blank */
               } /*if*/
-            Rendered[i] = (byte)glyph;
+            Translated[i] = (byte)glyph;
           } /*for*/
-        Render(Rendered);
+        for (int i = Chars.length() + 1; i < Translated.length; ++i)
+          {
+            Translated[i] = 0;
+          } /*for*/
+      } /*Translate*/
+
+    public void TextLine
+      (
+        String Line
+      )
+      {
+        final byte[] Translated = new byte[CharColumns];
+        Translate(Line, Translated);
+        Render(Translated);
       } /*TextLine*/
 
   } /*Printer*/
