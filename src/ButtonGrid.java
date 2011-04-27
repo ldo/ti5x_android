@@ -1361,11 +1361,7 @@ public class ButtonGrid extends android.view.View
                           } /*if*/
                     break;
                     case 99:
-                        if (Global.Print != null && Global.Calc.LastShowing != null)
-                          {
-                          /* TBD not right positioning, also need to add question mark if error condition */
-                            Global.Print.TextLine(Global.Calc.LastShowing);
-                          } /*if*/
+                        Global.Calc.PrintDisplay();
                     break;
                     case 90:
                         if (Global.Print != null)

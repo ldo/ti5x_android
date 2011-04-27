@@ -958,6 +958,33 @@ public class State
           );
       } /*ShowCurProg*/
 
+    public void PrintDisplay()
+      {
+        if (Global.Print != null && LastShowing != null)
+          {
+            Global.Print.TextLine
+              (
+                    String.format
+                      (
+                        Global.StdLocale,
+                        String.format
+                          (
+                            Global.StdLocale,
+                            "%%%ds",
+                            Math.max(1, 14 - LastShowing.length())
+                          ),
+                        " "
+                      ).substring(1) /* because I can't have a 0-length format width */
+                +
+                    LastShowing
+                +
+                    (InErrorState() ? "?" : " ")
+                +
+                    "    "
+              );
+          } /*if*/
+      } /*PrintDisplay*/
+
     public void SetProgMode
       (
         boolean NewProgMode
@@ -2365,10 +2392,13 @@ public class State
                       }
                 break;
                 case 98:
-                  /* TBD */
+                    if (Global.Print != null)
+                      {
+                        Global.Print.Advance();
+                      } /*if*/
                 break;
                 case 99:
-                  /* TBD */
+                    PrintDisplay();
                 break;
                 case 90:
                   /* TBD */
