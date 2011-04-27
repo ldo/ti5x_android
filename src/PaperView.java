@@ -55,12 +55,10 @@ public class PaperView extends android.view.View
         android.graphics.Canvas Draw
       )
       {
-        System.err.println("PaperView onDraw"); /* debug */
         if (Global.Print != null)
           {
             final android.graphics.Matrix FitWidth = new android.graphics.Matrix();
             final float ScaleFactor = (float)getWidth() / (float)Global.Print.Paper.getWidth();
-            System.err.println("PaperView scale factor = " + ScaleFactor); /* debug */
             FitWidth.postScale(ScaleFactor, ScaleFactor, 0.0f, 0.0f);
             final android.graphics.Paint DrawBits = new android.graphics.Paint();
             DrawBits.setFilterBitmap(true);

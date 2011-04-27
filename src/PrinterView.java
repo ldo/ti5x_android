@@ -58,7 +58,6 @@ public class PrinterView extends android.app.Activity
     public void onResume()
       {
         super.onResume();
-        System.err.printf("Resume PrinterView, scoller bounds = (%d, %d)\n", PaperScroll.getWidth(), PaperScroll.getHeight()); /* debug */
         if (Global.Print != null)
           {
             Global.Print.PrintListener = new PaperChangedListener();

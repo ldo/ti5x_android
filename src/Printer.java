@@ -188,7 +188,6 @@ public class Printer
             if (GlyphRow >= 0 && GlyphRow < 8 && GlyphCol >= 0 && GlyphCol < 8)
               {
                 final int[] Glyph = Chars[GlyphRow * 8 + GlyphCol];
-                System.err.printf("ti5x printer placing glyph %02d at col %d\n", GlyphRow * 8 + GlyphCol, CharCol); /* debug */
                 for (int Row = 0; Row < CharHeight; ++Row)
                   {
                     for (int PixCol = 0; PixCol < CharWidth; ++PixCol)
