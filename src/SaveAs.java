@@ -19,6 +19,66 @@ package nz.gen.geek_central.ti5x;
 public class SaveAs extends android.app.Activity
   {
     protected android.widget.EditText SaveAsText;
+    String TheCleanedText;
+
+    class OverwriteConfirm
+        extends android.app.AlertDialog
+        implements android.content.DialogInterface.OnClickListener
+      {
+        public OverwriteConfirm
+          (
+            android.content.Context ctx,
+            String FileName
+          )
+          {
+            super(ctx);
+            setIcon(android.R.drawable.ic_dialog_alert); /* doesn't work? */
+            setMessage
+              (
+                String.format(Global.StdLocale, ctx.getString(R.string.file_exists), FileName)
+              );
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_POSITIVE,
+                ctx.getString(R.string.overwrite),
+                this
+              );
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_NEGATIVE,
+                ctx.getString(R.string.cancel),
+                this
+              );
+          } /*OverwriteConfirm*/
+
+        @Override
+        public void onClick
+          (
+            android.content.DialogInterface TheDialog,
+            int WhichButton
+          )
+          {
+            if (WhichButton == android.content.DialogInterface.BUTTON_POSITIVE)
+              {
+                ReturnResult();
+              } /*if*/
+            dismiss();
+          } /*onClick*/
+
+      } /*OverwriteConfirm*/
+
+    void ReturnResult()
+      {
+        setResult
+          (
+            android.app.Activity.RESULT_OK,
+            new android.content.Intent().setData
+              (
+                android.net.Uri.fromFile(new java.io.File(TheCleanedText))
+              )
+          );
+        finish();
+      } /*ReturnResult*/
 
     @Override
     public void onCreate
@@ -61,20 +121,35 @@ public class SaveAs extends android.app.Activity
                                 Clean.append(c);
                               } /*if*/
                           } /*for*/
-                        final String TheCleanedText = Clean.toString();
+                        TheCleanedText = Clean.toString();
                         if (TheCleanedText.equals(TheOrigText))
                           {
                             if (TheCleanedText.length() != 0)
                               {
-                                setResult
+                                if
                                   (
-                                    android.app.Activity.RESULT_OK,
-                                    new android.content.Intent().setData
+                                    new java.io.File
                                       (
-                                        android.net.Uri.fromFile(new java.io.File(TheCleanedText))
-                                      )
-                                  );
-                                finish();
+                                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
+                                        +
+                                            "/"
+                                        +
+                                            Persistent.ProgramsDir
+                                        +
+                                            "/"
+                                        +
+                                            TheCleanedText
+                                        +
+                                            Persistent.ProgExt
+                                      ).exists()
+                                  )
+                                  {
+                                    new OverwriteConfirm(SaveAs.this, TheCleanedText).show();
+                                  }
+                                else
+                                  {
+                                    ReturnResult();
+                                  } /*if*/
                               }
                             else
                               {

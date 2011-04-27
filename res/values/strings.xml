@@ -12,8 +12,10 @@
     <string name="turn_off">Off</string>
 
   <!-- buttons -->
+    <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="prog_select">Load</string>
+    <string name="overwrite">Overwrite</string>
 
   <!-- prompt strings -->
     <string name="save_program_as">Save program as:</string>
@@ -30,6 +32,7 @@
     <string name="program_loaded">Loaded program “%s”.</string>
     <string name="file_load_error">Couldn’t load file: %s.</string>
     <string name="library_loaded">Loaded library “%s”.</string>
+    <string name="file_exists">The file “%s” already exists.</string>
     <string name="program_saved">Program saved as “%s”.</string>
     <string name="program_save_error">Couldn’t save program: %s</string>
 </resources>
