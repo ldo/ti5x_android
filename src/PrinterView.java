@@ -18,7 +18,19 @@ package nz.gen.geek_central.ti5x;
 
 public class PrinterView extends android.app.Activity
   {
-    android.widget.ImageView PaperView;
+    android.widget.ScrollView PaperScroll;
+    PaperView ThePaper;
+
+    class PaperChangedListener implements Printer.Notifier
+      {
+
+        public void PaperChanged()
+          {
+            PaperScroll.scrollTo(0, ThePaper.GetViewHeight());
+            ThePaper.invalidate();
+          } /*PaperChanged*/
+
+      } /*PaperChangedListener*/
 
     @Override
     public void onCreate
@@ -28,7 +40,8 @@ public class PrinterView extends android.app.Activity
       {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.printer);
-        PaperView = (android.widget.ImageView)findViewById(R.id.paper);
+        PaperScroll = (android.widget.ScrollView)findViewById(R.id.paper_scroll);
+        ThePaper = (PaperView)findViewById(R.id.paper);
       } /*onCreate*/
 
     @Override
@@ -37,7 +50,7 @@ public class PrinterView extends android.app.Activity
         super.onPause();
         if (Global.Print != null)
           {
-            Global.Print.ShowingView = null;
+            Global.Print.PrintListener = null;
           } /*if*/
       } /*onPause*/
 
@@ -45,23 +58,10 @@ public class PrinterView extends android.app.Activity
     public void onResume()
       {
         super.onResume();
+        System.err.printf("Resume PrinterView, scoller bounds = (%d, %d)\n", PaperScroll.getWidth(), PaperScroll.getHeight()); /* debug */
         if (Global.Print != null)
           {
-            final android.graphics.Matrix FitWidth = new android.graphics.Matrix();
-            final float ScaleFactor = (float)PaperView.getWidth() / (float)Global.Print.Paper.getWidth();
-            System.err.println("PrinterView scale factor = " + ScaleFactor); /* debug */
-            FitWidth.postScale
-              (
-                ScaleFactor,
-                ScaleFactor,
-                (float)PaperView.getWidth() / 2.0f,
-                /* (float)PaperView.getHeight() */ 0.0f
-              );
-            PaperView.setImageBitmap(Global.Print.Paper);
-            PaperView.setScaleType(android.widget.ImageView.ScaleType.MATRIX);
-            PaperView.setScaleType(android.widget.ImageView.ScaleType.FIT_END); /* debug */
-            PaperView.setImageMatrix(FitWidth);
-            Global.Print.ShowingView = PaperView;
+            Global.Print.PrintListener = new PaperChangedListener();
           } /*if*/
       } /*onResume*/
 

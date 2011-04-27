@@ -21,7 +21,12 @@ public class Printer
     public android.graphics.Bitmap Paper;
       /* the idea is that this is low-resolution but will be displayed scaled up
         to make matrix dots more visible */
-    public android.view.View ShowingView; /* to invalidate when Paper changes */
+
+    public static interface Notifier
+      {
+        public void PaperChanged();
+      } /*Notifier*/
+    public Notifier PrintListener; /* to notify when content of Paper changes */
     android.graphics.Canvas PaperDraw;
 
     final static int DotSize = 2;
@@ -31,7 +36,7 @@ public class Printer
     final static int CharHeight = 7;
     final static int CharHorGap = 1;
     final static int CharVertGap = 1;
-    final static int CharLines = 25; /* perhaps make this configurable? */
+    final static int CharLines = 100; /* perhaps make this configurable? */
 
     final int PaperWidth = (CharColumns * CharWidth + (CharColumns + 1) * CharHorGap) * (DotSize + DotGap) + DotGap;
     final int PaperHeight = (CharLines * CharHeight + (CharLines + 1) * CharVertGap) * (DotSize + DotGap) + DotGap;
@@ -158,9 +163,9 @@ public class Printer
             GraphicsUseful.FillWithColor(PaperColor)
           );
         Paper.prepareToDraw();
-        if (ShowingView != null)
+        if (PrintListener != null)
           {
-            ShowingView.invalidate();
+            PrintListener.PaperChanged();
           } /*if*/
       } /*Advance*/
 
@@ -225,9 +230,9 @@ public class Printer
             /*width =*/ PaperWidth,
             /*height =*/ LineHeight
           );
-        if (ShowingView != null)
+        if (PrintListener != null)
           {
-            ShowingView.invalidate();
+            PrintListener.PaperChanged();
           } /*if*/
       } /*Render*/
 
