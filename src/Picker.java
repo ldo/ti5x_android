@@ -49,6 +49,97 @@ public class Picker extends android.app.Activity
 
       } /*PickerItem*/
 
+    class DeleteConfirm
+        extends android.app.AlertDialog
+        implements android.content.DialogInterface.OnClickListener
+      {
+        final PickerItem TheFile;
+
+        public DeleteConfirm
+          (
+            android.content.Context ctx,
+            PickerItem TheFile
+          )
+          {
+            super(ctx);
+            this.TheFile = TheFile;
+            setIcon(android.R.drawable.ic_delete); /* doesn't work? */
+            setMessage
+              (
+                String.format
+                  (
+                    Global.StdLocale,
+                    ctx.getString(R.string.query_delete),
+                    TheFile.toString()
+                  )
+              );
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_POSITIVE,
+                ctx.getString(R.string.delete),
+                this
+              );
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_NEGATIVE,
+                ctx.getString(R.string.cancel),
+                this
+              );
+          } /*DeleteConfirm*/
+
+        @Override
+        public void onClick
+          (
+            android.content.DialogInterface TheDialog,
+            int WhichButton
+          )
+          {
+            if (WhichButton == android.content.DialogInterface.BUTTON_POSITIVE)
+              {
+                boolean Deleted;
+                try
+                  {
+                    new java.io.File(TheFile.FullPath).delete();
+                    Deleted = true;
+                  }
+                catch (SecurityException AccessDenied)
+                  {
+                    android.widget.Toast.makeText
+                      (
+                        /*context =*/ Picker.this,
+                        /*text =*/
+                            String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.file_delete_error),
+                                AccessDenied.toString()
+                              ),
+                        /*duration =*/ android.widget.Toast.LENGTH_LONG
+                      ).show();
+                    Deleted = false;
+                  } /*try*/
+                if (Deleted)
+                  {
+                    android.widget.Toast.makeText
+                      (
+                        /*context =*/ Picker.this,
+                        /*text =*/
+                            String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.file_deleted),
+                                TheFile.toString()
+                              ),
+                        /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                      ).show();
+                    PopulatePickerList(SelectedExt);
+                  } /*if*/
+              } /*if*/
+            dismiss();
+          } /*onClick*/
+
+      } /*DeleteConfirm*/
+
     class SelectedItemAdapter extends android.widget.ArrayAdapter<PickerItem>
       {
         final int ResID;
@@ -132,6 +223,21 @@ public class Picker extends android.app.Activity
             ThisChecked.setOnClickListener(ThisSetCheck);
               /* otherwise radio button can get checked but I don't notice */
             TheView.setOnClickListener(ThisSetCheck);
+            TheView.setOnLongClickListener
+              (
+                new android.view.View.OnLongClickListener()
+                  {
+                    public boolean onLongClick
+                      (
+                        android.view.View TheView
+                      )
+                      {
+                        new DeleteConfirm(Picker.this, ThisItem).show();
+                        return
+                            true;
+                      } /*onLongClick*/
+                  } /*OnLongClickListener*/
+              );
             return
                 TheView;
           } /*getView*/
@@ -142,16 +248,13 @@ public class Picker extends android.app.Activity
       /* handler for radio buttons selecting which category of files to display */
       {
         final String Ext;
-        final boolean IncludeMasterLibrary;
 
         OnSelectCategory
           (
-            String Ext,
-            boolean IncludeMasterLibrary
+            String Ext
           )
           {
             this.Ext = Ext;
-            this.IncludeMasterLibrary = IncludeMasterLibrary;
           } /*OnSelectCategory*/
 
         public void onClick
@@ -159,15 +262,14 @@ public class Picker extends android.app.Activity
             android.view.View TheView
           )
           {
-            PopulatePickerList(Ext, IncludeMasterLibrary);
+            PopulatePickerList(Ext);
           } /*onClick*/
 
       } /*OnSelectCategory*/
 
     void PopulatePickerList
       (
-        String Ext,
-        boolean IncludeMasterLibrary
+        String Ext
       )
       {
         SelectedExt = Ext;
@@ -190,9 +292,10 @@ public class Picker extends android.app.Activity
                   } /* if*/
               } /*for*/
           }
-        if (IncludeMasterLibrary)
+        if (Ext == Persistent.LibExt)
           {
             PickerList.add(new PickerItem(null));
+              /* item representing selection of built-in Master Library */
           } /*if*/
         PickerList.notifyDataSetChanged();
       } /*PopulatePickerList*/
@@ -215,10 +318,10 @@ public class Picker extends android.app.Activity
                 (android.widget.RadioButton)findViewById(R.id.select_libraries);
             SelectedExt = Persistent.ProgExt;
             SelectSaved.setChecked(Persistent.ProgExt == SelectedExt);
-            SelectSaved.setOnClickListener(new OnSelectCategory(Persistent.ProgExt, false));
+            SelectSaved.setOnClickListener(new OnSelectCategory(Persistent.ProgExt));
             SelectLib.setChecked(Persistent.LibExt == SelectedExt);
-            SelectLib.setOnClickListener(new OnSelectCategory(Persistent.LibExt, true));
-            PopulatePickerList(SelectedExt, Persistent.LibExt == SelectedExt);
+            SelectLib.setOnClickListener(new OnSelectCategory(Persistent.LibExt));
+            PopulatePickerList(SelectedExt);
           }
         findViewById(R.id.prog_select).setOnClickListener
           (

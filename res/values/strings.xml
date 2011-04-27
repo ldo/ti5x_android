@@ -16,6 +16,7 @@
     <string name="save">Save</string>
     <string name="prog_select">Load</string>
     <string name="overwrite">Overwrite</string>
+    <string name="delete">Delete</string>
 
   <!-- prompt strings -->
     <string name="save_program_as">Save program as:</string>
@@ -33,6 +34,9 @@
     <string name="file_load_error">Couldn’t load file: %s.</string>
     <string name="library_loaded">Loaded library “%s”.</string>
     <string name="file_exists">The file “%s” already exists.</string>
+    <string name="query_delete">Delete file “%s”?</string>
+    <string name="file_deleted">File “%s” deleted.</string>
+    <string name="file_delete_error">Couldn’t delete file: %s.</string>
     <string name="program_saved">Program saved as “%s”.</string>
     <string name="program_save_error">Couldn’t save program: %s</string>
 </resources>
