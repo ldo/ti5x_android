@@ -115,7 +115,7 @@ public class State
       /* can be set by Op 18/19 to indicate error/no-error, and
         by Op 40 to indicate printer present */
     public final static int FLAG_STOP_ON_ERROR = 8; /* if set, program stops on error */
-    public final static int FLAG_TRACE_PRINT = 9; /* TBD if set, calculation is traced on printer */
+    public final static int FLAG_TRACE_PRINT = 9; /* if set, calculation is traced on printer */
 
     public int PC, RunPC, CurBank, RunBank, NextBank;
     public boolean ProgRunning;
@@ -569,6 +569,10 @@ public class State
           {
             SetErrorState();
           } /*if*/
+        if (Flag[FLAG_TRACE_PRINT] && Global.Print != null)
+          {
+            PrintDisplay();
+          } /*if*/
       } /*SetX*/
 
     public void ChangeSign()
@@ -960,7 +964,7 @@ public class State
 
     public void PrintDisplay()
       {
-        if (Global.Print != null && LastShowing != null)
+        if (Global.Print != null && CurDisplay != null)
           {
             Global.Print.TextLine
               (
@@ -971,12 +975,12 @@ public class State
                           (
                             Global.StdLocale,
                             "%%%ds",
-                            Math.max(1, 14 - LastShowing.length())
+                            Math.max(1, 14 - CurDisplay.length())
                           ),
                         " "
                       ).substring(1) /* because I can't have a 0-length format width */
                 +
-                    LastShowing
+                    CurDisplay
                 +
                     (InErrorState() ? "?" : " ")
                 +
