@@ -15,7 +15,7 @@
             android:id="@+id/prog_list"
             android:layout_width="fill_parent" 
             android:layout_height="300dp"
-            android.choiceMode="singleChoice"
+            android:choiceMode="singleChoice"
             android:unselectedAlpha="0.5"
         />
     </TableRow>
