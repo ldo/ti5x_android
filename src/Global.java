@@ -23,4 +23,7 @@ public class Global
     public static ButtonGrid Buttons;
     public static State Calc;
     public static Printer Print;
+
+    public static final java.util.Locale StdLocale = java.util.Locale.US;
+      /* for all those places I don't want formatting to be locale-specific */
   } /*Global*/

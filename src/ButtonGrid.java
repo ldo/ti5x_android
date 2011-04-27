@@ -27,8 +27,6 @@ public class ButtonGrid extends android.view.View
   /* it appears SoundPool allocates loaded sound IDs starting from 1 */
     int ButtonDown = 0;
 
-    static final java.util.Locale StdLocale = java.util.Locale.US;
-
     final int Dark, White, ButtonBrown, ButtonYellow, OverlayBlue;
 
     class ButtonDef
@@ -453,7 +451,7 @@ public class ButtonGrid extends android.view.View
                               } /*switch*/
                             Draw.drawText
                               (
-                                String.format(StdLocale, "%02d", BaseCode),
+                                String.format(Global.StdLocale, "%02d", BaseCode),
                                 Left,
                                 CellBounds.bottom + (ButtonBounds.top - ButtonBounds.bottom) * 0.2f,
                                 TextPaint
@@ -465,7 +463,7 @@ public class ButtonGrid extends android.view.View
                               (
                                 String.format
                                   (
-                                    StdLocale,
+                                    Global.StdLocale,
                                     "%02d  %s",
                                     ThisButton.BaseCode,
                                     ThisButton.MergedText
@@ -481,7 +479,7 @@ public class ButtonGrid extends android.view.View
                               (
                                 String.format
                                   (
-                                    StdLocale,
+                                    Global.StdLocale,
                                     "%02d",
                                         ThisButton.BaseCode / 10 * 10
                                     +

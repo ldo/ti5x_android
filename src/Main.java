@@ -30,8 +30,6 @@ public class Main extends android.app.Activity
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
-    static final java.util.Locale StdLocale = java.util.Locale.US;
-
     @Override
     public boolean onCreateOptionsMenu
       (
@@ -181,7 +179,7 @@ public class Main extends android.app.Activity
                     /*text =*/
                         String.format
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             getString
                               (
                                 IsLib ?
@@ -205,7 +203,7 @@ public class Main extends android.app.Activity
                     /*text =*/
                         String.format
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             getString(R.string.file_load_error),
                             Failed.toString()
                           ),
@@ -245,7 +243,7 @@ public class Main extends android.app.Activity
                 android.widget.Toast.makeText
                   (
                     /*context =*/ this,
-                    /*text =*/ String.format(StdLocale, getString(R.string.program_saved), TheName),
+                    /*text =*/ String.format(Global.StdLocale, getString(R.string.program_saved), TheName),
                     /*duration =*/ android.widget.Toast.LENGTH_SHORT
                   ).show();
               }
@@ -255,7 +253,7 @@ public class Main extends android.app.Activity
                   (
                     /*context =*/ this,
                     /*text =*/
-                        String.format(StdLocale, getString(R.string.program_save_error), Failed.toString()),
+                        String.format(Global.StdLocale, getString(R.string.program_save_error), Failed.toString()),
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
               } /*try*/

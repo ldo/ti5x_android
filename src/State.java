@@ -157,8 +157,6 @@ public class State
 
     public final byte[] PrintRegister;
 
-    static final java.util.Locale StdLocale = java.util.Locale.US;
-
     double RoundTo
       (
         double X,
@@ -508,8 +506,8 @@ public class State
             case FORMAT_ENG:
                 CurDisplay = String.format
                   (
-                    StdLocale,
-                    String.format(StdLocale, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
+                    Global.StdLocale,
+                    String.format(Global.StdLocale, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
                     X / Math.pow(10.0, Exp)
                   );
             break;
@@ -518,10 +516,10 @@ public class State
                   {
                     CurDisplay = String.format
                       (
-                        StdLocale,
+                        Global.StdLocale,
                         String.format
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             "%%.%df",
                             Math.max(Math.min(CurNrDecimals, 10 - BeforeDecimal), 0)
                           ),
@@ -533,8 +531,8 @@ public class State
                     final int NrDecimals = Math.max(10 - BeforeDecimal, 0);
                     CurDisplay = String.format
                       (
-                        StdLocale,
-                        String.format(StdLocale, "%%.%df", NrDecimals),
+                        Global.StdLocale,
+                        String.format(Global.StdLocale, "%%.%df", NrDecimals),
                         X / Math.pow(10.0, Exp)
                       );
                     if (NrDecimals > 0)
@@ -563,7 +561,7 @@ public class State
           /* assume there will always be a decimal point? */
             if (UseFormat != FORMAT_FIXED)
               {
-                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(StdLocale, "%02d", Math.abs(Exp));
+                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(Global.StdLocale, "%02d", Math.abs(Exp));
               } /*if*/
             SetShowing(CurDisplay);
           }
@@ -949,14 +947,14 @@ public class State
             CurBank != 0 ?
                 String.format
                   (
-                    StdLocale,
+                    Global.StdLocale,
                     "%02d %03d %02d",
                     CurBank,
                     PC,
                     (int)Bank[CurBank].Program[PC]
                   )
             :
-                String.format(StdLocale, "%03d %02d", PC, (int)Program[PC])
+                String.format(Global.StdLocale, "%03d %02d", PC, (int)Program[PC])
           );
       } /*ShowCurProg*/
 

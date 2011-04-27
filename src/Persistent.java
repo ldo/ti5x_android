@@ -119,8 +119,6 @@ public class Persistent
 
       } /*DataFormatException*/
 
-    static final java.util.Locale StdLocale = java.util.Locale.US;
-
     static void SaveBool
       (
         java.io.PrintStream POut,
@@ -129,8 +127,8 @@ public class Persistent
         int Indent
       )
       {
-        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
-        POut.printf(StdLocale, "<param name=\"%s\" value=\"%s\"/>\n", Name, Value ? "1" : "0");
+        POut.printf(Global.StdLocale, String.format(Global.StdLocale, "%%%ds", Indent), " ");
+        POut.printf(Global.StdLocale, "<param name=\"%s\" value=\"%s\"/>\n", Name, Value ? "1" : "0");
       } /*SaveBool*/
 
     static void SaveInt
@@ -141,8 +139,8 @@ public class Persistent
         int Indent
       )
       {
-        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
-        POut.printf(StdLocale, "<param name=\"%s\" value=\"%d\"/>\n", Name, Value);
+        POut.printf(Global.StdLocale, String.format(Global.StdLocale, "%%%ds", Indent), " ");
+        POut.printf(Global.StdLocale, "<param name=\"%s\" value=\"%d\"/>\n", Name, Value);
       } /*SaveInt*/
 
     static void SaveDouble
@@ -153,8 +151,8 @@ public class Persistent
         int Indent
       )
       {
-        POut.printf(StdLocale, String.format(StdLocale, "%%%ds", Indent), " ");
-        POut.printf(StdLocale, "<param name=\"%s\" value=\"%.16e\"/>\n", Name, Value);
+        POut.printf(Global.StdLocale, String.format(Global.StdLocale, "%%%ds", Indent), " ");
+        POut.printf(Global.StdLocale, "<param name=\"%s\" value=\"%.16e\"/>\n", Name, Value);
       } /*SaveDouble*/
 
     static boolean GetBool
@@ -170,7 +168,7 @@ public class Persistent
           }
         catch (NumberFormatException Bad)
           {
-            throw new DataFormatException(String.format(StdLocale, "bad boolean value \"%s\"", Value));
+            throw new DataFormatException(String.format(Global.StdLocale, "bad boolean value \"%s\"", Value));
           } /*try*/
         if (IntValue == 0)
           {
@@ -182,7 +180,7 @@ public class Persistent
           }
         else
           {
-            throw new DataFormatException(String.format(StdLocale, "bad boolean value %d", IntValue));
+            throw new DataFormatException(String.format(Global.StdLocale, "bad boolean value %d", IntValue));
           } /*if*/
         return
             Result;
@@ -200,7 +198,7 @@ public class Persistent
           }
         catch (NumberFormatException Bad)
           {
-            throw new DataFormatException(String.format(StdLocale, "bad integer value \"%s\"", Value));
+            throw new DataFormatException(String.format(Global.StdLocale, "bad integer value \"%s\"", Value));
           } /*try*/
         return
             Result;
@@ -218,7 +216,7 @@ public class Persistent
           }
         catch (NumberFormatException Bad)
           {
-            throw new DataFormatException(String.format(StdLocale, "bad double value \"%s\"", Value));
+            throw new DataFormatException(String.format(Global.StdLocale, "bad double value \"%s\"", Value));
           } /*try*/
         return
             Result;
@@ -233,7 +231,7 @@ public class Persistent
       /* outputs a <prog> section to POut containing the contents of Program. Trailing
         zeroes are omitted. */
       {
-        POut.print(String.format(StdLocale, String.format(StdLocale, "%%%ds<prog>\n", Indent), ""));
+        POut.print(String.format(Global.StdLocale, String.format(Global.StdLocale, "%%%ds<prog>\n", Indent), ""));
         int Cols = 0;
         int i = 0;
         int LastNonzero = -1;
@@ -266,13 +264,13 @@ public class Persistent
                           (
                             String.format
                               (
-                                StdLocale,
-                                String.format(StdLocale, "%%%ds", Indent + 4),
+                                Global.StdLocale,
+                                String.format(Global.StdLocale, "%%%ds", Indent + 4),
                                 ""
                               )
                           );
                       } /*if*/
-                    POut.printf(StdLocale, "%02d", Program[j]);
+                    POut.printf(Global.StdLocale, "%02d", Program[j]);
                     ++Cols;
                   } /*for*/
                 LastNonzero = i;
@@ -281,7 +279,7 @@ public class Persistent
           } /*for*/
         POut.print
           (
-            String.format(StdLocale, String.format(StdLocale, "%%%ds</prog>\n", Indent), "")
+            String.format(Global.StdLocale, String.format(Global.StdLocale, "%%%ds</prog>\n", Indent), "")
           );
       } /*SaveProg*/
 
@@ -325,7 +323,7 @@ public class Persistent
                                 new ZipComponentWriter
                                   (
                                     Out,
-                                    String.format(StdLocale, "card%02d", BankNr),
+                                    String.format(Global.StdLocale, "card%02d", BankNr),
                                     true
                                   );
                             Bank.Card.compress
@@ -343,7 +341,7 @@ public class Persistent
                                 new ZipComponentWriter
                                   (
                                     Out,
-                                    String.format(StdLocale, "prog%02d", BankNr),
+                                    String.format(Global.StdLocale, "prog%02d", BankNr),
                                     true
                                   );
                             java.io.PrintStream POut = new java.io.PrintStream(ProgOut.Out);
@@ -360,7 +358,7 @@ public class Persistent
                             final ZipComponentWriter BankHelp = new ZipComponentWriter
                               (
                                 Out,
-                                String.format(StdLocale, "help%02d", BankNr),
+                                String.format(Global.StdLocale, "help%02d", BankNr),
                                 true
                               );
                             BankHelp.write(Bank.Help);
@@ -420,7 +418,7 @@ public class Persistent
                               (
                                 String.format
                                   (
-                                    StdLocale,
+                                    Global.StdLocale,
                                     "unrecognized Calc.CurState = %d",
                                     Calc.CurState
                                   )
@@ -429,7 +427,7 @@ public class Persistent
                           } /*switch*/
                         POut.printf
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             "        <param name=\"state\" value=\"%s\"/>\n",
                             StateName
                           );
@@ -439,7 +437,7 @@ public class Persistent
                       {
                         POut.printf
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             "        <param name=\"display\" value=\"%s\"/>\n",
                             Calc.CurDisplay
                           );
@@ -461,11 +459,11 @@ public class Persistent
                         default:
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized Calc.CurFormat = %d", Calc.CurFormat)
+                                String.format(Global.StdLocale, "unrecognized Calc.CurFormat = %d", Calc.CurFormat)
                               );
                       /* break; */
                           } /*switch*/
-                        POut.printf(StdLocale, "        <param name=\"format\" value=\"%s\"/>\n", FmtName);
+                        POut.printf(Global.StdLocale, "        <param name=\"format\" value=\"%s\"/>\n", FmtName);
                       }
                     SaveInt(POut, "nr_decimals", Calc.CurNrDecimals, 8);
                       {
@@ -484,11 +482,11 @@ public class Persistent
                         default:
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized Calc.Ang = %d", Calc.CurAng)
+                                String.format(Global.StdLocale, "unrecognized Calc.Ang = %d", Calc.CurAng)
                               );
                       /* break; */
                           } /*switch*/
-                        POut.printf(StdLocale, "        <param name=\"angle_units\" value=\"%s\"/>\n", Name);
+                        POut.printf(Global.StdLocale, "        <param name=\"angle_units\" value=\"%s\"/>\n", Name);
                       }
                     POut.println("        <opstack>");
                     for (int i = 0; i < Calc.OpStackNext; ++i)
@@ -518,13 +516,13 @@ public class Persistent
                         default:
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized stacked op %d at pos %d", Op.Operator, i)
+                                String.format(Global.StdLocale, "unrecognized stacked op %d at pos %d", Op.Operator, i)
                               );
                       /* break; */
                           } /*switch*/
                         POut.printf
                           (
-                            StdLocale,
+                            Global.StdLocale,
                             "            <op name=\"%s\" opnd=\"%.16e\" parens=\"%d\"/>\n",
                             OpName,
                             Op.Operand,
@@ -538,7 +536,7 @@ public class Persistent
                     POut.println("        <mem>");
                     for (int i = 0; i < Calc.Memory.length; ++i)
                       {
-                        POut.printf(StdLocale, "            %.16e\n", Calc.Memory[i]);
+                        POut.printf(Global.StdLocale, "            %.16e\n", Calc.Memory[i]);
                       } /*for*/
                     POut.println("        </mem>");
                   } /*if AllState*/
@@ -792,7 +790,7 @@ public class Persistent
                       {
                         throw new DataFormatException
                           (
-                            String.format(StdLocale, "unrecognized <buttons> param \"%s\"", Name)
+                            String.format(Global.StdLocale, "unrecognized <buttons> param \"%s\"", Name)
                           );
                       } /*if*/
                     Handled = true;
@@ -830,7 +828,7 @@ public class Persistent
                           {
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized calc state \"%s\"", Value)
+                                String.format(Global.StdLocale, "unrecognized calc state \"%s\"", Value)
                               );
                           } /*if*/
                       }
@@ -864,7 +862,7 @@ public class Persistent
                           {
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized calc format \"%s\"", Value)
+                                String.format(Global.StdLocale, "unrecognized calc format \"%s\"", Value)
                               );
                           } /*if*/
                       }
@@ -890,7 +888,7 @@ public class Persistent
                           {
                             throw new RuntimeException
                               (
-                                String.format(StdLocale, "unrecognized calc angle_units \"%s\"", Value)
+                                String.format(Global.StdLocale, "unrecognized calc angle_units \"%s\"", Value)
                               );
                           } /*if*/
                       }
@@ -918,7 +916,7 @@ public class Persistent
                       {
                         throw new DataFormatException
                           (
-                            String.format(StdLocale, "unrecognized <calc> param \"%s\"", Name)
+                            String.format(Global.StdLocale, "unrecognized <calc> param \"%s\"", Name)
                           );
                       } /*if*/
                     Handled = true;
@@ -994,14 +992,14 @@ public class Persistent
                       {
                         throw new DataFormatException
                           (
-                            String.format(StdLocale, "unrecognized <op> operator \"%s\"", OpName)
+                            String.format(Global.StdLocale, "unrecognized <op> operator \"%s\"", OpName)
                           );
                       } /*if*/
                     if (Calc.OpStackNext == Calc.MaxOpStack)
                       {
                         throw new DataFormatException
                           (
-                            String.format(StdLocale, "too many <op> entries -- only %d allowed", Calc.MaxOpStack)
+                            String.format(Global.StdLocale, "too many <op> entries -- only %d allowed", Calc.MaxOpStack)
                           );
                       } /*if*/
                     Calc.OpStack[Calc.OpStackNext++] = new State.OpStackEntry
@@ -1021,7 +1019,7 @@ public class Persistent
                       {
                         throw new DataFormatException
                           (
-                            String.format(StdLocale, "too many <ret> entries -- only %d allowed", Calc.MaxReturnStack)
+                            String.format(Global.StdLocale, "too many <ret> entries -- only %d allowed", Calc.MaxReturnStack)
                           );
                       } /*if*/
                     Calc.ReturnStack[++Calc.ReturnLast] = new State.ReturnStackEntry
@@ -1136,7 +1134,7 @@ public class Persistent
                                   (
                                     String.format
                                       (
-                                        StdLocale,
+                                        Global.StdLocale,
                                         "too many columns in print register, only %d allowed",
                                         Calc.PrintRegister.length
                                       )
@@ -1181,7 +1179,7 @@ public class Persistent
                               {
                                 throw new DataFormatException
                                   (
-                                    String.format(StdLocale, "too many memories, only %d allowed", Calc.MaxMemories)
+                                    String.format(Global.StdLocale, "too many memories, only %d allowed", Calc.MaxMemories)
                                   );
                               } /*if*/
                             Calc.Memory[Reg++] = GetDouble(ContentStr.substring(Start, i));
@@ -1237,7 +1235,7 @@ public class Persistent
                                   (
                                     String.format
                                       (
-                                        StdLocale,
+                                        Global.StdLocale,
                                         "too many program steps, only %d allowed",
                                         BankNr == 0 ? Calc.MaxProgram : 1000
                                       )
@@ -1297,7 +1295,7 @@ public class Persistent
                               {
                                 throw new DataFormatException
                                   (
-                                    String.format(StdLocale, "too many flags, only %d allowed", Calc.MaxFlags)
+                                    String.format(Global.StdLocale, "too many flags, only %d allowed", Calc.MaxFlags)
                                   );
                               } /*if*/
                             Calc.Flag[Flag++] = GetBool(ContentStr.substring(Start, i));
@@ -1379,13 +1377,13 @@ public class Persistent
                   {
                     final ZipEntry CardEntry =
                         AllState || !Libs || BankNr != 0 ?
-                            In.getEntry(String.format(StdLocale, "card%02d", BankNr))
+                            In.getEntry(String.format(Global.StdLocale, "card%02d", BankNr))
                         :
                             null;
                     final ZipEntry StateEntry =
-                        In.getEntry(String.format(StdLocale, "prog%02d", BankNr));
+                        In.getEntry(String.format(Global.StdLocale, "prog%02d", BankNr));
                     final ZipEntry HelpEntry =
-                        In.getEntry(String.format(StdLocale, "help%02d", BankNr));
+                        In.getEntry(String.format(Global.StdLocale, "help%02d", BankNr));
                     if (StateEntry != null)
                       {
                         android.graphics.Bitmap CardImage = null;
