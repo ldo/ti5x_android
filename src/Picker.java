@@ -81,8 +81,12 @@ public class Picker extends android.app.Activity
                         CurSelected.Selected = false;
                         LastChecked.setChecked(false);
                       } /*if*/
-                    LastChecked = (android.widget.RadioButton)
-                        ((android.view.ViewGroup)TheView).findViewById(R.id.prog_item_checked);
+                    LastChecked =
+                        TheView instanceof android.widget.RadioButton ?
+                            (android.widget.RadioButton)TheView
+                        :
+                            (android.widget.RadioButton)
+                            ((android.view.ViewGroup)TheView).findViewById(R.id.prog_item_checked);
                     CurSelected = MyItem;
                     MyItem.Selected = true;
                     LastChecked.setChecked(true);
@@ -124,7 +128,10 @@ public class Picker extends android.app.Activity
             android.widget.RadioButton ThisChecked =
                 (android.widget.RadioButton)TheView.findViewById(R.id.prog_item_checked);
             ThisChecked.setChecked(ThisItem.Selected);
-            TheView.setOnClickListener(new OnSetCheck(ThisItem));
+            final OnSetCheck ThisSetCheck = new OnSetCheck(ThisItem);
+            ThisChecked.setOnClickListener(ThisSetCheck);
+              /* otherwise radio button can get checked but I don't notice */
+            TheView.setOnClickListener(ThisSetCheck);
             return
                 TheView;
           } /*getView*/
