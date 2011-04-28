@@ -258,7 +258,7 @@ colors = \
 def parse_template(input) :
 
     parse_state = {"nest" : 0, "main_seen" : False, "save_content" : [], "content" : None}
-    result = [None] * 4
+    result = {"slots" : [None] * 4}
 
     def require_attrs(tag, attrs, attrnames) :
         """ensures that attrs has values for all keys listed in attrnames."""
@@ -274,10 +274,10 @@ def parse_template(input) :
             raise RuntimeError("invalid slot name \"%s\"" % slotname)
         #end if
         slot = label_slots[slotname]
-        if result[slot["row"] - 1] == None :
-            result[slot["row"] - 1] = {"nrcells" : None}
+        if result["slots"][slot["row"] - 1] == None :
+            result["slots"][slot["row"] - 1] = {"nrcells" : None}
         #end if
-        row = result[slot["row"] - 1]
+        row = result["slots"][slot["row"] - 1]
         if row["nrcells"] != None :
             if (row["nrcells"] == 1) != (slot["cell"] == 0) :
                 raise RuntimeError("slot %s incompatible with previously-specified slots" % slotname)
@@ -361,9 +361,8 @@ def parse_template(input) :
         if parse_state["nest"] == 0 :
             if name == "carddef" :
                 require_attrs(name, attrs, ("style",))
-                global card_style
-                card_style = attrs["style"]
-                assert card_style in ("user", "system"), "invalid card style %s" % card_style
+                result["card_style"] = attrs["style"]
+                assert result["card_style"] in ("user", "system"), "invalid card style %s" % result["card_style"]
                 parse_state["nest"] = 1
                 parse_state["main_seen"] = True
             else :
@@ -421,12 +420,12 @@ def parse_template(input) :
     if not parse_state["main_seen"] :
         raise RuntimeError("missing \"carddef\" element")
     #end if
-    if card_style == "system" :
-        result[0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
+    if result["card_style"] == "system" :
+        result["slots"][0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
     #end if
     for i in (2, 3) :
-        if result[i] == None :
-            result[i] = {"nrcells" : 5} # just draw empty cells
+        if result["slots"][i] == None :
+            result["slots"][i] = {"nrcells" : 5} # just draw empty cells
         #end if
     #end for
     return result
@@ -438,7 +437,6 @@ def parse_template(input) :
 
 debug_ps = False
 template = parse_template(sys.stdin.detach())
-# fudge: card_style passed back in global
 
 if debug_ps :
     args = ("cat",)
@@ -671,7 +669,7 @@ gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
 gs.write("/DeviceRGB setcolorspace\n")
 corner_radius = mm(1.5)
-gs.write("%.3f %.3f %.3f setcolor newpath %.1f 0 moveto\n" % (colors[card_style]["bg"] + (corner_radius,)))
+gs.write("%.3f %.3f %.3f setcolor newpath %.1f 0 moveto\n" % (colors[template["card_style"]]["bg"] + (corner_radius,)))
 gs.write("%.1f 0 rlineto\n" % (card_width - 2 * corner_radius))
 gs.write("%.1f %.1f %.1f 270 360 arc\n" % (card_width - corner_radius, corner_radius, corner_radius))
 gs.write("0 %.1f rlineto\n" % (card_height - 2 * corner_radius))
@@ -681,7 +679,7 @@ gs.write("%.1f %.1f %.1f 90 180 arc\n" % (corner_radius, card_height - corner_ra
 gs.write("0 %.1f rlineto\n" % (2 * corner_radius - card_height))
 gs.write("%.1f %.1f %.1f 180 270 arc\n" % (corner_radius, corner_radius, corner_radius))
 gs.write("closepath fill\n")
-gs.write("%.3f %.3f %.3f setcolor\n" % colors[card_style]["fg"])
+gs.write("%.3f %.3f %.3f setcolor\n" % colors[template["card_style"]]["fg"])
 gs.write("0.5 setlinewidth\n")
 gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * 0.75, card_width))
 for i in (1, 2) :
@@ -720,8 +718,8 @@ def rendercell(items, align) :
     #end for
 #end rendercell
 for i in range(0, 4) :
-    if template[i] != None :
-        row = template[i]
+    if template["slots"][i] != None :
+        row = template["slots"][i]
         if row["nrcells"] > 1 :
             for col in range(1, row["nrcells"] + 1) :
                 gs.write("%% (row, col) = (%d, %d)\n" % (i, col)) # debug
