@@ -108,29 +108,37 @@ def mm(dist) :
 # Card template
 #-
 
+fullrow = frozenset(range(1, 6))
 label_slots = \
     {
     # key is slot name, value is dict with keys:
     #     row -- row number [2 .. 4] (top row reserved for fixed text)
     #     cell -- cell number [1 .. 5] if row is divided into cells, or 0 if entire row is one cell
-    #     align -- alignment of label text within cell (actually ignored for multiple cells per row)
-        "titleleft" : {"row" : 2, "cell" : 0, "align" : "left"},
-        "titleright" : {"row" : 2, "cell" : 0, "align" : "right"},
-        "aprime" : {"row" : 3, "cell" : 1, "align" : "center"},
-        "bprime" : {"row" : 3, "cell" : 2, "align" : "center"},
-        "cprime" : {"row" : 3, "cell" : 3, "align" : "center"},
-        "dprime" : {"row" : 3, "cell" : 4, "align" : "center"},
-        "eprime" : {"row" : 3, "cell" : 5, "align" : "center"},
-        "primecenter" : {"row" : 3, "cell" : 0, "align" : "center"},
-        "basecenter" : {"row" : 4, "cell" : 0, "align" : "center"},
-        "baseleft" : {"row" : 4, "cell" : 0, "align" : "left"},
-        "baseright" : {"row" : 4, "cell" : 0, "align" : "right"},
-        "a" : {"row" : 4, "cell" : 1, "align" : "center"},
-        "b" : {"row" : 4, "cell" : 2, "align" : "center"},
-        "c" : {"row" : 4, "cell" : 3, "align" : "center"},
-        "d" : {"row" : 4, "cell" : 4, "align" : "center"},
-        "e" : {"row" : 4, "cell" : 5, "align" : "center"},
+    #     align -- alignment of label text within cell
+        "titleleft" : {"row" : 2, "cells" : fullrow, "align" : "left"},
+        "titleright" : {"row" : 2, "cells" : fullrow, "align" : "right"},
+        "aprime" : {"row" : 3, "cells" : 1, "align" : "center"},
+        "bprime" : {"row" : 3, "cells" : 2, "align" : "center"},
+        "abprime" : {"row" : 3, "cells" : set((1, 2)), "align" : "center"},
+        "cprime" : {"row" : 3, "cells" : 3, "align" : "center"},
+        "dprime" : {"row" : 3, "cells" : 4, "align" : "center"},
+        "eprime" : {"row" : 3, "cells" : 5, "align" : "center"},
+        "primecenter" : {"row" : 3, "cells" : fullrow, "align" : "center"},
+        "basecenter" : {"row" : 4, "cells" : fullrow, "align" : "center"},
+        "baseleft" : {"row" : 4, "cells" : fullrow, "align" : "left"},
+        "baseright" : {"row" : 4, "cells" : fullrow, "align" : "right"},
+        "a" : {"row" : 4, "cells" : 1, "align" : "center"},
+        "b" : {"row" : 4, "cells" : 2, "align" : "center"},
+        "c" : {"row" : 4, "cells" : 3, "align" : "center"},
+        "d" : {"row" : 4, "cells" : 4, "align" : "center"},
+        "e" : {"row" : 4, "cells" : 5, "align" : "center"},
     }
+for slot in label_slots :
+    if type(label_slots[slot]["cells"]) == int :
+        label_slots[slot]["cells"] = set((label_slots[slot]["cells"],))
+    #end if
+    label_slots[slot]["cells"] = frozenset(label_slots[slot]["cells"])
+#end for
 
 # classes representing label content:
 class cdata :
@@ -281,26 +289,25 @@ def parse_template(input) :
         #end if
         slot = label_slots[slotname]
         if result["slots"][slot["row"] - 1] == None :
-            result["slots"][slot["row"] - 1] = {"nrcells" : None}
+            result["slots"][slot["row"] - 1] = {"labels" : {}, "cells_filled" : set(), "cell_runs" : []}
         #end if
         row = result["slots"][slot["row"] - 1]
-        if row["nrcells"] != None :
-            if (row["nrcells"] == 1) != (slot["cell"] == 0) :
-                raise RuntimeError("slot %s incompatible with previously-specified slots" % slotname)
-            #end if
-        else :
-            row["nrcells"] = [1, 5][slot["cell"] != 0]
+        row["cells_filled"] |= slot["cells"] # don't bother to check for overlap
+        cellrun = tuple(sorted(slot["cells"])) # assume contiguous
+        row["cell_runs"].append((cellrun[0], cellrun[-1])) # so just keep first and last
+        if slot["cells"] not in row["labels"] :
+            row["labels"][slot["cells"]] = {}
         #end if
-        if slot["cell"] != 0 :
-            key = slot["cell"]
-        else :
-            key = slot["align"]
-        #end if
-        if key in row :
-            raise RuntimeError("already filled %s slot in row %d" % (key, slot["row"]))
+        if slot["align"] in row["labels"][slot["cells"]] :
+            raise RuntimeError \
+              (
+                    "already filled %s alignment in %s slot in row %d"
+                %
+                    (slot["align"], repr(slot["cells"]), slot["row"])
+              )
         #end if
         parse_state["cur_label"] = {"content" : []}
-        row[key] = parse_state["cur_label"]
+        row["labels"][slot["cells"]][slot["align"]] = parse_state["cur_label"]
     #end handle_label_def
 
     def handle_label_end(tag) :
@@ -433,13 +440,30 @@ def parse_template(input) :
     if result["card_style"] == "system" :
         result["slots"][0] = \
             {
-                "nrcells" : 1,
-                "center" : {"content" : [cdata("Solid State Software")]},
+                "cells_filled" : fullrow,
+                "cell_runs" : ((1, 6),),
+                "labels" : {fullrow : {"center" : {"content" : [cdata("Solid State Software")]}}},
             }
     #end if
     for i in (2, 3) :
         if result["slots"][i] == None :
-            result["slots"][i] = {"nrcells" : 5} # just draw empty cells
+            result["slots"][i] = \
+                {
+                    "cells_filled" : fullrow,
+                    "cell_runs" : tuple((i, i) for i in range(1, 6)),
+                    "labels" : {},
+                } # just draw empty cells
+        else :
+            for col in range(1, 6) : # ensure boundaries are drawn for unused cells
+                if col not in result["slots"][i]["cells_filled"] :
+                    result["slots"][i]["cell_runs"].append((col, col))
+                    result["slots"][i]["cells_filled"].add(col)
+                #end if
+            #end for
+            result["slots"][i]["cell_runs"] = tuple \
+              (
+                sorted(result["slots"][i]["cell_runs"], key = lambda v : v[0])
+              ) # ensure cell numbers are in ascending order
         #end if
     #end for
     return result
@@ -733,6 +757,10 @@ gs.write \
     %
         (card_width - thumb_margin, card_height * 0.75, - card_height * 0.75)
   )
+def celledge(col) :
+    return \
+        (card_width - thumb_margin) * col / 5
+#end celledge
 def rendercell(items, align) :
     if align != "left" :
         gs.write("0\n")
@@ -762,59 +790,44 @@ def rendercell(items, align) :
 for i in range(0, 4) :
     if template["slots"][i] != None :
         row = template["slots"][i]
-        if row["nrcells"] > 1 :
-            for col in range(1, row["nrcells"] + 1) :
-                gs.write("%% (row, col) = (%d, %d)\n" % (i, col)) # debug
+        for \
+            col \
+        in \
+            reduce(lambda a, b : a | b, (set((cols[0] - 1, cols[-1])) for cols in row["cell_runs"])) \
+        :
+            # draw cell boundaries
+            gs.write("%% cell boundary at (row, col) = (%d, %d)\n" % (i, col)) # debug
+            gs.write \
+              (
+                    "newpath %.1f %.1f moveto\n"
+                %
+                    (celledge(col), card_height * (4 - i) / 4)
+              )
+            gs.write("0 -%.1f rlineto stroke\n" % (card_height * 0.25))
+        #end for
+        for slot in row["labels"] : # draw cell contents
+            cellrun = tuple(slot)
+            cell_left, cell_right = celledge(cellrun[0] - 1), celledge(cellrun[-1])
+            for align in row["labels"][slot] :
+                gs.write("%% (row, slot, align) = (%d, %s, %s)\n" % (i, repr(slot), align)) # debug
                 gs.write \
                   (
-                        "newpath %.1f %.1f moveto\n"
+                        "newpath %.1f %.1f moveto "
                     %
                         (
-                            (card_width - thumb_margin) * col / row["nrcells"],
-                            card_height * (4 - i) / 4,
+                                label_margin
+                            +
+                                cell_left
+                            +
+                                    (cell_right - cell_left - 2 * label_margin)
+                                *
+                                    {"left" : 0.0, "center" : 0.5, "right" : 1.0}[align],
+                            card_height * (4 - i - 0.75) / 4,
                         )
                   )
-                gs.write("0 -%.1f rlineto stroke\n" % (card_height * 0.25))
-                if col in row :
-                    gs.write \
-                      (
-                            "newpath %.1f %.1f moveto "
-                        %
-                            (
-                                    label_margin
-                                +
-                                        (card_width - thumb_margin)
-                                    /
-                                        5
-                                    *
-                                        (col - 0.65),
-                                card_height * (4 - i - 0.75) / 4,
-                            )
-                      )
-                    rendercell(row[col]["content"], "center")
-                #end if
+                rendercell(row["labels"][slot][align]["content"], align)
             #end for
-        else :
-            for align in ("left", "center", "right") :
-                if align in row :
-                    gs.write("%% (row, align) = (%d, %s)\n" % (i, align)) # debug
-                    gs.write \
-                      (
-                            "newpath %.1f %.1f moveto "
-                        %
-                            (
-                                    label_margin
-                                +
-                                        (card_width - thumb_margin - 2 * label_margin)
-                                    *
-                                        {"left" : 0.0, "center" : 0.5, "right" : 1.0}[align],
-                                card_height * (4 - i - 0.75) / 4,
-                            )
-                      )
-                    rendercell(row[align]["content"], align)
-                #end if
-            #end for
-        #end if
+        #end for
     #end if
 #end for
 gs.write("showpage\n")
