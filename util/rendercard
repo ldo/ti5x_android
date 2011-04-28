@@ -796,14 +796,16 @@ for i in range(0, 4) :
             reduce(lambda a, b : a | b, (set((cols[0] - 1, cols[-1])) for cols in row["cell_runs"])) \
         :
             # draw cell boundaries
-            gs.write("%% cell boundary at (row, col) = (%d, %d)\n" % (i, col)) # debug
-            gs.write \
-              (
-                    "newpath %.1f %.1f moveto\n"
-                %
-                    (celledge(col), card_height * (4 - i) / 4)
-              )
-            gs.write("0 -%.1f rlineto stroke\n" % (card_height * 0.25))
+            if col != 0 : # don't draw one at left-hand edge of card
+                gs.write("%% cell boundary at (row, col) = (%d, %d)\n" % (i, col)) # debug
+                gs.write \
+                  (
+                        "newpath %.1f %.1f moveto\n"
+                    %
+                        (celledge(col), card_height * (4 - i) / 4)
+                  )
+                gs.write("0 -%.1f rlineto stroke\n" % (card_height * 0.25))
+            #end if
         #end for
         for slot in row["labels"] : # draw cell contents
             cellrun = tuple(slot)
