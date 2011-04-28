@@ -1,0 +1,69 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Note this code uses YYYYMMDD ordering, rather than the
+; MMDDYYYY ordering of the original. Also the day of week
+; is mapped [0 .. 6] => [Sun .. Sat], not [Sat .. Fri].
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;     01 -- YYYY
+;     02 -- MM
+;     03 -- DD
+;     04 -- FACTOR1
+;     05 -- FACTOR2
+;_
+
+lbl A
+; enter first date for computing interval
+    sbr sqrt
+    sto 04
+    0 ce
+    inv sbr
+
+lbl B
+; enter second date for computing interval
+    sbr sqrt
+    sto 05
+    0 ce
+    inv sbr
+
+lbl C
+; return number of days between dates
+    ( rcl 05 - rcl 04 )
+    inv sbr
+
+lbl D
+; return day of week for specified date
+    sbr sqrt sto 04
+    ( rcl 04 + ( rcl 04 +/- ÷ 7 ) int × 7 )
+    inv sbr
+
+lbl sqrt
+; given a date in yyyy.mmdd format, compute the corresponding “factor” number.
+    sto 02
+    int sto 01 ; yyyy
+    ( rcl 02 inv int × 100 ) sto 03
+    int sto 02 ; mm
+    ( rcl 03 inv int × 100 ) int sto 03 ; dd
+    (
+    365 × rcl 01 + rcl 03 + 31 × ( rcl 02 - 1 )
+    - 1 ; so day of week gives [0 .. 6] => [Sun .. Sat]
+    + ; remaining terms depend on ...
+    3 x<>t rcl 02 x≥t x2 ; ... the month
+; here for month = Jan, Feb
+    ( ( rcl 01 - 1 ) ÷ 4 ) int
+    - ( ( ( rcl 01 - 1 ) ÷ 100 + 1 ) int × 3 ÷ 4 ) int
+    gto 1/x
+lbl x2
+; here for month = Mar or later
+    ( rcl 01 ÷ 4 ) int
+    - ( 0.4 × rcl 02 + 2.3 ) int
+    - ( ( ( rcl 01 ÷ 100 ) int + 1 ) × 3 ÷ 4 ) int
+lbl 1/x
+    )
+    inv sbr

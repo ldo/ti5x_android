@@ -1,7 +1,7 @@
 <carddef style="system">
 <label slot="titleleft">DAY OF WEEK, DAYS BETWEEN DATES</label>
 <label slot="titleright">ML-20</label>
-<label slot="abprime">(M M D D. Y Y Y Y)</label>
+<label slot="abprime">(Y Y Y Y. M M D D)</label> <!-- note the original was M M D D. Y Y Y Y -->
 <label slot="a">DATE 1</label>
 <label slot="b">DATE 2</label>
 <label slot="c">No. DAYS</label>
