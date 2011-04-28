@@ -338,7 +338,10 @@ public class Printer
               {
                 glyph = 64;
               }
-          /* 65 -- raised dot? */
+            else if (ch == '\'')
+              {
+                glyph = 65;
+              }
           /* 66 -- superscript x? */
           /* 67 -- xbar? */
             else if (ch == '²')
