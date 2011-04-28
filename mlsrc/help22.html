@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-22 — Checking/Savings Account Management</H1>
+
+<P>This program calculates transactions (deposits and withdrawals) on checking
+and savings accounts. It can also accumulate interest, but only between transactions.
+
+<P>First, enter opening balances:
+<UL>
+<LI>Checking balance: <I>C.Bal</I> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">A´</SPAN> <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN>
+<LI>Savings balance: <I>S.Bal</I> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">B´</SPAN> <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN>
+</UL>
+<P>Select which account to enter transactions for:
+<UL>
+<LI>Checking account: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> or
+<LI>Savings account: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
+</UL>
+<P>Then, enter transactions:
+<UL>
+<LI>Deposit: <I>Dep.amt.</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> or
+<LI>Check/Withdrawal: <I>Chk.amt.</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>The new balance will be displayed after each transaction. Repeat the transaction-entry steps
+as necessary.
+
+<P>To calculate interest on the selected account:
+<OL>
+<LI>Enter annual interest percent (%I): <I>%I/yr</I> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">C´</SPAN>
+<LI>Enter compounding periods per year: <I>P</I> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">D´</SPAN>
+<LI>Enter total number of periods to accumulate interest for: <I>N</I>
+<SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>
+</OL>
+<P>The new balance will be displayed after the last step. Step 3 can be repeated at a
+later point (e.g. after entering more transactions) without having to re-enter steps 1 and 2.
+
+<P>Registers used: 01-10.
+
+</BODY>

@@ -1,0 +1,84 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;     01 -- N (total number of interest periods)
+;     02 -- P (number of interest periods per year)
+;     03 -- PV
+;     04 -- FV
+;     05 -- checking balance
+;     06 -- savings balance
+;     07 -- %I (annual interest percentage)
+;     08 -- i = %I ÷ 100 ÷ P
+;     09 -- 1 + i
+;     10 -- indirect balance pointer
+;_
+
+;+
+; transaction entry
+;-
+
+lbl A
+; show current balance
+    rcl ind 10
+    inv sbr
+
+lbl B
+; enter deposit
+    sum ind 10
+    gto A
+
+lbl C
+; enter withdrawal
+    inv sum ind 10
+    gto A
+
+lbl E
+; enter new balance
+    sto ind 10
+    inv sbr
+
+lbl A'
+; select checking account
+    x<>t 05 sto 10
+    0 x<>t
+    inv sbr
+
+lbl B'
+; select savings account
+    x<>t 06 sto 10
+    0 x<>t
+    inv sbr
+
+;+
+; interest calculation
+;-
+
+lbl C'
+; enter annual interest percentage
+    sto 07
+    ( ce ÷ 100 ) sto 08
+    rcl 07
+    inv sbr
+
+lbl D'
+; enter periods per year
+; also calculate i and i + 1
+    sto 02
+    ( rcl 08 ÷ rcl 02 ) sto 08
+    ( ce + 1 ) sto 09
+    ( rcl 07 ÷ rcl 02 )
+    inv sbr
+
+lbl D
+; enter total number of periods
+    sto 01
+; and fall through to...
+; do interest calculation
+    ( rcl ind 10 * rcl 09 ** rcl 01 ) sto ind 10
+    inv sbr
