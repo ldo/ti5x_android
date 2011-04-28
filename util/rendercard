@@ -188,6 +188,7 @@ class superscript(taggedtext) :
 #end superscript
 
 class noverr(taggedtext) :
+    """n vertically placed over r."""
 
     def __init__(self) :
         super().__init__("noverr", "")
@@ -200,6 +201,7 @@ class noverr(taggedtext) :
 #end noverr
 
 class xbar(taggedtext) :
+    """x with a bar above."""
 
     def __init__(self) :
         super().__init__("xbar", "")
@@ -212,6 +214,8 @@ class xbar(taggedtext) :
 #end xbar
 
 def defsymbol(name, psstr) :
+    """defines a symbol from Symbol font. psstr is the
+    PostScript string literal for rendering it."""
 
     class newsymbol(taggedtext) :
 
@@ -256,6 +260,8 @@ colors = \
     }
 
 def parse_template(input) :
+    """parses the XML template read from input, and returns a structure
+    representing the information for rendering."""
 
     parse_state = {"nest" : 0, "main_seen" : False, "save_content" : [], "content" : None}
     result = {"slots" : [None] * 4}
@@ -362,7 +368,8 @@ def parse_template(input) :
             if name == "carddef" :
                 require_attrs(name, attrs, ("style",))
                 result["card_style"] = attrs["style"]
-                assert result["card_style"] in ("user", "system"), "invalid card style %s" % result["card_style"]
+                assert result["card_style"] in ("user", "system"), \
+                    "invalid card style %s" % result["card_style"]
                 parse_state["nest"] = 1
                 parse_state["main_seen"] = True
             else :
@@ -377,7 +384,10 @@ def parse_template(input) :
                 handler = handlers.get(name)
                 if handler != None :
                     if parse_state["nest"] == 2 :
-                        parse_state["cur_label"]["content"].append(cdata("".join(parse_state["save_content"][-1])))
+                        parse_state["cur_label"]["content"].append \
+                          (
+                            cdata("".join(parse_state["save_content"][-1]))
+                          )
                         parse_state["save_content"][-1] = []
                     #end if
                     parse_state["content"] = []
@@ -421,7 +431,11 @@ def parse_template(input) :
         raise RuntimeError("missing \"carddef\" element")
     #end if
     if result["card_style"] == "system" :
-        result["slots"][0] = {"nrcells" : 1, "center" : {"content" : [cdata("Solid State Software")]}}
+        result["slots"][0] = \
+            {
+                "nrcells" : 1,
+                "center" : {"content" : [cdata("Solid State Software")]},
+            }
     #end if
     for i in (2, 3) :
         if result["slots"][i] == None :
@@ -573,6 +587,7 @@ def UniWidth(thestr) :
     return UniOp(thestr, "UniWidth")
 #end UniWidth
 
+# yeah, all the scalefont calls leak memory
 render_special = \
     { # special actions to modify rendering and width calculation for each tag
         button :
@@ -588,6 +603,7 @@ render_special = \
                         " currentpoint exch pop %.2f sub" % (card_height * 0.03)
                     +
                         " exch %.2f rectstroke" % (card_height / 4 * 0.7),
+                          # draw the box around the button text
             },
         noverr :
             {
@@ -596,13 +612,17 @@ render_special = \
                     " %.2f 0.2 mul add add exch setfont" % basefontsize,
                 "renderbefore" : "",
                 "renderafter" :
-                        "%.2f 0.1 mul 0 rmoveto currentfont dup 0.6 scalefont setfont " % basefontsize
+                            "%.2f 0.1 mul 0 rmoveto currentfont dup 0.6 scalefont setfont "
+                        %
+                            basefontsize
                     +
                         "currentpoint 0 %.2f 0.3 mul rmoveto (n) show" % basefontsize
                     +
                         " moveto currentpoint exch pop 0 %.2f -0.2 mul rmoveto" % basefontsize
                     +
-                        " (r) show currentpoint pop %.2f 0.1 mul add exch moveto setfont" % basefontsize,
+                            " (r) show currentpoint pop %.2f 0.1 mul add exch moveto setfont"
+                        %
+                            basefontsize,
             },
         subscript :
             {
@@ -659,7 +679,8 @@ render_special[symbols["rarrow"]] = \
             +
                 " (\\256) stringwidth pop 2 div add exch setfont",
         "renderbefore" :
-                "currentfont /%s findfont matrix %.2f dup 2 div exch 3 2 roll scale makefont setfont (\\256) show"
+                "currentfont /%s findfont matrix %.2f dup 2 div exch"
+                " 3 2 roll scale makefont setfont (\\256) show"
             %
                 (symbolfontname, basefontsize),
         "renderafter" : "setfont",
@@ -669,13 +690,29 @@ gs.write("/%s findfont %.2f scalefont setfont\n" % (fontname, basefontsize))
 gs.write("/boxextra (M) stringwidth pop 2 div def\n")
 gs.write("/DeviceRGB setcolorspace\n")
 corner_radius = mm(1.5)
-gs.write("%.3f %.3f %.3f setcolor newpath %.1f 0 moveto\n" % (colors[template["card_style"]]["bg"] + (corner_radius,)))
+gs.write \
+  (
+        "%.3f %.3f %.3f setcolor newpath %.1f 0 moveto\n"
+    %
+        (colors[template["card_style"]]["bg"] + (corner_radius,))
+  )
 gs.write("%.1f 0 rlineto\n" % (card_width - 2 * corner_radius))
-gs.write("%.1f %.1f %.1f 270 360 arc\n" % (card_width - corner_radius, corner_radius, corner_radius))
+gs.write \
+  (
+    "%.1f %.1f %.1f 270 360 arc\n" % (card_width - corner_radius, corner_radius, corner_radius)
+  )
 gs.write("0 %.1f rlineto\n" % (card_height - 2 * corner_radius))
-gs.write("%.1f %.1f %.1f 0 90 arc\n" % (card_width - corner_radius, card_height - corner_radius, corner_radius))
+gs.write \
+  (
+        "%.1f %.1f %.1f 0 90 arc\n"
+    %
+        (card_width - corner_radius, card_height - corner_radius, corner_radius)
+  )
 gs.write("%.1f 0 rlineto\n" % (2 * corner_radius - card_width))
-gs.write("%.1f %.1f %.1f 90 180 arc\n" % (corner_radius, card_height - corner_radius, corner_radius))
+gs.write \
+  (
+    "%.1f %.1f %.1f 90 180 arc\n" % (corner_radius, card_height - corner_radius, corner_radius)
+  )
 gs.write("0 %.1f rlineto\n" % (2 * corner_radius - card_height))
 gs.write("%.1f %.1f %.1f 180 270 arc\n" % (corner_radius, corner_radius, corner_radius))
 gs.write("closepath fill\n")
@@ -683,7 +720,12 @@ gs.write("%.3f %.3f %.3f setcolor\n" % colors[template["card_style"]]["fg"])
 gs.write("0.5 setlinewidth\n")
 gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * 0.75, card_width))
 for i in (1, 2) :
-    gs.write("newpath 0 %.1f moveto %.1f 0 rlineto stroke\n" % (card_height * i  / 4, card_width - thumb_margin))
+    gs.write \
+      (
+            "newpath 0 %.1f moveto %.1f 0 rlineto stroke\n"
+        %
+            (card_height * i  / 4, card_width - thumb_margin)
+      )
 #end for
 gs.write \
   (
