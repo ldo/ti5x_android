@@ -157,7 +157,7 @@ public class State
 
     public final byte[] PrintRegister;
 
-    double RoundTo
+    static double RoundTo
       (
         double X,
         int NrFigures
@@ -168,6 +168,28 @@ public class State
         return
             Math.rint(X * RoundFactor) / RoundFactor;
       } /*RoundTo*/
+
+    static int FiguresBeforeDecimal
+      (
+        double X,
+        int Exp
+      )
+      /* returns the number of figures before the decimal point in the
+        formatted representation of X scaled by Exp. */
+      {
+        int BeforeDecimal;
+        if (X != 0.0)
+          {
+            BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
+              /* places before decimal point */
+          }
+        else
+          {
+            BeforeDecimal = 1;
+          } /*if*/
+        return
+            BeforeDecimal;
+      } /*FiguresBeforeDecimal*/
 
     public void Reset
       (
@@ -458,7 +480,7 @@ public class State
       /* sets the display to show the specified value. */
       {
         int UseFormat = CurFormat;
-        int Exp, BeforeDecimal;
+        int Exp;
         CurState = ResultState;
         X = NewX;
         if (!Double.isNaN(X) && !Double.isInfinite(X))
@@ -491,15 +513,7 @@ public class State
                 break;
                   } /*switch*/
               } /*if*/
-            if (X != 0.0)
-              {
-                BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
-                  /* places before decimal point */
-              }
-            else
-              {
-                BeforeDecimal = 1;
-              } /*if*/
+            final int BeforeDecimal = FiguresBeforeDecimal(X, Exp);
             switch (UseFormat)
               {
             case FORMAT_FLOAT:
@@ -882,11 +896,19 @@ public class State
 
     public void Int()
       {
+        final int MaxPrec = 13; /* fudge for roundoff caused by binary versus decimal arithmetic */
         Enter();
-        final double IntPart = Math.floor(Math.abs(RoundTo(X, 13)));
+        final double IntPart = Math.floor(Math.abs(RoundTo(X, MaxPrec)));
         if (InvState)
           {
-            SetX((Math.abs(X) - IntPart) * Math.signum(X));
+            SetX
+              (
+                RoundTo
+                  (
+                    (Math.abs(X) - IntPart) * Math.signum(X),
+                    Math.max(MaxPrec - FiguresBeforeDecimal(X, 0), 0)
+                  )
+              );
           }
         else
           {
