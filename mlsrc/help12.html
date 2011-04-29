@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-12 — Triangle Solution (2)</H1>
+
+<P>Continuation of ML-11, Triangle Solution (1). This program will work out various
+parameters of a triangle given some of them: given either two angles and the included side
+(ASA) or two angles and a non-included side (SAA), it will compute the remaining
+angles and sides. It can also work out the area of a triangle once a computation has been done.
+
+<H3>Knowing ASA</H3>
+<P>First, enter the known angles and side of the triangle, in any order:
+<UL>
+<LI>Enter included side <I>a</I>: <I>a</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Enter angle <I>B</I>: <I>B</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter angle <I>C</I>: <I>C</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>Then, compute angle A: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN>
+<P>Now, you can obtain the remaining sides, in either order:
+<UL>
+<LI>side b: <SPAN CLASS="brownbutton">D</SPAN>
+<LI>side c: <SPAN CLASS="brownbutton">E</SPAN>
+</UL>
+
+<H3>Knowing SAA</H3>
+<P>First, enter the known angles and side, in any order:
+<UL>
+<LI>Enter non-included side <I>a</I>: <I>a</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Enter angle <I>A</I>: <I>A</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter angle <I>C</I>: <I>C</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>Then, compute angle B: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
+<P>Now, you can obtain the remaining sides, in either order:
+<UL>
+<LI>side b: <SPAN CLASS="brownbutton">D</SPAN>
+<LI>side c: <SPAN CLASS="brownbutton">E</SPAN>
+</UL>
+
+<H3>Triangle Area</H3>
+<P>Having done any of the previous computations, simply press
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN> to determine the
+area of the triangle.
+<P>This can also be done after any of the computations in ML-11, Triangle Solutions (1).
+
+<H3>Formulas Used</H3>
+
+<P>A + B + C = 180° or 2π
+
+<P>c<SUP>2</SUP> = a<SUP>2</SUP> + b<SUP>2</SUP> - 2ab cos C
+
+<P>a ÷ sin A = b ÷ sin B = c ÷ sin C
+
+<P>Area = sqrt(s(s - a)(s - b)(s - c)) where s = (a + b + c) ÷ 2.
+
+<P>Registers used: 01-07.

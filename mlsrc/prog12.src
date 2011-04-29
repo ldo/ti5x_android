@@ -1,0 +1,73 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage (note this doesn't match the original):
+;     01 -- side a
+;     02 -- side b
+;     03 -- side c
+;     04 -- scratch
+;     05 -- angle A or B
+;     06 -- angle C
+;     07 -- scratch
+;_
+
+;+
+; input entry
+;-
+
+lbl A
+    sto 01
+    inv sbr
+
+lbl B
+    sto 05
+    inv sbr
+
+lbl C
+    sto 06
+    inv sbr
+
+;+
+; output computations
+;-
+
+lbl A'
+; ASA, compute angle A
+    ( 2 * 1 inv sin - rcl 05 - rcl 06 ) sto 07
+; compute remaining sides
+    ( ce sin ÷ rcl 01 ) sto 04
+    ( rcl 05 sin ÷ rcl 04 ) sto 02 ; side b from angle B
+    ( rcl 06 sin ÷ rcl 04 ) sto 03 ; side c from angle C
+    rcl 07 ; what I came here to get
+    inv sbr
+
+lbl B'
+; SAA, compute angle B
+    ( 2 * 1 inv sin - rcl 05 - rcl 06 ) sto 07
+; compute remaining sides
+    ( rcl 05 sin ÷ rcl 01 ) sto 04
+    ( rcl 07 sin ÷ rcl 04 ) sto 02 ; side b from angle B
+    ( rcl 06 sin ÷ rcl 04 ) sto 03 ; side c from angle C
+    rcl 07 ; what I came here to get
+    inv sbr
+
+lbl C'
+; compute area of triangle, once all three sides are known
+    ( ( rcl 01 + rcl 02 + rcl 03 ) ÷ 2 ) sto 04
+    ( rcl 04 * ( rcl 04 - rcl 01 ) * ( rcl 04 - rcl 02 ) * ( rcl 04 - rcl 03 ) ) sqrt
+    inv sbr
+
+lbl D
+; return side b
+    rcl 02
+    inv sbr
+
+lbl E
+; return side c
+    rcl 03
+    inv sbr

@@ -77,4 +77,3 @@ lbl C'
 ; return angle C or A, assuming all sides entered/computed
     rcl 04
     inv sbr
-
