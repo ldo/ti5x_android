@@ -1441,8 +1441,10 @@ public class State
                 case 19:
                     if (OpNr == (InErrorState() ? 19 : 18))
                       {
-                        Flag[FLAG_ERROR_COND] = true;
+                        Flag[FLAG_ERROR_COND] = !InvState;
+                      /* meaning of INV Op 18/19 taken from “52 Notes” volume 2 number 8 */
                       } /*if*/
+                    OK = true;
                 break;
               /* 20-39 handled above */
                 case 40:

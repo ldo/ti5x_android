@@ -338,8 +338,14 @@ if flag <I>n</I> is set, branch to location <I>loc</I>.
 location <I>loc</I>.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>18</B> —
 if there is no error condition, set flag 7, otherwise leave it unchanged.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Op</SPAN> <B>18</B> —
+if there is no error condition, clear flag 7, otherwise leave it unchanged.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>19</B> —
 if there is an error condition, set flag 7, otherwise leave it unchanged.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Op</SPAN> <B>19</B> —
+if there is an error condition, clear flag 7, otherwise leave it unchanged.
 </UL>
 
 <P>Stop on error: if flag 8 is set when an error condition occurs during program execution,
