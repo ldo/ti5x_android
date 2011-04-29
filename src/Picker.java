@@ -232,7 +232,10 @@ public class Picker extends android.app.Activity
                         android.view.View TheView
                       )
                       {
-                        new DeleteConfirm(Picker.this, ThisItem).show();
+                        if (ThisItem.FullPath != null) /* cannot delete built-in library */
+                          {
+                            new DeleteConfirm(Picker.this, ThisItem).show();
+                          } /*if*/
                         return
                             true;
                       } /*onLongClick*/
