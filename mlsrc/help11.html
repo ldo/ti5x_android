@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-11 — Triangle Solution (1)</H1>
+
+<P>This program will work out various parameters of a triangle given some
+of them: given either all three sides (SSS), two sides and a non-included angle
+(SSA), or two sides and the included angle (SAS), it will compute the remaining
+angles or sides.
+
+<H3>Knowing SSS</H3>
+<P>First, enter the sides of the triangle, in any order:
+<UL>
+<LI>Enter side <I>a</I>: <I>a</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Enter side <I>b</I>: <I>b</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter side <I>c</I>: <I>c</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>Then, compute angle A: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN>
+<P>Now, you can compute the remaining angles, in either order:
+<UL>
+<LI>angle B: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
+<LI>angle C: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN>
+</UL>
+
+<H3>Knowing SSA</H3>
+<P>First, enter the known sides and the angle, in any order:
+<UL>
+<LI>Enter side <I>a</I>: <I>a</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Enter side <I>b</I>: <I>b</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter angle <I>A</I>: <I>A</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>Then, compute side c: <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>.
+<P>Now, you can compute the remaining angles, in either order:
+<UL>
+<LI>angle B: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
+<LI>angle C: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN>
+</UL>
+
+<H3>Knowing SAS</H3>
+<P>First, enter the known sides and the angle, in any order:
+<UL>
+<LI>Enter side <I>a</I>: <I>a</I> <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Enter side <I>b</I>: <I>b</I> <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter angle <I>C</I>: <I>C</I> <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+</UL>
+<P>Then, compute side c: <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN>.
+<P>Now, you can compute the remaining angles, in either order:
+<UL>
+<LI>angle B: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
+<LI>angle A: <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN>
+</UL>
+
+<H3>Formulas Used</H3>
+
+<P>A + B + C = 180° or 2π
+
+<P>c<SUP>2</SUP> = a<SUP>2</SUP> + b<SUP>2</SUP> - 2ab cos C
+
+<P>a ÷ sin A = b ÷ sin B = c ÷ sin C
+
+<P>Registers used: 01-04.

@@ -1,0 +1,80 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage (note this doesn't match the original):
+;     01 -- side a
+;     02 -- side b
+;     03 -- side c, or (initial entry only) angle A or angle C
+;     04 -- scratch
+;_
+
+lbl E'
+; initialize
+; nothing to do, really
+    inv sbr
+
+;+
+; input entry
+;-
+
+lbl A
+    sto 01
+    inv sbr
+
+lbl B
+    sto 02
+    inv sbr
+
+lbl C
+    sto 03
+    inv sbr
+
+;+
+; output computations
+;-
+
+lbl A'
+; SSS, compute angle A
+    sbr cos
+    ( ( rcl 02 x² + rcl 03 x² - rcl 01 x² ) ÷ ( 2 × rcl 02 × rcl 03 ) ) inv cos
+    inv sbr
+
+lbl D
+; SSA, compute side c
+    ( rcl 03 sin ÷ rcl 01 ) sto 04
+    ( ( 2 × 1 inv sin - rcl 03 - ( rcl 02 × rcl 04 ) inv sin ) sin ÷ rcl 04 )
+    sto 03 ; subsequent calculations same as for SSS
+    sbr cos
+    rcl 03
+    inv sbr
+
+lbl E
+; SAS, compute side c
+    ( rcl 01 x² + rcl 02 x² - 2 × rcl 01 × rcl 02 × rcl 03 cos  ) sqrt
+    sto 03 ; subsequent calculations same as for SSS, except
+    ( ( rcl 02 x² + rcl 03 x² - rcl 01 x² ) ÷ ( 2 × rcl 02 × rcl 03 ) ) inv cos sto 04
+      ; angle A, for C' to return
+    rcl 03
+    inv sbr
+
+lbl B'
+; compute angle B, assuming all sides entered/computed
+    ( ( rcl 01 x² + rcl 03 x² - rcl 02 x² ) ÷ ( 2 × rcl 01 × rcl 03 ) ) inv cos
+    inv sbr
+
+lbl cos
+; precompute result to be returned by C' and save in r04
+    ( ( rcl 01 x² + rcl 02 x² - rcl 03 x² ) ÷ ( 2 × rcl 01 × rcl 02 ) ) inv cos sto 04
+      ; angle C
+    inv sbr
+
+lbl C'
+; return angle C or A, assuming all sides entered/computed
+    rcl 04
+    inv sbr
+
