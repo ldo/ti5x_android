@@ -50,13 +50,16 @@
 </STYLE>
 </HEAD>
 <BODY>
-<H1>ML-01 — Diagnostic Library Help</H1>
+<H1>ML-01 — Master Library Diagnostic</H1>
 
 <DL class="deflist">
 <DT><SPAN CLASS="brownbutton">SBR</SPAN> <SPAN CLASS="yellowbutton">&nbsp;=&nbsp;</SPAN>
     <DD>Run diagnostic
 <DT><SPAN CLASS="brownbutton">SBR</SPAN> <SPAN CLASS="yellowbutton">CLR</SPAN>
 <DD>Clear memories 01-06 and display and T registers to initialize for statistics operations.
+<DT><I>nn</I> <SPAN CLASS="brownbutton">STO</SPAN> <B>00</B>
+    <DD>Set up the user-defined keys so they will call through to the corresponding functions
+    in program ML-<I>nn</I>, printing the input before invocation and output after invocation.
 </DL>
 
 </BODY>
