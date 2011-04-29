@@ -1,6 +1,6 @@
 package nz.gen.geek_central.ti5x;
 /*
-    The calculation state and number entry.
+    The calculation state, number entry and programs.
 
     Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -16,8 +16,50 @@ package nz.gen.geek_central.ti5x;
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-public class State
+class Arith
+  /* useful arithmetic-related stuff */
   {
+
+    public static double RoundTo
+      (
+        double X,
+        int NrFigures
+      )
+      /* returns X rounded to the specified number of significant figures. */
+      {
+        final double RoundFactor = Math.pow(10, NrFigures);
+        return
+            Math.rint(X * RoundFactor) / RoundFactor;
+      } /*RoundTo*/
+
+    public static int FiguresBeforeDecimal
+      (
+        double X,
+        int Exp
+      )
+      /* returns the number of figures before the decimal point in the
+        formatted representation of X scaled by Exp. */
+      {
+        int BeforeDecimal;
+        if (X != 0.0)
+          {
+            BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
+              /* places before decimal point */
+          }
+        else
+          {
+            BeforeDecimal = 1;
+          } /*if*/
+        return
+            BeforeDecimal;
+      } /*FiguresBeforeDecimal*/
+
+  } /*Arith*/
+
+public class State
+  /* the calculator state, number entry and programs */
+  {
+  /* number-entry state */
     public final static int EntryState = 0;
     public final static int DecimalEntryState = 1;
     public final static int ExponentEntryState = 2;
@@ -26,7 +68,7 @@ public class State
     public int CurState = EntryState;
     public boolean ExponentEntered = false;
 
-    public boolean InvState = false;
+    public boolean InvState = false; /* INV has been pressed/executed */
 
     String CurDisplay; /* current number display */
     android.os.Handler BGTask;
@@ -34,17 +76,20 @@ public class State
     Runnable ExecuteTask = null;
     java.security.SecureRandom Random = new java.security.SecureRandom();
 
+  /* number-display format */
     public static final int FORMAT_FIXED = 0;
     public static final int FORMAT_FLOAT = 1;
     public static final int FORMAT_ENG = 2;
     public int CurFormat = FORMAT_FIXED;
     public int CurNrDecimals = -1;
 
+  /* angle units */
     public static final int ANG_RAD = 1;
     public static final int ANG_DEG = 2;
     public static final int ANG_GRAD = 3;
     public int CurAng = ANG_DEG;
 
+  /* pending-operation stack */
     public final static int STACKOP_ADD = 1;
     public final static int STACKOP_SUB = 2;
     public final static int STACKOP_MUL = 3;
@@ -80,9 +125,10 @@ public class State
     public static class ProgBank
       {
         byte[] Program;
-        java.util.Map<Integer, Integer> Labels; /* mapping from symbolic codes to program locations */
-        android.graphics.Bitmap Card; /* can be null */
-        byte[] Help; /* can be null, help for program 00 is actually help for entire library module */
+        java.util.Map<Integer, Integer> Labels;
+          /* mapping from symbolic codes to program locations */
+        android.graphics.Bitmap Card; /* card image to display when bank is selected, can be null */
+        byte[] Help; /* HTML help to display, can be null */
 
         public ProgBank
           (
@@ -99,15 +145,16 @@ public class State
 
       } /*ProgBank*/
 
-    public boolean ProgMode;
+    public boolean ProgMode; /* true for program-entry mode, false for calculation mode */
     public final int MaxMemories = 100; /* maximum addressable */
     public final int MaxProgram = 960; /* absolute max on original model */
-    public final int MaxBanks = 100; /* 00 is user-entered program, others are loaded from library modules */
+    public final int MaxBanks = 100;
+      /* 00 is user-entered program, others are loaded from library modules */
     public final int MaxFlags = 10;
     public final double[] Memory;
     public final byte[] Program;
     public final ProgBank[] Bank; /* Bank[0].Program always points to Program */
-    public byte[] ModuleHelp;
+    public byte[] ModuleHelp; /* overall help for loaded library module */
     public final boolean[] Flag;
 
   /* special flag numbers: */
@@ -118,9 +165,9 @@ public class State
     public final static int FLAG_TRACE_PRINT = 9; /* if set, calculation is traced on printer */
 
     public int PC, RunPC, CurBank, RunBank, NextBank;
-    public boolean ProgRunning;
-    public boolean ProgRunningSlowly;
-    public boolean SaveRunningSlowly;
+    public boolean ProgRunning; /* program currently executing */
+    public boolean ProgRunningSlowly; /* executing program pauses to show intermediate result */
+    public boolean SaveRunningSlowly; /* for one-off pauses */
 
   /* use of memories for stats operations */
     public static final int STATSREG_SIGMAY = 1;
@@ -150,46 +197,12 @@ public class State
       } /*ReturnStackEntry*/
 
     public final int MaxReturnStack = 6;
-    public ReturnStackEntry[] ReturnStack;
-    public int ReturnLast;
+    public ReturnStackEntry[] ReturnStack; /* for subroutine calls */
+    public int ReturnLast; /* top of ReturnStack */
 
     String LastShowing = null;
 
     public final byte[] PrintRegister;
-
-    static double RoundTo
-      (
-        double X,
-        int NrFigures
-      )
-      /* returns X rounded to the specified number of significant figures. */
-      {
-        final double RoundFactor = Math.pow(10, NrFigures);
-        return
-            Math.rint(X * RoundFactor) / RoundFactor;
-      } /*RoundTo*/
-
-    static int FiguresBeforeDecimal
-      (
-        double X,
-        int Exp
-      )
-      /* returns the number of figures before the decimal point in the
-        formatted representation of X scaled by Exp. */
-      {
-        int BeforeDecimal;
-        if (X != 0.0)
-          {
-            BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
-              /* places before decimal point */
-          }
-        else
-          {
-            BeforeDecimal = 1;
-          } /*if*/
-        return
-            BeforeDecimal;
-      } /*FiguresBeforeDecimal*/
 
     public void Reset
       (
@@ -467,7 +480,7 @@ public class State
               }
             else
               {
-                SetX(RoundTo(X, 10)); /* as per manual */
+                SetX(Arith.RoundTo(X, 10)); /* as per manual */
               } /*if*/
         break;
           } /*switch*/
@@ -513,7 +526,7 @@ public class State
                 break;
                   } /*switch*/
               } /*if*/
-            final int BeforeDecimal = FiguresBeforeDecimal(X, Exp);
+            final int BeforeDecimal = Arith.FiguresBeforeDecimal(X, Exp);
             switch (UseFormat)
               {
             case FORMAT_FLOAT:
@@ -898,15 +911,15 @@ public class State
       {
         final int MaxPrec = 13; /* fudge for roundoff caused by binary versus decimal arithmetic */
         Enter();
-        final double IntPart = Math.floor(Math.abs(RoundTo(X, MaxPrec)));
+        final double IntPart = Math.floor(Math.abs(Arith.RoundTo(X, MaxPrec)));
         if (InvState)
           {
             SetX
               (
-                RoundTo
+                Arith.RoundTo
                   (
                     (Math.abs(X) - IntPart) * Math.signum(X),
-                    Math.max(MaxPrec - FiguresBeforeDecimal(X, 0), 0)
+                    Math.max(MaxPrec - Arith.FiguresBeforeDecimal(X, 0), 0)
                   )
               );
           }
