@@ -71,6 +71,19 @@ the new number of days.
 to display a number in the range [0 .. 6], with 0 representing Sunday .. 6 representing Saturday.
 </UL>
 
+<H3>Formulas Used</H3>
+
+<P>Each date is converted to a “FACTOR” (integer number of days from an arbitrary reference
+point) using the following
+formulae, depending on the month:
+<P>For January and February:
+<BLOCKQUOTE><P>FACTOR = 365 × YYYY + DD + 31 × (MM - 1) + Int[(YYYY - 1) ÷ 4] - Int(Int[(YYYY - 1) ÷ 100 + 1] × 3 ÷ 4) - 1</P></BLOCKQUOTE>
+<P>For March and later months:
+<BLOCKQUOTE><P>FACTOR = 365 × YYYY + DD + 31 × (MM - 1) - Int(0.4 × MM + 2.3) + Int(YYYY ÷ 4) - Int([Int(YYYY ÷ 100) + 1] × 3 ÷ 4) - 1</P></BLOCKQUOTE>
+
+<P>The day of the week can be computed from the FACTOR as follows:
+<BLOCKQUOTE><P>Day of Week = FACTOR + Int(- FACTOR ÷ 7) × 7</P></BLOCKQUOTE>
+
 <P>Registers used: 01-05.
 
 </BODY>
