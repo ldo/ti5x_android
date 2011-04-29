@@ -1092,8 +1092,19 @@ public class State
       {
         if (ProgNr >= 0)
           {
-            if (ProgNr < MaxBanks && Bank[ProgNr] != null)
+            boolean OK = false;
+            do /*once*/
               {
+                if (Indirect)
+                  {
+                    if (ProgNr >= MaxMemories)
+                        break;
+                    ProgNr = (int)Memory[ProgNr];
+                    if (ProgNr < 0)
+                        break;
+                  } /*if*/
+                if (ProgNr >= MaxBanks || Bank[ProgNr] == null)
+                    break;
                 FillInLabels(ProgNr); /* if not done already */
                 if (ProgRunning)
                   {
@@ -1107,8 +1118,11 @@ public class State
                         Global.Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
                       } /*if*/
                   } /*if*/
+              /* all done */
+                OK = true;
               }
-            else
+            while (false);
+            if (!OK)
               {
                 SetErrorState();
               } /*if*/
