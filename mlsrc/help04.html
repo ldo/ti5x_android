@@ -82,6 +82,24 @@ ready for further operations:
 <DT><SPAN CLASS="brownbutton">&nbsp;E´&nbsp;</SPAN>
     <DD>Interchange the values of X and Y.
 </DL>
+
+<H3>Formulas Used</H3>
+<P>where X = a + bi, Y = c + di (a, b, c, d all real):
+<P>X ± Y = (a + c) ± (b + d)i
+<P>X × Y = (ac - bd) + (ad + bc)i
+<P>X ÷ Y = <math xmlns="http://www.w3.org/1998/Math/MathML">
+<mfrac><mrow>(ac + bd)</mrow><mrow><msup>c<mn>2</mn></msup> + <msup>d<mn>2</mn></msup></mrow></mfrac> +
+<mfrac><mrow>(bc - ad)</mrow><mrow><msup>c<mn>2</mn></msup> + <msup>d<mn>2</mn></msup></mrow></mfrac>i
+</math>
+<P>Y<SUP>X</SUP> = e<SUP>X ln Y</SUP> (Y ≠ 0)
+<P><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mroot><mtext>Y</mtext><mtext>X</mtext></mroot>
+<mo>=</mo>
+<msup>e<mfrac><mrow>ln Y</mrow><mrow>X</mrow></mfrac></msup>
+</math> (X ≠ 0, Y ≠ 0)
+
+<P>See <A HREF="help05.html">ML-05 help page</A> for formulas for complex e<SUP>X</SUP> and ln X.
+
 <P>Registers used: 01-06.
 
 </BODY>

@@ -76,6 +76,28 @@ operand with the result, ready for further operations:
 <DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
     <DD>Compute e<SUP>X</SUP>.
 </DL>
+
+<H3>Formulas Used</H3>
+<P>where X = a + bi (a, b real):
+<P>absolute magnitude of X,
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+r <mo>=</mo> <msqrt><msup>a<mn>2</mn></msup> + <msup>b<mn>2</mn></msup></msqrt>
+</math>
+<P>angle part of X, &theta; = atan2(b, a)
+<P>X<SUP>2</SUP> = r<SUP>2</SUP> cos 2&theta; + ir<SUP>2</SUP> sin 2&theta;
+<P><math xmlns="http://www.w3.org/1998/Math/MathML">
+<msqrt>X</msqrt>
+<mo>=</mo>
+<msqrt>r</msqrt>(cos <mfrac>&theta;<mn>2</mn></mfrac> + <mi>i</mi>sin <mfrac>&theta;<mn>2</mn></mfrac>)
+</math>
+<P><math xmlns="http://www.w3.org/1998/Math/MathML">
+<mfrac><mn>1</mn>X</mfrac>
+<mo>=</mo>
+<mfrac><mrow>(a - bi)</mrow><mrow>(<msup>a<mn>2</mn></msup> + <msup>b<mn>2</mn></msup>)</mrow></mfrac>
+</math>
+<P>e<SUP>X</SUP> = e<SUP>a</SUP> cos b + ie<SUP>a</SUP> sin b
+<P>ln X = ln r + i&theta; (X ≠ 0)
+
 <P>Registers used: 01-04.
 
 </BODY>
