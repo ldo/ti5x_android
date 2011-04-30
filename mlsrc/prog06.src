@@ -1,0 +1,136 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Note, unlike the original, X is interpreted in the current angle
+; units (degrees, radians or gradians), and the inverse functions
+; return results the same way.
+;
+; Thanks to Fred Fish’s “TI Master Library Survival Guide”
+; for the correct sin and cos formulas.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Registers used:
+;     01 -- real part of X
+;     02 -- imaginary part of X
+;     03-07 -- scratch (more than the original, but what the heck)
+;-
+
+lbl A
+; call first time to enter real part of X
+; call second time to enter imaginary part of X
+    exc 02  ; store user entry in 02
+    sto 01  ; put previous 02 into 01
+    rcl 02  ; show what user entered
+    inv sbr
+
+lbl B
+; compute sin of X
+    ( rcl 01 sin * rcl 02 sbr cos ) ; real part
+    x<>t
+    ( rcl 01 cos * rcl 02 sbr sin ) ; imaginary part
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+lbl B'
+; compute arcsin of X
+    sbr |x| inv sin ; real part
+    x<>t
+    ( ( sbr int + ( ce x² - 1 ) sqrt ) lnx * 1 inv sin / pi * 2 ) ; imaginary part
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+lbl C
+; compute cos of X
+    ( rcl 01 cos * rcl 02 sbr cos ) ; real part
+    x<>t
+    ( rcl 01  sin * rcl 02 sbr sin ) +/- ; imaginary part
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+lbl C'
+; compute arccos of X
+    sbr |x| inv cos  ; real part
+    x<>t
+    ( ( sbr int + ( ce x² - 1 ) sqrt ) lnx * 1 inv sin / pi * 2 ) +/- ; imaginary part
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+lbl D
+; compute tan of x
+    rcl 01 sto 05 ; save X for reuse
+    rcl 02 sto 06
+    B sto 03 x<>t sto 04 ; sin -> r3&4
+    rcl 05 sto 01 ; restore X
+    rcl 06 sto 02
+    C  ; cos -> r1&2
+; now compute sin X ÷ cos X
+    ( rcl 01 * rcl 01 + rcl 02 * rcl 02 ) ; square of magnitude of Y
+    inv prd 03 ; prescale X for answer
+    inv prd 04
+    ( rcl 03 * rcl 01 + rcl 04 * rcl 02 ) ; real part of answer
+    x<>t
+    ( rcl 04 * rcl 01 - rcl 03 * rcl 02 ) ; imaginary part of answer
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+lbl D'
+; compute arctan of X
+    ( 0.5 * ( 2 * rcl 01 ÷ ( 1 - rcl 01 x² - rcl 02 x² ) ) inv tan ) ; real part
+    x<>t
+    (
+        (
+            0.5 ; note original 0.25 factor before absorbing scaling by angle units
+        *
+            ( ( rcl 01 x² + ( rcl 02 + 1 ) x² ) ÷ ( rcl 01 x² + ( rcl 02 - 1 ) x² ) ) lnx
+        )
+    *
+        1 inv sin
+    /
+        pi
+    ) ; imaginary part
+    sto 02 x<>t sto 01 ; new X for next operation
+    inv sbr
+
+;+
+; internal routines
+;-
+
+lbl sin
+; hyperbolic sine of real argument
+    ( ( ( ce * pi / 2 / 1 inv sin ) sto 07 inv lnx - rcl 07 +/- inv lnx ) ÷ 2 )
+    inv sbr
+
+lbl cos
+; hyperbolic cosine of real argument
+    ( ( ( ce * pi / 2 / 1 inv sin ) sto 07 inv lnx + rcl 07 +/- inv lnx ) ÷ 2 )
+    inv sbr
+
+lbl int
+; compute A factor for arcsin/arccos
+    (
+        (
+            ( ( rcl 01 + 1 ) x² + rcl 02 x² ) sqrt
+        +
+            ( ( rcl 01 - 1 ) x² + rcl 02 x² ) sqrt
+        )
+    ÷
+        2
+    )
+    inv sbr
+
+lbl |x|
+; compute B factor for arcsin/arccos
+    (
+        (
+            ( ( rcl 01 + 1 ) x² + rcl 02 x² ) sqrt
+        -
+            ( ( rcl 01 - 1 ) x² + rcl 02 x² ) sqrt
+        )
+    ÷
+        2
+    )
+    inv sbr

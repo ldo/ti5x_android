@@ -50,7 +50,7 @@
 </STYLE>
 </HEAD>
 <BODY>
-<H1>ML-05 — Complex Functions</H1>
+<H1>ML-06 — Complex Trigonometric Functions</H1>
 
 <P>First, enter the complex number X which is the operand for the remaining
 operations: enter the real part of X, then press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>,
@@ -58,24 +58,45 @@ then enter the imaginary part, and press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;
 <P>(This is the same initial entry procedure as for ML-04 and ML-05, and indeed the first or only
 operand entered for any of these programs may be used for any of the others.)
 
-<P>Except for the angular conversion, the remaining functions return the real part of the
-result in the display, and the imaginary part in the T register, and also replace the X
-operand with the result, ready for further operations:
+<P>The remaining functions return the real part of the result in the display, and the
+imaginary part in the T register, and also replace the X operand with the result, ready for
+further operations:
 <DL class="deflist">
 <DT><SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
-    <DD>Convert to angular format: shows <I>r</I>, press <SPAN CLASS="brownbutton">x⇌t</SPAN>
-    to show <I>&theta;</I>.
-<DT><SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
-    <DD>Compute X<SUP>2</SUP>.
-<DT><SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>
-    <DD>Compute square root of X.
-<DT><SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN>
-    <DD>Compute 1/X.
-<DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN>
-    <DD>Compute natural log of X.
+    <DD>Compute sin X.
 <DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">B´</SPAN>
-    <DD>Compute e<SUP>X</SUP>.
+    <DD>Compute arcsin X.
+<DT><SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+    <DD>Compute cos X.
+<DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">C´</SPAN>
+    <DD>Compute arccos X.
+<DT><SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>
+    <DD>Compute tan X.
+<DT><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">D´</SPAN>
+    <DD>Compute arctan X.
 </DL>
-<P>Registers used: 01-04.
+<P><B>Note</B> that all computations are done in the currently-selected angle units:
+degrees, radians or gradians.
+
+<H3>Formulas Used</H3>
+<BLOCKQUOTE>
+<P>sin X = sin a cosh b + i cos a sinh b
+<P>cos X = cos a cosh b - i sin a sinh b
+<P>tan X = sin X ÷ cos X
+<P>arcsin X = arcsin B + i ln [A + (A<SUP>2</SUP> - 1)<SUP>0.5</SUP>]
+<P>arccos X = arccos B - i ln [A + (A<SUP>2</SUP> - 1)<SUP>0.5</SUP>]
+<P>arctan X = 0.5 arctan [2a ÷ (1 - a<SUP>2</SUP> - b<SUP>2</SUP>)] +
+0.25i ln [(a<SUP>2</SUP> + (b + 1)<SUP>2</SUP>) ÷ (a<SUP>2</SUP> + (b - 1)<SUP>2</SUP>)]
+</BLOCKQUOTE>
+<P>where
+<BLOCKQUOTE>
+<P>X = a + bi (a and b both real)
+<P>A = (((a + 1)<SUP>2</SUP> + b<SUP>2</SUP>)<SUP>0.5</SUP> +
+((a - 1)<SUP>2</SUP> + b<SUP>2</SUP>)<SUP>0.5</SUP>) ÷ 2
+<P>B = (((a + 1)<SUP>2</SUP> + b<SUP>2</SUP>)<SUP>0.5</SUP> -
+((a - 1)<SUP>2</SUP> + b<SUP>2</SUP>)<SUP>0.5</SUP>) ÷ 2
+</BLOCKQUOTE>
+
+<P>Registers used: 01-07.
 
 </BODY>
