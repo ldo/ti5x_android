@@ -261,6 +261,8 @@ in_comment = False
 line_nr = 0
 was_newline = True
 loc = 0
+labels_defined = set()
+labels_referenced = set()
 while True :
     if len(curline) == 0 and not EOF :
         curline += sys.stdin.readline()
@@ -416,13 +418,24 @@ while True :
                                 #end if
                             elif expect == "loc" or expect == "label" :
                                 which = ("op", "altop")[alt_state]
+                                if expect == "loc" :
+                                    labels_referenced.add(lookup)
+                                elif expect == "label" :
+                                    if lookup in labels_defined :
+                                        report_error("multiply-defined label %s" % cursym)
+                                    #end if
+                                    labels_defined.add(lookup)
+                                #end if
                                 if which in symbol :
                                     out(symbol[which])
                                     expect = None
                                 elif symbol["act"] == set_alt_state :
                                     symbol["act"]()
                                 else :
-                                    report_error("cannot use \"%s\" as label -- no %s" % (cursym, which))
+                                    report_error \
+                                      (
+                                        "cannot use \"%s\" as label -- no %s" % (cursym, which)
+                                      )
                                 #end if
                             else :
                                 report_error("not expecting symbol for %s" % expect)
@@ -469,4 +482,10 @@ flushout()
 if outcount != 0 :
     sys.stdout.write("\n")
 #end if
+for sym in labels_referenced - labels_defined :
+    report_error("label \"%s\" referenced but not defined" % sym)
+#end for
+for sym in labels_defined - labels_referenced :
+    sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % sym)
+#end for
 sys.exit(exitstatus)
