@@ -198,6 +198,14 @@ symbols["π"] = symbols["pi"]
 symbols["dms"] = symbols["d.ms"]
 symbols["wrt"] = symbols["write"]
 
+check_labels = False
+
+if len(sys.argv) == 2 and sys.argv[1] == "--checklabels" :
+    check_labels = True
+elif len(sys.argv) > 1 :
+    raise RuntimeError("unexpected args")
+#end if
+
 exitstatus = 0 # to begin with
 
 def report_error(msg) :
@@ -485,11 +493,13 @@ flushout()
 if outcount != 0 :
     sys.stdout.write("\n")
 #end if
-for sym in labels_referenced - labels_defined :
-    # fixme: can't make this an error unless I distinguish cross-bank label references
-    sys.stderr.write("Assembler warning: label \"%s\" referenced but not defined\n" % repr(sym))
-#end for
-for sym in labels_defined - labels_referenced - set((s, False) for s in ("a", "b", "c", "d", "e", "a'", "b'", "c'", "d'", "e'")) :
-    sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % repr(sym))
-#end for
+if check_labels :
+    for sym in labels_referenced - labels_defined :
+        # fixme: can't make this an error unless I distinguish cross-bank label references
+        sys.stderr.write("Assembler warning: label \"%s\" referenced but not defined\n" % repr(sym))
+    #end for
+    for sym in labels_defined - labels_referenced - set((s, False) for s in ("a", "b", "c", "d", "e", "a'", "b'", "c'", "d'", "e'")) :
+        sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % repr(sym))
+    #end for
+#end if
 sys.exit(exitstatus)
