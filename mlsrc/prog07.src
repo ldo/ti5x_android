@@ -1,0 +1,53 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;    01 -- indirect register pointer
+;    02 -- coefficient entry counter
+;    03 -- x for which polynomial is to be evaluated
+;    04 -- n, degree of polynomial
+;-
+
+lbl A
+; enter degree of polynomial
+    sto 04
+    inv sbr
+
+lbl B
+; enter starting power followed by coefficients
+    sto 02  ; starting power [0 .. n]
+    ( ce + 5 ) sto 01 ; starting coefficient register
+lbl x²
+; enter next coefficient
+    rcl 02 x<>t rcl 04 inv x≥t sqrt ; all done?
+    x<>t        ; no, show user next power
+    r/s         ; and let user enter corresponding coefficient
+    sto ind 01  ; save it
+    op 21       ; step pointer
+    op 22       ; step counter
+    gto x²
+lbl sqrt
+    rcl 04 +/-  ; give user a hint it's over
+    inv sbr
+
+lbl C
+; evaluate polynomial for given X
+    sto 03
+    ( rcl 04 + 1 ) sto 02 ; number of coefficients = degree + 1
+    ( rcl 04 + 6 ) sto 01 ; one past last coefficient
+    0 ; starting multiplier (loop will iterate at least once)
+lbl y**x
+; accumulate next coefficient
+    ( ce
+    op 31 ; point to next coefficient
+    × rcl 03
+    + rcl ind 01
+    )
+    dsz 02 y**x
+; answer already showing
+    inv sbr

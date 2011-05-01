@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-07 — Polynomial Evaluation</H1>
+
+<P>This program evaluates a polynomial given the degree <I>n</I>, the <I>n</I> + 1 coefficients
+<I>a<SUB>0</SUB></I> .. <I>a<SUB>n</SUB></I>, and the argument <I>x</I>. Once the degree
+and coefficients have been entered, the polynomial may be evaluated for any number of
+different <I>x</I> values.
+
+<P>First, enter the integer <I>n</I> and press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>.
+<P>Then, enter the starting power (normally 0), and press
+<SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN> to start entering coefficients; it will
+show the next power, and after you have entered each coefficient, press
+<SPAN CLASS="brownbutton">R/S</SPAN> to continue. When you see <I>-n</I> being displayed, you know
+you’re done.
+<P>If you make a mistake entering any coefficients, simply press
+<SPAN CLASS="brownbutton">RST</SPAN> to clear the pending subroutine return, put in
+the starting coefficient number from which you want to re-enter, press
+<SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>, and continue from there, entering
+coefficients and pressing <SPAN CLASS="brownbutton">R/S</SPAN> after each one as before.
+
+<P>Once all the coefficients have been entered, simply enter a value <I>x</I> and press
+<SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN> to evaluate the polynomial for that value.
+
+<H3>Formula Used</H3>
+<P>The polynomial is evaluated using Horner’s Rule, which can be expressed recursively
+as follows:
+<BLOCKQUOTE><P>P(x) = P(x, n)</BLOCKQUOTE>
+<P>where
+<BLOCKQUOTE>
+<P>P(x, 0) = a<SUB>n</SUB>
+<P>P(x, i) = x × P(x, i - 1) + a<SUB>n - i</SUB> for i > 0
+</BLOCKQUOTE>
+
+<P>Registers used: 01-05+<I>n</I>.
+
+</BODY>
