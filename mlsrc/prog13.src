@@ -1,0 +1,150 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Note this uses my “inv pi” extension.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;    01 -- theta in current angle units
+;    02 -- r
+;    03 -- s
+;    04 -- c
+;    05, 06 -- scratch
+;
+; Flags:
+;    1 -- theta known
+;    2 -- r known
+;    3 -- s entered
+;    4 -- c entered
+;-
+
+;+
+; parameter entry
+;-
+
+lbl A
+; enter theta
+    sto 01 x<>t
+    stflg 1
+    ifflg 2 dsz
+; r not already computed
+    inv ifflg 3 prt
+lbl ifflg
+; compute r from s and theta
+    ( rcl 03 ÷ rcl 01 × inv pi ) sto 02 ; always convert angle to radians
+    stflg 2
+    gto dsz
+lbl prt
+    inv ifflg 4 dsz
+lbl rad
+; compute r from c and theta
+    ( rcl 4 ÷ 2 ÷ ( rcl 01 ÷ 2 ) sin ) sto 02
+    stflg 2
+lbl dsz
+    x<>t ; show what user just entered
+    inv sbr
+
+lbl B
+; enter r
+    sto 02 x<>t
+    stflg 2
+    ifflg 1 dsz
+; theta not already computed
+    inv ifflg 3 list
+lbl stflg
+; compute theta from r and s
+    ( rcl 03 ÷ rcl 02 × inv pi ) sto 01 ; convert from radians to current angle units
+    stflg 1
+    gto dsz
+lbl list
+    inv ifflg 4 dsz
+lbl pi
+; compute theta from r and c
+    ( ( rcl 04 ÷ rcl 02 ÷ 2 ) inv sin × 2 ) sto 01 ; leave in current angle units
+    stflg 1
+    gto dsz
+
+lbl C
+; enter s
+    sto 03 x<>t
+    stflg 3
+    ifflg 1 ifflg
+    ifflg 2 stflg
+    inv ifflg 4 dsz
+lbl +
+; compute r and theta from c and s
+    x<>t sto 05 ; save what user entered
+lbl ×
+; determine theta by Newton-Raphson iteration
+    1 inv sin sto 01 ; initial approximation to theta
+    ( 10 ** 13 +/- ) x<>t ; error threshold -- is 13 figures enough?
+lbl ÷
+    ( ; Newton-Raphson correction factor
+        ( 2 × ( rcl 01 ÷ 2 ) sin ÷ rcl 01 × inv pi - rcl 04 ÷ rcl 03 )
+          ; function of theta to find root of
+    ÷
+        (
+            ( rcl 01 ÷ 2 ) cos ÷ rcl 01 × inv pi
+        -
+            2 × ( rcl 01 ÷ 2 ) sin ÷ ( rcl 01 ÷ inv pi ) x²
+        )
+          ; derivative of above function
+    )
+    sto 06
+    ( ce |x| ÷ rcl 01 |x| ) ; relative to (approximate) answer
+    inv x≥t - ; exit loop if small enough
+    rcl 06 inv sum 01 ; else accumulate correction
+    gto ÷ ; and try again
+lbl -
+    stflg 1
+    rcl 05 x<>t ; restore what user entered
+    gto ifflg ; fill in r
+
+lbl D
+; enter c
+    sto 04 x<>t
+    stflg 4
+    ifflg 1 rad
+    ifflg 2 pi
+    ifflg 3 +
+; nothing else entered yet
+    gto dsz
+
+;+
+; determination of remaining parameters
+;-
+
+lbl A'
+; determine theta
+    rcl 01 ; always precomputed
+    inv sbr
+
+lbl B'
+; determine r
+    rcl 02 ; always precomputed
+    inv sbr
+
+lbl C'
+; compute s
+    ( rcl 01 ÷ inv pi ; convert to radians
+    × rcl 02 )
+    inv sbr
+
+lbl D'
+; compute c
+    ( 2 × rcl 02 × ( rcl 01 ÷ 2 ) sin )
+    inv sbr
+
+lbl E
+; compute A (sector area)
+    ( C' × rcl 02 ÷ 2 )
+    inv sbr
+
+lbl E'
+; compute a (segment area)
+    ( E - D' × rcl 02 ÷ 2 × ( rcl 01 ÷ 2 ) cos )
+    inv sbr
