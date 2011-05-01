@@ -904,7 +904,14 @@ public class State
 
     public void Pi()
       {
-        SetX(Math.PI);
+        if (InvState) /* extension! */
+          {
+            SetX(TrigScale());
+          }
+        else
+          {
+            SetX(Math.PI);
+          } /*if*/
       } /*Pi*/
 
     public void Int()
