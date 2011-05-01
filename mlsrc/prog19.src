@@ -12,9 +12,10 @@
 ;     03 PMT
 ;     04 PV/FV
 ;     05 B.PMT
+;     07 scratch
 ;     08 i = I ÷ 100
 ;     09 1 + i
-;     10-14 -- computation-specific function pointers
+;     06, 10-14 -- computation-specific function pointers
 ;-
 
 lbl E'
