@@ -486,7 +486,8 @@ if outcount != 0 :
     sys.stdout.write("\n")
 #end if
 for sym in labels_referenced - labels_defined :
-    report_error("label \"%s\" referenced but not defined" % repr(sym))
+    # fixme: can't make this an error unless I distinguish cross-bank label references
+    sys.stderr.write("Assembler warning: label \"%s\" referenced but not defined\n" % repr(sym))
 #end for
 for sym in labels_defined - labels_referenced - set((s, False) for s in ("a", "b", "c", "d", "e", "a'", "b'", "c'", "d'", "e'")) :
     sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % repr(sym))
