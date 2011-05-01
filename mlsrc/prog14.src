@@ -2,14 +2,28 @@
 ; My (partial) recreation of the "Master Library" module
 ; that came with the original TI-58C/59 calculators.
 ;
-; NOTE: I'm not sure this one is correct.
+; Corrected thanks to Fred Fish’s “TI Master Library Survival Guide”.
 ;
 ; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 ;-
 
+;+
+; Register usage:
+;      01 -- Z(x)
+;      02 -- t = 1 ÷ (1 + px)
+;      03 -- |x|
+; Flag usage:
+;      1 -- remembers whether x was negative
+;-
+
 lbl A
 ; height of normal curve
-    sto 03 ; save x for B
+    inv stflg 1         ; same flag usage as original
+    cp x≥t +/-
+    stflg 1             ; remember x was negative
+    |x|
+lbl +/-
+    sto 03 ; save |x| for B
     (
         ( ce x² +/- / 2 ) inv lnx
     ÷
@@ -36,4 +50,7 @@ lbl B
             1.330274429 * rcl 02 * rcl 02 * rcl 02 * rcl 02 * rcl 02
         )
     )
+    inv ifflg 1 |x|
+    ( ce - 1 ) +/- ; x was negative, take area on other side of curve
+lbl |x|
     inv sbr
