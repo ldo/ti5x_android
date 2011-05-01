@@ -263,6 +263,7 @@ was_newline = True
 loc = 0
 labels_defined = set()
 labels_referenced = set()
+# fixme: checking for defined/referenced labels doesn't take synonyms into account
 while True :
     if len(curline) == 0 and not EOF :
         curline += sys.stdin.readline()
@@ -419,12 +420,14 @@ while True :
                             elif expect == "loc" or expect == "label" :
                                 which = ("op", "altop")[alt_state]
                                 if expect == "loc" :
-                                    labels_referenced.add(lookup)
+                                    labels_referenced.add((lookup, alt_state))
                                 elif expect == "label" :
-                                    if lookup in labels_defined :
-                                        report_error("multiply-defined label %s" % cursym)
+                                    if symbol.get("act") != set_alt_state :
+                                        if (lookup, alt_state) in labels_defined :
+                                            report_error("multiply-defined label %s" % repr((cursym, alt_state)))
+                                        #end if
+                                        labels_defined.add((lookup, alt_state))
                                     #end if
-                                    labels_defined.add(lookup)
                                 #end if
                                 if which in symbol :
                                     out(symbol[which])
@@ -483,9 +486,9 @@ if outcount != 0 :
     sys.stdout.write("\n")
 #end if
 for sym in labels_referenced - labels_defined :
-    report_error("label \"%s\" referenced but not defined" % sym)
+    report_error("label \"%s\" referenced but not defined" % repr(sym))
 #end for
-for sym in labels_defined - labels_referenced :
-    sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % sym)
+for sym in labels_defined - labels_referenced - set((s, False) for s in ("a", "b", "c", "d", "e", "a'", "b'", "c'", "d'", "e'")) :
+    sys.stderr.write("Assembler warning: label \"%s\" defined but not referenced\n" % repr(sym))
 #end for
 sys.exit(exitstatus)
