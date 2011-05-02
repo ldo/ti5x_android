@@ -2,14 +2,15 @@
 <label slot="titleleft">UNIT CONVERSIONS (2)</label>
 <label slot="titleright">ML-25</label>
 <label slot="aprime">°C <rarrow/> °F</label>
-<!-- original had “gm” rather than “g” and “lit” rather than “l” -->
+<!-- original had “gm” rather than “g” and “lit” rather than “l”,
+    and “oz” instead of “fl oz” for volume units -->
 <!-- also “US gal” where I just put “gal” because I can do both -->
-<label slot="bprime">l <rarrow/> oz</label>
+<label slot="bprime">l <rarrow/> fl oz</label>
 <label slot="cprime">l <rarrow/> gal</label>
 <label slot="dprime">g <rarrow/> oz</label>
 <label slot="eprime">kg <rarrow/> lb</label>
 <label slot="a">°F <rarrow/> °C</label>
-<label slot="b">oz <rarrow/> l</label>
+<label slot="b">fl oz <rarrow/> l</label>
 <label slot="c">gal <rarrow/> l</label>
 <label slot="d">oz <rarrow/> g</label>
 <label slot="e">lb <rarrow/> kg</label>
