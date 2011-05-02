@@ -1,0 +1,90 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Note the definition of a nautical mile is based on current
+; international standards, not the factor used in the original.
+; Note also that the E and E' functions convert between km and
+; nautical miles, not statute miles and nautical miles.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl A
+; in -> cm
+    ( ce × sbr x=t )
+    inv sbr
+
+lbl A'
+; cm -> in
+    ( ce ÷ sbr x=t )
+    inv sbr
+
+lbl B
+; ft -> m
+    ( ce × sbr nop )
+    inv sbr
+
+lbl B'
+; m -> ft
+    ( ce ÷ sbr nop )
+    inv sbr
+
+lbl C
+; yd -> m
+    ( ce × sbr op )
+    inv sbr
+
+lbl C'
+; m -> yd
+    ( ce ÷ sbr op )
+    inv sbr
+
+lbl D
+; miles to km
+    ( ce × sbr deg )
+    inv sbr
+
+lbl D'
+; km to miles
+   ( ce ÷ sbr deg )
+    inv sbr
+
+lbl E
+; nautical miles to km
+    ( ce × sbr x≥t )
+    inv sbr
+
+lbl E'
+; km to nautical miles
+    ( ce ÷ sbr x≥t )
+    inv sbr
+
+;+
+; common internal routines: conversion factors
+;-
+
+lbl x=t
+; cm/in
+    ( 2.54 )
+    inv sbr
+
+lbl nop
+; feet per metre
+    ( 0.3048 )
+    inv sbr
+
+lbl op
+; yards per metre
+    ( 0.9144 )
+    inv sbr
+
+lbl deg
+; kilometres per statute mile
+    ( 1.609344 )
+    inv sbr
+
+lbl x≥t
+; kilometres per nautical mile
+    ( 1.852 )
+    inv sbr

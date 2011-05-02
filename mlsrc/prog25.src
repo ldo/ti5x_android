@@ -1,0 +1,129 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Note this version offers Imperial units as well as US ones:
+; set flag 6 to get US units, clear flag 6 to get Imperial ones.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+lbl A
+; °F to °C
+    ( ( ce - 32 ) ÷ 1.8 )
+    inv sbr
+
+lbl A'
+; °C to °F
+    ( ce × 1.8 + 32 )
+    inv sbr
+
+lbl B
+; fluid ounces to litres
+    ( ce ×
+    ifflg 6 cms
+; Imperial
+    sbr stflg
+    gto exc
+lbl cms
+; US
+    sbr x=t
+lbl exc
+    )
+    inv sbr
+
+lbl B'
+; litres to fluid ounces
+    ( ce ÷
+    ifflg 6 log
+; Imperial
+    sbr stflg
+    gto sto
+lbl log
+; US
+    sbr x=t
+lbl sto
+    )
+    inv sbr
+
+lbl C
+; gallons to litres
+    ( ce ×
+    ifflg 6 rcl
+; Imperial
+    sbr ifflg
+    gto sum
+lbl rcl
+; US
+    sbr x≥t
+lbl sum
+    )
+    inv sbr
+
+lbl C'
+; litres to gallons
+    ( ce ÷
+    ifflg 6 prd
+; Imperial
+    sbr ifflg
+    gto lnx
+lbl prd
+; US
+    sbr x≥t
+lbl lnx
+    )
+    inv sbr
+
+lbl D
+; ounces to grams
+    ( ce × sbr sigma )
+    inv sbr
+
+lbl D'
+; grams to ounces
+    ( ce ÷ sbr sigma )
+    inv sbr
+
+lbl E
+; pounds to kilograms
+    ( ce × sbr mean )
+    inv sbr
+
+lbl E'
+; kilograms to pounds
+    ( ce ÷ sbr mean )
+    inv sbr
+
+;+
+; common internal routines: conversion factors
+;-
+
+lbl stflg
+; litres per imperial fluid ounce
+    ( .0284130625 ) ; exact definition
+    inv sbr
+
+lbl x=t
+; litres per US fluid ounce
+    ( .0295735295625 ) ; exact definition
+    inv sbr
+
+lbl ifflg
+; litres per Imperial gallon
+    ( 4.54609 ) ; exact definition
+    inv sbr
+
+lbl x≥t
+; litres per US gallon
+    ( 3.785411784 ) ; exact definition
+    inv sbr
+
+lbl sigma
+; grams per ounce
+    ( sbr mean × 1000 ÷ 16 ) ; exact
+    inv sbr
+
+lbl mean
+; kilograms per pound
+    ( 0.45359237 ) ; exact definition
+    inv sbr

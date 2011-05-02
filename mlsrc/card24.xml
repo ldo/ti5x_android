@@ -5,10 +5,10 @@
 <label slot="bprime">m <rarrow/> ft</label>
 <label slot="cprime">m <rarrow/> yd</label>
 <label slot="dprime">km <rarrow/> mi</label>
-<label slot="eprime">n mi <rarrow/> mi</label>
+<label slot="eprime">km <rarrow/> n mi</label> <!-- note original converted nautical miles to miles -->
 <label slot="a">in <rarrow/> cm</label>
 <label slot="b">ft <rarrow/> m</label>
 <label slot="c">yd <rarrow/> m</label>
 <label slot="d">mi <rarrow/> km</label>
-<label slot="e">mi <rarrow/> n mi</label>
+<label slot="e">n mi <rarrow/> km</label> <!-- note original miles to nautical miles -->
 </carddef>
