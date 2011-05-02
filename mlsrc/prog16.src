@@ -1,0 +1,64 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;      01 -- n
+;      02 -- r
+;      03, 04 -- scratch
+;-
+
+lbl A
+; enter n
+    sto 01
+    inv sbr
+
+lbl B
+; enter r (must be done after entering n)
+    sto 02
+    x<>t rcl 01 x≥t |x| ; ensure it’s not greater than n
+    0 1/x ; otherwise flash it
+lbl |x|
+    rcl 02
+    inv sbr
+
+lbl C
+; compute n!
+    ( rcl 01 + 1 ) sto 03
+    1
+    gto sqrt
+lbl 1/x
+    ( ce × rcl 03 )
+lbl sqrt
+    dsz 3 1/x
+    inv sbr
+
+lbl D
+; compute P(n, r)
+    ( rcl 01 ) sto 03
+    ( rcl 02 + 1 ) sto 04
+    1
+    gto x²
+lbl ∑x
+    ( ce × rcl 03 )
+    op 33
+lbl x²
+    dsz 4 ∑x
+    inv sbr
+
+lbl E
+; compute C(n, r)
+    ( rcl 01 - rcl 02 + 1 ) sto 03
+    ( rcl 02 + 1 ) sto 04
+    1
+    gto p->r
+lbl x<>t
+    ( ce × rcl 03 ÷ rcl 04 )
+    op 23
+lbl p->r
+    dsz 4 x<>t
+    inv sbr
