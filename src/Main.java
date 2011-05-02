@@ -32,10 +32,9 @@ public class Main extends android.app.Activity
       {
         OptionsMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
         android.view.MenuItem ThisItem;
-        ThisItem = TheMenu.add(R.string.show_calc_help);
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(R.string.show_calc_help),
             new Runnable()
               {
                 public void run()
@@ -63,10 +62,9 @@ public class Main extends android.app.Activity
               } /*Runnable*/
           );
       /* ThisItem.setCheckable(true); */ /* apparently can't do this in initial part of options menu */
-        ThisItem = TheMenu.add(R.string.show_module_help);
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(R.string.show_module_help),
             new Runnable()
               {
                 public void run()
@@ -91,10 +89,9 @@ public class Main extends android.app.Activity
                   } /*run*/
               } /*Runnable*/
           );
-        ThisItem = TheMenu.add(R.string.show_printer);
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(R.string.show_printer),
             new Runnable()
               {
                 public void run()
@@ -107,10 +104,9 @@ public class Main extends android.app.Activity
                   } /*run*/
               } /*Runnable*/
           );
-        ThisItem = TheMenu.add(getString(R.string.load_prog));
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(getString(R.string.load_prog)),
             new Runnable()
               {
                 public void run()
@@ -124,10 +120,9 @@ public class Main extends android.app.Activity
                   } /*run*/
               } /*Runnable*/
           );
-        ThisItem = TheMenu.add(getString(R.string.save_as));
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(getString(R.string.save_as)),
             new Runnable()
               {
                 public void run()
@@ -141,10 +136,9 @@ public class Main extends android.app.Activity
                   } /*run*/
               } /*Runnable*/
           );
-        ThisItem = TheMenu.add(R.string.turn_off);
         OptionsMenu.put
           (
-            ThisItem,
+            TheMenu.add(R.string.turn_off),
             new Runnable()
               {
                 public void run()
