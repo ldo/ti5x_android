@@ -19,6 +19,17 @@ package nz.gen.geek_central.ti5x;
 public class Main extends android.app.Activity
   {
     java.util.Map<android.view.MenuItem, Runnable> OptionsMenu;
+
+    interface RequestResponseAction /* response to an activity result */
+      {
+        public void Run
+          (
+            android.content.Intent Data
+          );
+      } /*RequestResponseAction*/
+
+    java.util.Map<Integer, RequestResponseAction> ActivityResultActions;
+
     protected final int LoadProgramRequest = 1; /* arbitrary code */
     protected final int SaveProgramRequest = 2; /* arbitrary code */
     boolean ShuttingDown = false;
@@ -153,6 +164,156 @@ public class Main extends android.app.Activity
             true;
       } /*onCreateOptionsMenu*/
 
+    void BuildActivityResultActions()
+      {
+        ActivityResultActions = new java.util.HashMap<Integer, RequestResponseAction>();
+        ActivityResultActions.put
+          (
+            LoadProgramRequest,
+            new RequestResponseAction()
+              {
+                public void Run
+                  (
+                    android.content.Intent Data
+                  )
+                  {
+                    final String ProgName = Data.getData().getPath();
+                    final String PickedExt = Data.getStringExtra(Picker.ExtID);
+                    final boolean IsLib = PickedExt.intern() == Persistent.LibExt.intern();
+                    final boolean LoadingMasterLibrary = IsLib && ProgName.intern() == "/";
+                  /* It appears onActivityResult is liable to be called before
+                    onResume. Therefore I do additional restoring/saving state
+                    here to ensure the saved state includes the newly-loaded
+                    program/library. */
+                    if (!StateLoaded)
+                      {
+                        Persistent.RestoreState(Main.this); /* if not already done */
+                        StateLoaded = true;
+                      } /*if*/
+                    try
+                      {
+                        if (LoadingMasterLibrary)
+                          {
+                            Persistent.LoadMasterLibrary(Main.this);
+                          }
+                        else
+                          {
+                            Persistent.Load
+                              (
+                                /*FromFile =*/ ProgName,
+                                /*Libs =*/ IsLib,
+                                /*AllState =*/ false,
+                                /*Disp =*/ Global.Disp,
+                                /*Help =*/ Global.Help,
+                                /*Buttons =*/ Global.Buttons,
+                                /*Calc =*/ Global.Calc
+                              );
+                          } /*if*/
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/
+                                String.format
+                                  (
+                                    Global.StdLocale,
+                                    getString
+                                      (
+                                        IsLib ?
+                                            R.string.library_loaded
+                                        :
+                                            R.string.program_loaded
+                                      ),
+                                    LoadingMasterLibrary ?
+                                        getString(R.string.master_library)
+                                    :
+                                        new java.io.File(ProgName).getName()
+                                  ),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                      }
+                    catch (Persistent.DataFormatException Failed)
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/
+                                String.format
+                                  (
+                                    Global.StdLocale,
+                                    getString(R.string.file_load_error),
+                                    Failed.toString()
+                                  ),
+                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                          ).show();
+                      } /*try*/
+                    Persistent.SaveState(Main.this);
+                  } /*Run*/
+              } /*RequestResponseAction*/
+          );
+        ActivityResultActions.put
+          (
+            SaveProgramRequest,
+            new RequestResponseAction()
+              {
+                public void Run
+                  (
+                    android.content.Intent Data
+                  )
+                  {
+                    final String TheName =
+                            Data.getData().getPath().substring(1) /* ignoring leading slash */
+                        +
+                            Persistent.ProgExt;
+                    try
+                      {
+                        final String SaveDir =
+                                android.os.Environment.getExternalStorageDirectory()
+                                    .getAbsolutePath()
+                            +
+                                "/"
+                            +
+                                Persistent.ProgramsDir;
+                        new java.io.File(SaveDir).mkdirs();
+                        Persistent.Save
+                          (
+                            /*Buttons =*/ Global.Buttons,
+                            /*Calc =*/ Global.Calc,
+                            /*Libs =*/ false,
+                            /*AllState =*/ false,
+                            /*ToFile =*/ SaveDir + "/" + TheName
+                          );
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.program_saved),
+                                TheName
+                              ),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                      }
+                    catch (RuntimeException Failed)
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/
+                                String.format
+                                  (
+                                    Global.StdLocale,
+                                    getString(R.string.program_save_error),
+                                    Failed.toString()
+                                  ),
+                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                          ).show();
+                      } /*try*/
+                  } /*Run*/
+              } /*RequestResponseAction*/
+          );
+      } /*BuildActivityResultActions*/
+
     @Override
     public boolean onOptionsItemSelected
       (
@@ -178,129 +339,13 @@ public class Main extends android.app.Activity
         android.content.Intent Data
       )
       {
-        if
-          (
-                RequestCode == LoadProgramRequest
-            &&
-                Data != null
-          )
+        if (ResultCode == android.app.Activity.RESULT_OK)
           {
-            final String ProgName = Data.getData().getPath();
-            final String PickedExt = Data.getStringExtra(Picker.ExtID);
-            final boolean IsLib = PickedExt.intern() == Persistent.LibExt.intern();
-            final boolean LoadingMasterLibrary = IsLib && ProgName.intern() == "/";
-          /* It appears onActivityResult is liable to be called before
-            onResume. Therefore I do additional restoring/saving state
-            here to ensure the saved state includes the newly-loaded
-            program/library. */
-            if (!StateLoaded)
+            final RequestResponseAction Action = ActivityResultActions.get(RequestCode);
+            if (Action != null)
               {
-                Persistent.RestoreState(this); /* if not already done */
-                StateLoaded = true;
+                Action.Run(Data);
               } /*if*/
-            try
-              {
-                if (LoadingMasterLibrary)
-                  {
-                    Persistent.LoadMasterLibrary(this);
-                  }
-                else
-                  {
-                    Persistent.Load
-                      (
-                        /*FromFile =*/ ProgName,
-                        /*Libs =*/ IsLib,
-                        /*AllState =*/ false,
-                        /*Disp =*/ Global.Disp,
-                        /*Help =*/ Global.Help,
-                        /*Buttons =*/ Global.Buttons,
-                        /*Calc =*/ Global.Calc
-                      );
-                  } /*if*/
-                android.widget.Toast.makeText
-                  (
-                    /*context =*/ this,
-                    /*text =*/
-                        String.format
-                          (
-                            Global.StdLocale,
-                            getString
-                              (
-                                IsLib ?
-                                    R.string.library_loaded
-                                :
-                                    R.string.program_loaded
-                              ),
-                            LoadingMasterLibrary ?
-                                getString(R.string.master_library)
-                            :
-                                new java.io.File(ProgName).getName()
-                          ),
-                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                  ).show();
-              }
-            catch (Persistent.DataFormatException Failed)
-              {
-                android.widget.Toast.makeText
-                  (
-                    /*context =*/ this,
-                    /*text =*/
-                        String.format
-                          (
-                            Global.StdLocale,
-                            getString(R.string.file_load_error),
-                            Failed.toString()
-                          ),
-                    /*duration =*/ android.widget.Toast.LENGTH_LONG
-                  ).show();
-              } /*try*/
-            Persistent.SaveState(this);
-          }
-        else if
-          (
-                RequestCode == SaveProgramRequest
-            &&
-                Data != null
-          )
-          {
-            final String TheName =
-                    Data.getData().getPath().substring(1) /* ignoring leading slash */
-                +
-                    Persistent.ProgExt;
-            try
-              {
-                final String SaveDir =
-                        android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-                    +
-                        "/"
-                    +
-                        Persistent.ProgramsDir;
-                new java.io.File(SaveDir).mkdirs();
-                Persistent.Save
-                  (
-                    /*Buttons =*/ Global.Buttons,
-                    /*Calc =*/ Global.Calc,
-                    /*Libs =*/ false,
-                    /*AllState =*/ false,
-                    /*ToFile =*/ SaveDir + "/" + TheName
-                  );
-                android.widget.Toast.makeText
-                  (
-                    /*context =*/ this,
-                    /*text =*/ String.format(Global.StdLocale, getString(R.string.program_saved), TheName),
-                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                  ).show();
-              }
-            catch (RuntimeException Failed)
-              {
-                android.widget.Toast.makeText
-                  (
-                    /*context =*/ this,
-                    /*text =*/
-                        String.format(Global.StdLocale, getString(R.string.program_save_error), Failed.toString()),
-                    /*duration =*/ android.widget.Toast.LENGTH_LONG
-                  ).show();
-              } /*try*/
           } /*if*/
       } /*onActivityResult*/
 
@@ -317,6 +362,7 @@ public class Main extends android.app.Activity
         Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
         Global.Print = new Printer(this);
         Global.Calc = new State();
+        BuildActivityResultActions();
       } /*onCreate*/
 
     @Override
