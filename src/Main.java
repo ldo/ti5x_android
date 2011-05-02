@@ -18,13 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class Main extends android.app.Activity
   {
-    protected android.view.MenuItem ShowCalcHelpItem;
-    protected android.view.MenuItem ShowModuleHelpItem;
-    protected android.view.MenuItem ToggleOverlayItem;
-    protected android.view.MenuItem ShowPrinterItem;
-    protected android.view.MenuItem LoadProgramItem;
-    protected android.view.MenuItem SaveProgramItem;
-    protected android.view.MenuItem PowerOffItem;
+    java.util.Map<android.view.MenuItem, Runnable> OptionsMenu;
     protected final int LoadProgramRequest = 1; /* arbitrary code */
     protected final int SaveProgramRequest = 2; /* arbitrary code */
     boolean ShuttingDown = false;
@@ -36,14 +30,131 @@ public class Main extends android.app.Activity
         android.view.Menu TheMenu
       )
       {
-        ShowCalcHelpItem = TheMenu.add(R.string.show_calc_help);
-        ToggleOverlayItem = TheMenu.add(R.string.show_overlay);
-        ToggleOverlayItem.setCheckable(true); /* doesn't seem to work */
-        ShowModuleHelpItem = TheMenu.add(R.string.show_module_help);
-        ShowPrinterItem = TheMenu.add(R.string.show_printer);
-        LoadProgramItem = TheMenu.add(getString(R.string.load_prog));
-        SaveProgramItem = TheMenu.add(getString(R.string.save_as));
-        PowerOffItem = TheMenu.add(R.string.turn_off);
+        OptionsMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
+        android.view.MenuItem ThisItem;
+        ThisItem = TheMenu.add(R.string.show_calc_help);
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    startActivity
+                      (
+                        new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            .setClass(Main.this, Help.class)
+                      );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ThisItem = TheMenu.add(R.string.show_overlay);
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    Global.Buttons.OverlayVisible = !Global.Buttons.OverlayVisible;
+                    Global.Buttons.invalidate();
+                  /* ToggleOverlayItem.setChecked(Global.Buttons.OverlayVisible); */ /* apparently can't do this in initial part of options menu */
+                  } /*run*/
+              } /*Runnable*/
+          );
+      /* ThisItem.setCheckable(true); */ /* apparently can't do this in initial part of options menu */
+        ThisItem = TheMenu.add(R.string.show_module_help);
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (Global.Calc != null && Global.Calc.ModuleHelp != null)
+                      {
+                        final android.content.Intent ShowHelp =
+                            new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                        ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Global.Calc.ModuleHelp);
+                        ShowHelp.setClass(Main.this, Help.class);
+                        startActivity(ShowHelp);
+                      }
+                    else
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ getString(R.string.no_module_help),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ThisItem = TheMenu.add(R.string.show_printer);
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    startActivity
+                      (
+                        new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            .setClass(Main.this, PrinterView.class)
+                      );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ThisItem = TheMenu.add(getString(R.string.load_prog));
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    startActivityForResult
+                      (
+                        new android.content.Intent(android.content.Intent.ACTION_PICK)
+                            .setClass(Main.this, Picker.class),
+                        LoadProgramRequest
+                      );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ThisItem = TheMenu.add(getString(R.string.save_as));
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    startActivityForResult
+                      (
+                        new android.content.Intent(android.content.Intent.ACTION_PICK)
+                            .setClass(Main.this, SaveAs.class),
+                        SaveProgramRequest
+                      );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ThisItem = TheMenu.add(R.string.turn_off);
+        OptionsMenu.put
+          (
+            ThisItem,
+            new Runnable()
+              {
+                public void run()
+                  {
+                    ShuttingDown = true;
+                    deleteFile(Persistent.SavedStateName); /* lose any saved state */
+                    finish(); /* start afresh next time */
+                  } /*run*/
+              } /*Runnable*/
+          );
         return
             true;
       } /*onCreateOptionsMenu*/
@@ -55,71 +166,10 @@ public class Main extends android.app.Activity
       )
       {
         boolean Handled = false;
-        if (TheItem == ShowCalcHelpItem)
+        final Runnable Action = OptionsMenu.get(TheItem);
+        if (Action != null)
           {
-            startActivity
-              (
-                new android.content.Intent(android.content.Intent.ACTION_VIEW)
-                    .setClass(this, Help.class)
-              );
-          }
-        else if (TheItem == ShowModuleHelpItem)
-          {
-            if (Global.Calc != null && Global.Calc.ModuleHelp != null)
-              {
-                final android.content.Intent ShowHelp =
-                    new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Global.Calc.ModuleHelp);
-                ShowHelp.setClass(this, Help.class);
-                startActivity(ShowHelp);
-              }
-            else
-              {
-                android.widget.Toast.makeText
-                  (
-                    /*context =*/ this,
-                    /*text =*/ getString(R.string.no_module_help),
-                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                  ).show();
-              } /*if*/
-          }
-        else if (TheItem == ToggleOverlayItem)
-          {
-            Global.Buttons.OverlayVisible = !Global.Buttons.OverlayVisible;
-            Global.Buttons.invalidate();
-            ToggleOverlayItem.setChecked(Global.Buttons.OverlayVisible); /* doesn't seem to work */
-          }
-        else if (TheItem == ShowPrinterItem)
-          {
-            startActivity
-              (
-                new android.content.Intent(android.content.Intent.ACTION_VIEW)
-                    .setClass(this, PrinterView.class)
-              );
-          }
-        else if (TheItem == LoadProgramItem)
-          {
-            startActivityForResult
-              (
-                new android.content.Intent(android.content.Intent.ACTION_PICK)
-                    .setClass(this, Picker.class),
-                LoadProgramRequest
-              );
-          }
-        else if (TheItem == SaveProgramItem)
-          {
-            startActivityForResult
-              (
-                new android.content.Intent(android.content.Intent.ACTION_PICK)
-                    .setClass(this, SaveAs.class),
-                SaveProgramRequest
-              );
-          }
-        else if (TheItem == PowerOffItem)
-          {
-            ShuttingDown = true;
-            deleteFile(Persistent.SavedStateName); /* lose any saved state */
-            finish(); /* start afresh next time */
+            Action.run();
             Handled = true;
           } /*if*/
         return
