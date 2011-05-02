@@ -106,7 +106,7 @@ public class Main extends android.app.Activity
           );
         OptionsMenu.put
           (
-            TheMenu.add(getString(R.string.load_prog)),
+            TheMenu.add(R.string.load_prog),
             new Runnable()
               {
                 public void run()
@@ -122,7 +122,7 @@ public class Main extends android.app.Activity
           );
         OptionsMenu.put
           (
-            TheMenu.add(getString(R.string.save_as)),
+            TheMenu.add(R.string.save_as),
             new Runnable()
               {
                 public void run()
