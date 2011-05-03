@@ -19,32 +19,68 @@ package nz.gen.geek_central.ti5x;
 public class Picker extends android.app.Activity
   {
     public static String ExtID = "nz.gen.geek-central.ti5x.PickerExt";
+
+    static boolean Reentered = false; /* sanity check */
+
+    public static class PickerAltList
+      /* defining alternative lists of files for picker to display */
+      {
+        int RadioButtonID;
+        String Prompt;
+        String NoneFound;
+        String FileExt;
+        String SpecialItem; /* special item to add to list, null for none */
+
+        public PickerAltList
+          (
+            int RadioButtonID,
+            String Prompt,
+            String NoneFound,
+            String FileExt,
+            String SpecialItem
+          )
+          {
+            this.RadioButtonID = RadioButtonID;
+            this.Prompt = Prompt;
+            this.NoneFound = NoneFound;
+            this.FileExt = FileExt;
+            this.SpecialItem = SpecialItem;
+          } /*PickerAltList*/
+      } /*PickerAltList*/
+
+    static android.view.View Extra = null;
+    static String[] LookIn;
+    static PickerAltList[] AltLists = null;
+
+    android.view.ViewGroup MainViewGroup;
+    android.widget.TextView PromptView;
     android.widget.ListView PickerListView;
     SelectedItemAdapter PickerList;
-    String SelectedExt;
+    int SelectedAlt; /* index into AltLists */
 
-    class PickerItem
+    public static class PickerItem
       {
-        String FullPath;
+        String FullPath, DisplayName;
         boolean Selected;
 
         public PickerItem
           (
-            String FullPath
+            String FullPath,
+            String DisplayName
           )
           {
             this.FullPath = FullPath;
+            this.DisplayName = DisplayName;
             this.Selected = false;
           } /*PickerItem*/
 
         public String toString()
           {
-          /* display name for item is leaf filename */
             return
-                FullPath != null ?
-                    new java.io.File(FullPath).getName()
+                DisplayName != null ?
+                    DisplayName
                 :
-                    getString(R.string.master_library);
+                    new java.io.File(FullPath).getName();
           } /*toString*/
 
       } /*PickerItem*/
@@ -132,7 +168,7 @@ public class Picker extends android.app.Activity
                               ),
                         /*duration =*/ android.widget.Toast.LENGTH_SHORT
                       ).show();
-                    PopulatePickerList(SelectedExt);
+                    PopulatePickerList(SelectedAlt);
                   } /*if*/
               } /*if*/
             dismiss();
@@ -177,7 +213,7 @@ public class Picker extends android.app.Activity
                             (android.widget.RadioButton)TheView
                         :
                             (android.widget.RadioButton)
-                            ((android.view.ViewGroup)TheView).findViewById(R.id.prog_item_checked);
+                            ((android.view.ViewGroup)TheView).findViewById(R.id.file_item_checked);
                     CurSelected = MyItem;
                     MyItem.Selected = true;
                     LastChecked.setChecked(true);
@@ -191,7 +227,6 @@ public class Picker extends android.app.Activity
             int ResID,
             android.view.LayoutInflater TemplateInflater
           )
-          /* the only constructor I need */
           {
             super(TheContext, ResID);
             this.ResID = ResID;
@@ -214,10 +249,10 @@ public class Picker extends android.app.Activity
                 TheView = TemplateInflater.inflate(ResID, null);
               } /*if*/
             final PickerItem ThisItem = (PickerItem)this.getItem(Position);
-            ((android.widget.TextView)TheView.findViewById(R.id.select_prog_name))
+            ((android.widget.TextView)TheView.findViewById(R.id.select_file_name))
                 .setText(ThisItem.toString());
             android.widget.RadioButton ThisChecked =
-                (android.widget.RadioButton)TheView.findViewById(R.id.prog_item_checked);
+                (android.widget.RadioButton)TheView.findViewById(R.id.file_item_checked);
             ThisChecked.setChecked(ThisItem.Selected);
             final OnSetCheck ThisSetCheck = new OnSetCheck(ThisItem);
             ThisChecked.setOnClickListener(ThisSetCheck);
@@ -232,7 +267,7 @@ public class Picker extends android.app.Activity
                         android.view.View TheView
                       )
                       {
-                        if (ThisItem.FullPath != null) /* cannot delete built-in library */
+                        if (ThisItem.FullPath != null) /* cannot delete built-in item */
                           {
                             new DeleteConfirm(Picker.this, ThisItem).show();
                           } /*if*/
@@ -250,14 +285,14 @@ public class Picker extends android.app.Activity
     class OnSelectCategory implements android.view.View.OnClickListener
       /* handler for radio buttons selecting which category of files to display */
       {
-        final String Ext;
+        final int SelectAlt;
 
         OnSelectCategory
           (
-            String Ext
+            int SelectAlt
           )
           {
-            this.Ext = Ext;
+            this.SelectAlt = SelectAlt;
           } /*OnSelectCategory*/
 
         public void onClick
@@ -265,41 +300,48 @@ public class Picker extends android.app.Activity
             android.view.View TheView
           )
           {
-            PopulatePickerList(Ext);
+            PopulatePickerList(SelectAlt);
           } /*onClick*/
 
       } /*OnSelectCategory*/
 
     void PopulatePickerList
       (
-        String Ext
+        int NewAlt /* index into AltLists */
       )
       {
-        SelectedExt = Ext;
+        SelectedAlt = NewAlt;
+        final PickerAltList Alt = AltLists[SelectedAlt];
         PickerList.clear();
           {
             final String ExternalStorage =
                 android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-            for (String Here : Persistent.ExternalCalcDirectories)
+            for (String Here : LookIn)
               {
                 final java.io.File ThisDir = new java.io.File(ExternalStorage + "/" + Here);
                 if (ThisDir.isDirectory())
                   {
                     for (java.io.File Item : ThisDir.listFiles())
                       {
-                        if (Item.getName().endsWith(SelectedExt))
+                        if (Item.getName().endsWith(Alt.FileExt))
                           {
-                            PickerList.add(new PickerItem(Item.getAbsolutePath()));
+                            PickerList.add(new PickerItem(Item.getAbsolutePath(), null));
                           } /*if*/
                       } /*for*/
                   } /* if*/
               } /*for*/
           }
-        if (Ext == Persistent.LibExt)
+        if (Alt.SpecialItem != null)
           {
-            PickerList.add(new PickerItem(null));
-              /* item representing selection of built-in Master Library */
+            PickerList.add(new PickerItem(null, Alt.SpecialItem));
           } /*if*/
+        PromptView.setText
+          (
+            PickerList.getCount() != 0 ?
+                Alt.Prompt
+            :
+                Alt.NoneFound
+          );
         PickerList.notifyDataSetChanged();
       } /*PopulatePickerList*/
 
@@ -310,22 +352,13 @@ public class Picker extends android.app.Activity
       )
       {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.picker);
+        MainViewGroup = (android.view.ViewGroup)getLayoutInflater().inflate(R.layout.picker, null);
+        setContentView(MainViewGroup);
+      /* ExtraViewGroup = (android.view.ViewGroup)MainViewGroup.findViewById(R.id.picker_extra); */ /* doesn't work -- things added here don't show up */
+        PromptView = (android.widget.TextView)findViewById(R.id.picker_prompt);
         PickerList = new SelectedItemAdapter(this, R.layout.picker_item, getLayoutInflater());
         PickerListView = (android.widget.ListView)findViewById(R.id.prog_list);
         PickerListView.setAdapter(PickerList);
-          {
-            final android.widget.RadioButton SelectSaved =
-                (android.widget.RadioButton)findViewById(R.id.select_saved);
-            final android.widget.RadioButton SelectLib =
-                (android.widget.RadioButton)findViewById(R.id.select_libraries);
-            SelectedExt = Persistent.ProgExt;
-            SelectSaved.setChecked(Persistent.ProgExt == SelectedExt);
-            SelectSaved.setOnClickListener(new OnSelectCategory(Persistent.ProgExt));
-            SelectLib.setChecked(Persistent.LibExt == SelectedExt);
-            SelectLib.setOnClickListener(new OnSelectCategory(Persistent.LibExt));
-            PopulatePickerList(SelectedExt);
-          }
         findViewById(R.id.prog_select).setOnClickListener
           (
             new android.view.View.OnClickListener()
@@ -368,13 +401,94 @@ public class Picker extends android.app.Activity
                                           )
                                       )
                                   )
-                                .putExtra(ExtID, SelectedExt)
+                                .putExtra(ExtID, AltLists[SelectedAlt].FileExt)
                           );
                         finish();
                       } /*if*/
                   } /*onClick*/
               } /*OnClickListener*/
           );
+        SelectedAlt = 0;
       } /*onCreate*/
+
+    @Override
+    public void onPause()
+      {
+        super.onPause();
+        if (Extra != null)
+          {
+          /* so it can be properly added again should the orientation change */
+            MainViewGroup.removeView(Extra);
+          } /*if*/
+      } /*onPause*/
+
+    @Override
+    public void onResume()
+      {
+        super.onResume();
+        if (Extra != null)
+          {
+            MainViewGroup.addView
+              (
+                Extra,
+                new android.view.ViewGroup.LayoutParams
+                  (
+                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                  )
+              );
+            for (int i = 0; i < AltLists.length; ++i)
+              {
+                final PickerAltList ThisAlt = AltLists[i];
+                if (ThisAlt.RadioButtonID != 0)
+                  {
+                    final android.widget.RadioButton SelectThis =
+                        (android.widget.RadioButton)Extra.findViewById(ThisAlt.RadioButtonID);
+                    SelectThis.setChecked(i == SelectedAlt);
+                    SelectThis.setOnClickListener(new OnSelectCategory(i));
+                  } /*if*/
+              } /*for*/
+          } /*if*/
+        PopulatePickerList(SelectedAlt);
+      } /*onResume*/
+
+    public static void Launch
+      (
+        android.app.Activity Acting,
+        int RequestCode,
+        android.view.View Extra,
+        String[] LookIn, /* array of names of subdirectories within external storage */
+        PickerAltList[] AltLists
+      )
+      {
+        if (!Reentered)
+          {
+            Reentered = true; /* until Picker activity terminates */
+            Picker.Extra = Extra;
+            Picker.LookIn = LookIn;
+            Picker.AltLists = AltLists;
+            Acting.startActivityForResult
+              (
+                new android.content.Intent(android.content.Intent.ACTION_PICK)
+                    .setClass(Acting, Picker.class),
+                RequestCode
+              );
+          }
+        else
+          {
+          /* can happen if user gets impatient and selects from menu twice, just ignore */
+          } /*if*/
+      } /*Launch*/
+
+    public static void Cleanup()
+      /* Client must call this to do explicit cleanup; I tried doing it in
+        onDestroy, but of course that gets called when user rotates screen,
+        which means picker context is lost. */
+      {
+        Extra = null;
+        LookIn = null;
+        AltLists = null;
+        Reentered = false;
+      } /*Cleanup*/
 
   } /*Picker*/

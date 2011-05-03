@@ -32,6 +32,7 @@ public class Main extends android.app.Activity
 
     protected final int LoadProgramRequest = 1; /* arbitrary code */
     protected final int SaveProgramRequest = 2; /* arbitrary code */
+    android.widget.RadioGroup SelectProgType;
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
@@ -122,11 +123,35 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
-                    startActivityForResult
+                    final Picker.PickerAltList[] AltLists =
+                        {
+                            new Picker.PickerAltList
+                              (
+                                /*RadioButtonID =*/ R.id.select_saved,
+                                /*Prompt =*/ getString(R.string.prog_prompt),
+                                /*NoneFound =*/ getString(R.string.no_programs),
+                                /*FileExt =*/ Persistent.ProgExt,
+                                /*SpecialItem =*/ null
+                              ),
+                            new Picker.PickerAltList
+                              (
+                                /*RadioButtonID =*/ R.id.select_libraries,
+                                /*Prompt =*/ getString(R.string.module_prompt),
+                                /*NoneFound =*/ getString(R.string.no_modules),
+                                /*FileExt =*/ Persistent.LibExt,
+                                /*SpecialItem =*/ getString(R.string.master_library)
+                                  /* item representing selection of built-in Master Library */
+                              ),
+                        };
+                    SelectProgType = (android.widget.RadioGroup)
+                        getLayoutInflater().inflate(R.layout.prog_type, null);
+                    Picker.Launch
                       (
-                        new android.content.Intent(android.content.Intent.ACTION_PICK)
-                            .setClass(Main.this, Picker.class),
-                        LoadProgramRequest
+                        /*Acting =*/ Main.this,
+                        /*RequestCode =*/ LoadProgramRequest,
+                        /*Extra =*/ SelectProgType,
+                        /*LookIn =*/ Persistent.ExternalCalcDirectories,
+                        /*AltLists =*/ AltLists
                       );
                   } /*run*/
               } /*Runnable*/
@@ -339,6 +364,7 @@ public class Main extends android.app.Activity
         android.content.Intent Data
       )
       {
+        Picker.Cleanup();
         if (ResultCode == android.app.Activity.RESULT_OK)
           {
             final RequestResponseAction Action = ActivityResultActions.get(RequestCode);

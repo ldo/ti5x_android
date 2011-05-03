@@ -2,12 +2,14 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
+    android:stretchColumns="0"
 >
     <TableRow>
         <TextView
+            android:id="@+id/picker_prompt"
             android:layout_width="fill_parent" 
             android:layout_height="wrap_content"
-            android:text="@string/prog_prompt"
+            android:text=""
         />
     </TableRow>
     <TableRow>
@@ -15,30 +17,13 @@
             android:id="@+id/prog_list"
             android:layout_width="fill_parent" 
             android:layout_height="300dp"
-            android:choiceMode="singleChoice"
-            android:unselectedAlpha="0.5"
         />
     </TableRow>
-    <TableRow>
-        <RadioGroup
-            android:layout_width="300dp" 
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-        >
-            <RadioButton
-                android:id="@+id/select_saved"
-                android:layout_width="fill_parent" 
-                android:layout_height="wrap_content"
-                android:text="@string/saved_progs"
-            />
-            <RadioButton
-                android:id="@+id/select_libraries"
-                android:layout_width="fill_parent" 
-                android:layout_height="wrap_content"
-                android:text="@string/libraries"
-            />
-        </RadioGroup>
-    </TableRow>
+    <!-- <TableRow
+        android:id="@+id/picker_extra"
+        android:layout_width="fill_parent" 
+        android:layout_height="300dp"
+    /> doesn't work; things added here don't show up -->
     <TableRow>
         <Button
             android:id="@+id/prog_select"

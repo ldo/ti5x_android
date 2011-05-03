@@ -21,6 +21,7 @@
   <!-- prompt strings -->
     <string name="save_program_as">Save program as:</string>
     <string name="prog_prompt">Program to load:</string>
+    <string name="module_prompt">Module to load:</string>
     <string name="saved_progs">Saved Programs</string>
     <string name="libraries">Libraries</string>
     <string name="master_library">Master Library (Built-In)</string>
@@ -30,6 +31,8 @@
     <string name="no_module_help">Sorry, no help available for this module</string>
     <string name="no_external_storage">No place to save.</string>
     <string name="please_enter_name">Please enter a name for saving the program.</string>
+    <string name="no_programs">No programs to load.</string>
+    <string name="no_modules">No moduless to load.</string>
     <string name="program_loaded">Loaded program “%s”.</string>
     <string name="file_load_error">Couldn’t load file: %s.</string>
     <string name="library_loaded">Loaded library “%s”.</string>
