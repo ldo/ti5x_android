@@ -23,7 +23,7 @@ public class Importer
       {
         java.io.InputStream Data;
         int LineNr, ColNr; /* for reporting locations of errors */
-        boolean WasNL, EOF;
+        boolean WasNL, WasCR, EOF;
 
         public ImportDataFeeder
           (
@@ -34,6 +34,7 @@ public class Importer
             LineNr = 0;
             ColNr = 0;
             WasNL = true; /* so LineNr gets incremented to 1 on first character */
+            WasCR = false;
             EOF = false;
           } /*ImportDataFeeder*/
 
@@ -80,9 +81,14 @@ public class Importer
                         ++LineNr;
                         ColNr = 0;
                       } /*if*/
-                    ++ColNr;
+                    if (ch != '\n' && ch != '\015')
+                      {
+                        ++ColNr;
+                      } /*if*/
                   } /*if*/
-                if (ch == ' ' || ch == '\t' || ch == '\n' || ch == ',' || ch == ';')
+                WasNL = ch == '\n' && !WasCR || ch == '\015';
+                WasCR = ch == '\015';
+                if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\015' || ch == ',' || ch == ';')
                   {
                     if (LastNum != null)
                       {
@@ -158,7 +164,6 @@ public class Importer
                           )
                       );
                   } /*if*/
-                WasNL = ch == '\n';
               } /*for*/
             return
                 Result;
