@@ -30,11 +30,77 @@ public class Main extends android.app.Activity
 
     java.util.Map<Integer, RequestResponseAction> ActivityResultActions;
 
-    protected final int LoadProgramRequest = 1; /* arbitrary code */
-    protected final int SaveProgramRequest = 2; /* arbitrary code */
-    android.widget.RadioGroup SelectProgType;
+    final int LoadProgramRequest = 1; /* arbitrary code */
+    final int ImportDataRequest = 2; /* arbitrary code */
+    final int SaveProgramRequest = 3; /* arbitrary code */
+    android.view.ViewGroup PickerExtra;
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
+
+    class ReplaceImportConfirm
+        extends android.app.AlertDialog
+        implements android.content.DialogInterface.OnClickListener
+      {
+
+        public ReplaceImportConfirm
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx);
+            setMessage(ctx.getString(R.string.query_replace_import));
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_POSITIVE,
+                ctx.getString(R.string.replace),
+                this
+              );
+            setButton
+              (
+                android.content.DialogInterface.BUTTON_NEGATIVE,
+                ctx.getString(R.string.cancel),
+                this
+              );
+          } /*ReplaceImportConfirm*/
+
+        @Override
+        public void onClick
+          (
+            android.content.DialogInterface TheDialog,
+            int WhichButton
+          )
+          {
+            if (WhichButton == android.content.DialogInterface.BUTTON_POSITIVE)
+              {
+                LaunchImportPicker();
+              } /*if*/
+            dismiss();
+          } /*onClick*/
+
+      } /*ReplaceImportConfirm*/
+
+    void LaunchImportPicker()
+      {
+        final Picker.PickerAltList[] OnlyAlt =
+            {
+                new Picker.PickerAltList
+                  (
+                    /*RadioButtonID =*/ 0,
+                    /*Prompt =*/ getString(R.string.import_prompt),
+                    /*NoneFound =*/ getString(R.string.no_data_files),
+                    /*FileExt =*/ "",
+                    /*SpecialItem =*/ null
+                  ),
+            };
+        Picker.Launch
+          (
+            /*Acting =*/ Main.this,
+            /*RequestCode =*/ ImportDataRequest,
+            /*Extra =*/ null,
+            /*LookIn =*/ Persistent.ExternalDataDirectories,
+            /*AltLists =*/ OnlyAlt
+          );
+      } /*LaunchImportPicker*/
 
     @Override
     public boolean onCreateOptionsMenu
@@ -143,16 +209,34 @@ public class Main extends android.app.Activity
                                   /* item representing selection of built-in Master Library */
                               ),
                         };
-                    SelectProgType = (android.widget.RadioGroup)
+                    PickerExtra = (android.view.ViewGroup)
                         getLayoutInflater().inflate(R.layout.prog_type, null);
                     Picker.Launch
                       (
                         /*Acting =*/ Main.this,
                         /*RequestCode =*/ LoadProgramRequest,
-                        /*Extra =*/ SelectProgType,
+                        /*Extra =*/ PickerExtra,
                         /*LookIn =*/ Persistent.ExternalCalcDirectories,
                         /*AltLists =*/ AltLists
                       );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        OptionsMenu.put
+          (
+            TheMenu.add(R.string.import_data),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (!Global.Calc.ImportInProgress())
+                      {
+                        LaunchImportPicker();
+                      }
+                    else
+                      {
+                        new ReplaceImportConfirm(Main.this).show();
+                      } /*if*/
                   } /*run*/
               } /*Runnable*/
           );
@@ -179,7 +263,7 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
-                    ShuttingDown = true;
+                    ShuttingDown = true; /* don't save any state */
                     deleteFile(Persistent.SavedStateName); /* lose any saved state */
                     finish(); /* start afresh next time */
                   } /*run*/
@@ -277,6 +361,51 @@ public class Main extends android.app.Activity
           );
         ActivityResultActions.put
           (
+            ImportDataRequest,
+            new RequestResponseAction()
+              {
+                public void Run
+                  (
+                    android.content.Intent Data
+                  )
+                  {
+                    final String FileName = Data.getData().getPath();
+                    try
+                      {
+                        Global.Calc.ClearImport();
+                        Global.Import.ImportData(FileName);
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.import_started),
+                                FileName
+                              ),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                        
+                      }
+                    catch (Persistent.DataFormatException Failed)
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.file_load_error),
+                                Failed.toString()
+                              ),
+                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                          ).show();
+                      } /*try*/
+                  } /*Run*/
+              } /*RequestResponseAction*/
+          );
+        ActivityResultActions.put
+          (
             SaveProgramRequest,
             new RequestResponseAction()
               {
@@ -365,6 +494,7 @@ public class Main extends android.app.Activity
       )
       {
         Picker.Cleanup();
+        PickerExtra = null;
         if (ResultCode == android.app.Activity.RESULT_OK)
           {
             final RequestResponseAction Action = ActivityResultActions.get(RequestCode);
@@ -387,7 +517,8 @@ public class Main extends android.app.Activity
         Global.Help = (HelpCard)findViewById(R.id.help_card);
         Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
         Global.Print = new Printer(this);
-        Global.Calc = new State();
+        Global.Calc = new State(this);
+        Global.Import = new Importer();
         BuildActivityResultActions();
       } /*onCreate*/
 

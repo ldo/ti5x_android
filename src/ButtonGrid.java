@@ -1361,7 +1361,14 @@ public class ButtonGrid extends android.view.View
                           } /*if*/
                     break;
                     case 99:
-                        Global.Calc.PrintDisplay(false);
+                        if (Global.Calc.InvState) /* extension! */
+                          {
+                            Global.Calc.GetNextImport();
+                          }
+                        else
+                          {
+                            Global.Calc.PrintDisplay(false);
+                          } /*if*/
                     break;
                     case 90:
                         if (Global.Print != null)

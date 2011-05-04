@@ -59,6 +59,7 @@ class Arith
 public class State
   /* the calculator state, number entry and programs */
   {
+    android.content.Context ctx;
   /* number-entry state */
     public final static int EntryState = 0;
     public final static int DecimalEntryState = 1;
@@ -74,6 +75,41 @@ public class State
     android.os.Handler BGTask;
     Runnable DelayTask = null;
     Runnable ExecuteTask = null;
+
+    public static class ImportEOFException extends RuntimeException
+      /* indicates no more data to import. */
+      {
+
+        public ImportEOFException
+          (
+            String Message
+          )
+          {
+            super(Message);
+          } /*ImportEOFException*/
+
+      } /*ImportEOFException*/
+
+    public static abstract class ImportFeeder
+      {
+        abstract double Next()
+            throws
+                ImportEOFException,
+                Persistent.DataFormatException;
+          /* returns the next input value or raises ImportEOFException if none. */
+
+        public void End()
+          /* stops further invocations of the task. Subclass may add
+            further cleanup, but must also invoke this superclass method. */
+          {
+            if (Global.Calc != null)
+              {
+                Global.Calc.Import = null;
+              } /*if*/
+          } /*End*/
+      } /*ImportFeeder*/
+    ImportFeeder Import = null;
+
     java.security.SecureRandom Random = new java.security.SecureRandom();
 
   /* number-display format */
@@ -217,6 +253,7 @@ public class State
         RunPC = 0;
         CurBank = 0;
         ReturnLast = -1;
+        ClearImport();
         ProgRunning = false;
         ProgRunningSlowly = false;
         ResetLabels();
@@ -248,8 +285,12 @@ public class State
         ResetEntry();
       } /*Reset*/
 
-    public State()
+    public State
+      (
+        android.content.Context ctx
+      )
       {
+        this.ctx = ctx;
         OpStack = new OpStackEntry[MaxOpStack];
         Memory = new double[MaxMemories];
         Program = new byte[MaxProgram];
@@ -360,6 +401,12 @@ public class State
         return
             CurState == ErrorState;
       } /*InErrorState*/
+
+    public boolean ImportInProgress()
+      {
+        return
+            Import != null;
+      } /*ImportInProgress*/
 
     public void ClearAll()
       {
@@ -1569,6 +1616,51 @@ public class State
           } /*if*/
       } /*StatsResult*/
 
+    public void GetNextImport()
+      /* gets next value from current importer, if any. */
+      {
+        boolean OK = false;
+        double Value;
+        do /*once*/
+          {
+            if (Import == null)
+                break;
+            try
+              {
+                Value = Import.Next();
+              }
+            catch (ImportEOFException Done)
+              {
+                Import.End();
+                break;
+              }
+            catch (Persistent.DataFormatException Bad)
+              {
+                android.widget.Toast.makeText
+                  (
+                    /*context =*/ ctx,
+                    /*text =*/
+                        String.format
+                          (
+                            Global.StdLocale,
+                            ctx.getString(R.string.import_error),
+                            Bad.toString()
+                          ),
+                    /*duration =*/ android.widget.Toast.LENGTH_LONG
+                  ).show();
+                Import.End();
+                break;
+              } /*try*/
+            SetX(Value);
+            OK = true;
+          }
+        while (false);
+        if (!OK)
+          {
+            SetErrorState();
+          } /*if*/
+      } /*GetNextImport*/
+
     public void StepPC
       (
         boolean Forward
@@ -1707,6 +1799,11 @@ public class State
           } /*if*/
       } /*ContinueProgRunner*/
 
+    void SetShowingRunning()
+      {
+        Global.Disp.SetShowingRunning(Import != null ? 'c' : 'C');
+      } /*SetShowingRunning*/
+
     public void StartProgram()
       {
         ClearDelayedStep();
@@ -1718,7 +1815,7 @@ public class State
         ProgRunningSlowly = false; /* just in case */
         SaveRunningSlowly = false;
         ProgRunning = true;
-        Global.Disp.SetShowingRunning();
+        SetShowingRunning();
         RunPC = PC;
         RunBank = CurBank;
         NextBank = RunBank;
@@ -1756,10 +1853,31 @@ public class State
             SaveRunningSlowly = Slow;
             if (!ProgRunningSlowly)
               {
-                Global.Disp.SetShowingRunning();
+                SetShowingRunning();
               } /*if*/
           } /*if*/
       } /*SetSlowExecution*/
+
+    public void SetImport
+      (
+        ImportFeeder NewImport
+      )
+      {
+        if (Import != null)
+          {
+            throw new RuntimeException("attempt to queue multiple ImportFeeders");
+          } /*if*/
+        Import = NewImport;
+      } /*SetImport*/
+
+    public void ClearImport()
+      {
+        if (Import != null)
+          {
+            Import.End();
+            Import = null;
+          } /*if*/
+      } /*ClearImport*/
 
     public void ResetProg()
       {
@@ -1776,6 +1894,7 @@ public class State
             PC = 0;
           } /*if*/
         ReturnLast = -1;
+        ClearImport();
       } /*ResetProg*/
 
     int GetProg
@@ -2474,7 +2593,14 @@ public class State
                       } /*if*/
                 break;
                 case 99:
-                    PrintDisplay(false);
+                    if (InvState) /* extension! */
+                      {
+                        GetNextImport();
+                      }
+                    else
+                      {
+                        PrintDisplay(false);
+                      } /*if*/
                 break;
                 case 90:
                   /* TBD */

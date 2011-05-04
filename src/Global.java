@@ -22,6 +22,7 @@ public class Global
     public static HelpCard Help;
     public static ButtonGrid Buttons;
     public static State Calc;
+    public static Importer Import;
     public static Printer Print;
 
     public static final java.util.Locale StdLocale = java.util.Locale.US;

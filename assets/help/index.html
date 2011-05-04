@@ -76,6 +76,7 @@ TABLE.keycodes > TBODY > TR > TD.unused
 </UL>
 <LI><A HREF="#ProgramExecution">Program Execution</A>
 <LI><A HREF="#LibraryPrograms">Library Programs</A>
+<LI><A HREF="#Import">Importing Data</A>
 <LI><A HREF="#Printer">Printer Emulation</A>
 <LI><A HREF="#OptionsMenu">Options Menu</A>
 </UL>
@@ -561,7 +562,7 @@ specified number.
 location, or stop execution if already running.
 <LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction.
 <LI><SPAN CLASS="brownbutton">RST</SPAN> — clear all flags and the subroutine return stack,
-and set the current location to <B>000</B>.
+and set the current location to <B>000</B>. Also closes the current data-import file.
 </UL>
 <P>While a program is running, you can hold down the
 <SPAN CLASS="brownbutton">GTO</SPAN>/<SPAN CLASS="alttext">Pause</SPAN>
@@ -588,11 +589,24 @@ number is selected will display the contents of the selected program, rather tha
 user-program-entry area. The program number additionally appears to the left of the program
 location number. Library programs cannot be edited.
 
+<H2><A NAME="Import"></A>Importing Data</H2>
+<P>You can read numbers from a data file, instead of having to enter them manually.
+You choose a file to open from the “Import Data...” item in the
+<A HREF="#OptionsMenu">Options Menu</A>. The file must contain a sequence of numbers
+separated by newlines, whitespace or commas. Thereafter, you can read the next
+number into the display using <SPAN CLASS="brownbutton">INV</SPAN>
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> (either from
+the keyboard or in a program). An attempt to read past the last number will trigger
+an error condition, which you can test for with <SPAN CLASS="alttext">Op</SPAN> <B>19</B>
+(see <A HREF="#Flags">Flags</A>).
+
 <H2><A NAME="Printer"></A>Printer Emulation</H2>
 <P>The app also includes emulation for a connected PC-100<I>x</I> dot-matrix printer
 capable of printing 20 text columns per line, from a limited character set. The printer
 output can be viewed by selecting the “Printer” item from the options menu.
 <UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> — print
+the number currently being displayed.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>00</B> —
 initialize the print register to all blanks.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>01</B> —
@@ -609,6 +623,9 @@ load the 10-digit integer part of the displayed value into the rightmost 5 colum
 print register.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>05</B> —
 print the contents of the print register.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>06</B> —
+print the number currently being displayed, followed by the last three characters in the
+print register.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>07</B> —
 plot an asterisk preceded by <I>n</i> spaces, where <I>n</I> (which must be in [0 .. 19])
 is taken from the integer part of the displayed number.
@@ -629,7 +646,9 @@ the main calculator display.)
 <LI>Load... — load a library module or saved program from a file on the SD card.
 The list to pick from is built from the contents of the “Programs” and “Download”
 directories.
-<LI>Save... — save the user-entered program to a file on the SD card. The file is
+<LI>Import Data... — lets you open a data file to begin importing numbers from.
+(See <A HREF="#Import">Importing Data</A> for more details.)
+<LI>Save Program... — save the user-entered program to a file on the SD card. The file is
 saved in the “Programs” directory.
 <LI>Off — simulate a complete power down and quit the app. <B>This completely wipes all user
 program and memory contents.</B> The next time the app is started, it will initialize

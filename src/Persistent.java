@@ -103,6 +103,11 @@ public class Persistent
             ProgramsDir,
             "Download",
         };
+    public static final String[] ExternalDataDirectories =
+      /* where to load data files from */
+        {
+            "Download",
+        };
     public static final String SavedStateName = "state" + StateExt;
 
     public static class DataFormatException extends RuntimeException
@@ -282,6 +287,8 @@ public class Persistent
             String.format(Global.StdLocale, String.format(Global.StdLocale, "%%%ds</prog>\n", Indent), "")
           );
       } /*SaveProg*/
+
+/* Note Importer state is NOT saved/restored */
 
     public static void Save
       (

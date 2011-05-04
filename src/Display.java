@@ -117,6 +117,9 @@ public class Display extends android.view.View
         case 'E':
             TheCode = 0x05B;
         break;
+        case 'c':
+            TheCode = 0x058;
+        break;
         case 'o':
             TheCode = 0x078;
         break;
@@ -214,12 +217,15 @@ public class Display extends android.view.View
           } /*if*/
       } /*ClearAnimShowing*/
 
-    public void SetShowingRunning()
+    public void SetShowingRunning
+      (
+        char Ch
+      )
       {
         ClearAnimShowing();
         for (int i = 0; i < OtherShowing.length; ++i)
           {
-            OtherShowing[i] = SegmentCode(i == 0 ? 'C' : ' ');
+            OtherShowing[i] = SegmentCode(i == 0 ? Ch : ' ');
           } /*for*/
         SetShowing(OtherShowing);
         ShowingColor = LEDLight;
