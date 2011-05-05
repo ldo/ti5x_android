@@ -242,16 +242,18 @@ public class Main extends android.app.Activity
           );
         OptionsMenu.put
           (
-            TheMenu.add(R.string.save_as),
+            TheMenu.add(R.string.save_program_as),
             new Runnable()
               {
                 public void run()
                   {
-                    startActivityForResult
+                    SaveAs.Launch
                       (
-                        new android.content.Intent(android.content.Intent.ACTION_PICK)
-                            .setClass(Main.this, SaveAs.class),
-                        SaveProgramRequest
+                        /*Acting =*/ Main.this,
+                        /*RequestCode =*/ SaveProgramRequest,
+                        /*SaveWhat =*/ getString(R.string.program),
+                        /*Extra =*/ null,
+                        /*FileExt =*/ Persistent.ProgExt
                       );
                   } /*run*/
               } /*Runnable*/
@@ -495,6 +497,7 @@ public class Main extends android.app.Activity
       {
         Picker.Cleanup();
         PickerExtra = null;
+        SaveAs.Cleanup();
         if (ResultCode == android.app.Activity.RESULT_OK)
           {
             final RequestResponseAction Action = ActivityResultActions.get(RequestCode);

@@ -9,7 +9,7 @@
     <string name="show_printer">Printer</string>
     <string name="load_prog">Load Program...</string>
     <string name="import_data">Import Data...</string>
-    <string name="save_as">Save Program...</string>
+    <string name="save_program_as">Save Program...</string>
     <string name="turn_off">Off</string>
 
   <!-- buttons -->
@@ -21,11 +21,12 @@
     <string name="delete">Delete</string>
 
   <!-- prompt strings -->
+    <string name="program">program</string>
     <string name="prog_prompt">Program to load:</string>
     <string name="module_prompt">Module to load:</string>
     <string name="master_library">Master Library (Built-In)</string>
     <string name="import_prompt">Data to load:</string>
-    <string name="save_program_as">Save program as:</string>
+    <string name="save_as_prompt">Save %s as:</string>
     <string name="saved_progs">Saved Programs</string>
     <string name="libraries">Libraries</string>
 
@@ -33,7 +34,7 @@
     <string name="no_prog_help">Sorry, no help available for this program</string>
     <string name="no_module_help">Sorry, no help available for this module</string>
     <string name="no_external_storage">No place to save.</string>
-    <string name="please_enter_name">Please enter a name for saving the program.</string>
+    <string name="please_enter_name">Please enter a name for saving the %s.</string>
     <string name="no_programs">No programs to load.</string>
     <string name="no_modules">No modules to load.</string>
     <string name="no_data_files">No data files to load.</string>

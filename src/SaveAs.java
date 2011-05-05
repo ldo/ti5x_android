@@ -18,7 +18,14 @@ package nz.gen.geek_central.ti5x;
 
 public class SaveAs extends android.app.Activity
   {
-    protected android.widget.EditText SaveAsText;
+    static android.view.View Extra = null;
+    static String SaveWhat = null;
+    static String FileExt = null;
+
+    static boolean Reentered = false; /* sanity check */
+
+    android.view.ViewGroup MainViewGroup;
+    android.widget.EditText SaveAsText;
     String TheCleanedText;
 
     class OverwriteConfirm
@@ -94,9 +101,14 @@ public class SaveAs extends android.app.Activity
                 android.os.Environment.MEDIA_MOUNTED
           )
           {
-            final android.view.ViewGroup TheViewGroup =
+            MainViewGroup =
                 (android.view.ViewGroup)getLayoutInflater().inflate(R.layout.save_as, null);
-            setContentView(TheViewGroup);
+            setContentView(MainViewGroup);
+            final android.widget.TextView SaveAsPrompt = (android.widget.TextView)findViewById(R.id.save_as_prompt);
+            SaveAsPrompt.setText
+              (
+                String.format(Global.StdLocale, getString(R.string.save_as_prompt), SaveWhat)
+              );
             SaveAsText = (android.widget.EditText)findViewById(R.id.save_as_text);
             findViewById(R.id.save_as_confirm).setOnClickListener
               (
@@ -130,7 +142,8 @@ public class SaveAs extends android.app.Activity
                                   (
                                     new java.io.File
                                       (
-                                            android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
+                                            android.os.Environment.getExternalStorageDirectory()
+                                                .getAbsolutePath()
                                         +
                                             "/"
                                         +
@@ -140,7 +153,7 @@ public class SaveAs extends android.app.Activity
                                         +
                                             TheCleanedText
                                         +
-                                            Persistent.ProgExt
+                                            FileExt
                                       ).exists()
                                   )
                                   {
@@ -156,7 +169,13 @@ public class SaveAs extends android.app.Activity
                                 android.widget.Toast.makeText
                                   (
                                     /*context =*/ SaveAs.this,
-                                    /*text =*/ getString(R.string.please_enter_name),
+                                    /*text =*/
+                                        String.format
+                                          (
+                                            Global.StdLocale,
+                                            getString(R.string.please_enter_name),
+                                            SaveWhat
+                                          ),
                                     /*duration =*/ android.widget.Toast.LENGTH_SHORT
                                   ).show();
                               } /*if*/
@@ -182,5 +201,71 @@ public class SaveAs extends android.app.Activity
             finish();
           } /*if*/
       } /*onCreate*/
+
+    @Override
+    public void onPause()
+      {
+        super.onPause();
+        if (Extra != null)
+          {
+          /* so it can be properly added again should the orientation change */
+            MainViewGroup.removeView(Extra);
+          } /*if*/
+      } /*onPause*/
+
+    @Override
+    public void onResume()
+      {
+        super.onResume();
+        if (Extra != null)
+          {
+            MainViewGroup.addView
+              (
+                Extra,
+                new android.view.ViewGroup.LayoutParams
+                  (
+                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                  )
+              );
+          } /*if*/
+      } /*onResume*/
+
+    public static void Launch
+      (
+        android.app.Activity Acting,
+        int RequestCode,
+        String SaveWhat,
+        android.view.View Extra,
+        String FileExt
+      )
+      {
+        if (!Reentered)
+          {
+            Reentered = true; /* until SaveAs activity terminates */
+            SaveAs.SaveWhat = SaveWhat;
+            SaveAs.Extra = Extra;
+            SaveAs.FileExt = FileExt;
+            Acting.startActivityForResult
+              (
+                new android.content.Intent(android.content.Intent.ACTION_PICK)
+                    .setClass(Acting, SaveAs.class),
+                RequestCode
+              );
+          }
+        else
+          {
+          /* can happen if user gets impatient and selects from menu twice, just ignore */
+          } /*if*/
+      } /*Launch*/
+
+    public static void Cleanup()
+      /* Client must call this to do explicit cleanup; I tried doing it in
+        onDestroy, but of course that gets called when user rotates screen,
+        which means activity context is lost. */
+      {
+        Extra = null;
+        Reentered = false;
+      } /*Cleanup*/
 
   } /*SaveAs*/
