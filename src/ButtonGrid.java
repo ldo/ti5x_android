@@ -1272,8 +1272,13 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 67 handled above */
                     case 68: /*Nop*/
-                      /* No effect */
-                        Persistent.SaveState(getContext()); /* why not */
+                      /* No semantic effect, but why not do some saving of
+                        volatile state, just in case */
+                        Persistent.SaveState(getContext());
+                        if (Global.Export != null)
+                          {
+                            Global.Export.Flush();
+                          } /*if*/
                     break;
                   /* 69 handled above */
                     case 60:
@@ -1354,13 +1359,23 @@ public class ButtonGrid extends android.view.View
                     break;
                   /* 96 same as 91 */
                   /* 97 handled above */
-                    case 98:
-                        if (Global.Print != null)
+                    case 98: /*Adv*/
+                        if (Global.Calc.InvState) /* extension! */
                           {
-                            Global.Print.Advance();
+                            if (Global.Export != null)
+                              {
+                                Global.Export.Close();
+                              } /*if*/
+                          }
+                        else
+                          {
+                            if (Global.Print != null)
+                              {
+                                Global.Print.Advance();
+                              } /*if*/
                           } /*if*/
                     break;
-                    case 99:
+                    case 99: /*Prt*/
                         if (Global.Calc.InvState) /* extension! */
                           {
                             Global.Calc.GetNextImport();

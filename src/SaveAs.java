@@ -23,6 +23,7 @@ public class SaveAs extends android.app.Activity
     static String FileExt = null;
 
     static boolean Reentered = false; /* sanity check */
+    public static SaveAs Current = null;
 
     android.view.ViewGroup MainViewGroup;
     android.widget.EditText SaveAsText;
@@ -94,6 +95,7 @@ public class SaveAs extends android.app.Activity
       )
       {
         super.onCreate(savedInstanceState);
+        SaveAs.Current = this;
         if
           (
                 android.os.Environment.getExternalStorageState().intern()
@@ -201,6 +203,13 @@ public class SaveAs extends android.app.Activity
             finish();
           } /*if*/
       } /*onCreate*/
+
+    @Override
+    public void onDestroy()
+      {
+        super.onDestroy();
+        SaveAs.Current = null;
+      } /*onDestroy*/
 
     @Override
     public void onPause()

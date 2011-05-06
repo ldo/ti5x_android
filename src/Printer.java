@@ -132,7 +132,7 @@ public class Printer
         Paper.prepareToDraw();
       } /*Printer*/
 
-    public void Advance()
+    public void StartNewLine()
       /* advances the paper to the next line. */
       {
         final int[] ScrollTemp = new int[PaperWidth * (PaperHeight - LineHeight)];
@@ -167,6 +167,16 @@ public class Printer
           {
             PrintListener.PaperChanged();
           } /*if*/
+      } /*StartNewLine*/
+
+    public void Advance()
+      /* advances the paper to the next line. */
+      {
+        StartNewLine();
+        if (Global.Export != null)
+          {
+            Global.Export.WriteLine("");
+          } /*if*/
       } /*Advance*/
 
     public void Render
@@ -174,7 +184,11 @@ public class Printer
         byte[] PrintReg
       )
       {
-        Advance();
+        if (Global.Export != null)
+          {
+            Global.Export.WriteLine(BackToText(PrintReg));
+          } /*if*/
+        StartNewLine();
         final int[] Line = new int[PaperWidth * LineHeight];
         for (int i = 0; i < Line.length; ++i)
           {
@@ -380,5 +394,152 @@ public class Printer
             Translated[i] = 0;
           } /*for*/
       } /*Translate*/
+
+    String BackToText
+      (
+        byte[] PrintReg
+      )
+      {
+        StringBuilder Result = new StringBuilder();
+        for (int i = 0; i < PrintReg.length; ++i)
+          {
+            final int b = (int)PrintReg[i];
+            int ch = 0;
+            if (b == 0)
+              {
+                ch = ' ';
+              }
+            else if (b >= 1 && b <= 7) /* '0' .. '6' */
+              {
+                ch = (char)(47 + b);
+              }
+            else if (b >= 10 && b <= 12) /* '7' .. '9' */
+              {
+                ch = (char)(45 + b);
+              }
+            else if (b >= 13 && b <= 17) /* 'A' .. 'E' */
+              {
+                ch = (char)(52 + b);
+              }
+            else if (b == 20) /* '-' */
+              {
+                ch = '-';
+              }
+            else if (b >= 21 && b <= 27) /* 'F' .. 'L' */
+              {
+                ch = (char)(49 + b);
+              }
+            else if (b >= 30 && b <= 37) /* 'M' .. 'T' */
+              {
+                ch = (char)(47 + b);
+              }
+            else if (b == 40) /* '.' */
+              {
+                ch = '.';
+              }
+            else if (b >= 41 && b <= 46) /* 'U' .. 'Z' */
+              {
+                ch = (char)(44 + b);
+              }
+            else if (b == 47) /* '+' */
+              {
+                ch = '+';
+              }
+            else if (b == 50) /* '×' */
+              {
+                ch = '×';
+              }
+            else if (b == 51) /* '*' */
+              {
+                ch = '*';
+              }
+            else if (b == 52) /* '√' */
+              {
+                ch = '√';
+              }
+            else if (b == 53) /* 'π' */
+              {
+                ch = 'π';
+              }
+            else if (b == 54) /* 'e' */
+              {
+                ch = 'e';
+              }
+            else if (b == 55) /* '(' */
+              {
+                ch = '(';
+              }
+            else if (b == 56) /* ')' */
+              {
+                ch = ')';
+              }
+            else if (b == 57) /* ',' */
+              {
+                ch = ',';
+              }
+            else if (b == 60) /* '↑' */
+              {
+                ch = '↑';
+              }
+            else if (b == 61) /* '%' */
+              {
+                ch = '%';
+              }
+          /* 62 -- double-arrow? */
+            else if (b == 63) /* '/' */
+              {
+                ch = '/';
+              }
+            else if (b == 64) /* '=' */
+              {
+                ch = '=';
+              }
+            else if (b == 65) /* '\'' */
+              {
+                ch = '\'';
+              }
+          /* 66 -- superscript x? */
+          /* 67 -- xbar? */
+            else if (b == 70) /* '²' */
+              {
+                ch = '²';
+              }
+            else if (b == 71) /* '?' */
+              {
+                ch = '?';
+              }
+            else if (b == 72) /* '÷' */
+              {
+                ch = '÷';
+              }
+            else if (b == 73) /* '!'? */
+              {
+                ch = '!'; /*?*/
+              }
+            else if (b == 74) /* looks like pi with extra bar across bottom */
+              {
+                ch = '♊'; /* Gemini! */
+              }
+          /* 75 -- bottom triangle symbol? */
+            else if (b == 76) /* 'Π' */
+              {
+                ch = 'Π';
+              }
+            else if (b == 77) /* '∑' */
+              {
+                ch = '∑';
+              }
+            else
+              {
+              /* ignore untranslateable ones */
+              } /*if*/
+            if (ch != 0)
+              {
+                Result.appendCodePoint(ch);
+              } /*if*/
+          } /*for*/
+        return
+            Result.toString();
+      } /*BackToText*/
 
   } /*Printer*/

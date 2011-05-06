@@ -24,31 +24,40 @@ public class Main extends android.app.Activity
       {
         public void Run
           (
+            int ResultCode,
             android.content.Intent Data
           );
       } /*RequestResponseAction*/
 
     java.util.Map<Integer, RequestResponseAction> ActivityResultActions;
 
-    final int LoadProgramRequest = 1; /* arbitrary code */
-    final int ImportDataRequest = 2; /* arbitrary code */
-    final int SaveProgramRequest = 3; /* arbitrary code */
-    android.view.ViewGroup PickerExtra;
+  /* request codes, all arbitrarily assigned */
+    final int LoadProgramRequest = 1;
+    final int ImportDataRequest = 2;
+    final int SaveProgramRequest = 3;
+    final int ExportDataRequest = 4;
+
+    final int SwitchSaveAs = android.app.Activity.RESULT_FIRST_USER + 0;
+    final int SwitchAppend = android.app.Activity.RESULT_FIRST_USER + 1;
+    boolean ExportAppend;
+
+    android.view.ViewGroup PickerExtra, SaveAsExtra;
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
-    class ReplaceImportConfirm
+    class ReplaceConfirm
         extends android.app.AlertDialog
         implements android.content.DialogInterface.OnClickListener
       {
 
-        public ReplaceImportConfirm
+        public ReplaceConfirm
           (
-            android.content.Context ctx
+            android.content.Context ctx,
+            int MsgID
           )
           {
             super(ctx);
-            setMessage(ctx.getString(R.string.query_replace_import));
+            setMessage(ctx.getString(MsgID));
             setButton
               (
                 android.content.DialogInterface.BUTTON_POSITIVE,
@@ -61,7 +70,7 @@ public class Main extends android.app.Activity
                 ctx.getString(R.string.cancel),
                 this
               );
-          } /*ReplaceImportConfirm*/
+          } /*ReplaceConfirm*/
 
         @Override
         public void onClick
@@ -77,7 +86,7 @@ public class Main extends android.app.Activity
             dismiss();
           } /*onClick*/
 
-      } /*ReplaceImportConfirm*/
+      } /*ReplaceConfirm*/
 
     void LaunchImportPicker()
       {
@@ -101,6 +110,75 @@ public class Main extends android.app.Activity
             /*AltLists =*/ OnlyAlt
           );
       } /*LaunchImportPicker*/
+
+    void LaunchExportPicker()
+      {
+        SaveAsExtra = (android.view.ViewGroup)
+            getLayoutInflater().inflate(R.layout.save_append, null);
+        SaveAsExtra.findViewById(R.id.switch_append).setOnClickListener
+          (
+            new android.view.View.OnClickListener()
+              {
+                public void onClick
+                  (
+                    android.view.View TheView
+                  )
+                  {
+                    SaveAs.Current.setResult(SwitchAppend);
+                    SaveAs.Current.finish();
+                  } /*onClick*/
+              } /*OnClickListener*/
+          );
+        PickerExtra = (android.view.ViewGroup)
+            getLayoutInflater().inflate(R.layout.save_new, null);
+        PickerExtra.findViewById(R.id.switch_new).setOnClickListener
+          (
+            new android.view.View.OnClickListener()
+              {
+                public void onClick
+                  (
+                    android.view.View TheView
+                  )
+                  {
+                    Picker.Current.setResult(SwitchSaveAs);
+                    Picker.Current.finish();
+                  } /*onClick*/
+              } /*OnClickListener*/
+          );
+        if (ExportAppend)
+          {
+            final Picker.PickerAltList[] OnlyAlt =
+                {
+                    new Picker.PickerAltList
+                      (
+                        /*RadioButtonID =*/ 0,
+                        /*Prompt =*/ getString(R.string.export_prompt),
+                        /*NoneFound =*/ getString(R.string.no_data_files),
+                        /*FileExt =*/ "",
+                        /*SpecialItem =*/ null
+                      ),
+                };
+            Picker.Launch
+              (
+                /*Acting =*/ Main.this,
+                /*RequestCode =*/ ExportDataRequest,
+                /*Extra =*/ PickerExtra,
+                /*LookIn =*/ Persistent.ExternalDataDirectories,
+                /*AltLists =*/ OnlyAlt
+              );
+          }
+        else
+          {
+            SaveAs.Launch
+              (
+                /*Acting =*/ Main.this,
+                /*RequestCode =*/ ExportDataRequest,
+                /*SaveWhat =*/ getString(R.string.exported_data),
+                /*Extra =*/ SaveAsExtra,
+                /*FileExt =*/ ""
+              );
+          } /*if*/
+      } /*LaunchExportPicker*/
 
     @Override
     public boolean onCreateOptionsMenu
@@ -224,24 +302,6 @@ public class Main extends android.app.Activity
           );
         OptionsMenu.put
           (
-            TheMenu.add(R.string.import_data),
-            new Runnable()
-              {
-                public void run()
-                  {
-                    if (!Global.Calc.ImportInProgress())
-                      {
-                        LaunchImportPicker();
-                      }
-                    else
-                      {
-                        new ReplaceImportConfirm(Main.this).show();
-                      } /*if*/
-                  } /*run*/
-              } /*Runnable*/
-          );
-        OptionsMenu.put
-          (
             TheMenu.add(R.string.save_program_as),
             new Runnable()
               {
@@ -255,6 +315,43 @@ public class Main extends android.app.Activity
                         /*Extra =*/ null,
                         /*FileExt =*/ Persistent.ProgExt
                       );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        OptionsMenu.put
+          (
+            TheMenu.add(R.string.import_data),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (!Global.Calc.ImportInProgress())
+                      {
+                        LaunchImportPicker();
+                      }
+                    else
+                      {
+                        new ReplaceConfirm(Main.this, R.string.query_replace_import).show();
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
+        OptionsMenu.put
+          (
+            TheMenu.add(R.string.export_data),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (!Global.Export.IsOpen())
+                      {
+                        ExportAppend = false;
+                        LaunchExportPicker();
+                      }
+                    else
+                      {
+                        new ReplaceConfirm(Main.this, R.string.query_replace_export).show();
+                      } /*if*/
                   } /*run*/
               } /*Runnable*/
           );
@@ -285,6 +382,7 @@ public class Main extends android.app.Activity
               {
                 public void Run
                   (
+                    int ResultCode,
                     android.content.Intent Data
                   )
                   {
@@ -363,56 +461,12 @@ public class Main extends android.app.Activity
           );
         ActivityResultActions.put
           (
-            ImportDataRequest,
-            new RequestResponseAction()
-              {
-                public void Run
-                  (
-                    android.content.Intent Data
-                  )
-                  {
-                    final String FileName = Data.getData().getPath();
-                    try
-                      {
-                        Global.Calc.ClearImport();
-                        Global.Import.ImportData(FileName);
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/ String.format
-                              (
-                                Global.StdLocale,
-                                getString(R.string.import_started),
-                                FileName
-                              ),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                          ).show();
-                        
-                      }
-                    catch (Persistent.DataFormatException Failed)
-                      {
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/ String.format
-                              (
-                                Global.StdLocale,
-                                getString(R.string.file_load_error),
-                                Failed.toString()
-                              ),
-                            /*duration =*/ android.widget.Toast.LENGTH_LONG
-                          ).show();
-                      } /*try*/
-                  } /*Run*/
-              } /*RequestResponseAction*/
-          );
-        ActivityResultActions.put
-          (
             SaveProgramRequest,
             new RequestResponseAction()
               {
                 public void Run
                   (
+                    int ResultCode,
                     android.content.Intent Data
                   )
                   {
@@ -468,6 +522,121 @@ public class Main extends android.app.Activity
                   } /*Run*/
               } /*RequestResponseAction*/
           );
+        ActivityResultActions.put
+          (
+            ImportDataRequest,
+            new RequestResponseAction()
+              {
+                public void Run
+                  (
+                    int ResultCode,
+                    android.content.Intent Data
+                  )
+                  {
+                    final String FileName = Data.getData().getPath();
+                    try
+                      {
+                        Global.Calc.ClearImport();
+                        Global.Import.ImportData(FileName);
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.import_started),
+                                FileName
+                              ),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                        
+                      }
+                    catch (Persistent.DataFormatException Failed)
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ String.format
+                              (
+                                Global.StdLocale,
+                                getString(R.string.file_load_error),
+                                Failed.toString()
+                              ),
+                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                          ).show();
+                      } /*try*/
+                  } /*Run*/
+              } /*RequestResponseAction*/
+          );
+        ActivityResultActions.put
+          (
+            ExportDataRequest,
+            new RequestResponseAction()
+              {
+                public void Run
+                  (
+                    int ResultCode,
+                    android.content.Intent Data
+                  )
+                  {
+                    switch (ResultCode)
+                      {
+                    case android.app.Activity.RESULT_OK:
+                        Global.Export.Close();
+                        try
+                          {
+                            String FileName = Data.getData().getPath();
+                            if (!ExportAppend)
+                              {
+                                final String SaveDir =
+                                        android.os.Environment.getExternalStorageDirectory()
+                                            .getAbsolutePath()
+                                    +
+                                        "/"
+                                    +
+                                        Persistent.DataDir;
+                                new java.io.File(SaveDir).mkdirs();
+                                FileName = SaveDir + FileName;
+                                  /* note FileName will have leading slash */
+                              } /*if*/
+                            Global.Export.Open(FileName, ExportAppend);
+                            android.widget.Toast.makeText
+                              (
+                                /*context =*/ Main.this,
+                                /*text =*/ String.format
+                                  (
+                                    Global.StdLocale,
+                                    getString(R.string.export_started),
+                                    FileName
+                                  ),
+                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                              ).show();
+                          }
+                        catch (RuntimeException Failed)
+                          {
+                            android.widget.Toast.makeText
+                              (
+                                /*context =*/ Main.this,
+                                /*text =*/
+                                    String.format
+                                      (
+                                        Global.StdLocale,
+                                        getString(R.string.export_error),
+                                        Failed.toString()
+                                      ),
+                                /*duration =*/ android.widget.Toast.LENGTH_LONG
+                              ).show();
+                          } /*try*/
+                    break;
+                    case SwitchAppend:
+                    case SwitchSaveAs:
+                        ExportAppend = ResultCode == SwitchAppend;
+                        LaunchExportPicker();
+                    break;
+                      } /*switch*/
+                  } /*Run*/
+              } /*RequestResponseAction*/
+          );
       } /*BuildActivityResultActions*/
 
     @Override
@@ -498,12 +667,13 @@ public class Main extends android.app.Activity
         Picker.Cleanup();
         PickerExtra = null;
         SaveAs.Cleanup();
-        if (ResultCode == android.app.Activity.RESULT_OK)
+        SaveAsExtra = null;
+        if (ResultCode != android.app.Activity.RESULT_CANCELED)
           {
             final RequestResponseAction Action = ActivityResultActions.get(RequestCode);
             if (Action != null)
               {
-                Action.Run(Data);
+                Action.Run(ResultCode, Data);
               } /*if*/
           } /*if*/
       } /*onActivityResult*/
@@ -522,6 +692,7 @@ public class Main extends android.app.Activity
         Global.Print = new Printer(this);
         Global.Calc = new State(this);
         Global.Import = new Importer();
+        Global.Export = new Exporter(this);
         BuildActivityResultActions();
       } /*onCreate*/
 

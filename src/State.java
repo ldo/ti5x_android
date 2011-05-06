@@ -2586,13 +2586,23 @@ public class State
                         DecrementSkip(Reg, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
                 break;
-                case 98:
-                    if (Global.Print != null)
+                case 98: /*Adv*/
+                    if (Global.Calc.InvState) /* extension! */
                       {
-                        Global.Print.Advance();
+                        if (Global.Export != null)
+                          {
+                            Global.Export.Close();
+                          } /*if*/
+                      }
+                    else
+                      {
+                        if (Global.Print != null)
+                          {
+                            Global.Print.Advance();
+                          } /*if*/
                       } /*if*/
                 break;
-                case 99:
+                case 99: /*Prt*/
                     if (InvState) /* extension! */
                       {
                         GetNextImport();

@@ -21,6 +21,7 @@ public class Picker extends android.app.Activity
     public static String ExtID = "nz.gen.geek-central.ti5x.PickerExt";
 
     static boolean Reentered = false; /* sanity check */
+    public static Picker Current = null;
 
     public static class PickerAltList
       /* defining alternative lists of files for picker to display */
@@ -352,6 +353,7 @@ public class Picker extends android.app.Activity
       )
       {
         super.onCreate(savedInstanceState);
+        Picker.Current = this;
         MainViewGroup = (android.view.ViewGroup)getLayoutInflater().inflate(R.layout.picker, null);
         setContentView(MainViewGroup);
       /* ExtraViewGroup = (android.view.ViewGroup)MainViewGroup.findViewById(R.id.picker_extra); */ /* doesn't work -- things added here don't show up */
@@ -410,6 +412,13 @@ public class Picker extends android.app.Activity
           );
         SelectedAlt = 0;
       } /*onCreate*/
+
+    @Override
+    public void onDestroy()
+      {
+        super.onDestroy();
+        Picker.Current = null;
+      } /*onDestroy*/
 
     @Override
     public void onPause()

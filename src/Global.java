@@ -23,6 +23,7 @@ public class Global
     public static ButtonGrid Buttons;
     public static State Calc;
     public static Importer Import;
+    public static Exporter Export;
     public static Printer Print;
 
     public static final java.util.Locale StdLocale = java.util.Locale.US;

@@ -9,6 +9,7 @@
     <string name="show_printer">Printer</string>
     <string name="load_prog">Load Program...</string>
     <string name="import_data">Import Data...</string>
+    <string name="export_data">Export Data...</string>
     <string name="save_program_as">Save Program...</string>
     <string name="turn_off">Off</string>
 
@@ -19,13 +20,17 @@
     <string name="overwrite">Overwrite</string>
     <string name="replace">Replace</string>
     <string name="delete">Delete</string>
+    <string name="append_existing">Append to existing</string>
+    <string name="save_new">Save to new</string>
 
   <!-- prompt strings -->
     <string name="program">program</string>
+    <string name="exported_data">exported data</string>
     <string name="prog_prompt">Program to load:</string>
     <string name="module_prompt">Module to load:</string>
     <string name="master_library">Master Library (Built-In)</string>
     <string name="import_prompt">Data to load:</string>
+    <string name="export_prompt">Append exported data to existing:</string>
     <string name="save_as_prompt">Save %s as:</string>
     <string name="saved_progs">Saved Programs</string>
     <string name="libraries">Libraries</string>
@@ -41,6 +46,9 @@
     <string name="query_replace_import">There is already an import in progress. Replace?</string>
     <string name="import_started">Started importing file “%s”.</string>
     <string name="import_error">Import error: %s.</string>
+    <string name="query_replace_export">There is already an export in progress. Replace?</string>
+    <string name="export_started">Started exporting to file “%s”.</string>
+    <string name="export_error">Export error: %s.</string>
     <string name="program_loaded">Loaded program “%s”.</string>
     <string name="file_load_error">Couldn’t load file: %s.</string>
     <string name="library_loaded">Loaded library “%s”.</string>

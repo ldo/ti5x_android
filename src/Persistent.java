@@ -97,6 +97,7 @@ public class Persistent
     public static final String ProgExt = ".ti5p"; /* for saved user program */
     public static final String LibExt = ".ti5l"; /* for library */
     public static final String ProgramsDir = "Programs"; /* where to save user programs */
+    public static final String DataDir = "Download"; /* where to save exported data */
     public static final String[] ExternalCalcDirectories =
       /* where to load programs/libraries from */
         {
@@ -106,7 +107,7 @@ public class Persistent
     public static final String[] ExternalDataDirectories =
       /* where to load data files from */
         {
-            "Download",
+            DataDir,
         };
     public static final String SavedStateName = "state" + StateExt;
 
