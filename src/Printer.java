@@ -381,14 +381,4 @@ public class Printer
           } /*for*/
       } /*Translate*/
 
-    public void TextLine
-      (
-        String Line
-      )
-      {
-        final byte[] Translated = new byte[CharColumns];
-        Translate(Line, Translated);
-        Render(Translated);
-      } /*TextLine*/
-
   } /*Printer*/
