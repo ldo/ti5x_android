@@ -78,6 +78,7 @@ TABLE.keycodes > TBODY > TR > TD.unused
 <LI><A HREF="#LibraryPrograms">Library Programs</A>
 <LI><A HREF="#Import">Importing Data</A>
 <LI><A HREF="#Printer">Printer Emulation</A>
+<LI><A HREF="#Export">Exporting Data</A>
 <LI><A HREF="#OptionsMenu">Options Menu</A>
 </UL>
 
@@ -635,6 +636,18 @@ set flag 7 to indicate that a printer is attached.
 the paper by 1 line.
 </UL>
 
+<H2><A NAME="Export"></A>Exporting Data</H2>
+<P>The printer emulation can also write text representations of every printed line
+to an output file. Every line sent to the printer, whether via
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> or any of the
+printer-related <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <I>nn</I>
+functions, will be written to the file. Note that characters with no obvious Unicode
+equivalent are ignored. The <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Adv</SPAN> function will write a blank line.
+<P>To close the current export file, press (or execute in a program)
+<SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Adv</SPAN>.
+
 <H2><A NAME="OptionsMenu"></A>Options Menu</H2>
 <P>Pressing the Android Menu button brings up a menu with the following options:
 <UL>
@@ -643,13 +656,16 @@ the paper by 1 line.
 <LI>Module Help — bring up the main help page for the currently-loaded library module, if any.
 <LI>Printer — bring up the virtual printer display. (Use the Back button to return to
 the main calculator display.)
-<LI>Load... — load a library module or saved program from a file on the SD card.
+<LI>Load Program... — load a library module or saved program from a file on the SD card.
 The list to pick from is built from the contents of the “Programs” and “Download”
 directories.
-<LI>Import Data... — lets you open a data file to begin importing numbers from.
-(See <A HREF="#Import">Importing Data</A> for more details.)
 <LI>Save Program... — save the user-entered program to a file on the SD card. The file is
 saved in the “Programs” directory.
+<LI>Import Data... — lets you open a data file to begin importing numbers from.
+(See <A HREF="#Import">Importing Data</A> for more details.)
+<LI>Export Data... — lets you create a data file (or append to an existing data file)
+to being exporting printed lines to.
+(See <A HREF="#Export">Exporting Data</A> for more details.)
 <LI>Off — simulate a complete power down and quit the app. <B>This completely wipes all user
 program and memory contents.</B> The next time the app is started, it will initialize
 as though freshly installed.
