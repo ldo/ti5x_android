@@ -1895,6 +1895,10 @@ public class State
           } /*if*/
         ReturnLast = -1;
         ClearImport();
+        if (Global.Export != null)
+          {
+            Global.Export.Close();
+          } /*if*/
       } /*ResetProg*/
 
     int GetProg
