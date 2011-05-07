@@ -527,7 +527,19 @@ public class State
               }
             else
               {
-                SetX(Arith.RoundTo(X, 10)); /* as per manual */
+               /* as per manual */
+                SetX
+                  (
+                    Arith.RoundTo
+                      (
+                        X,
+                        CurFormat == FORMAT_FIXED ?
+                            CurNrDecimals >= 0 ? CurNrDecimals : 10
+                        :
+                            8
+                      )
+                  );
+                CurFormat = FORMAT_FLOAT; /* but display of X is not changed */
               } /*if*/
         break;
           } /*switch*/
