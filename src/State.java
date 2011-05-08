@@ -38,7 +38,9 @@ class Arith
         int Exp
       )
       /* returns the number of figures before the decimal point in the
-        formatted representation of X scaled by Exp. */
+        formatted representation of X scaled by Exp. This has to be
+        at least 1, because the decimal point is part of the display
+        of the preceding digit. */
       {
         int BeforeDecimal;
         if (X != 0.0)
