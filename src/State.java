@@ -27,7 +27,11 @@ class Arith
       )
       /* returns X rounded to the specified number of significant figures. */
       {
-        final double RoundFactor = Math.pow(10, NrFigures);
+        final double RoundFactor = Math.pow
+          (
+            10,
+            NrFigures - 1 - (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0))
+          );
         return
             Math.rint(X * RoundFactor) / RoundFactor;
       } /*RoundTo*/
@@ -1008,7 +1012,7 @@ public class State
 
     public void Int()
       {
-        final int MaxPrec = 13; /* fudge for roundoff caused by binary versus decimal arithmetic */
+        final int MaxPrec = 15; /* fudge for roundoff caused by binary versus decimal arithmetic */
         Enter();
         final double IntPart = Math.floor(Math.abs(Arith.RoundTo(X, MaxPrec)));
         if (InvState)
