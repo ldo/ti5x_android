@@ -43,8 +43,11 @@ class Arith
         int BeforeDecimal;
         if (X != 0.0)
           {
-            BeforeDecimal = Math.max((int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))), 1);
-              /* places before decimal point */
+            BeforeDecimal = Math.max
+              (
+                (int)Math.ceil(Math.log10(Math.abs(X) / Math.pow(10.0, Exp))),
+                1
+              );
           }
         else
           {
@@ -116,14 +119,14 @@ public class State
     public static final int FORMAT_FIXED = 0;
     public static final int FORMAT_FLOAT = 1;
     public static final int FORMAT_ENG = 2;
-    public int CurFormat = FORMAT_FIXED;
-    public int CurNrDecimals = -1;
+    public int CurFormat;
+    public int CurNrDecimals;
 
   /* angle units */
     public static final int ANG_RAD = 1;
     public static final int ANG_DEG = 2;
     public static final int ANG_GRAD = 3;
-    public int CurAng = ANG_DEG;
+    public int CurAng;
 
   /* pending-operation stack */
     public final static int STACKOP_ADD = 1;
@@ -242,10 +245,13 @@ public class State
 
     public void Reset
       (
-        boolean ClearLibs
+        boolean ClearLibs /* wipe out loaded library module as well */
       )
       /* resets to power-up/blank state. */
       {
+        CurFormat = FORMAT_FIXED;
+        CurNrDecimals = -1;
+        CurAng = ANG_DEG;
         OpStackNext = 0;
         X = 0.0;
         T = 0.0;
@@ -501,6 +507,59 @@ public class State
           } /*CurState*/
       } /*DecimalPoint*/
 
+    int FormatToUse
+      (
+        double X,
+        int OrigFormat
+      )
+      /* returns OrigFormat, or replaces FORMAT_FIXED with FORMAT_FLOAT if X
+        is outside the suitable range for FORMAT_FIXED. */
+      {
+        int UseFormat = OrigFormat;
+        if
+          (
+                OrigFormat == FORMAT_FIXED
+            &&
+                X != 0
+            &&
+                (
+                    Math.abs(X) < 5.0 * Math.pow(10.0, -9.0)
+                ||
+                    Math.abs(X) >= Math.pow(10.0, 10.0)
+                )
+          )
+          {
+            UseFormat = FORMAT_FLOAT;
+          } /*if*/
+        return
+            UseFormat;
+      } /*FormatToUse*/
+
+    int ScaleExp
+      (
+        double X,
+        int UsingFormat
+      )
+      /* returns the exponent scale to display X using the given format. */
+      {
+        int Exp = 0;
+        X = Math.abs(X);
+        if (X != 0.0)
+          {
+            switch (UsingFormat)
+              {
+            case FORMAT_FLOAT:
+                Exp = (int)Math.floor(Math.log(X) / Math.log(10.0));
+            break;
+            case FORMAT_ENG:
+                Exp = (int)Math.floor(Math.log(X) / Math.log(1000.0)) * 3;
+            break;
+              } /*switch*/
+          } /*if*/
+        return
+            Exp;
+      } /*ScaleExp*/
+
     public void EnterExponent()
       {
         switch (CurState)
@@ -539,7 +598,7 @@ public class State
                             8
                       )
                   );
-                CurFormat = FORMAT_FLOAT; /* but display of X is not changed */
+                CurFormat = FORMAT_FLOAT; /* but display of X is not changed yet */
               } /*if*/
         break;
           } /*switch*/
@@ -551,40 +610,12 @@ public class State
       )
       /* sets the display to show the specified value. */
       {
-        int UseFormat = CurFormat;
-        int Exp;
         CurState = ResultState;
         X = NewX;
         if (!Double.isNaN(X) && !Double.isInfinite(X))
           {
-            if
-              (
-                    CurFormat == FORMAT_FIXED
-                &&
-                    X != 0
-                &&
-                    (
-                        Math.abs(X) < 5.0 * Math.pow(10.0, -9.0)
-                    ||
-                        Math.abs(X) >= Math.pow(10.0, 10.0)
-                    )
-              )
-              {
-                UseFormat = FORMAT_FLOAT;
-              } /*if*/
-            Exp = 0;
-            if (X != 0.0)
-              {
-                switch (UseFormat)
-                  {
-                case FORMAT_FLOAT:
-                    Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0));
-                break;
-                case FORMAT_ENG:
-                    Exp = (int)Math.floor(Math.log(Math.abs(X)) / Math.log(1000.0)) * 3;
-                break;
-                  } /*switch*/
-              } /*if*/
+            final int UseFormat = FormatToUse(X, CurFormat);
+            final int Exp = ScaleExp(X, UseFormat);
             final int BeforeDecimal = Arith.FiguresBeforeDecimal(X, Exp);
             switch (UseFormat)
               {
@@ -609,7 +640,7 @@ public class State
                             "%%.%df",
                             Math.max(Math.min(CurNrDecimals, 10 - BeforeDecimal), 0)
                           ),
-                        X / Math.pow(10.0, Exp)
+                        X
                       );
                   }
                 else
@@ -619,7 +650,7 @@ public class State
                       (
                         Global.StdLocale,
                         String.format(Global.StdLocale, "%%.%df", NrDecimals),
-                        X / Math.pow(10.0, Exp)
+                        X
                       );
                     if (NrDecimals > 0)
                       {
@@ -700,7 +731,7 @@ public class State
       {
         Enter();
         CurFormat = NewMode;
-        CurNrDecimals = NewNrDecimals;
+        CurNrDecimals = NewNrDecimals >= 0 && NewNrDecimals < 9 ? NewNrDecimals : -1;
         SetX(X);
       } /*SetDisplayMode*/
 
