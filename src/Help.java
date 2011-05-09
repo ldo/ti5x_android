@@ -46,8 +46,8 @@ public class Help extends android.app.Activity
           }
         else
           {
-          /* show calculator help */
-            HelpView.loadUrl("file:///android_asset/help/index.html");
+          /* assume URI was passed */
+            HelpView.loadUrl(MyIntent.getData().toString());
           } /*if*/
       } /*onCreate*/
 

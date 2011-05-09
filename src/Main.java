@@ -197,8 +197,16 @@ public class Main extends android.app.Activity
                   {
                     startActivity
                       (
-                        new android.content.Intent(android.content.Intent.ACTION_VIEW)
-                            .setClass(Main.this, Help.class)
+                        new android.content.Intent
+                          (
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.fromParts
+                              (
+                                "file",
+                                "/android_asset/help/index.html",
+                                null
+                              )
+                          ).setClass(Main.this, Help.class)
                       );
                   } /*run*/
               } /*Runnable*/
@@ -352,6 +360,29 @@ public class Main extends android.app.Activity
                       {
                         new ReplaceConfirm(Main.this, R.string.query_replace_export).show();
                       } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
+        OptionsMenu.put
+          (
+            TheMenu.add(R.string.about_me),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    startActivity
+                      (
+                        new android.content.Intent
+                          (
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.fromParts
+                              (
+                                "file",
+                                "/android_asset/help/about.html",
+                                null
+                              )
+                          ).setClass(Main.this, Help.class)
+                      );
                   } /*run*/
               } /*Runnable*/
           );
