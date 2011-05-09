@@ -92,7 +92,7 @@ TABLE.keycodes > TBODY > TR > TD.unused
 — number entry.
 <LI><SPAN CLASS="whitebutton">&nbsp;.&nbsp;</SPAN> — decimal point. Also lets you continue
 mantissa entry after entering exponent.
-<LI><SPAN CLASS="brownbutton">EE</SPAN> — enter exponent
+<LI><SPAN CLASS="brownbutton">EE</SPAN> (during number entry) — enter exponent
 <LI><SPAN CLASS="whitebutton">+/-</SPAN> — change sign of mantissa or exponent
 <LI><SPAN CLASS="brownbutton">CE</SPAN> — clear current number without losing rest of calculation.
 <LI><SPAN CLASS="yellowbutton">CLR</SPAN> — clear entire current calculation.
@@ -107,12 +107,20 @@ automatically supplying any missing closing parentheses.
 
 <H2><A NAME="Display"></A>Display Control</H2>
 <UL>
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Fix</SPAN> or <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Fix</SPAN> <B>9</B>
+— switch display to default format. This uses up to 9 decimal places (trailing zeroes
+omitted) with no exponent displayed, provided the magnitude of the number is within
+[5.0 × 10<SUP>-9</SUP> .. 1.0 × 10<SUP>10</SUP>], otherwise it will show 8 figures with an exponent.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Fix</SPAN> <I>n</I> (<I>n</I> ∈ 0 .. 8) — switch display to fixed point with exactly <I>n</I> decimal places, provided number is
+within the range above, otherwise 8 figures will be shown with exponent.
+<LI><SPAN CLASS="brownbutton">EE</SPAN> (after a result has been computed) — round displayed
+number to only digits shown. Display will also switch to exponential format for subsequent results.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">EE</SPAN> — switch
+display to default format.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Eng</SPAN> — switch display
-to engineering notation (exponent always a multiple of 3).
-<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Fix</SPAN> <I>n</I> (<I>n</I> ∈ 0 .. 8) —
-switch display to fixed point with exactly <I>n</I> decimal places.
-<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Fix</SPAN>
-— switch display to default setting, using up to 9 decimal places.
+to engineering notation (with exponent that is always a multiple of 3).
 </UL>
 
 <H2><A NAME="AdditionalOps"></A>Additional Operations</H2>
@@ -647,7 +655,7 @@ equivalent are ignored. The <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Adv</SPAN> function will write a blank line.
 <P>To close the current export file, press (or execute in a program)
 <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
-<SPAN CLASS="alttext">Adv</SPAN>.
+<SPAN CLASS="alttext">Adv</SPAN>. It is also closed by <SPAN CLASS="brownbutton">RST</SPAN>.
 
 <H2><A NAME="OptionsMenu"></A>Options Menu</H2>
 <P>Pressing the Android Menu button brings up a menu with the following options:
@@ -662,10 +670,10 @@ The list to pick from is built from the contents of the “Programs” and “Do
 directories.
 <LI>Save Program... — save the user-entered program to a file on the SD card. The file is
 saved in the “Programs” directory.
-<LI>Import Data... — lets you open a data file to begin importing numbers from.
-(See <A HREF="#Import">Importing Data</A> for more details.)
-<LI>Export Data... — lets you create a data file (or append to an existing data file)
-to being exporting printed lines to.
+<LI>Import Data... — lets you open a data file in the “Download” directory on the SD card
+to begin importing numbers from. (See <A HREF="#Import">Importing Data</A> for more details.)
+<LI>Export Data... — lets you create a data file on the SD card (or append to an existing data file)
+to being exporting printed lines to. The file is saved in the “Downloads” directory.
 (See <A HREF="#Export">Exporting Data</A> for more details.)
 <LI>Off — simulate a complete power down and quit the app. <B>This completely wipes all user
 program and memory contents.</B> The next time the app is started, it will initialize
