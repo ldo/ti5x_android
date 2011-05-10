@@ -687,7 +687,7 @@ public class ButtonGrid extends android.view.View
                   {
                     DigitsNeeded = 0; /* non-digit cuts short digit entry */
                   } /*if*/
-                if (DigitsNeeded == 0 || IsSymbolic)
+                if (!WasModifier && (DigitsNeeded == 0 || IsSymbolic))
                   {
                     boolean Finished = true; /* to begin with */
                     if (IsSymbolic || AccumDigits >= 0)
