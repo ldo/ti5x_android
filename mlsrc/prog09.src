@@ -1,0 +1,54 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage (doesn’t quite match up with original):
+;     01 -- lower bound, x0
+;     02 -- upper bound, xn
+;     03 -- h = (xn - x0) ÷ n
+;     04 -- scratch
+;     05 -- number of steps, n
+;     06 -- scratch
+;-
+
+lbl A
+; enter integration lower bound
+    sto 01
+    inv sbr
+
+lbl B
+; enter integration upper bound
+    sto 02
+    inv sbr
+
+lbl C
+; enter number of steps
+    sto 05
+    cp x<>t x≥t |x| ; error if not positive
+    ( rcl 05 ÷ 2 + x<>t 0 ) int ; copy to t-reg and take integer part
+    x=t int ; branch if even
+lbl |x|
+    ce 0 1/x ; indicate illegal n
+lbl int
+    rcl 05
+    cp
+    inv sbr
+
+lbl D
+; compute integral by Simpson’s Approximation (continuous)
+    ( ( rcl 02 - rcl 01 ) ÷ rcl 05 ) sto 03
+    ( rcl 05 ÷ 2 ) sto 06 ; loop counter
+    rcl 02 pgm 00 A' sto 04 ; start with f(xn)
+    gto ) ; start with odd term
+lbl (
+    ( ( rcl 01 + rcl 03 × rcl 06 × 2 ) pgm 00 A' × 2 ) sum 04
+lbl )
+    ( ( rcl 01 + rcl 03 × ( rcl 06 × 2 - 1 ) ) pgm 00 A' × 4 ) sum 04
+    dsz 6 (
+    rcl 01 pgm 00 A' sum 04 ; finish with f(x0)
+    ( rcl 04 × rcl 03 ÷ 3 )
+    inv sbr

@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-09 — Simpson’s Approximation (Continuous)</H1>
+
+<P>This program computes the numerical definite integral of a given function over
+a given interval, to an accuracy determined by a given number of subdivision steps.
+The function is defined by a subroutine in the user program memory.
+
+<UL>
+<LI>Switch to <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <B>00</B>
+and enter program steps to compute the desired function f(<I>x</I>), beginning with
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN>
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> and ending with
+<SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SBR</SPAN>.
+Do not use <SPAN CLASS="yellowbutton">&nbsp;=&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">CLR</SPAN>,
+<SPAN CLASS="brownbutton">RST</SPAN>
+or registers <B>01</B>-<B>06</B>. This function will be invoked with <I>x</I> in
+the display register, and should leave f(<I>x</I>) there when it returns.
+
+<LI>Switch to <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <B>09</B>
+for the remaining steps.
+
+<LI>Enter the lower bound <I>x</I><SUB>0</SUB> over which to evaluate the integral,
+and press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>.
+
+<LI>Enter the upper bound <I>x</I><SUB><I>n</I></SUB> over which to evaluate the integral,
+and press <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>.
+
+<LI>Enter the number of steps <I>n</I> into which to divide the interval and press
+<SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>. This <I>must</I> be a positive even integer,
+otherwise the display will flash.
+
+<LI>Finally, evaluate the integral by pressing <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>.
+When this finishes, the result should be displayed.
+
+</UL>
+
+<P>Registers used: 01-06.
