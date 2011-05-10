@@ -616,7 +616,10 @@ public class State
       )
       /* sets the display to show the specified value. */
       {
-        CurState = ResultState;
+        if (CurState != ErrorState)
+          {
+            CurState = ResultState;
+          } /*if*/
         X = NewX;
         if (!Double.isNaN(X) && !Double.isInfinite(X))
           {
