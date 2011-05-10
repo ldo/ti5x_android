@@ -2059,7 +2059,7 @@ public class State
               {
                 OK = false;
               } /*if*/
-            if (!OK)
+            if (Executing && !OK)
               {
                 SetErrorState();
                 StopProgram();
@@ -2754,6 +2754,7 @@ public class State
             Bank[BankNr].Labels = new java.util.HashMap<Integer, Integer>();
             final boolean SaveInvState = InvState;
             final int SaveRunPC = RunPC;
+            final int SaveRunBank = RunBank;
             InvState = false; /*?*/
             RunPC = 0;
             RunBank = BankNr;
@@ -2764,6 +2765,7 @@ public class State
             while (RunPC != -1 && RunPC < Bank[BankNr].Program.length);
             InvState = SaveInvState;
             RunPC = SaveRunPC;
+            RunBank = SaveRunBank;
           } /*if*/
       } /*FillInLabels*/
 
