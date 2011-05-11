@@ -19,7 +19,7 @@ package nz.gen.geek_central.ti5x;
 public class Global
   {
     public static Display Disp;
-    public static HelpCard Help;
+    public static LabelCard Label;
     public static ButtonGrid Buttons;
     public static State Calc;
     public static Importer Import;

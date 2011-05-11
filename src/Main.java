@@ -472,7 +472,7 @@ public class Main extends android.app.Activity
                                 /*Libs =*/ IsLib,
                                 /*AllState =*/ false,
                                 /*Disp =*/ Global.Disp,
-                                /*Help =*/ Global.Help,
+                                /*Label =*/ Global.Label,
                                 /*Buttons =*/ Global.Buttons,
                                 /*Calc =*/ Global.Calc
                               );
@@ -746,7 +746,7 @@ public class Main extends android.app.Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Global.Disp = (Display)findViewById(R.id.display);
-        Global.Help = (HelpCard)findViewById(R.id.help_card);
+        Global.Label = (LabelCard)findViewById(R.id.help_card);
         Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
         Global.Print = new Printer(this);
         Global.Calc = new State(this);

@@ -1,6 +1,6 @@
 package nz.gen.geek_central.ti5x;
 /*
-    Help-card display area
+    Label-card display area
 
     Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -18,7 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 import android.graphics.RectF;
 
-public class HelpCard extends android.view.View
+public class LabelCard extends android.view.View
   {
     final android.content.Context TheContext;
     android.graphics.Bitmap CardImage, NewCardImage;
@@ -27,7 +27,7 @@ public class HelpCard extends android.view.View
 
     final float SlideDuration = 0.5f; /* seconds */
 
-    public HelpCard
+    public LabelCard
       (
         android.content.Context TheContext,
         android.util.AttributeSet TheAttributes
@@ -60,15 +60,15 @@ public class HelpCard extends android.view.View
                             final android.content.Intent ShowHelp =
                                 new android.content.Intent(android.content.Intent.ACTION_VIEW);
                             ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Help);
-                            ShowHelp.setClass(HelpCard.this.TheContext, Help.class);
-                            HelpCard.this.TheContext.startActivity(ShowHelp);
+                            ShowHelp.setClass(LabelCard.this.TheContext, Help.class);
+                            LabelCard.this.TheContext.startActivity(ShowHelp);
                           }
                         else
                           {
                             android.widget.Toast.makeText
                               (
-                                /*context =*/ HelpCard.this.TheContext,
-                                /*text =*/ HelpCard.this.TheContext.getString(R.string.no_prog_help),
+                                /*context =*/ LabelCard.this.TheContext,
+                                /*text =*/ LabelCard.this.TheContext.getString(R.string.no_prog_help),
                                 /*duration =*/ android.widget.Toast.LENGTH_SHORT
                               ).show();
                           } /*if*/
@@ -85,7 +85,7 @@ public class HelpCard extends android.view.View
                   } /*onClick*/
               }
           );
-      } /*HelpCard*/
+      } /*LabelCard*/
 
   /* fixme: red overlap doesn't correctly appear next to card as it slides in or out */
 
@@ -223,4 +223,4 @@ public class HelpCard extends android.view.View
           );
       } /*onDraw*/
 
-  } /*HelpCard*/
+  } /*LabelCard*/

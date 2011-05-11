@@ -9,7 +9,7 @@
         android:layout_width="fill_parent" 
         android:layout_height="50dp" 
     />
-    <nz.gen.geek_central.ti5x.HelpCard
+    <nz.gen.geek_central.ti5x.LabelCard
         android:id="@+id/help_card"
         android:layout_width="fill_parent" 
         android:layout_height="80dp" 

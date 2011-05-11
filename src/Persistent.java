@@ -1325,7 +1325,7 @@ public class Persistent
         boolean Libs, /* true to load nonzero program banks, false to load bank 0 */
         boolean AllState, /* true to load all state (including all available program banks) */
         Display Disp,
-        HelpCard Help,
+        LabelCard Label,
         ButtonGrid Buttons,
         State Calc
       )
@@ -1520,7 +1520,7 @@ public class Persistent
             /*Libs =*/ true,
             /*AllState =*/ false,
             /*Disp =*/ Global.Disp,
-            /*Help =*/ Global.Help,
+            /*Label =*/ Global.Label,
             /*Buttons =*/ Global.Buttons,
             /*Calc =*/ Global.Calc
           );
@@ -1578,7 +1578,7 @@ public class Persistent
                         /*Libs =*/ true,
                         /*AllState =*/ true,
                         /*Disp =*/ Global.Disp,
-                        /*Help =*/ Global.Help,
+                        /*Label =*/ Global.Label,
                         /*Buttons =*/ Global.Buttons,
                         /*Calc =*/ Global.Calc
                       );

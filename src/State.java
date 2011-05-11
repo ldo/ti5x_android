@@ -1188,7 +1188,7 @@ public class State
       /* wipe any loaded help as well */
         if (CurBank == 0)
           {
-            Global.Help.SetHelp(null, null);
+            Global.Label.SetHelp(null, null);
           } /*if*/
         Bank[0].Card = null;
         Bank[0].Help = null;
@@ -1223,9 +1223,9 @@ public class State
                 else
                   {
                     CurBank = ProgNr;
-                    if (Global.Help != null)
+                    if (Global.Label != null)
                       {
-                        Global.Help.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
+                        Global.Label.SetHelp(Bank[ProgNr].Card, Bank[ProgNr].Help);
                       } /*if*/
                   } /*if*/
               /* all done */
