@@ -27,11 +27,15 @@ class Arith
       )
       /* returns X rounded to the specified number of significant figures. */
       {
-        final double RoundFactor = Math.pow
-          (
-            10,
-            NrFigures - 1 - (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0))
-          );
+        final double RoundFactor =
+            X != 0.0 ?
+                Math.pow
+                  (
+                    10,
+                    NrFigures - 1 - (int)Math.floor(Math.log(Math.abs(X)) / Math.log(10.0))
+                  )
+            :
+                1.0;
         return
             Math.rint(X * RoundFactor) / RoundFactor;
       } /*RoundTo*/
