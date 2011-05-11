@@ -370,19 +370,47 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
-                    startActivity
+                    final android.content.Intent ShowAbout =
+                        new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                    byte[] AboutRaw;
+                      {
+                        java.io.InputStream ReadAbout;
+                        try
+                          {
+                            ReadAbout = getAssets().open("help/about.html");
+                            AboutRaw = Persistent.ReadAll(ReadAbout);
+                          }
+                        catch (java.io.IOException Failed)
+                          {
+                            throw new RuntimeException("can't read about page: " + Failed);
+                          } /*try*/
+                        try
+                          {
+                            ReadAbout.close();
+                          }
+                        catch (java.io.IOException WhoCares)
+                          {
+                          /* I mean, really? */
+                          } /*try*/
+                      }
+                    String VersionName;
+                    try
+                      {
+                        VersionName =
+                            getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                      }
+                    catch (android.content.pm.PackageManager.NameNotFoundException CantFindMe)
+                      {
+                        VersionName = "CANTFINDME"; /*!*/
+                      } /*catch*/
+                    ShowAbout.putExtra
                       (
-                        new android.content.Intent
-                          (
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.fromParts
-                              (
-                                "file",
-                                "/android_asset/help/about.html",
-                                null
-                              )
-                          ).setClass(Main.this, Help.class)
+                        nz.gen.geek_central.ti5x.Help.ContentID,
+                        String.format(Global.StdLocale, new String(AboutRaw), VersionName)
+                            .getBytes()
                       );
+                    ShowAbout.setClass(Main.this, Help.class);
+                    startActivity(ShowAbout);
                   } /*run*/
               } /*Runnable*/
           );
