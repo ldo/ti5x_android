@@ -386,6 +386,8 @@ otherwise continue with the following instruction.
 
 <H3><A NAME="OtherControl"></A>Other Control</H3>
 <UL>
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pause</SPAN> — pauses execution
+of the program just long enough for the user to see the displayed value before continuing.
 <LI><SPAN CLASS="brownbutton">R/S</SPAN> — when this is encountered in a program,
 execution stops. The user may resume from that point by pressing
 <SPAN CLASS="brownbutton">R/S</SPAN>.
@@ -580,8 +582,8 @@ location, or stop execution if already running.
 <LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction.
 <LI><SPAN CLASS="brownbutton">RST</SPAN> — clear all flags and the subroutine return stack,
 and set the current location to <B>000</B>.
-<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">RST</SPAN> — close the
-current data-import and data-export files.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">RST</SPAN> — <B>extension:</B>
+close the current data-import and data-export files.
 </UL>
 <P>While a program is running, you can hold down the
 <SPAN CLASS="brownbutton">GTO</SPAN>/<SPAN CLASS="alttext">Pause</SPAN>
