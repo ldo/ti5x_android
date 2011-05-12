@@ -20,6 +20,7 @@ public class PrinterView extends android.app.Activity
   {
     android.widget.ScrollView PaperScroll;
     PaperView ThePaper;
+    boolean FirstView = true;
 
     class PaperChangedListener implements Printer.Notifier
       {
@@ -64,5 +65,18 @@ public class PrinterView extends android.app.Activity
           } /*if*/
       } /*onResume*/
 
-  } /*PrinterView*/
+    @Override
+    public void onWindowFocusChanged
+      (
+        boolean HasFocus
+      )
+      {
+        super.onWindowFocusChanged(HasFocus);
+        if (HasFocus && FirstView)
+          {
+            PaperScroll.fullScroll(android.view.View.FOCUS_DOWN);
+            FirstView = false;
+          } /*if*/
+      } /*onWindowFocusChanged*/
 
+  } /*PrinterView*/
