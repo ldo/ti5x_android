@@ -1937,23 +1937,29 @@ public class State
 
     public void ResetProg()
       {
-        for (int i = 0; i < MaxFlags; ++i)
+        if (InvState) /* extension! */
           {
-            Flag[i] = false;
-          } /*for*/
-        if (ProgRunning)
-          {
-            RunPC = 0;
+            ClearImport();
+            if (Global.Export != null)
+              {
+                Global.Export.Close();
+              } /*if*/
           }
         else
           {
-            PC = 0;
-          } /*if*/
-        ReturnLast = -1;
-        ClearImport();
-        if (Global.Export != null)
-          {
-            Global.Export.Close();
+            for (int i = 0; i < MaxFlags; ++i)
+              {
+                Flag[i] = false;
+              } /*for*/
+            if (ProgRunning)
+              {
+                RunPC = 0;
+              }
+            else
+              {
+                PC = 0;
+              } /*if*/
+            ReturnLast = -1;
           } /*if*/
       } /*ResetProg*/
 

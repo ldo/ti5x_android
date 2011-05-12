@@ -579,8 +579,9 @@ specified number.
 location, or stop execution if already running.
 <LI><SPAN CLASS="brownbutton">SST</SPAN> — in calculation mode: execute one instruction.
 <LI><SPAN CLASS="brownbutton">RST</SPAN> — clear all flags and the subroutine return stack,
-and set the current location to <B>000</B>. Also closes the current data-import and data-export
-files.
+and set the current location to <B>000</B>.
+<LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">RST</SPAN> — close the
+current data-import and data-export files.
 </UL>
 <P>While a program is running, you can hold down the
 <SPAN CLASS="brownbutton">GTO</SPAN>/<SPAN CLASS="alttext">Pause</SPAN>
@@ -618,6 +619,8 @@ number into the display using <SPAN CLASS="brownbutton">INV</SPAN>
 the keyboard or in a program). An attempt to read past the last number will trigger
 an error condition, which you can test for with <SPAN CLASS="alttext">Op</SPAN> <B>19</B>
 (see <A HREF="#Flags">Flags</A>).
+<P>The import file can also be immediately closed by <SPAN CLASS="brownbutton">INV</SPAN>
+<SPAN CLASS="brownbutton">RST</SPAN>.
 
 <H2><A NAME="Printer"></A>Printer Emulation</H2>
 <P>The app also includes emulation for a connected PC-100<I>x</I> dot-matrix printer
@@ -664,7 +667,8 @@ equivalent are ignored. The <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Adv</SPAN> function will write a blank line.
 <P>To close the current export file, press (or execute in a program)
 <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
-<SPAN CLASS="alttext">Adv</SPAN>. It is also closed by <SPAN CLASS="brownbutton">RST</SPAN>.
+<SPAN CLASS="alttext">Adv</SPAN>. It is also closed by <SPAN CLASS="brownbutton">INV</SPAN>
+<SPAN CLASS="brownbutton">RST</SPAN>.
 
 <H2><A NAME="OptionsMenu"></A>Options Menu</H2>
 <P>Pressing the Android Menu button brings up a menu with the following options:
