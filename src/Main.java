@@ -480,6 +480,7 @@ public class Main extends android.app.Activity
                             try
                               {
                                 X = Double.parseDouble(NumString);
+                                OK = true;
                                 break;
                               }
                             catch (NumberFormatException BadNum)
@@ -527,8 +528,9 @@ public class Main extends android.app.Activity
                                 break;
                             TriedMassage = true;
                           } /*for*/
+                        if (!OK)
+                            break;
                         Global.Calc.SetX(X);
-                        OK = true;
                       }
                     while (false);
                     if (!OK)
