@@ -18,7 +18,9 @@ package nz.gen.geek_central.ti5x;
 
 public class Main extends android.app.Activity
   {
+    android.text.ClipboardManager Clipboard;
     java.util.Map<android.view.MenuItem, Runnable> OptionsMenu;
+    java.util.Map<android.view.MenuItem, Runnable> ContextMenu;
 
     interface RequestResponseAction /* response to an activity result */
       {
@@ -32,13 +34,13 @@ public class Main extends android.app.Activity
     java.util.Map<Integer, RequestResponseAction> ActivityResultActions;
 
   /* request codes, all arbitrarily assigned */
-    final int LoadProgramRequest = 1;
-    final int ImportDataRequest = 2;
-    final int SaveProgramRequest = 3;
-    final int ExportDataRequest = 4;
+    static final int LoadProgramRequest = 1;
+    static final int ImportDataRequest = 2;
+    static final int SaveProgramRequest = 3;
+    static final int ExportDataRequest = 4;
 
-    final int SwitchSaveAs = android.app.Activity.RESULT_FIRST_USER + 0;
-    final int SwitchAppend = android.app.Activity.RESULT_FIRST_USER + 1;
+    static final int SwitchSaveAs = android.app.Activity.RESULT_FIRST_USER + 0;
+    static final int SwitchAppend = android.app.Activity.RESULT_FIRST_USER + 1;
     boolean ExportAppend;
 
     android.view.ViewGroup PickerExtra, SaveAsExtra;
@@ -431,6 +433,61 @@ public class Main extends android.app.Activity
             true;
       } /*onCreateOptionsMenu*/
 
+    @Override
+    public void onCreateContextMenu
+      (
+        android.view.ContextMenu TheMenu,
+        android.view.View TheView,
+        android.view.ContextMenu.ContextMenuInfo TheMenuInfo
+      )
+      {
+        ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
+        ContextMenu.put
+          (
+            TheMenu.add(R.string.copy_number),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (Global.Calc.CurDisplay != null)
+                      {
+                        Clipboard.setText(Global.Calc.CurDisplay);
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ContextMenu.put
+          (
+            TheMenu.add(R.string.paste_number),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    do /*once*/
+                      {
+                        double X;
+                        try
+                          {
+                            X = Double.parseDouble(Clipboard.getText().toString());
+                          }
+                        catch (NumberFormatException BadNum)
+                          {
+                            android.widget.Toast.makeText
+                              (
+                                /*context =*/ Main.this,
+                                /*text =*/ getString(R.string.paste_nan),
+                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                              ).show();
+                            break;
+                          } /*try*/
+                        Global.Calc.SetX(X);
+                      }
+                    while (false);
+                  } /*run*/
+              } /*Runnable*/
+          );
+      } /*onCreateContextMenu*/ 
+
     void BuildActivityResultActions()
       {
         ActivityResultActions = new java.util.HashMap<Integer, RequestResponseAction>();
@@ -716,6 +773,23 @@ public class Main extends android.app.Activity
       } /*onOptionsItemSelected*/
 
     @Override
+    public boolean onContextItemSelected
+      (
+        android.view.MenuItem TheItem
+      )
+      {
+        boolean Handled = false;
+        final Runnable Action = ContextMenu.get(TheItem);
+        if (Action != null)
+          {
+            Action.run();
+            Handled = true;
+          } /*if*/
+        return
+            Handled;
+      } /*onContextItemSelected*/
+
+    @Override
     public void onActivityResult
       (
         int RequestCode,
@@ -753,6 +827,8 @@ public class Main extends android.app.Activity
         Global.Import = new Importer();
         Global.Export = new Exporter(this);
         BuildActivityResultActions();
+        Clipboard = (android.text.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        registerForContextMenu(Global.Disp);
       } /*onCreate*/
 
     @Override

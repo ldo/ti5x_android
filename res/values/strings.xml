@@ -14,6 +14,10 @@
     <string name="about_me">About ti5x...</string>
     <string name="turn_off">Off</string>
 
+  <!-- context menu -->
+    <string name="copy_number">Copy Number</string>
+    <string name="paste_number">Paste Number</string>
+
   <!-- buttons -->
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -37,6 +41,7 @@
     <string name="libraries">Libraries</string>
 
   <!-- messages -->
+    <string name="paste_nan">The Clipboard does not contain a valid number</string>
     <string name="no_prog_help">Sorry, no help available for this program</string>
     <string name="no_module_help">Sorry, no help available for this module</string>
     <string name="no_external_storage">No place to save.</string>
