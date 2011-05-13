@@ -463,26 +463,83 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
+                    boolean OK = false;
                     do /*once*/
                       {
-                        double X;
-                        try
+                        double X
+                            = 0.0; /* sigh */
+                        String NumString;
                           {
-                            X = Double.parseDouble(Clipboard.getText().toString());
+                            final CharSequence NumChars = Clipboard.getText();
+                            if (NumChars == null)
+                                break;
+                            NumString = NumChars.toString();
                           }
-                        catch (NumberFormatException BadNum)
+                        for (boolean TriedMassage = false;;)
                           {
-                            android.widget.Toast.makeText
-                              (
-                                /*context =*/ Main.this,
-                                /*text =*/ getString(R.string.paste_nan),
-                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                              ).show();
-                            break;
-                          } /*try*/
+                            try
+                              {
+                                X = Double.parseDouble(NumString);
+                                break;
+                              }
+                            catch (NumberFormatException BadNum)
+                              {
+                                if (!TriedMassage)
+                                  {
+                                    if
+                                      (
+                                            NumString.length() > 3
+                                        &&
+                                            (
+                                                NumString.charAt(NumString.length() - 3) == '-'
+                                            ||
+                                                NumString.charAt(NumString.length() - 3) == ' '
+                                            )
+                                        &&
+                                            NumString.charAt(NumString.length() - 4) != 'e'
+                                        &&
+                                            NumString.charAt(NumString.length() - 4) != 'E'
+                                      )
+                                      {
+                                        NumString =
+                                                NumString.substring(0, NumString.length() - 3)
+                                            +
+                                                "e"
+                                            +
+                                                NumString.substring
+                                                  (
+                                                        NumString.length()
+                                                    -
+                                                        (
+                                                            NumString.charAt(NumString.length() - 3)
+                                                        ==
+                                                            ' '
+                                                        ?
+                                                            2 /* leave off the space */
+                                                        :
+                                                            3 /* include the minus sign */
+                                                        )
+                                                  );
+                                      } /*if*/
+                                  } /*if*/
+                              } /*try*/
+                            if (TriedMassage)
+                                break;
+                            TriedMassage = true;
+                          } /*for*/
                         Global.Calc.SetX(X);
+                        OK = true;
                       }
                     while (false);
+                    if (!OK)
+                      {
+                        android.widget.Toast.makeText
+                          (
+                            /*context =*/ Main.this,
+                            /*text =*/ getString(R.string.paste_nan),
+                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                          ).show();
+                      } /*if*/
                   } /*run*/
               } /*Runnable*/
           );
