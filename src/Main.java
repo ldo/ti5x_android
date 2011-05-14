@@ -451,7 +451,31 @@ public class Main extends android.app.Activity
                   {
                     if (Global.Calc.CurDisplay != null)
                       {
-                        Clipboard.setText(Global.Calc.CurDisplay);
+                        String NumString = Global.Calc.CurDisplay;
+                        if (NumString.length() > 3)
+                          {
+                          /* put in explicit "e" like most other software expects */
+                            if (NumString.charAt(NumString.length() - 3) == ' ')
+                              {
+                                NumString =
+                                        NumString.substring(0, NumString.length() - 3)
+                                    +
+                                        "e+"
+                                    +
+                                        NumString.substring(NumString.length() - 2);
+                                          /* leave off the space */
+                              }
+                            else if (NumString.charAt(NumString.length() - 3) == '-')
+                              {
+                                NumString =
+                                        NumString.substring(0, NumString.length() - 3)
+                                    +
+                                        "e"
+                                    +
+                                        NumString.substring(NumString.length() - 3);
+                              } /*if*/
+                          } /*if*/
+                        Clipboard.setText(NumString);
                       } /*if*/
                   } /*run*/
               } /*Runnable*/
