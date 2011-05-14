@@ -441,6 +441,8 @@ public class Main extends android.app.Activity
         android.view.ContextMenu.ContextMenuInfo TheMenuInfo
       )
       {
+        if (!Global.Calc.ProgMode && !Global.Calc.ProgRunning)
+          {
         ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
         ContextMenu.put
           (
@@ -569,6 +571,11 @@ public class Main extends android.app.Activity
                   } /*run*/
               } /*Runnable*/
           );
+          }
+        else
+          {
+            ContextMenu = null;
+          } /*if*/
       } /*onCreateContextMenu*/ 
 
     void BuildActivityResultActions()
