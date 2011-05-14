@@ -631,9 +631,8 @@ You choose a file to open from the “Import Data...” item in the
 separated by newlines, whitespace or commas. Thereafter, you can read the next
 number into the display using <SPAN CLASS="brownbutton">INV</SPAN>
 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> (either from
-the keyboard or in a program). An attempt to read past the last number will trigger
-an error condition, which you can test for with <SPAN CLASS="alttext">Op</SPAN> <B>19</B>
-(see <A HREF="#Flags">Flags</A>).
+the keyboard or in a program). An attempt to read past the last number will set flag 7
+and leave the display unchanged. If a number was successfully read, flag 7 will be cleared.
 <P>The import file can also be immediately closed by <SPAN CLASS="brownbutton">INV</SPAN>
 <SPAN CLASS="brownbutton">RST</SPAN>.
 

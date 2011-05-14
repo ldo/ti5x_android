@@ -1675,7 +1675,8 @@ public class State
     public void GetNextImport()
       /* gets next value from current importer, if any. */
       {
-        boolean OK = false;
+        boolean OK = true;
+        boolean EOF = true;
         double Value;
         do /*once*/
           {
@@ -1684,6 +1685,7 @@ public class State
             try
               {
                 Value = Import.Next();
+                EOF = false;
               }
             catch (ImportEOFException Done)
               {
@@ -1704,6 +1706,7 @@ public class State
                           ),
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
+                OK = false;
                 Import.End();
                 break;
               } /*try*/
@@ -1711,6 +1714,7 @@ public class State
             OK = true;
           }
         while (false);
+        Flag[FLAG_ERROR_COND] = EOF;
         if (!OK)
           {
             SetErrorState();
