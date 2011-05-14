@@ -1857,7 +1857,7 @@ public class State
 
     void SetShowingRunning()
       {
-        Global.Disp.SetShowingRunning(Import != null ? 'c' : 'C');
+        Global.Disp.SetShowingRunning(Import != null || Global.Export.IsOpen() ? 'c' : 'C');
       } /*SetShowingRunning*/
 
     public void StartProgram()
