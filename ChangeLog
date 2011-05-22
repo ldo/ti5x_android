@@ -1,0 +1,109 @@
+Feature highlights:
+
+15108.0-15108.1, 2011 May 14
+    INV Prt now sets flag 7 directly rather than error condition on EOF
+
+15107.5, 2011 May 13
+    Add copy/paste support
+
+15106.2-15106.5, 2011 May 12
+    Link to where to find original manuals
+    Printer view now autoscrolls to bottom
+    Move autoclosing of importer and exporter from RST to INV RST
+
+15105.2-15105.4, 2011 May 11
+    Display package version number
+    Terminology change: "help card" -> "label card"
+
+2011 May 10
+    Couldn't use 2nd keys for labels--fixed
+
+2011 May 9
+    Add about page
+
+2011 May 7
+    Correct behaviour of EE in result state to match manual
+
+2011 May 6
+    Add data-export function
+
+2011 May 4
+    Add data-import function
+
+2011 May 1
+    Add inv-pi extension
+
+2011 April 29
+    Implement Op 18/19 properly
+
+2011 April 28
+    Further fix to correctly handling rounding on INV Int
+
+2011 April 27
+    Implementation calculation tracing on flag 9
+    Add delete-file function to picker
+
+2011 April 26
+    Correct implementation of EE/INV EE
+    Allow manually reloading Master Library
+    Include merged keycodes in overlay display
+
+2011 April 24
+    Op 50 and 51 extensions
+    Cross-bank transfers finally work properly
+
+2011 April 22
+    INV GTO extension
+
+2011 April 21
+    Debounce button presses
+    Add key codes table to help page
+
+2011 April 20
+    Add build instructions
+    More docs
+    Master Library card images now complete
+    Support user versus system card styles
+
+2011 April 19
+    LRN can now show display library programs (read-only)
+    Assembler/disassembler can now check/show current location
+    Add card-sliding animation
+    First stab at virtual printing
+    Implement stop-on-error use of flag 8
+
+2011 April 18
+    Add program/library loading
+    New program/library builder utility
+    Various card-rendering improvements
+
+2011 April 17
+    Add library help and initial library programs
+    Add ability to save user programs
+
+2011 April 16
+    Add label-card area
+    Add program-bank support
+
+2011 April 14
+    Add card image rendering utility
+    Add master library build utility
+
+2011 April 13
+    Add assembler and disassembler utilities
+
+2011 April 12
+    Option to display key code overlay
+    Save persistent state
+    Online help
+
+2011 April 11
+    Implement program entry and execution
+
+2011 April 8
+    Complete rework to handle programmability, memories etc
+    Add audio button feedback
+
+2011 April 7
+    Start of development
+    Most simple functions implemented
