@@ -29,7 +29,7 @@
             android:id="@+id/prog_select"
             android:layout_width="fill_parent" 
             android:layout_height="wrap_content"
-            android:text="@string/prog_select"
+            android:text=""
         />
     </TableRow>
 </TableLayout>

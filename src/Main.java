@@ -109,6 +109,7 @@ public class Main extends android.app.Activity
         Picker.Launch
           (
             /*Acting =*/ Main.this,
+            /*SelectLabel =*/ getString(R.string.import_),
             /*RequestCode =*/ ImportDataRequest,
             /*Extra =*/ null,
             /*LookIn =*/ Persistent.ExternalDataDirectories,
@@ -166,6 +167,7 @@ public class Main extends android.app.Activity
             Picker.Launch
               (
                 /*Acting =*/ Main.this,
+                /*SelectLabel =*/ getString(R.string.append),
                 /*RequestCode =*/ ExportDataRequest,
                 /*Extra =*/ PickerExtra,
                 /*LookIn =*/ Persistent.ExternalDataDirectories,
@@ -305,6 +307,7 @@ public class Main extends android.app.Activity
                     Picker.Launch
                       (
                         /*Acting =*/ Main.this,
+                        /*SelectLabel =*/ getString(R.string.load),
                         /*RequestCode =*/ LoadProgramRequest,
                         /*Extra =*/ PickerExtra,
                         /*LookIn =*/ Persistent.ExternalCalcDirectories,

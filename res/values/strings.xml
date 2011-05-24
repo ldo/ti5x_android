@@ -21,7 +21,9 @@
   <!-- buttons -->
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
-    <string name="prog_select">Load</string>
+    <string name="load">Load</string>
+    <string name="import_">Import</string>
+    <string name="append">Append</string>
     <string name="overwrite">Overwrite</string>
     <string name="replace">Replace</string>
     <string name="delete">Delete</string>

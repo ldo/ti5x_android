@@ -49,6 +49,7 @@ public class Picker extends android.app.Activity
           } /*PickerAltList*/
       } /*PickerAltList*/
 
+    static String SelectLabel = null;
     static android.view.View Extra = null;
     static String[] LookIn;
     static PickerAltList[] AltLists = null;
@@ -361,7 +362,10 @@ public class Picker extends android.app.Activity
         PickerList = new SelectedItemAdapter(this, R.layout.picker_item, getLayoutInflater());
         PickerListView = (android.widget.ListView)findViewById(R.id.prog_list);
         PickerListView.setAdapter(PickerList);
-        findViewById(R.id.prog_select).setOnClickListener
+        final android.widget.Button SelectButton =
+            (android.widget.Button)findViewById(R.id.prog_select);
+        SelectButton.setText(SelectLabel);
+        SelectButton.setOnClickListener
           (
             new android.view.View.OnClickListener()
               {
@@ -464,6 +468,7 @@ public class Picker extends android.app.Activity
     public static void Launch
       (
         android.app.Activity Acting,
+        String SelectLabel,
         int RequestCode,
         android.view.View Extra,
         String[] LookIn, /* array of names of subdirectories within external storage */
@@ -473,6 +478,7 @@ public class Picker extends android.app.Activity
         if (!Reentered)
           {
             Reentered = true; /* until Picker activity terminates */
+            Picker.SelectLabel = SelectLabel;
             Picker.Extra = Extra;
             Picker.LookIn = LookIn;
             Picker.AltLists = AltLists;
