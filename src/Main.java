@@ -51,14 +51,17 @@ public class Main extends android.app.Activity
         extends android.app.AlertDialog
         implements android.content.DialogInterface.OnClickListener
       {
+        final Runnable LaunchWhat;
 
         public ReplaceConfirm
           (
             android.content.Context ctx,
-            int MsgID
+            int MsgID,
+            Runnable LaunchWhat
           )
           {
             super(ctx);
+            this.LaunchWhat = LaunchWhat;
             setMessage(ctx.getString(MsgID));
             setButton
               (
@@ -83,7 +86,7 @@ public class Main extends android.app.Activity
           {
             if (WhichButton == android.content.DialogInterface.BUTTON_POSITIVE)
               {
-                LaunchImportPicker();
+                LaunchWhat.run();
               } /*if*/
             dismiss();
           } /*onClick*/
@@ -341,7 +344,18 @@ public class Main extends android.app.Activity
                       }
                     else
                       {
-                        new ReplaceConfirm(Main.this, R.string.query_replace_import).show();
+                        new ReplaceConfirm
+                          (
+                            Main.this,
+                            R.string.query_replace_import,
+                            new Runnable()
+                              {
+                                public void run()
+                                  {
+                                    LaunchImportPicker();
+                                  } /*run*/
+                              }
+                          ).show();
                       } /*if*/
                   } /*run*/
               } /*Runnable*/
@@ -353,14 +367,27 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
+                    final Runnable DoIt =
+                        new Runnable()
+                          {
+                            public void run()
+                              {
+                                ExportAppend = false;
+                                LaunchExportPicker();
+                              } /*run*/
+                          };
                     if (!Global.Export.IsOpen())
                       {
-                        ExportAppend = false;
-                        LaunchExportPicker();
+                        DoIt.run();
                       }
                     else
                       {
-                        new ReplaceConfirm(Main.this, R.string.query_replace_export).show();
+                        new ReplaceConfirm
+                          (
+                            Main.this,
+                            R.string.query_replace_export,
+                            DoIt
+                          ).show();
                       } /*if*/
                   } /*run*/
               } /*Runnable*/
