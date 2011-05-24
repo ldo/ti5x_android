@@ -20,6 +20,7 @@ public class SaveAs extends android.app.Activity
   {
     static android.view.View Extra = null;
     static String SaveWhat = null;
+    static String SaveWhere = null;
     static String FileExt = null;
 
     static boolean Reentered = false; /* sanity check */
@@ -149,7 +150,7 @@ public class SaveAs extends android.app.Activity
                                         +
                                             "/"
                                         +
-                                            Persistent.ProgramsDir
+                                            SaveWhere
                                         +
                                             "/"
                                         +
@@ -245,6 +246,7 @@ public class SaveAs extends android.app.Activity
         android.app.Activity Acting,
         int RequestCode,
         String SaveWhat,
+        String SaveWhere, /* directory within external storage, for overwrite checking */
         android.view.View Extra,
         String FileExt
       )
@@ -253,6 +255,7 @@ public class SaveAs extends android.app.Activity
           {
             Reentered = true; /* until SaveAs activity terminates */
             SaveAs.SaveWhat = SaveWhat;
+            SaveAs.SaveWhere = SaveWhere;
             SaveAs.Extra = Extra;
             SaveAs.FileExt = FileExt;
             Acting.startActivityForResult
@@ -273,7 +276,10 @@ public class SaveAs extends android.app.Activity
         onDestroy, but of course that gets called when user rotates screen,
         which means activity context is lost. */
       {
+        SaveWhat = null;
+        SaveWhere = null;
         Extra = null;
+        FileExt = null;
         Reentered = false;
       } /*Cleanup*/
 

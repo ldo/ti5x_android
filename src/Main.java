@@ -181,6 +181,7 @@ public class Main extends android.app.Activity
                 /*Acting =*/ Main.this,
                 /*RequestCode =*/ ExportDataRequest,
                 /*SaveWhat =*/ getString(R.string.exported_data),
+                /*SaveWhere =*/ Persistent.DataDir,
                 /*Extra =*/ SaveAsExtra,
                 /*FileExt =*/ ""
               );
@@ -328,6 +329,7 @@ public class Main extends android.app.Activity
                         /*Acting =*/ Main.this,
                         /*RequestCode =*/ SaveProgramRequest,
                         /*SaveWhat =*/ getString(R.string.program),
+                        /*SaveWhere =*/ Persistent.ProgramsDir,
                         /*Extra =*/ null,
                         /*FileExt =*/ Persistent.ProgExt
                       );
