@@ -456,7 +456,7 @@ public class Main extends android.app.Activity
                 public void run()
                   {
                     ShuttingDown = true; /* don't save any state */
-                    deleteFile(Persistent.SavedStateName); /* lose any saved state */
+                    Persistent.ResetState(Main.this);
                     finish(); /* start afresh next time */
                   } /*run*/
               } /*Runnable*/

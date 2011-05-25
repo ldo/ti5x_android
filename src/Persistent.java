@@ -1638,4 +1638,13 @@ public class Persistent
           } /*if*/
       } /*RestoreState*/
 
+    public static void ResetState
+      (
+        android.content.Context ctx
+      )
+      /* wipes saved state. */
+      {
+        ctx.deleteFile(SavedStateName);
+      } /*ResetState*/
+
   } /*Persistent*/
