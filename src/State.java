@@ -287,11 +287,7 @@ public class State
           } /*if*/
         if (ClearLibs)
           {
-            for (int i = 1; i < MaxBanks; ++i)
-              {
-                Bank[i] = null;
-              } /*for*/
-            ModuleHelp = null;
+            ResetLibs();
           } /*if*/
         ProgMode = false;
         for (int i = 0; i < PrintRegister.length; ++i)
@@ -300,6 +296,16 @@ public class State
           } /*for*/
         ResetEntry();
       } /*Reset*/
+
+    public void ResetLibs()
+      /* wipes out loaded library modules */
+      {
+        for (int i = 1; i < MaxBanks; ++i)
+          {
+            Bank[i] = null;
+          } /*for*/
+        ModuleHelp = null;
+      } /*ResetLibs*/
 
     public State
       (

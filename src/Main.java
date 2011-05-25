@@ -649,7 +649,7 @@ public class Main extends android.app.Activity
                               (
                                 /*FromFile =*/ ProgName,
                                 /*Libs =*/ IsLib,
-                                /*AllState =*/ false,
+                                /*CalcState =*/ false,
                                 /*Disp =*/ Global.Disp,
                                 /*Label =*/ Global.Label,
                                 /*Buttons =*/ Global.Buttons,
@@ -727,7 +727,7 @@ public class Main extends android.app.Activity
                             /*Buttons =*/ Global.Buttons,
                             /*Calc =*/ Global.Calc,
                             /*Libs =*/ false,
-                            /*AllState =*/ false,
+                            /*CalcState =*/ false,
                             /*ToFile =*/ SaveDir + "/" + TheName
                           );
                         android.widget.Toast.makeText
