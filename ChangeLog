@@ -1,5 +1,8 @@
 Feature highlights:
 
+15121.4, 2011 May 28
+    Switching of screens is now a lot faster
+
 15108.0-15108.1, 2011 May 14
     INV Prt now sets flag 7 directly rather than error condition on EOF
 
