@@ -306,16 +306,6 @@ public class Persistent
         java.io.OutputStream RawOut
       )
       {
-        System.err.printf
-          (
-            "ti5x starting Save(%b, %b) at %s\n",
-            Libs, CalcState,
-            android.text.format.DateFormat.format
-              (
-                "kk:mm:ss E, dd/MMM/yyyy z",
-                System.currentTimeMillis()
-              )
-          );
         try
           {
             java.util.zip.ZipOutputStream Out = new java.util.zip.ZipOutputStream(RawOut);
@@ -620,16 +610,6 @@ public class Persistent
           {
             throw new RuntimeException("ti5x.Persistent.Save error " + Failed.toString());
           } /*try*/
-        System.err.printf
-          (
-            "ti5x finished Save(%b, %b) at %s\n",
-            Libs, CalcState,
-            android.text.format.DateFormat.format
-              (
-                "kk:mm:ss E, dd/MMM/yyyy z",
-                System.currentTimeMillis()
-              )
-          );
       } /*Save*/
 
     public static void Save
@@ -1365,16 +1345,6 @@ public class Persistent
       )
     throws DataFormatException
       {
-        System.err.printf
-          (
-            "ti5x starting Load(%b, %b) at %s\n",
-            Libs, CalcState,
-            android.text.format.DateFormat.format
-              (
-                "kk:mm:ss E, dd/MMM/yyyy z",
-                System.currentTimeMillis()
-              )
-          );
         boolean OK = false;
         try
           {
@@ -1521,16 +1491,6 @@ public class Persistent
                 Buttons.invalidate();
               } /*if*/
           } /*if*/
-        System.err.printf
-          (
-            "ti5x finished Load(%b, %b) at %s\n",
-            Libs, CalcState,
-            android.text.format.DateFormat.format
-              (
-                "kk:mm:ss E, dd/MMM/yyyy z",
-                System.currentTimeMillis()
-              )
-          );
       } /*Load*/
 
     public static void LoadMasterLibrary
