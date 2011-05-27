@@ -1589,18 +1589,16 @@ public class Persistent
       )
       /* saves the current calculator state for later restoration. */
       {
-        ResetState(ctx);
         java.io.FileOutputStream CurSave;
         try
           {
-            CurSave = ctx.openFileOutput
-              (
+            final String StateName = 
                 SaveLib ?
                     SavedLibName
                 :
-                    SavedStateName,
-                ctx.MODE_WORLD_READABLE
-              );
+                    SavedStateName;
+            ctx.deleteFile(StateName);
+            CurSave = ctx.openFileOutput(StateName, ctx.MODE_WORLD_READABLE);
           }
         catch (java.io.FileNotFoundException Eh)
           {
@@ -1636,7 +1634,9 @@ public class Persistent
         state if available, otherwise (re)initializes to default state. */
       {
         boolean RestoredLib = false;
-        for (boolean LoadingLib = false;;)
+        for (boolean LoadingLib = true;;)
+          /* load library before rest of state, otherwise Calc.SelectProgram(Calc.CurBank)
+            call (above) will trigger error on nonexistent bank */
           {
             final String StateFile =
                     ctx.getFilesDir().getAbsolutePath()
@@ -1677,14 +1677,15 @@ public class Persistent
                       ); /* debug  */
                   } /*try*/
               } /*if*/
-            if (LoadingLib)
+            if (!LoadingLib)
                 break;
-            LoadingLib = true;
+            LoadingLib = false;
           } /*for*/
         if (!RestoredLib)
           {
           /* initialize state to include Master Library */
             LoadMasterLibrary(ctx);
+            SaveState(ctx, true);
           } /*if*/
       } /*RestoreState*/
 
