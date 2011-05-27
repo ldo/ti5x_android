@@ -110,6 +110,10 @@ public class Persistent
             DataDir,
         };
     public static final String SavedStateName = "state" + StateExt;
+      /* for saved state other than loaded library */
+    public static final String SavedLibName = "module" + LibExt;
+      /* loaded library saved separately so it doesn't have to be re-saved
+        every time state changes */
 
     public static class DataFormatException extends RuntimeException
       /* indicates a problem parsing a saved state file. */
@@ -1580,21 +1584,36 @@ public class Persistent
 
     public static void SaveState
       (
-        android.content.Context ctx
+        android.content.Context ctx,
+        boolean SaveLib /* true to save loaded library, false to save rest of state */
       )
-      /* saves the entire current calculator state for later restoration. */
+      /* saves the current calculator state for later restoration. */
       {
-        ctx.deleteFile(SavedStateName); /* if it exists */
+        ResetState(ctx);
         java.io.FileOutputStream CurSave;
         try
           {
-            CurSave = ctx.openFileOutput(SavedStateName, ctx.MODE_WORLD_READABLE);
+            CurSave = ctx.openFileOutput
+              (
+                SaveLib ?
+                    SavedLibName
+                :
+                    SavedStateName,
+                ctx.MODE_WORLD_READABLE
+              );
           }
         catch (java.io.FileNotFoundException Eh)
           {
             throw new RuntimeException("ti5x save-state create error " + Eh.toString());
           } /*try*/
-        Save(Global.Buttons, Global.Calc, true, true, CurSave); /* catch RuntimeException? */
+        Save
+          (
+            /*Buttons =*/ Global.Buttons,
+            /*Calc =*/ Global.Calc,
+            /*Libs =*/ SaveLib,
+            /*CalcState =*/ !SaveLib,
+            /*RawOut =*/ CurSave
+          ); /* catch RuntimeException? */
         try
           {
             CurSave.flush();
@@ -1616,9 +1635,19 @@ public class Persistent
       /* restores the entire calculator state, using the previously-saved
         state if available, otherwise (re)initializes to default state. */
       {
-        boolean RestoredState = false;
+        boolean RestoredLib = false;
+        for (boolean LoadingLib = false;;)
           {
-            final String StateFile = ctx.getFilesDir().getAbsolutePath() + "/" + SavedStateName;
+            final String StateFile =
+                    ctx.getFilesDir().getAbsolutePath()
+                +
+                    "/"
+                +
+                    (LoadingLib ?
+                        SavedLibName
+                    :
+                        SavedStateName
+                    );
             if (new java.io.File(StateFile).exists())
               {
                 try
@@ -1626,14 +1655,17 @@ public class Persistent
                     Load
                       (
                         /*FromFile =*/ StateFile,
-                        /*Libs =*/ true,
-                        /*CalcState =*/ true,
+                        /*Libs =*/ LoadingLib,
+                        /*CalcState =*/ !LoadingLib,
                         /*Disp =*/ Global.Disp,
                         /*Label =*/ Global.Label,
                         /*Buttons =*/ Global.Buttons,
                         /*Calc =*/ Global.Calc
                       );
-                    RestoredState = true;
+                    if (LoadingLib)
+                      {
+                        RestoredLib = true;
+                      } /*if*/
                   }
                 catch (DataFormatException Bad)
                   {
@@ -1645,8 +1677,11 @@ public class Persistent
                       ); /* debug  */
                   } /*try*/
               } /*if*/
-          }
-        if (!RestoredState)
+            if (LoadingLib)
+                break;
+            LoadingLib = true;
+          } /*for*/
+        if (!RestoredLib)
           {
           /* initialize state to include Master Library */
             LoadMasterLibrary(ctx);
@@ -1660,6 +1695,7 @@ public class Persistent
       /* wipes saved state. */
       {
         ctx.deleteFile(SavedStateName);
+        ctx.deleteFile(SavedLibName);
       } /*ResetState*/
 
   } /*Persistent*/

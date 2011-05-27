@@ -693,7 +693,7 @@ public class Main extends android.app.Activity
                             /*duration =*/ android.widget.Toast.LENGTH_LONG
                           ).show();
                       } /*try*/
-                    Persistent.SaveState(Main.this);
+                    Persistent.SaveState(Main.this, LoadingMasterLibrary);
                   } /*Run*/
               } /*RequestResponseAction*/
           );
@@ -959,7 +959,7 @@ public class Main extends android.app.Activity
         super.onPause();
         if (!ShuttingDown)
           {
-            Persistent.SaveState(this);
+            Persistent.SaveState(this, false);
           } /*if*/
       } /*onPause*/
 

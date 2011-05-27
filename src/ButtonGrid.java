@@ -1275,7 +1275,7 @@ public class ButtonGrid extends android.view.View
                     case 68: /*Nop*/
                       /* No semantic effect, but why not do some saving of
                         volatile state, just in case */
-                        Persistent.SaveState(getContext());
+                        Persistent.SaveState(getContext(), false);
                         if (Global.Export != null)
                           {
                             Global.Export.Flush();
