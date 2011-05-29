@@ -350,7 +350,14 @@ public class State
         LastShowing = ToDisplay;
         if (!ProgRunning || ProgRunningSlowly)
           {
-            Global.Disp.SetShowing(ToDisplay);
+            if (InErrorState())
+              {
+                Global.Disp.SetShowingError(ToDisplay);
+              }
+            else
+              {
+                Global.Disp.SetShowing(ToDisplay);
+              } /*if*/
           }
       } /*SetShowing*/
 
@@ -501,10 +508,7 @@ public class State
         break;
           } /*switch*/
         CurDisplay += SaveExponent;
-        if (CurState != ErrorState)
-          {
-            SetShowing(CurDisplay);
-          } /*if*/
+        SetShowing(CurDisplay);
       } /*Digit*/
 
     public void DecimalPoint()
