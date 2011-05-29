@@ -29,6 +29,8 @@
 #         A divide symbol is drawn.
 #     <Gamma/>
 #         A capital-gamma character is drawn.
+#     <integral/>
+#         An integral character is drawn.
 #     <lambda/>
 #         A lambda character is drawn.
 #     <mul/>
@@ -249,6 +251,7 @@ symbols = \
         "div": defsymbol("div", "(\\270)"),
         "epsilon": defsymbol("epsilon", "(\\145)"),
         "Gamma" : defsymbol("Gamma", "(\\107)"),
+        "integral" : defsymbol("integral", "(\\362)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
         "mul": defsymbol("mul", "(\\264)"),
         "rarrow" : defsymbol("rarrow", "(\\256)"),
