@@ -27,6 +27,8 @@
 #         A capital-delta character is drawn.
 #     <div/>
 #         A divide symbol is drawn.
+#     <Gamma/>
+#         A capital-gamma character is drawn.
 #     <lambda/>
 #         A lambda character is drawn.
 #     <mul/>
@@ -246,6 +248,7 @@ symbols = \
         "Delta" : defsymbol("Delta", "(\\104)"),
         "div": defsymbol("div", "(\\270)"),
         "epsilon": defsymbol("epsilon", "(\\145)"),
+        "Gamma" : defsymbol("Gamma", "(\\107)"),
         "lambda" : defsymbol("lambda", "(\\154)"),
         "mul": defsymbol("mul", "(\\264)"),
         "rarrow" : defsymbol("rarrow", "(\\256)"),
