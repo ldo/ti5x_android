@@ -29,6 +29,7 @@
         />
         <activity
             android:name="Picker"
+            android:screenOrientation="portrait"
         />
         <activity
             android:name="SaveAs"
