@@ -229,7 +229,7 @@ class noverr(taggedtext) :
     #end __init__
 
     def __repr__(self) :
-        return "<xbar/>"
+        return "<noverr/>"
     #end __repr__
 
 #end noverr
