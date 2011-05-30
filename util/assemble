@@ -129,6 +129,7 @@ symbols = \
         "pause" : simpleop(66),
         "x=t" : transferop(67),
         "nop" : simpleop(68),
+        "hir" : {"op" : 82, "expect" : "noindreg"},
         "op" : regop(69, 84),
         "op*" : {"op" : 84, "expect" : "reg"},
         "×" : simpleop2(65, 60),
@@ -199,6 +200,7 @@ symbols["stf"] = symbols["stflg"]
 symbols["π"] = symbols["pi"]
 symbols["dms"] = symbols["d.ms"]
 symbols["wrt"] = symbols["write"]
+symbols["lst"] = symbols["list"]
 
 check_labels = False
 
@@ -331,6 +333,9 @@ while True :
                     integral = re.search(r"^\d+$", cursym) != None
                     if expect != None :
                         if expect != "label" and symbol != None and symbol.get("isind", False) :
+                            if expect == "noindreg" :
+                                report_error("\"ind\" not allowed")
+                            #end if
                             if ind_state :
                                 report_error("redundant \"ind\"")
                             #end if
@@ -338,7 +343,7 @@ while True :
                             expect = "reg"
                         #end if
                         # ensure opcode has been output, if not already done so
-                        if "op" in lastsym :
+                        if lastsym != None and "op" in lastsym :
                             if ind_state and "indop" in lastsym :
                                 out(lastsym[("indop", "altindop")[alt_state]])
                             else :
@@ -357,7 +362,7 @@ while True :
                     #end if
                     if numeric :
                         if expect != None :
-                            assert expect in ("label", "flag", "unitreg", "reg", "loc")
+                            assert expect in ("label", "flag", "unitreg", "noindreg", "reg", "loc")
                             if integral :
                                 opval = int(cursym)
                                 if expect == "loc" :
@@ -367,7 +372,7 @@ while True :
                                     else :
                                         report_error("address can't be > 999")
                                     #end if
-                                elif expect == "reg" :
+                                elif expect == "reg" or expect == "noindreg" :
                                     if opval < 100 :
                                         out(opval)
                                     else :

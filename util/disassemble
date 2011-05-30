@@ -128,7 +128,7 @@ codes = \
         79 : simple("mean(x)"),
         70 : simple("Rad"),
         81 : simple("RST"),
-        # 82 invalid (HIR!)
+        82 : regop("HIR", True),
         83 : regop("GTO Ind", False),
         84 : regop("Op Ind", False),
         85 : simple("+"),
