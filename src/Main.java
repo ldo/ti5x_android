@@ -693,7 +693,7 @@ public class Main extends android.app.Activity
                             /*duration =*/ android.widget.Toast.LENGTH_LONG
                           ).show();
                       } /*try*/
-                    Persistent.SaveState(Main.this, LoadingMasterLibrary);
+                    Persistent.SaveState(Main.this, IsLib);
                   } /*Run*/
               } /*RequestResponseAction*/
           );
