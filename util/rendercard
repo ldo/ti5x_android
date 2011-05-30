@@ -19,6 +19,10 @@
 #
 #     <angle/>
 #         An angle symbol is drawn.
+#     <bar>text</bar>
+#     <Bar>text</Bar>
+#         The text is rendered with a bar over the top. “bar” is suitable for
+#         lower-case text, while “Bar” is suitable for upper-case text.
 #     <button>titletext</button>
 #         The titletext is rendered inline with the rest of the text with a box around it.
 #     <darrow/>
@@ -199,6 +203,24 @@ class superscript(taggedtext) :
 
 #end superscript
 
+class Bar(taggedtext) :
+    """an inline label with a horizontal bar over the text."""
+
+    def __init__(self, text) :
+        super().__init__("Bar", text)
+    #end __init__
+
+#end Bar
+
+class bar(taggedtext) :
+    """an inline label with a horizontal bar over the text."""
+
+    def __init__(self, text) :
+        super().__init__("bar", text)
+    #end __init__
+
+#end bar
+
 class noverr(taggedtext) :
     """n vertically placed over r."""
 
@@ -265,6 +287,7 @@ basefontsize = 7.0
 subsupscale = 0.8 # relative scaling for superscript/subscript text
 suboffset = -0.2 # vertical offset for subscript, relative to basefontsize
 superoffset = 0.6 # vertical offset for superscript, relative to basefontsize
+xheightscale = 0.65
 orange = tuple(i / 255 for i in (0x95, 0x50, 0x1c))
 black = (0.0, 0.0, 0.0)
 colors = \
@@ -341,6 +364,14 @@ def parse_template(input) :
         handle_common_end(superscript)
     #end handle_superscript_end
 
+    def handle_Bar_end(tag) :
+        handle_common_end(Bar)
+    #end handle_Bar_end
+
+    def handle_bar_end(tag) :
+        handle_common_end(bar)
+    #end handle_bar_end
+
     def make_symbol_def(tagclass) :
         def handle_def(tag) :
             parse_state["cur_label"]["content"].append(tagclass())
@@ -363,6 +394,10 @@ def parse_template(input) :
                     "/sub" : handle_subscript_end,
                     "sup" : handle_common_tag_start,
                     "/sup" : handle_superscript_end,
+                    "Bar" : handle_common_tag_start,
+                    "/Bar" : handle_Bar_end,
+                    "bar" : handle_common_tag_start,
+                    "/bar" : handle_bar_end,
                 }
         }
     for symbol in symbols.values() :
@@ -618,6 +653,10 @@ def UniWidth(thestr) :
 #end UniWidth
 
 # yeah, all the scalefont calls leak memory
+draw_bar = \
+    "currentpoint 4 2 roll" \
+    " newpath 2 copy moveto exch pop 2 index exch lineto stroke" \
+    " moveto"
 render_special = \
     { # special actions to modify rendering and width calculation for each tag
         button :
@@ -672,16 +711,26 @@ render_special = \
                         " 0 %.2f rmoveto" % (superoffset * basefontsize),
                 "renderafter" : "0 %.2f rmoveto setfont" % (- superoffset * basefontsize),
             },
+        Bar :
+            {
+                "renderbefore" :
+                    "currentpoint %.2f add" % basefontsize,
+                "renderafter" : draw_bar,
+            },
+        bar :
+            {
+                "renderbefore" :
+                    "currentpoint %.2f %.2f mul add" % (basefontsize, xheightscale),
+                "renderafter" : draw_bar,
+            },
         xbar :
             {
                 "widthadjust" : "(x) stringwidth pop add",
                 "renderbefore" : "",
                 "renderafter" :
-                        "currentpoint %.2f 0.65 mul add" % basefontsize
+                        "currentpoint %.2f %.2f mul add" % (basefontsize, xheightscale)
                     +
-                        " (x) show currentpoint 4 2 roll"
-                        " newpath 2 copy moveto exch pop 2 index exch lineto stroke"
-                        " moveto",
+                        " (x) show %s" % draw_bar,
             },
     }
 for symbol in symbols.values() :
