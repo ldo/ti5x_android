@@ -130,6 +130,7 @@ symbols = \
         "x=t" : transferop(67),
         "nop" : simpleop(68),
         "op" : regop(69, 84),
+        "op*" : {"op" : 84, "expect" : "reg"},
         "×" : simpleop2(65, 60),
         "deg" : simpleop(60),
         "sbr" : {"op" : 71,  "act" : sbr},
@@ -183,6 +184,7 @@ symbols["**"] = symbols["y**x"]
 symbols["yx"] = symbols["y**x"]
 symbols["pow"] = symbols["y**x"]
 symbols["abs"] = symbols["|x|"]
+symbols["ixi"] = symbols["|x|"]
 symbols["/"] = symbols["÷"]
 symbols["mean(x)"] = symbols["mean"]
 symbols["*"] = symbols["×"]
