@@ -58,6 +58,16 @@ def transferop(basecode, indcode = None) :
     return entry
 #end transferop
 
+def fix() :
+    global expect
+    if pending_out == 22 :
+        out(58)
+        expect = None
+    else :
+        expect = "flag"
+    #end if
+#end fix
+
 def sbr() :
     global expect, pending_out, loc
     if pending_out == 22 :
@@ -121,7 +131,7 @@ symbols = \
         "ee" : simpleop2(52, 57),
         "eng" : simpleop(57),
         "(" : simpleop2(53, 58),
-        "fix" : simpleop(58),
+        "fix" : {"op" : 58, "act" : fix},
         ")" : simpleop2(54, 59),
         "int" : simpleop(59),
         "÷" : simpleop2(55, 50),
@@ -215,12 +225,11 @@ elif len(sys.argv) > 1 :
 exitstatus = 0 # to begin with
 
 def report_error(msg) :
-    global alt_state, inv_state, was_modifier, expect, lastsym, exitstatus
+    global alt_state, was_modifier, expect, lastsym, exitstatus
     sys.stderr.write("Assembler error at line %d, column %d: %s\n" % (line_nr, col_nr, msg))
     exitstatus = 2
     # reset everything to try to recover from error:
     alt_state = False
-    inv_state = False
     was_modifier = False
     expect = None
     lastsym = None
