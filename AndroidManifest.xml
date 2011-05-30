@@ -33,6 +33,7 @@
         />
         <activity
             android:name="SaveAs"
+            android:windowSoftInputMode="stateVisible"
         />
     </application>
 </manifest> 
