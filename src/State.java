@@ -2048,7 +2048,8 @@ public class State
 
     int GetUnitOp
       (
-        boolean Executing
+        boolean Executing,
+        boolean AllowLarge /* allow value > 9 */
       )
       /* fetches one or two bytes from the instruction stream; if the
         first (only) byte is < 10, then that's the value; otherwise
@@ -2060,18 +2061,13 @@ public class State
         if (NextByte >= 0)
           {
             boolean OK;
-            if (NextByte < 10)
-              {
-                Result = NextByte;
-                OK = true;
-              }
-            else if (NextByte == 40)
+            if (NextByte == 40)
               {
                 final int Reg = GetProg(Executing);
                 if (Reg >= 0 && Reg < MaxMemories)
                   {
                     Result = (int)Memory[Reg];
-                    OK = Result >= 0 && Result < 10;
+                    OK = Result >= 0 && Result < MaxMemories;
                     if (!OK)
                       {
                         Result = -1;
@@ -2081,6 +2077,11 @@ public class State
                   {
                     OK = false;
                   } /*if*/
+              }
+            else if (AllowLarge || NextByte < 10)
+              {
+                Result = NextByte;
+                OK = true;
               }
             else
               {
@@ -2624,11 +2625,11 @@ public class State
                     Operator(STACKOP_ADD);
                 break;
                 case 86: /*St flg*/
-                    SetFlag(GetUnitOp(true), false, !InvState);
+                    SetFlag(GetUnitOp(true, false), false, !InvState);
                 break;
                 case 87: /*If flg*/
                       {
-                        final int FlagNr = GetUnitOp(true);
+                        final int FlagNr = GetUnitOp(true, false);
                         final int Target = GetLoc(true, RunBank);
                         BranchIfFlag(FlagNr, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
@@ -2661,7 +2662,7 @@ public class State
               /* 96 same as 91 */
                 case 97: /*Dsz*/
                       {
-                        final int Reg = GetUnitOp(true);
+                        final int Reg = GetUnitOp(true, true);
                         final int Target = GetLoc(true, RunBank);
                         DecrementSkip(Reg, false, RunBank, Target, TRANSFER_LOC_DIRECT);
                       }
@@ -2755,11 +2756,11 @@ public class State
                       }
                 break;
                 case 86: /*St flg*/
-                    GetUnitOp(false);
+                    GetUnitOp(false, false);
                 break;
                 case 87: /*If flg*/
                 case 97: /*Dsz*/
-                    GetUnitOp(false); /*register/flag*/
+                    GetUnitOp(false, true); /*register/flag*/
                     GetLoc(false, RunBank); /*branch target*/
                 break;
                   } /*switch*/
