@@ -113,6 +113,7 @@ symbols = \
         "sum" : regop2(44, 49, 74, 64),
         "sm*" : {"op" : 74, "expect" : "reg"},
         "prd" : regop(49, 64),
+        "pd*" : {"op" : 64, "expect" : "reg"},
         "y**x" : simpleop(45),
         "ind" : {"modifier" : True, "isind" : True}, # special handling by parser
         # no "bst"
@@ -198,6 +199,7 @@ symbols["sta"] = symbols["sigma"]
 symbols["iff"] = symbols["ifflg"]
 symbols["stf"] = symbols["stflg"]
 symbols["π"] = symbols["pi"]
+symbols["grd"] = symbols["grad"]
 symbols["dms"] = symbols["d.ms"]
 symbols["wrt"] = symbols["write"]
 symbols["lst"] = symbols["list"]
