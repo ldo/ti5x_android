@@ -143,7 +143,7 @@ codes = \
         94 : simple("+/-"),
         95 : simple("="),
         96 : simple("2nd R/S"),
-        97 : {"sym" : "Dsz", "expect" : "flag", "expect2" : "loc"},
+        97 : {"sym" : "Dsz", "expect" : "unitreg", "expect2" : "loc"},
         98 : simple("Adv"),
         99 : simple("Prt"),
         90 : simple("List"),
@@ -239,7 +239,7 @@ while True :
                             loc = val
                             expect = "loc2"
                         elif val == 40 :
-                            sys.stdout.write("Ind")
+                            sys.stdout.write("Ind ")
                             expect = "reg"
                         else :
                             if val in codes and "sym" in codes[val] :
@@ -251,15 +251,16 @@ while True :
                     elif expect == "reg" :
                         sys.stdout.write("%02d" % val)
                         expect = None
-                    elif expect == "flag" :
-                        expect = None
-                        if val < 10 :
-                            sys.stdout.write("%1d" % val)
-                        elif val == 40 :
-                            sys.stdout.write("Ind")
+                    elif expect == "flag" or expect == "unitreg" :
+                        if val == 40 :
+                            sys.stdout.write("Ind ")
                             expect = "reg"
+                        elif expect == "unitreg" or val < 10 :
+                            sys.stdout.write("%1d" % val)
+                            expect = None
                         else :
                             report_error("invalid flag code %02d" % val)
+                            expect = None
                         #end if
                     elif expect == "label" :
                         expect = None

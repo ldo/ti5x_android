@@ -150,7 +150,7 @@ symbols = \
         "grad" : simpleop(80),
         "r/s" : simpleop2(91, 96),
         "write" : simpleop(96),
-        "dsz" : {"op" : 97, "expect" : "flag", "expect2" : "loc"},
+        "dsz" : {"op" : 97, "expect" : "unitreg", "expect2" : "loc"},
         "." : simpleop2(93, 98),
         "adv" : simpleop(98),
         "+/-" : simpleop2(94, 99),
@@ -357,7 +357,7 @@ while True :
                     #end if
                     if numeric :
                         if expect != None :
-                            assert expect in ("label", "flag", "reg", "loc")
+                            assert expect in ("label", "flag", "unitreg", "reg", "loc")
                             if integral :
                                 opval = int(cursym)
                                 if expect == "loc" :
@@ -377,7 +377,13 @@ while True :
                                     if opval < 10 :
                                         out(opval)
                                     else :
-                                        report_error("reg/flag number can't be > 9")
+                                        report_error("flag number can't be > 9")
+                                    #end if
+                                elif expect == "unitreg" :
+                                    if opval != 40 :
+                                        out(opval)
+                                    else :
+                                        report_error("reg number can't be 40")
                                     #end if
                                 else : # expect = "label"
                                     report_error("expecting %s" % expect)
