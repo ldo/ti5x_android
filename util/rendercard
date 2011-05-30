@@ -51,8 +51,6 @@
 #         The superscripttext is rendered raised with a smaller font.
 #     <theta/>
 #         A theta character is drawn.
-#     <xbar/>
-#         An x with a bar over it is drawn.
 #
 # The label slots must be from the following:
 #
@@ -234,19 +232,6 @@ class noverr(taggedtext) :
 
 #end noverr
 
-class xbar(taggedtext) :
-    """x with a bar above."""
-
-    def __init__(self) :
-        super().__init__("xbar", "")
-    #end __init__
-
-    def __repr__(self) :
-        return "<xbar/>"
-    #end __repr__
-
-#end xbar
-
 def defsymbol(name, psstr) :
     """defines a symbol from Symbol font. psstr is the
     PostScript string literal for rendering it."""
@@ -404,7 +389,7 @@ def parse_template(input) :
         element_handlers[2][symbol.__name__] = handle_common_tag_start
         element_handlers[2]["/" + symbol.__name__] = make_symbol_def(symbol)
     #end for
-    for symbol in (noverr, xbar) :
+    for symbol in (noverr,) :
         element_handlers[2][symbol.__name__] = handle_common_tag_start
         element_handlers[2]["/" + symbol.__name__] = make_symbol_def(symbol)
     #end for
@@ -722,15 +707,6 @@ render_special = \
                 "renderbefore" :
                     "currentpoint %.2f %.2f mul add" % (basefontsize, xheightscale),
                 "renderafter" : draw_bar,
-            },
-        xbar :
-            {
-                "widthadjust" : "(x) stringwidth pop add",
-                "renderbefore" : "",
-                "renderafter" :
-                        "currentpoint %.2f %.2f mul add" % (basefontsize, xheightscale)
-                    +
-                        " (x) show %s" % draw_bar,
             },
     }
 for symbol in symbols.values() :
