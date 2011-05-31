@@ -1,5 +1,15 @@
 Feature highlights:
 
+15124.5, 2011 May 30
+    Add alternative main layout for tablet-sized screens
+    Allow Dsz on registers > 9
+    Make keyboard initially visible in save-as
+    Fix loading of external libraries
+
+15123.3, 2011 May 29
+    Correctly display error state on resume and LRN
+    Force picker to portrait-only to avoid losing buttons off bottom
+
 15121.4, 2011 May 28
     Switching of screens is now a lot faster
 
