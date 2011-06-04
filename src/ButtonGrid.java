@@ -1207,7 +1207,11 @@ public class ButtonGrid extends android.view.View
                         Calc.Tan();
                     break;
                     case 41:
-                        Calc.StepProgram();
+                          {
+                            final boolean SaveInvState = Calc.InvState;
+                            Calc.StepProgram();
+                            WasModifier = Calc.InvState != SaveInvState; /* just did an INV */
+                          }
                     break;
                   /* 42, 43, 44 handled above */
                     case 45:

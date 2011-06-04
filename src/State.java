@@ -1833,12 +1833,11 @@ public class State
 
     public void StepProgram()
       {
-        FillInLabels(CurBank);
-        RunPC = PC;
-        RunBank = CurBank;
+        SetProgramStarted();
         Interpret(true);
-        CurBank = RunBank; /*is this correct?*/
-        PC = RunPC;
+        StopProgram();
+      /* fixme: if I just executed a Pgm nn instruction, this setting
+        of NextBank will not be properly passed to the next instruction */
       } /*StepProgram*/
 
     class ProgRunner implements Runnable
@@ -1875,14 +1874,10 @@ public class State
         Global.Disp.SetShowingRunning(Import != null || Global.Export.IsOpen() ? 'c' : 'C');
       } /*SetShowingRunning*/
 
-    public void StartProgram()
+    void SetProgramStarted()
       {
         ClearDelayedStep();
         FillInLabels(CurBank);
-        if (ExecuteTask == null)
-          {
-            ExecuteTask = new ProgRunner();
-          } /*if*/
         ProgRunningSlowly = false; /* just in case */
         SaveRunningSlowly = false;
         ProgRunning = true;
@@ -1890,6 +1885,15 @@ public class State
         RunPC = PC;
         RunBank = CurBank;
         NextBank = RunBank;
+      } /*SetProgramStarted*/
+
+    public void StartProgram()
+      {
+        if (ExecuteTask == null)
+          {
+            ExecuteTask = new ProgRunner();
+          } /*if*/
+        SetProgramStarted();
         ContinueProgRunner();
       } /*StartProgram*/
 
@@ -2042,6 +2046,11 @@ public class State
                     Result = Bank[BankNr].Labels.get(NextByte);
                   } /*if*/
               } /*if*/
+          } /*if*/
+        if (Executing && Result < 0)
+          {
+            SetErrorState();
+            StopProgram();
           } /*if*/
         return
             Result;
@@ -2308,6 +2317,8 @@ public class State
         if (NewPC >= 0)
           {
             Enter();
+            System.err.println("ti5x CompareBranch: " + X + " " + (InvState ? Greater ? "<" : "!=" : Greater ? ">=" : "==") + " " + T + " = " + (InvState ? Greater ? X < T : X != T : Greater ? X >= T : X == T)); /* debug */
+
             if
               (
                 InvState ?
@@ -2322,6 +2333,7 @@ public class State
                         X == T
               )
               {
+                System.err.println("ti5x CompareBranch transferring to " + NewPC + " ind " + Ind); /* debug */
                 Transfer
                   (
                     /*Type =*/ TRANSFER_TYPE_GTO,
@@ -2714,6 +2726,7 @@ public class State
                   {
                 case 22:
                 case 27:
+                    InvState = !InvState; /* needed to correctly parse INV Fix and unmerged INV SBR */
                     WasModifier = true;
                 break;
                 case 36: /*Pgm*/
