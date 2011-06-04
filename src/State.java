@@ -1051,6 +1051,7 @@ public class State
 
     public void Abs()
       {
+        Enter();
         SetX(Math.abs(X));
       } /*Abs*/
 
