@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-08 — Zeroes Of Functions</H1>
+
+<P>This program finds values of <I>x</I> for which a user-defined function f(<I>x</I>)
+is zero (to within a user-specified tolerance), within a specified interval. It does this
+by sampling values of the function at a specified step interval, looking for successive
+points where the function changes sign; then it narrows down the location of the crossing
+point to within the specified tolerance.
+
+<UL>
+<LI>Switch to <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <B>00</B>
+and enter program steps to compute the desired function f(<I>x</I>), beginning with
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN>
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">A´</SPAN> and ending with
+<SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="brownbutton">SBR</SPAN>.
+Do not use <SPAN CLASS="yellowbutton">&nbsp;=&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">CLR</SPAN>,
+<SPAN CLASS="brownbutton">RST</SPAN>
+or registers <B>01</B>-<B>09</B>. This function will be invoked with <I>x</I> in
+the display register, and should leave f(<I>x</I>) there when it returns.
+<LI>Switch back to <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pgm</SPAN> <B>08</B>
+for the remaining steps.
+<LI>Enter the lower bound of the interval over which to evaluate the function,
+and press <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>.
+<LI>Enter the upper bound of the interval over which to evaluate the function,
+and press <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>.
+<LI>Enter the step size at which to sample the function while looking for crossing
+points, and press <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>. Roots closer together
+than this are liable to be missed.
+<LI>Enter the tolerance by which the function result can differ from zero when narrowing
+down to a root, and press <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>. If this is not done,
+a default tolerance of 0.01 will be assumed.
+<LI>Finally, press <SPAN CLASS="brownbutton">&nbsp;E&nbsp;</SPAN> to search for a root.
+<LI>The program will stop when a root is found, or the search has reached its end.
+If a value is displayed without any error indication, it is a root; press
+<SPAN CLASS="brownbutton">R/S</SPAN> to resume the search for the next root. If the number
+is flashing, then there are no more roots to be found.
+</UL>
+
+<P>Registers used: 01-07, 09.
+
+</BODY>

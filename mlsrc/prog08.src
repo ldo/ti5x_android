@@ -1,0 +1,85 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;     01 -- lower limit
+;     02 -- upper limit
+;     03 -- sampling increment
+;     04, 05 -- current lower and upper limits for bisection
+;     06 -- sign of function at r04
+;     07 -- current bisected function argument
+;     09 -- maximum bisection error
+;-
+
+lbl A
+; enter lower limit
+    sto 01
+    inv sbr
+
+lbl B
+; enter upper limit
+    sto 02
+    inv sbr
+
+lbl C
+; enter sampling increment
+    sto 03
+    inv sbr
+
+lbl D
+; enter maximum error
+    |x| sto 09
+    inv sbr
+
+lbl E
+; calculate next root
+    cp rcl 09 inv x=t clr
+    ce 0.01 sto 09 ; maximum error not specified, use default
+lbl clr
+; find next crossing point after current lower bound
+    rcl 01 sto 04
+    sto 05 ; in case it's exactly a root
+    pgm 00 A´ op 10 sto 06 ; evaluate signum of function at lower bound
+    cp x=t + ; branch if root
+lbl 2nd clr
+    ( rcl 04 + rcl 03 ) sto 05
+    x⇌t rcl 02 inv x≥t r/s ; exit if exceeded upper bound
+    x⇌t cp pgm 00 A´ op 10 ; evaluate function at this point
+    cp x=t + ; exit if happens to be exactly a root
+    x⇌t rcl 06 inv x=t = ; exit if sign has changed
+    rcl 05 sto 04
+    gto 2nd clr ; else keep stepping by r03
+lbl =
+; there is a root of f(x) for x between r04 and r05
+    ( ( rcl 04 + rcl 05 ) ÷ 2 ) sto 07
+    ( rcl 04 - rcl 05 ) |x| x⇌t rcl 09 x≥t - ; exit if close enough to another root
+    cp rcl 07 pgm 00 A´ op 10 ; else check sign of function here
+    cp
+    x=t - ; exit if happens to be exactly a root
+    ( ce × rcl 06 ) inv x≥t ÷ ; branch if sign is different from value at r04
+; here if function value at r07 has same sign as at r04
+    rcl 07 sto 04 ; raise lower bound
+    gto = ; continue bisecting
+lbl ÷
+; here if function value at r07 has same sign as at r05
+    rcl 07 sto 05 ; lower upper bound
+    gto = ; continue bisecting
+lbl -
+; bisection found another root
+    rcl 07 r/s ; show user
+    rcl 05 sto 01 ; bisection upper bound becomes new lower bound to continue search
+    gto clr ; look for next one
+lbl +
+; stepped right onto another root
+    rcl 05 r/s ; show user
+    ( ce + rcl 03 ) sto 01 ; step lower bound to avoid finding same root again
+    gto clr ; look for next one
+lbl r/s
+; no more roots
+    0 1/x ; return with flashing display
+    inv sbr
