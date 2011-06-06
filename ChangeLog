@@ -1,5 +1,9 @@
 Feature highlights:
 
+15131.4, 2011 June 6
+    Correct |x|
+    Improve single-stepping a bit
+
 15124.5, 2011 May 30
     Add alternative main layout for tablet-sized screens
     Allow Dsz on registers > 9
