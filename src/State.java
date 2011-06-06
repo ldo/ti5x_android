@@ -1838,6 +1838,8 @@ public class State
         StopProgram();
       /* fixme: if I just executed a Pgm nn instruction, this setting
         of NextBank will not be properly passed to the next instruction */
+      /* fixme: should single-stepping to a subroutine call cause execution
+        of the complete subroutine, stopping when it returns? */
       } /*StepProgram*/
 
     class ProgRunner implements Runnable
