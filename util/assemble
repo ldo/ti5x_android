@@ -464,6 +464,7 @@ while True :
                                 if which in symbol :
                                     out(symbol[which])
                                     expect = None
+                                    alt_state = False
                                 elif symbol["act"] == set_alt_state :
                                     symbol["act"]()
                                 else :
