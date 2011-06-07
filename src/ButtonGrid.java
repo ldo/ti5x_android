@@ -951,85 +951,101 @@ public class ButtonGrid extends android.view.View
                       } /*if*/
                   } /*if*/
               } /*if CollectingForFunction*/
-            if (!Handled)
+            if (!Calc.InErrorState())
               {
-              /* check for functions needing further entry */
-                if (!Calc.ProgMode || Calc.ProgramWritable())
+                if (!Handled)
                   {
-                    Handled = true; /* next assumption */
-                    switch (ButtonCode)
+                  /* check for functions needing further entry */
+                    if (!Calc.ProgMode || Calc.ProgramWritable())
                       {
-                    case 36: /* Pgm */
-                    case 42: /* STO */
-                    case 43: /* RCL */
-                    case 44: /* SUM */
-                    case 48: /* Exc */
-                    case 49: /* Prd */
-                    case 69: /* Op */
-                        DigitsNeeded = 2;
-                        AcceptInd = true;
-                    break;
-                    case 58: /* Fix */
-                        if (!Calc.InvState)
+                        Handled = true; /* next assumption */
+                        switch (ButtonCode)
                           {
-                            DigitsNeeded = 1;
+                        case 36: /* Pgm */
+                        case 42: /* STO */
+                        case 43: /* RCL */
+                        case 44: /* SUM */
+                        case 48: /* Exc */
+                        case 49: /* Prd */
+                        case 69: /* Op */
+                            DigitsNeeded = 2;
                             AcceptInd = true;
-                          }
-                        else
-                          {
-                            Handled = false; /* no special handling required */
-                          } /*if*/
-                    break;
-                    case 67: /* x = t */
-                    case 77: /* x ≥ t */
-                        DigitsNeeded = 3;
-                        AcceptInd = true;
-                        AcceptSymbolic = true;
-                    break;
-                    case 61: /* GTO */
-                    case 71: /* SBR */
-                        if (ButtonCode == 71 && Calc.InvState)
-                          {
-                            Handled = false; /* special handling for INV SBR happens below */
-                          }
-                        else
-                          {
+                        break;
+                        case 58: /* Fix */
+                            if (!Calc.InvState)
+                              {
+                                DigitsNeeded = 1;
+                                AcceptInd = true;
+                              }
+                            else
+                              {
+                                Handled = false; /* no special handling required */
+                              } /*if*/
+                        break;
+                        case 67: /* x = t */
+                        case 77: /* x ≥ t */
                             DigitsNeeded = 3;
                             AcceptInd = true;
                             AcceptSymbolic = true;
+                        break;
+                        case 61: /* GTO */
+                        case 71: /* SBR */
+                            if (ButtonCode == 71 && Calc.InvState)
+                              {
+                                Handled = false; /* special handling for INV SBR happens below */
+                              }
+                            else
+                              {
+                                DigitsNeeded = 3;
+                                AcceptInd = true;
+                                AcceptSymbolic = true;
+                              } /*if*/
+                        break;
+                        case 76: /* Lbl */
+                            NextLiteral = true;
+                        break;
+                        case 86: /* St flg */
+                            DigitsNeeded = 1;
+                            AcceptInd = true;
+                        break;
+                        case 87: /* If flg */
+                        case 97: /* Dsz */
+                            DigitsNeeded = 1;
+                            AcceptInd = true;
+                            AcceptSymbolic = false;
+                            GotFirstOperand = false;
+                        break;
+                        default:
+                          /* wasn't one of these after all */
+                            Handled = false;
+                        break;
+                          } /*ButtonCode*/
+                        if (Handled)
+                          {
+                            CollectingForFunction = ButtonCode;
                           } /*if*/
-                    break;
-                    case 76: /* Lbl */
-                        NextLiteral = true;
-                    break;
-                    case 86: /* St flg */
-                        DigitsNeeded = 1;
-                        AcceptInd = true;
-                    break;
-                    case 87: /* If flg */
-                    case 97: /* Dsz */
-                        DigitsNeeded = 1;
-                        AcceptInd = true;
-                        AcceptSymbolic = false;
-                        GotFirstOperand = false;
-                    break;
-                    default:
-                      /* wasn't one of these after all */
-                        Handled = false;
-                    break;
-                      } /*ButtonCode*/
-                    if (Handled)
-                      {
-                        CollectingForFunction = ButtonCode;
                       } /*if*/
                   } /*if*/
+                if (!Handled && ButtonCode == 40 /*Ind*/)
+                  {
+                  /* ignore? */
+                    Handled = true;
+                  } /*if*/
               } /*if*/
-            if (!Handled && ButtonCode == 40 /*Ind*/)
-              {
-              /* ignore? */
-                Handled = true;
-              } /*if*/
-            if (!Handled)
+            if
+              (
+                    !Handled
+                &&
+                    (
+                        !Calc.InErrorState()
+                    ||
+                        ButtonCode == 31 /*LRN*/
+                    ||
+                        ButtonCode == 24 /*CE*/
+                    ||
+                        ButtonCode == 25 /*CLR*/
+                    )
+              )
               {
               /* deal with everything not already handled */
                 if (Calc.ProgMode)
@@ -1405,7 +1421,7 @@ public class ButtonGrid extends android.view.View
               } /*if*/
             if (Calc.InErrorState())
               {
-                ResetOperands(); /* abandon */ /* is this necessary? */
+                ResetOperands(); /* abandon */
               } /*if*/
             if (!WasModifier && CollectingForFunction < 0)
               {
