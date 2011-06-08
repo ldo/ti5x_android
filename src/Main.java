@@ -41,7 +41,7 @@ public class Main extends android.app.Activity
 
     static final int SwitchSaveAs = android.app.Activity.RESULT_FIRST_USER + 0;
     static final int SwitchAppend = android.app.Activity.RESULT_FIRST_USER + 1;
-    boolean ExportAppend;
+    boolean ExportAppend, ExportNumbersOnly;
 
     android.view.ViewGroup PickerExtra, SaveAsExtra;
     boolean ShuttingDown = false;
@@ -119,8 +119,55 @@ public class Main extends android.app.Activity
 
     void LaunchExportPicker()
       {
-        SaveAsExtra = (android.view.ViewGroup)
-            getLayoutInflater().inflate(R.layout.save_append, null);
+        final android.view.LayoutInflater Inflater = getLayoutInflater();
+        final android.view.ViewGroup[] ExportExtra = new android.view.ViewGroup[2];
+          /* need two copies */
+        for (int i = 0; i < 2; ++i)
+          {
+            ExportExtra[i] = (android.view.ViewGroup)Inflater.inflate(R.layout.export_type, null);
+            final android.widget.RadioButton NumbersOnly =
+                (android.widget.RadioButton)ExportExtra[i].findViewById(R.id.select_numbers_only);
+            final android.widget.RadioButton AllPrintout =
+                (android.widget.RadioButton)ExportExtra[i].findViewById(R.id.select_all_printout);
+            NumbersOnly.setChecked(ExportNumbersOnly);
+            AllPrintout.setChecked(!ExportNumbersOnly);
+            NumbersOnly.setOnClickListener
+              (
+                new android.view.View.OnClickListener()
+                  {
+                    public void onClick
+                      (
+                        android.view.View TheView
+                      )
+                      {
+                        ExportNumbersOnly = true;
+                      } /*onClick*/
+                  } /*OnClickListener*/
+                );
+            AllPrintout.setOnClickListener
+              (
+                new android.view.View.OnClickListener()
+                  {
+                    public void onClick
+                      (
+                        android.view.View TheView
+                      )
+                      {
+                        ExportNumbersOnly = false;
+                      } /*onClick*/
+                  } /*OnClickListener*/
+                );
+          } /*for*/
+        SaveAsExtra = (android.view.ViewGroup)Inflater.inflate(R.layout.save_append, null);
+        SaveAsExtra.addView
+          (
+            ExportExtra[0],
+            new android.view.ViewGroup.LayoutParams
+              (
+                android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+              )
+          );
         SaveAsExtra.findViewById(R.id.switch_append).setOnClickListener
           (
             new android.view.View.OnClickListener()
@@ -135,8 +182,16 @@ public class Main extends android.app.Activity
                   } /*onClick*/
               } /*OnClickListener*/
           );
-        PickerExtra = (android.view.ViewGroup)
-            getLayoutInflater().inflate(R.layout.save_new, null);
+        PickerExtra = (android.view.ViewGroup)Inflater.inflate(R.layout.save_new, null);
+        PickerExtra.addView
+          (
+            ExportExtra[1],
+            new android.view.ViewGroup.LayoutParams
+              (
+                android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+              )
+          );
         PickerExtra.findViewById(R.id.switch_new).setOnClickListener
           (
             new android.view.View.OnClickListener()
@@ -378,6 +433,7 @@ public class Main extends android.app.Activity
                             public void run()
                               {
                                 ExportAppend = false;
+                                ExportNumbersOnly = true;
                                 LaunchExportPicker();
                               } /*run*/
                           };
@@ -837,7 +893,7 @@ public class Main extends android.app.Activity
                                 FileName = SaveDir + FileName;
                                   /* note FileName will have leading slash */
                               } /*if*/
-                            Global.Export.Open(FileName, ExportAppend);
+                            Global.Export.Open(FileName, ExportAppend, ExportNumbersOnly);
                             android.widget.Toast.makeText
                               (
                                 /*context =*/ Main.this,

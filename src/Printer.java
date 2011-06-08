@@ -173,7 +173,7 @@ public class Printer
       /* advances the paper to the next line. */
       {
         StartNewLine();
-        if (Global.Export != null)
+        if (Global.Export != null && !Global.Export.NumbersOnly)
           {
             Global.Export.WriteLine("");
           } /*if*/
@@ -184,7 +184,7 @@ public class Printer
         byte[] PrintReg
       )
       {
-        if (Global.Export != null)
+        if (Global.Export != null && !Global.Export.NumbersOnly)
           {
             Global.Export.WriteLine(BackToText(PrintReg));
           } /*if*/

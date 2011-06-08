@@ -162,7 +162,18 @@ public class Persistent
       )
       {
         POut.printf(Global.StdLocale, String.format(Global.StdLocale, "%%%ds", Indent), " ");
-        POut.printf(Global.StdLocale, "<param name=\"%s\" value=\"%.16e\"/>\n", Name, Value);
+        POut.printf
+          (
+            Global.StdLocale,
+            String.format
+              (
+                Global.StdLocale,
+                "<param name=\"%%s\" value=\"%%.%de\"/>\n",
+                Global.NrSigFigures
+              ),
+            Name,
+            Value
+          );
       } /*SaveDouble*/
 
     static boolean GetBool

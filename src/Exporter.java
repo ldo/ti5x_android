@@ -20,6 +20,8 @@ public class Exporter
   {
     final android.content.Context ctx;
     java.io.OutputStream Out;
+    java.io.PrintStream PrintOut;
+    public boolean NumbersOnly = true; /* actually initial value irrelevant */
 
     public Exporter
       (
@@ -28,6 +30,7 @@ public class Exporter
       {
         this.ctx = ctx;
         Out = null;
+        PrintOut = null;
       } /*Exporter*/
 
     public boolean IsOpen()
@@ -39,13 +42,19 @@ public class Exporter
     public void Open
       (
         String FileName,
-        boolean Append
+        boolean Append,
+        boolean NumbersOnly
       )
     throws RuntimeException
       {
         try
           {
             Out = new java.io.FileOutputStream(FileName, Append);
+            this.NumbersOnly = NumbersOnly;
+            if (this.NumbersOnly)
+              {
+                PrintOut = new java.io.PrintStream(Out);
+              } /*if*/
           }
         catch (java.io.FileNotFoundException DirErr)
           {
@@ -63,6 +72,10 @@ public class Exporter
           {
             try
               {
+                if (PrintOut != null)
+                  {
+                    PrintOut.flush();
+                  } /*if*/
                 Out.flush();
               }
             catch (java.io.IOException WriteErr)
@@ -79,6 +92,7 @@ public class Exporter
                           ),
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
+                PrintOut = null;
                 Out = null;
               } /*try*/
           } /*if*/
@@ -90,6 +104,11 @@ public class Exporter
           {
             try
               {
+                if (PrintOut != null)
+                  {
+                    PrintOut.flush();
+                    PrintOut.close();
+                  } /*if*/
                 Out.flush();
                 Out.close();
               }
@@ -108,6 +127,7 @@ public class Exporter
                     /*duration =*/ android.widget.Toast.LENGTH_LONG
                   ).show();
               } /*try*/
+            PrintOut = null;
             Out = null;
           } /*if*/
       } /*Close*/
@@ -143,5 +163,23 @@ public class Exporter
               } /*try*/
           } /*if*/
       } /*Write*/
+
+    public void WriteNum
+      (
+        double Num
+      )
+      /* writes a number to the export data file in a standard form that can
+        be read in again by myself or other programs. */
+      {
+        if (PrintOut != null)
+          {
+            PrintOut.printf
+              (
+                Global.StdLocale,
+                String.format(Global.StdLocale, "%%.%de\n", Global.NrSigFigures),
+                Num
+              );
+          } /*if*/
+      } /*WriteNum*/
 
   } /*Exporter*/

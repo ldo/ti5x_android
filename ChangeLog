@@ -1,5 +1,9 @@
 Feature highlights:
 
+15133.3, 2011 June 8
+    add option to export only numbers in standard format
+    ignore most keystrokes in error state
+
 15131.4, 2011 June 6
     Correct |x|
     Improve single-stepping a bit

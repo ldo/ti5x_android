@@ -29,6 +29,10 @@
     <string name="delete">Delete</string>
     <string name="append_existing">Append to existing</string>
     <string name="save_new">Save to new</string>
+    <string name="saved_progs">Saved Programs</string>
+    <string name="libraries">Libraries</string>
+    <string name="numbers_only">Numbers only</string>
+    <string name="all_printout">All printout</string>
 
   <!-- prompt strings -->
     <string name="program">program</string>
@@ -39,8 +43,6 @@
     <string name="import_prompt">Data to load:</string>
     <string name="export_prompt">Append exported data to existing:</string>
     <string name="save_as_prompt">Save %s as:</string>
-    <string name="saved_progs">Saved Programs</string>
-    <string name="libraries">Libraries</string>
 
   <!-- messages -->
     <string name="paste_nan">The Clipboard does not contain a valid number</string>

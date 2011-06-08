@@ -2319,8 +2319,6 @@ public class State
         if (NewPC >= 0)
           {
             Enter();
-            System.err.println("ti5x CompareBranch: " + X + " " + (InvState ? Greater ? "<" : "!=" : Greater ? ">=" : "==") + " " + T + " = " + (InvState ? Greater ? X < T : X != T : Greater ? X >= T : X == T)); /* debug */
-
             if
               (
                 InvState ?
@@ -2335,7 +2333,6 @@ public class State
                         X == T
               )
               {
-                System.err.println("ti5x CompareBranch transferring to " + NewPC + " ind " + Ind); /* debug */
                 Transfer
                   (
                     /*Type =*/ TRANSFER_TYPE_GTO,
@@ -2705,6 +2702,10 @@ public class State
                       }
                     else
                       {
+                        if (Global.Export != null && Global.Export.NumbersOnly)
+                          {
+                            Global.Export.WriteNum(X);
+                          } /*if*/
                         PrintDisplay(false);
                       } /*if*/
                 break;

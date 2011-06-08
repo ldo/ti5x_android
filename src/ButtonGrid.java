@@ -1403,6 +1403,10 @@ public class ButtonGrid extends android.view.View
                           }
                         else
                           {
+                            if (Global.Export != null && Global.Export.NumbersOnly)
+                              {
+                                Global.Export.WriteNum(Calc.X);
+                              } /*if*/
                             Calc.PrintDisplay(false);
                           } /*if*/
                     break;

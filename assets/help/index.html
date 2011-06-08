@@ -672,13 +672,24 @@ the paper by 1 line.
 </UL>
 
 <H2><A NAME="Export"></A>Exporting Data</H2>
-<P>The printer emulation can also write text representations of every printed line
+<P>Calculation results can also be exported, in either of two ways:
+<OL>
+<LI>The printer emulation can write text representations of every printed line
 to an output file. Every line sent to the printer, whether via
 <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> or any of the
 printer-related <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <I>nn</I>
 functions, will be written to the file. Note that characters with no obvious Unicode
 equivalent are ignored. The <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Adv</SPAN> function will write a blank line.
+<P>Note this file typically cannot be re-imported by ti5x, since exponents are
+separated from mantissas by a space or nothing before a minus sign (instead of the more
+conventional <B>e</B> character). Other programs are also likely to have trouble reading
+such numbers.
+<LI>Only numbers are exported, in standard exponential format; the current calculation
+result is written out every time the <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Prt</SPAN> key is pressed (or that function is invoked from a program).
+This file format can be re-imported by ti5x, and should also be readable by other programs.
+</OL>
 <P>To close the current export file, press (or execute in a program)
 <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Adv</SPAN>. It is also closed by <SPAN CLASS="brownbutton">INV</SPAN>
@@ -700,7 +711,7 @@ saved in the “Programs” directory.
 <LI>Import Data... — lets you open a data file in the “Download” directory on the SD card
 to begin importing numbers from. (See <A HREF="#Import">Importing Data</A> for more details.)
 <LI>Export Data... — lets you create a data file on the SD card (or append to an existing data file)
-to being exporting printed lines to. The file is saved in the “Downloads” directory.
+to write exported data to. The file is saved in the “Download” directory.
 (See <A HREF="#Export">Exporting Data</A> for more details.)
 <LI>About ti5x... — displays version and copyright information for the app.
 <LI>Off — simulate a complete power down and quit the app. <B>This completely wipes all user
