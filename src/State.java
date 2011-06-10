@@ -88,6 +88,7 @@ public class State
     android.os.Handler BGTask;
     Runnable DelayTask = null;
     Runnable ExecuteTask = null;
+    public Runnable OnStop = null;
 
     public static class ImportEOFException extends RuntimeException
       /* indicates no more data to import. */
@@ -1901,6 +1902,10 @@ public class State
 
     public void StopProgram()
       {
+        if (ProgRunning && OnStop != null)
+          {
+            OnStop.run();
+          } /*if*/
         ProgRunning = false;
         ClearDelayedStep();
         if (ExecuteTask != null)

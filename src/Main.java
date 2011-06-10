@@ -19,6 +19,7 @@ package nz.gen.geek_central.ti5x;
 public class Main extends android.app.Activity
   {
     android.text.ClipboardManager Clipboard;
+    android.app.NotificationManager Notiman;
     java.util.Map<android.view.MenuItem, Runnable> OptionsMenu;
     java.util.Map<android.view.MenuItem, Runnable> ContextMenu;
 
@@ -46,6 +47,8 @@ public class Main extends android.app.Activity
     android.view.ViewGroup PickerExtra, SaveAsExtra;
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
+
+    static final int NotifyProgramDone = 1; /* arbitrary notification ID */
 
     class ReplaceConfirm
         extends android.app.AlertDialog
@@ -531,156 +534,156 @@ public class Main extends android.app.Activity
       {
         if (!Global.Calc.ProgMode && !Global.Calc.ProgRunning)
           {
-        ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
-        ContextMenu.put
-          (
-            TheMenu.add(R.string.copy_number),
-            new Runnable()
-              {
-                public void run()
+            ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
+            ContextMenu.put
+              (
+                TheMenu.add(R.string.copy_number),
+                new Runnable()
                   {
-                    if (Global.Calc.CurDisplay != null)
+                    public void run()
                       {
-                        String NumString = Global.Calc.CurDisplay;
-                        if (NumString.length() > 3)
+                        if (Global.Calc.CurDisplay != null)
                           {
-                          /* put in explicit "e" like most other software expects */
-                            if (NumString.charAt(NumString.length() - 3) == ' ')
+                            String NumString = Global.Calc.CurDisplay;
+                            if (NumString.length() > 3)
                               {
-                                NumString =
-                                        NumString.substring(0, NumString.length() - 3)
-                                    +
-                                        "e+"
-                                    +
-                                        NumString.substring(NumString.length() - 2);
-                                          /* leave off the space */
-                              }
-                            else if (NumString.charAt(NumString.length() - 3) == '-')
-                              {
-                                NumString =
-                                        NumString.substring(0, NumString.length() - 3)
-                                    +
-                                        "e"
-                                    +
-                                        NumString.substring(NumString.length() - 3);
-                              } /*if*/
-                          } /*if*/
-                        Clipboard.setText(NumString);
-                      } /*if*/
-                  } /*run*/
-              } /*Runnable*/
-          );
-        ContextMenu.put
-          (
-            TheMenu.add(R.string.copy_full_number),
-            new Runnable()
-              {
-                public void run()
-                  {
-                    if (Global.Calc.CurDisplay != null)
-                      {
-                        Clipboard.setText
-                          (
-                            String.format
-                              (
-                                Global.StdLocale,
-                                String.format(Global.StdLocale, "%%.%de", Global.NrSigFigures),
-                                Global.Calc.X
-                              )
-                          );
-                      } /*if*/
-                  } /*run*/
-              } /*Runnable*/
-          );
-        ContextMenu.put
-          (
-            TheMenu.add(R.string.paste_number),
-            new Runnable()
-              {
-                public void run()
-                  {
-                    boolean OK = false;
-                    do /*once*/
-                      {
-                        double X
-                            = 0.0; /* sigh */
-                        String NumString;
-                          {
-                            final CharSequence NumChars = Clipboard.getText();
-                            if (NumChars == null)
-                                break;
-                            NumString = NumChars.toString();
-                          }
-                        for (boolean TriedMassage = false;;)
-                          {
-                            try
-                              {
-                                X = Double.parseDouble(NumString);
-                                OK = true;
-                                break;
-                              }
-                            catch (NumberFormatException BadNum)
-                              {
-                                if (!TriedMassage)
+                              /* put in explicit "e" like most other software expects */
+                                if (NumString.charAt(NumString.length() - 3) == ' ')
                                   {
-                                    if
-                                      (
-                                            NumString.length() > 3
-                                        &&
-                                            (
-                                                NumString.charAt(NumString.length() - 3) == '-'
-                                            ||
-                                                NumString.charAt(NumString.length() - 3) == ' '
-                                            )
-                                        &&
-                                            NumString.charAt(NumString.length() - 4) != 'e'
-                                        &&
-                                            NumString.charAt(NumString.length() - 4) != 'E'
-                                      )
-                                      {
-                                        NumString =
-                                                NumString.substring(0, NumString.length() - 3)
-                                            +
-                                                "e"
-                                            +
-                                                NumString.substring
-                                                  (
-                                                        NumString.length()
-                                                    -
-                                                        (
-                                                            NumString.charAt(NumString.length() - 3)
-                                                        ==
-                                                            ' '
-                                                        ?
-                                                            2 /* leave off the space */
-                                                        :
-                                                            3 /* include the minus sign */
-                                                        )
-                                                  );
-                                      } /*if*/
+                                    NumString =
+                                            NumString.substring(0, NumString.length() - 3)
+                                        +
+                                            "e+"
+                                        +
+                                            NumString.substring(NumString.length() - 2);
+                                              /* leave off the space */
+                                  }
+                                else if (NumString.charAt(NumString.length() - 3) == '-')
+                                  {
+                                    NumString =
+                                            NumString.substring(0, NumString.length() - 3)
+                                        +
+                                            "e"
+                                        +
+                                            NumString.substring(NumString.length() - 3);
                                   } /*if*/
-                              } /*try*/
-                            if (TriedMassage)
-                                break;
-                            TriedMassage = true;
-                          } /*for*/
-                        if (!OK)
-                            break;
-                        Global.Calc.SetX(X);
-                      }
-                    while (false);
-                    if (!OK)
+                              } /*if*/
+                            Clipboard.setText(NumString);
+                          } /*if*/
+                      } /*run*/
+                  } /*Runnable*/
+              );
+            ContextMenu.put
+              (
+                TheMenu.add(R.string.copy_full_number),
+                new Runnable()
+                  {
+                    public void run()
                       {
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/ getString(R.string.paste_nan),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                          ).show();
-                      } /*if*/
-                  } /*run*/
-              } /*Runnable*/
-          );
+                        if (Global.Calc.CurDisplay != null)
+                          {
+                            Clipboard.setText
+                              (
+                                String.format
+                                  (
+                                    Global.StdLocale,
+                                    String.format(Global.StdLocale, "%%.%de", Global.NrSigFigures),
+                                    Global.Calc.X
+                                  )
+                              );
+                          } /*if*/
+                      } /*run*/
+                  } /*Runnable*/
+              );
+            ContextMenu.put
+              (
+                TheMenu.add(R.string.paste_number),
+                new Runnable()
+                  {
+                    public void run()
+                      {
+                        boolean OK = false;
+                        do /*once*/
+                          {
+                            double X
+                                = 0.0; /* sigh */
+                            String NumString;
+                              {
+                                final CharSequence NumChars = Clipboard.getText();
+                                if (NumChars == null)
+                                    break;
+                                NumString = NumChars.toString();
+                              }
+                            for (boolean TriedMassage = false;;)
+                              {
+                                try
+                                  {
+                                    X = Double.parseDouble(NumString);
+                                    OK = true;
+                                    break;
+                                  }
+                                catch (NumberFormatException BadNum)
+                                  {
+                                    if (!TriedMassage)
+                                      {
+                                        if
+                                          (
+                                                NumString.length() > 3
+                                            &&
+                                                (
+                                                    NumString.charAt(NumString.length() - 3) == '-'
+                                                ||
+                                                    NumString.charAt(NumString.length() - 3) == ' '
+                                                )
+                                            &&
+                                                NumString.charAt(NumString.length() - 4) != 'e'
+                                            &&
+                                                NumString.charAt(NumString.length() - 4) != 'E'
+                                          )
+                                          {
+                                            NumString =
+                                                    NumString.substring(0, NumString.length() - 3)
+                                                +
+                                                    "e"
+                                                +
+                                                    NumString.substring
+                                                      (
+                                                            NumString.length()
+                                                        -
+                                                            (
+                                                                NumString.charAt(NumString.length() - 3)
+                                                            ==
+                                                                ' '
+                                                            ?
+                                                                2 /* leave off the space */
+                                                            :
+                                                                3 /* include the minus sign */
+                                                            )
+                                                      );
+                                          } /*if*/
+                                      } /*if*/
+                                  } /*try*/
+                                if (TriedMassage)
+                                    break;
+                                TriedMassage = true;
+                              } /*for*/
+                            if (!OK)
+                                break;
+                            Global.Calc.SetX(X);
+                          }
+                        while (false);
+                        if (!OK)
+                          {
+                            android.widget.Toast.makeText
+                              (
+                                /*context =*/ Main.this,
+                                /*text =*/ getString(R.string.paste_nan),
+                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                              ).show();
+                          } /*if*/
+                      } /*run*/
+                  } /*Runnable*/
+              );
           }
         else
           {
@@ -1029,6 +1032,38 @@ public class Main extends android.app.Activity
         BuildActivityResultActions();
         Clipboard = (android.text.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
         registerForContextMenu(Global.Disp);
+        Notiman = (android.app.NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        Global.Calc.OnStop = new Runnable()
+          {
+            public void run()
+              {
+                if (!hasWindowFocus())
+                  {
+                    final android.app.Notification NotifyDone = new android.app.Notification
+                      (
+                        /*icon =*/ android.R.drawable.ic_dialog_info,
+                        /*tickerText =*/ getString(R.string.app_name),
+                        /*when =*/ System.currentTimeMillis()
+                      );
+                    NotifyDone.contentView = new android.widget.RemoteViews
+                      (
+                        "nz.gen.geek_central.ti5x",
+                        R.layout.prog_done
+                      );
+                    NotifyDone.contentIntent = android.app.PendingIntent.getActivity
+                      (
+                        /*context =*/ Main.this,
+                        /*requestCode =*/ 0,
+                        /*intent =*/ new android.content.Intent()
+                            .setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            .setClass(Main.this, Main.class),
+                        /*flags =*/ 0
+                      );
+                    NotifyDone.flags = NotifyDone.FLAG_AUTO_CANCEL;
+                    Notiman.notify(NotifyProgramDone, NotifyDone);
+                  } /*if*/
+              } /*run*/
+          } /*Runnable*/;
       } /*onCreate*/
 
     @Override
@@ -1045,6 +1080,7 @@ public class Main extends android.app.Activity
     public void onResume()
       {
         super.onResume();
+        Notiman.cancel(NotifyProgramDone);
         if (!StateLoaded)
           {
             Persistent.RestoreState(this);

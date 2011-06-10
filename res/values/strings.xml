@@ -46,6 +46,7 @@
     <string name="save_as_prompt">Save %s as:</string>
 
   <!-- messages -->
+    <string name="prog_done">ti5x program has finished running.</string>
     <string name="paste_nan">The Clipboard does not contain a valid number</string>
     <string name="no_prog_help">Sorry, no help available for this program</string>
     <string name="no_module_help">Sorry, no help available for this module</string>
