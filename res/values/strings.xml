@@ -16,6 +16,7 @@
 
   <!-- context menu -->
     <string name="copy_number">Copy Number</string>
+    <string name="copy_full_number">Copy Full-Precision Number</string>
     <string name="paste_number">Paste Number</string>
 
   <!-- buttons -->

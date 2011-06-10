@@ -572,6 +572,28 @@ public class Main extends android.app.Activity
           );
         ContextMenu.put
           (
+            TheMenu.add(R.string.copy_full_number),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    if (Global.Calc.CurDisplay != null)
+                      {
+                        Clipboard.setText
+                          (
+                            String.format
+                              (
+                                Global.StdLocale,
+                                String.format(Global.StdLocale, "%%.%de", Global.NrSigFigures),
+                                Global.Calc.X
+                              )
+                          );
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
+        ContextMenu.put
+          (
             TheMenu.add(R.string.paste_number),
             new Runnable()
               {
