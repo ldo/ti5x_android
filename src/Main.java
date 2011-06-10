@@ -1041,7 +1041,7 @@ public class Main extends android.app.Activity
                   {
                     final android.app.Notification NotifyDone = new android.app.Notification
                       (
-                        /*icon =*/ android.R.drawable.ic_dialog_info,
+                        /*icon =*/ R.drawable.icon,
                         /*tickerText =*/ getString(R.string.app_name),
                         /*when =*/ System.currentTimeMillis()
                       );
