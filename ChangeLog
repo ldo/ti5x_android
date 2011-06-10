@@ -2,6 +2,7 @@ Feature highlights:
 
 15135.1, 2011 June 10
     add option to copy full-precision number to clipboard
+    add notification when program finishes in background
 
 15133.3, 2011 June 8
     add option to export only numbers in standard format
