@@ -1961,6 +1961,12 @@ public class State
           } /*if*/
       } /*ClearImport*/
 
+    public void ResetReturns()
+      /* clears the subroutine return stack. */
+      {
+        ReturnLast = -1;
+      } /*ResetReturns*/
+
     public void ResetProg()
       {
         if (InvState) /* extension! */
@@ -1985,7 +1991,7 @@ public class State
               {
                 PC = 0;
               } /*if*/
-            ReturnLast = -1;
+            ResetReturns();
           } /*if*/
       } /*ResetProg*/
 

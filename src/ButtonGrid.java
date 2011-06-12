@@ -836,6 +836,7 @@ public class ButtonGrid extends android.view.View
                               }
                             else
                               {
+                                Calc.ResetReturns(); /* seems to be what the real calculator does */
                                 Calc.FillInLabels();
                                 Calc.Transfer
                                   (
@@ -1155,6 +1156,7 @@ public class ButtonGrid extends android.view.View
                     case 18:
                     case 19:
                     case 10:
+                        Calc.ResetReturns(); /* seems to be what the real calculator does */
                         Calc.FillInLabels();
                         Calc.Transfer
                           (
