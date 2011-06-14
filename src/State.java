@@ -303,6 +303,15 @@ public class State
       {
         for (int i = 1; i < MaxBanks; ++i)
           {
+            if (Bank[i] != null && Bank[i].Card != null)
+              {
+              /* avoid "bitmap allocation exceeds budget" crashes */
+                if (CurBank == i)
+                  {
+                    Global.Label.SetHelp(null, null);
+                  } /*if*/
+                Bank[i].Card.recycle();
+              } /*if*/
             Bank[i] = null;
           } /*for*/
         ModuleHelp = null;
@@ -1201,6 +1210,11 @@ public class State
         if (CurBank == 0)
           {
             Global.Label.SetHelp(null, null);
+          } /*if*/
+        if (Bank[0].Card != null)
+          {
+          /* avoid "bitmap allocation exceeds budget" crashes */
+            Bank[0].Card.recycle();
           } /*if*/
         Bank[0].Card = null;
         Bank[0].Help = null;

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nz.gen.geek_central.ti5x"
     android:versionCode="3"
-    android:versionName="15135.1">
+    android:versionName="15139.3">
     <uses-sdk
         android:minSdkVersion="7"
     />

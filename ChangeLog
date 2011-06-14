@@ -1,5 +1,8 @@
 Feature highlights:
 
+15139.3, 2011 June 14
+    ensure label card bitmaps are properly disposed
+
 15135.1, 2011 June 10
     add option to copy full-precision number to clipboard
     add notification when program finishes in background
