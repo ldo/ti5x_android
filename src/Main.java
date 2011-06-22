@@ -96,6 +96,115 @@ public class Main extends android.app.Activity
 
       } /*ReplaceConfirm*/
 
+    class FeedbackDialog
+        extends android.app.AlertDialog
+        implements android.content.DialogInterface.OnDismissListener
+      {
+        final android.content.Context ctx;
+        android.widget.RadioGroup TheButtons;
+        boolean Confirmed = false;
+
+        public FeedbackDialog
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx);
+            this.ctx = ctx;
+          } /*FeedbackDialog*/
+
+        @Override
+        public void onCreate
+          (
+            android.os.Bundle savedInstanceState
+          )
+          {
+            setTitle(R.string.button_feedback);
+            final android.widget.LinearLayout MainLayout = new android.widget.LinearLayout(ctx);
+            MainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+            setContentView(MainLayout);
+            TheButtons = new android.widget.RadioGroup(ctx);
+            final android.view.ViewGroup.LayoutParams ButtonLayout =
+                new android.view.ViewGroup.LayoutParams
+                  (
+                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                  );
+              {
+                final android.widget.RadioButton FeedbackClick =
+                    new android.widget.RadioButton(ctx);
+                FeedbackClick.setText(R.string.click);
+                FeedbackClick.setId(ButtonGrid.FEEDBACK_CLICK);
+                final android.widget.RadioButton FeedbackVibrate =
+                    new android.widget.RadioButton(ctx);
+                FeedbackVibrate.setText(R.string.vibrate);
+                FeedbackVibrate.setId(ButtonGrid.FEEDBACK_VIBRATE);
+                final android.widget.RadioButton FeedbackNone = new android.widget.RadioButton(ctx);
+                FeedbackNone.setText(R.string.none);
+                FeedbackNone.setId(ButtonGrid.FEEDBACK_NONE);
+                TheButtons.addView(FeedbackClick, 0, ButtonLayout);
+                TheButtons.addView(FeedbackVibrate, 1, ButtonLayout);
+                TheButtons.addView(FeedbackNone, 2, ButtonLayout);
+              }
+            MainLayout.addView(TheButtons, ButtonLayout);
+            TheButtons.check(Global.Buttons.FeedbackType);
+            final android.widget.LinearLayout OKCancel = new android.widget.LinearLayout(ctx);
+            OKCancel.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+              {
+                final android.widget.Button OKButton = new android.widget.Button(ctx);
+                OKButton.setText(R.string.ok);
+                OKButton.setOnClickListener
+                  (
+                    new android.view.View.OnClickListener()
+                      {
+                        @Override
+                        public void onClick
+                          (
+                            android.view.View TheView
+                          )
+                          {
+                            Confirmed = true;
+                            FeedbackDialog.this.dismiss();
+                          } /*onClick*/
+                      }
+                  );
+                final android.widget.Button CancelButton = new android.widget.Button(ctx);
+                CancelButton.setText(R.string.cancel);
+                CancelButton.setOnClickListener
+                  (
+                    new android.view.View.OnClickListener()
+                      {
+                        @Override
+                        public void onClick
+                          (
+                            android.view.View TheView
+                          )
+                          {
+                            FeedbackDialog.this.cancel();
+                          } /*onClick*/
+                      }
+                  );
+                OKCancel.addView(OKButton);
+                OKCancel.addView(CancelButton);
+              }
+            MainLayout.addView(OKCancel, ButtonLayout);
+            setOnDismissListener(this);
+          } /*onCreate*/
+
+        @Override
+        public void onDismiss
+          (
+            android.content.DialogInterface TheDialog
+          )
+          {
+            if (Confirmed)
+              {
+                Global.Buttons.SetFeedbackType(TheButtons.getCheckedRadioButtonId());
+              } /*if*/
+          } /*onClick*/
+
+      } /*FeedbackDialog*/
+
     void LaunchImportPicker()
       {
         final Picker.PickerAltList[] OnlyAlt =
@@ -372,6 +481,17 @@ public class Main extends android.app.Activity
                         /*LookIn =*/ Persistent.ExternalCalcDirectories,
                         /*AltLists =*/ AltLists
                       );
+                  } /*run*/
+              } /*Runnable*/
+          );
+        OptionsMenu.put
+          (
+            TheMenu.add(R.string.opt_feedback),
+            new Runnable()
+              {
+                public void run()
+                  {
+                    new FeedbackDialog(Main.this).show();
                   } /*run*/
               } /*Runnable*/
           );

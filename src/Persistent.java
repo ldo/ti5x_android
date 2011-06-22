@@ -570,6 +570,21 @@ public class Persistent
                         POut.printf(Global.StdLocale, "            %.16e\n", Calc.Memory[i]);
                       } /*for*/
                     POut.println("        </mem>");
+                    POut.print("        <feedback kind=\"");
+                    switch (Buttons.FeedbackType)
+                      {
+                    default:
+                    case ButtonGrid.FEEDBACK_CLICK:
+                        POut.print("click");
+                    break;
+                    case ButtonGrid.FEEDBACK_VIBRATE:
+                        POut.print("vibrate");
+                    break;
+                    case ButtonGrid.FEEDBACK_NONE:
+                        POut.print("none");
+                    break;
+                      } /*switch*/
+                    POut.println("\"/>\n");
                   } /*if CalcState*/
                 SaveProg(Calc.Program, POut, 8);
                 if (CalcState)
@@ -696,6 +711,7 @@ public class Persistent
         private final int DoingFlags = 13;
         private final int DoingRetStack = 14;
         private final int DoingPrintReg = 15;
+        private final int DoingEmptyTag = 19;
         private int ParseState = AtTopLevel;
         private boolean DoneState = false;
         private boolean AllowContent;
@@ -964,6 +980,24 @@ public class Persistent
                   {
                     ParseState = DoingMem;
                     StartContent();
+                    Handled = true;
+                  }
+                else if (CalcState && localName == "feedback")
+                  {
+                    final String Kind = attributes.getValue("kind").intern();
+                    if (Kind == "none")
+                      {
+                        Buttons.FeedbackType = ButtonGrid.FEEDBACK_NONE;
+                      }
+                    else if (Kind == "vibrate")
+                      {
+                        Buttons.FeedbackType = ButtonGrid.FEEDBACK_VIBRATE;
+                      }
+                    else
+                      {
+                        Buttons.FeedbackType = ButtonGrid.FEEDBACK_CLICK;
+                      } /*if*/
+                    ParseState = DoingEmptyTag;
                     Handled = true;
                   }
                 else if (localName == "prog") /* only one allowed if not CalcState */
@@ -1339,6 +1373,9 @@ public class Persistent
                     ParseState = DoingCalc;
                   } /*if*/
             break;
+            case DoingEmptyTag:
+                ParseState = DoingCalc;
+            break;
               } /*switch*/
           } /*endElement*/
 
@@ -1499,6 +1536,10 @@ public class Persistent
               } /*if*/
             if (Buttons != null)
               {
+                if (CalcState)
+                  {
+                    Buttons.SetFeedbackType(Buttons.FeedbackType);
+                  } /*if*/
                 Buttons.invalidate();
               } /*if*/
           } /*if*/

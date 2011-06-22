@@ -24,6 +24,7 @@ public class ButtonGrid extends android.view.View
     static final int NrButtonCols = 5;
 
     android.media.SoundPool MakeNoise;
+    android.os.Vibrator Vibrate;
   /* it appears SoundPool allocates loaded sound IDs starting from 1 */
     int ButtonDown = 0;
 
@@ -156,6 +157,11 @@ public class ButtonGrid extends android.view.View
           } /*for*/
       } /*MakeButtonDefs*/
 
+    public int FeedbackType;
+    public static final int FEEDBACK_NONE = 0;
+    public static final int FEEDBACK_CLICK = 1;
+    public static final int FEEDBACK_VIBRATE = 2;
+
     public boolean OverlayVisible;
 
     final RectF ButtonRelMargins = new RectF(0.175f, 0.5f, 0.175f, 0.05f);
@@ -185,6 +191,15 @@ public class ButtonGrid extends android.view.View
         invalidate();
       } /*Reset*/
 
+    public void SetFeedbackType
+      (
+        int NewFeedbackType
+      )
+      {
+        FeedbackType = NewFeedbackType;
+      /* everything else has to be set up in constructor which has access to Context object */
+      } /*SetFeedbackType*/
+
     public ButtonGrid
       (
         android.content.Context TheContext,
@@ -192,6 +207,7 @@ public class ButtonGrid extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        FeedbackType = FEEDBACK_NONE;
         final android.content.res.Resources Res = TheContext.getResources();
         Dark = Res.getColor(R.color.dark);
         White = Res.getColor(R.color.white);
@@ -204,6 +220,8 @@ public class ButtonGrid extends android.view.View
           {
             ButtonDown = MakeNoise.load(TheContext, R.raw.button_down, 1);
           } /*if*/
+        Vibrate = (android.os.Vibrator)TheContext.getSystemService(android.content.Context.VIBRATOR_SERVICE);
+        SetFeedbackType(FEEDBACK_CLICK);
         setOnTouchListener
           (
             new android.view.View.OnTouchListener()
@@ -263,10 +281,21 @@ public class ButtonGrid extends android.view.View
                                 SelectedButton = NewSelectedButton;
                                 if (SelectedButton != -1)
                                   {
-                                    if (MakeNoise != null)
+                                    switch (FeedbackType)
                                       {
-                                        MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
-                                      } /*if*/
+                                    case FEEDBACK_CLICK:
+                                        if (MakeNoise != null && ButtonDown != 0)
+                                          {
+                                            MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
+                                          } /*if*/
+                                    break;
+                                    case FEEDBACK_VIBRATE:
+                                        if (Vibrate != null)
+                                          {
+                                            Vibrate.vibrate(50);
+                                          } /*if*/
+                                    break;
+                                      } /*switch*/
                                     Invoke();
                                   } /*if*/
                                 TheView.invalidate();

@@ -8,6 +8,7 @@
     <string name="show_overlay">Key Codes</string>
     <string name="show_printer">Printer</string>
     <string name="load_prog">Load Program...</string>
+    <string name="opt_feedback">Feedback...</string>
     <string name="import_data">Import Data...</string>
     <string name="export_data">Export Data...</string>
     <string name="save_program_as">Save Program...</string>
@@ -20,6 +21,7 @@
     <string name="paste_number">Paste Number</string>
 
   <!-- buttons -->
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="load">Load</string>
@@ -34,6 +36,9 @@
     <string name="libraries">Libraries</string>
     <string name="numbers_only">Numbers only</string>
     <string name="all_printout">All printout</string>
+    <string name="click">Click</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="none">None</string>
 
   <!-- prompt strings -->
     <string name="program">program</string>
@@ -44,6 +49,7 @@
     <string name="import_prompt">Data to load:</string>
     <string name="export_prompt">Append exported data to existing:</string>
     <string name="save_as_prompt">Save %s as:</string>
+    <string name="button_feedback">Button feedback:</string>
 
   <!-- messages -->
     <string name="prog_done">ti5x program has finished running.</string>
