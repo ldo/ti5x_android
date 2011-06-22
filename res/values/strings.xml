@@ -21,7 +21,6 @@
     <string name="paste_number">Paste Number</string>
 
   <!-- buttons -->
-    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="load">Load</string>

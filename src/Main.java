@@ -97,12 +97,11 @@ public class Main extends android.app.Activity
       } /*ReplaceConfirm*/
 
     class FeedbackDialog
-        extends android.app.AlertDialog
+        extends android.app.Dialog
         implements android.content.DialogInterface.OnDismissListener
       {
         final android.content.Context ctx;
         android.widget.RadioGroup TheButtons;
-        boolean Confirmed = false;
 
         public FeedbackDialog
           (
@@ -148,46 +147,6 @@ public class Main extends android.app.Activity
               }
             MainLayout.addView(TheButtons, ButtonLayout);
             TheButtons.check(Global.Buttons.FeedbackType);
-            final android.widget.LinearLayout OKCancel = new android.widget.LinearLayout(ctx);
-            OKCancel.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-              {
-                final android.widget.Button OKButton = new android.widget.Button(ctx);
-                OKButton.setText(R.string.ok);
-                OKButton.setOnClickListener
-                  (
-                    new android.view.View.OnClickListener()
-                      {
-                        @Override
-                        public void onClick
-                          (
-                            android.view.View TheView
-                          )
-                          {
-                            Confirmed = true;
-                            FeedbackDialog.this.dismiss();
-                          } /*onClick*/
-                      }
-                  );
-                final android.widget.Button CancelButton = new android.widget.Button(ctx);
-                CancelButton.setText(R.string.cancel);
-                CancelButton.setOnClickListener
-                  (
-                    new android.view.View.OnClickListener()
-                      {
-                        @Override
-                        public void onClick
-                          (
-                            android.view.View TheView
-                          )
-                          {
-                            FeedbackDialog.this.cancel();
-                          } /*onClick*/
-                      }
-                  );
-                OKCancel.addView(OKButton);
-                OKCancel.addView(CancelButton);
-              }
-            MainLayout.addView(OKCancel, ButtonLayout);
             setOnDismissListener(this);
           } /*onCreate*/
 
@@ -197,10 +156,7 @@ public class Main extends android.app.Activity
             android.content.DialogInterface TheDialog
           )
           {
-            if (Confirmed)
-              {
-                Global.Buttons.SetFeedbackType(TheButtons.getCheckedRadioButtonId());
-              } /*if*/
+            Global.Buttons.SetFeedbackType(TheButtons.getCheckedRadioButtonId());
           } /*onClick*/
 
       } /*FeedbackDialog*/
