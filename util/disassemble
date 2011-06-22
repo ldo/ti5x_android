@@ -112,7 +112,7 @@ codes = \
         63 : regop("Exc Ind", False),
         64 : regop("Prd Ind", False),
         65 : simple("×"),
-        # 66 invalid
+        66 : simple("Pause"),
         67 : locop("x=t"),
         68 : simple("Nop"),
         69 : regop("Op", True),
