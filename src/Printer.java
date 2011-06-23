@@ -135,6 +135,9 @@ public class Printer
     public void StartNewLine()
       /* advances the paper to the next line. */
       {
+      /* This sequence seems to take about a quarter of a second to execute on
+        my HTC Desire. I could probably speed it up, but I suspect it's already
+        faster than the real printer anyway. :) */
         final int[] ScrollTemp = new int[PaperWidth * (PaperHeight - LineHeight)];
         Paper.prepareToDraw();
         Paper.getPixels
