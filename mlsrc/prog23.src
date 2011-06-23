@@ -1,0 +1,35 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage:
+;     01 -- n in decimal form
+;-
+
+lbl A
+; enter operand
+    d.ms    ; convert to scalar form
+    sto 01
+    inv sbr
+
+lbl B
+; enter addend
+    ( ce d.ms + rcl 01 ) inv d.ms
+    fix 4
+    inv sbr
+
+lbl C
+; enter scalar multiplicand
+    ( ce * rcl 01 ) inv d.ms
+    fix 4
+    inv sbr
+
+lbl D
+; enter scalar dividend
+    ( ce ÷ rcl 01 ) 1/x inv d.ms
+    fix 4
+    inv sbr
