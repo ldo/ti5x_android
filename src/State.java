@@ -1100,7 +1100,7 @@ public class State
         final double Fraction = Math.abs(X) - Degrees;
         if (InvState)
           {
-            final double Minutes = Math.floor(Fraction * 60.0 + 0.1 /*fudge for rounding errors */);
+            final double Minutes = Math.floor(Fraction * 60.0 + 0.001 /*fudge for rounding errors */);
             SetX((Degrees + Minutes / 100.0 + (Fraction * 60.0 - Minutes) * 6 / 1000.0) * Sign);
           }
         else
