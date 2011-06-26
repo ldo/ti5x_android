@@ -54,7 +54,7 @@
     </target>
 -->
 
-    <target name="signed" depends="release">
+    <target name="signed" depends="-package-release">
         <signjar
             keystore="${keystore.path}" alias="${keystore.alias}" storepass="${keystore.password}"
             jar="bin/${out.projname}-unsigned.apk"
