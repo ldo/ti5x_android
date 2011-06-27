@@ -20,6 +20,9 @@ public class Help extends android.app.Activity
   {
     public static String ContentID = "nz.gen.geek-central.ti5x.HelpContent";
     android.webkit.WebView HelpView;
+  /* for remembering scroll position of last page displayed: */
+    static String LastURL, LastContent;
+    static android.graphics.Point LastScroll = null;
 
     @Override
     public void onCreate
@@ -32,24 +35,69 @@ public class Help extends android.app.Activity
         HelpView = (android.webkit.WebView)findViewById(R.id.help_view);
         final android.content.Intent MyIntent = getIntent();
         final byte[] Content = MyIntent.getByteArrayExtra(ContentID);
+        String NewURL, NewContent;
         if (Content != null)
           {
           /* show the specified module help */
+            NewContent = new String(Content);
             HelpView.loadDataWithBaseURL
               (
                 /*baseUrl =*/ null,
-                /*data =*/ new String(Content),
+                /*data =*/ NewContent,
                 /*mimeType =*/ null, /* text/html */
                 /*encoding =*/ "utf-8",
-                /*history =*/ null
+                /*historyUrl =*/ null
               );
+            NewURL = null;
           }
         else
           {
           /* assume URI was passed */
-            HelpView.loadUrl(MyIntent.getData().toString());
+            NewURL = MyIntent.getData().toString().intern();
+            NewContent = null;
+            HelpView.loadUrl(NewURL);
           } /*if*/
+        if
+          (
+                NewURL != LastURL
+            ||
+                (NewContent != null && LastContent != null ?
+                    !NewContent.equals(LastContent)
+                :
+                    NewContent != LastContent
+                )
+          )
+          {
+            LastScroll = null;
+          } /*if*/
+        LastURL = NewURL;
+        LastContent = NewContent;
+        HelpView.setPictureListener
+          (
+            new android.webkit.WebView.PictureListener()
+              {
+                @Override
+                public void onNewPicture
+                  (
+                    android.webkit.WebView HelpView,
+                    android.graphics.Picture ThePicture
+                  )
+                  {
+                    if (LastScroll != null)
+                      {
+                        HelpView.scrollTo(LastScroll.x, LastScroll.y);
+                        LastScroll = null; /* only do once */
+                      } /*if*/
+                  } /*onNewPicture*/
+              } /*PictureListener*/
+          );
       } /*onCreate*/
 
-  } /*Help*/
+    @Override
+    public void onDestroy()
+      {
+        LastScroll = new android.graphics.Point(HelpView.getScrollX(), HelpView.getScrollY());
+        super.onDestroy();
+      } /*onDestroy*/
 
+  } /*Help*/
