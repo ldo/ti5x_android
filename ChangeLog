@@ -1,5 +1,9 @@
 Feature highlights:
 
+15156.5, 2011 July 2
+    allow restriction of data file selection to “likely” ones
+    (ending in .dat or .txt) for import and export-append
+
 15152.3, 2011 June 27
     remember scroll position on last-viewed help page
 

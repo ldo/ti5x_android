@@ -25,6 +25,8 @@
     <string name="save">Save</string>
     <string name="load">Load</string>
     <string name="import_">Import</string>
+    <string name="likely_files">Likely Files</string>
+    <string name="all_files">All Files</string>
     <string name="append">Append</string>
     <string name="overwrite">Overwrite</string>
     <string name="replace">Replace</string>

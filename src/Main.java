@@ -163,25 +163,35 @@ public class Main extends android.app.Activity
 
     void LaunchImportPicker()
       {
-        final Picker.PickerAltList[] OnlyAlt =
+        final Picker.PickerAltList[] AltLists =
             {
                 new Picker.PickerAltList
                   (
-                    /*RadioButtonID =*/ 0,
+                    /*RadioButtonID =*/ R.id.select_likely_files,
                     /*Prompt =*/ getString(R.string.import_prompt),
                     /*NoneFound =*/ getString(R.string.no_data_files),
-                    /*FileExt =*/ "",
+                    /*FileExts =*/ Persistent.LikelyDataExts,
+                    /*SpecialItem =*/ null
+                  ),
+                new Picker.PickerAltList
+                  (
+                    /*RadioButtonID =*/ R.id.select_all_files,
+                    /*Prompt =*/ getString(R.string.import_prompt),
+                    /*NoneFound =*/ getString(R.string.no_data_files),
+                    /*FileExts =*/ null,
                     /*SpecialItem =*/ null
                   ),
             };
+        PickerExtra = (android.view.ViewGroup)
+            getLayoutInflater().inflate(R.layout.import_type, null);
         Picker.Launch
           (
             /*Acting =*/ Main.this,
             /*SelectLabel =*/ getString(R.string.import_),
             /*RequestCode =*/ ImportDataRequest,
-            /*Extra =*/ null,
+            /*Extra =*/ PickerExtra,
             /*LookIn =*/ Persistent.ExternalDataDirectories,
-            /*AltLists =*/ OnlyAlt
+            /*AltLists =*/ AltLists
           );
       } /*LaunchImportPicker*/
 
@@ -276,14 +286,31 @@ public class Main extends android.app.Activity
           );
         if (ExportAppend)
           {
-            final Picker.PickerAltList[] OnlyAlt =
+            ExportExtra[1].addView
+              (
+                getLayoutInflater().inflate(R.layout.import_type, null),
+                new android.view.ViewGroup.LayoutParams
+                  (
+                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                  )
+              );
+            final Picker.PickerAltList[] AltLists =
                 {
                     new Picker.PickerAltList
                       (
-                        /*RadioButtonID =*/ 0,
+                        /*RadioButtonID =*/ R.id.select_likely_files,
                         /*Prompt =*/ getString(R.string.export_prompt),
                         /*NoneFound =*/ getString(R.string.no_data_files),
-                        /*FileExt =*/ "",
+                        /*FileExts =*/ Persistent.LikelyDataExts,
+                        /*SpecialItem =*/ null
+                      ),
+                    new Picker.PickerAltList
+                      (
+                        /*RadioButtonID =*/ R.id.select_all_files,
+                        /*Prompt =*/ getString(R.string.export_prompt),
+                        /*NoneFound =*/ getString(R.string.no_data_files),
+                        /*FileExts =*/ null,
                         /*SpecialItem =*/ null
                       ),
                 };
@@ -294,7 +321,7 @@ public class Main extends android.app.Activity
                 /*RequestCode =*/ ExportDataRequest,
                 /*Extra =*/ PickerExtra,
                 /*LookIn =*/ Persistent.ExternalDataDirectories,
-                /*AltLists =*/ OnlyAlt
+                /*AltLists =*/ AltLists
               );
           }
         else
@@ -408,12 +435,14 @@ public class Main extends android.app.Activity
                   {
                     final Picker.PickerAltList[] AltLists =
                         {
+                          /* note the code that responds to the result Intent assumes
+                            that element 0 is saved programs and element 1 is libraries */
                             new Picker.PickerAltList
                               (
                                 /*RadioButtonID =*/ R.id.select_saved,
                                 /*Prompt =*/ getString(R.string.prog_prompt),
                                 /*NoneFound =*/ getString(R.string.no_programs),
-                                /*FileExt =*/ Persistent.ProgExt,
+                                /*FileExts =*/ new String[] {Persistent.ProgExt},
                                 /*SpecialItem =*/ null
                               ),
                             new Picker.PickerAltList
@@ -421,7 +450,7 @@ public class Main extends android.app.Activity
                                 /*RadioButtonID =*/ R.id.select_libraries,
                                 /*Prompt =*/ getString(R.string.module_prompt),
                                 /*NoneFound =*/ getString(R.string.no_modules),
-                                /*FileExt =*/ Persistent.LibExt,
+                                /*FileExts =*/ new String[] {Persistent.LibExt},
                                 /*SpecialItem =*/ getString(R.string.master_library)
                                   /* item representing selection of built-in Master Library */
                               ),
@@ -782,8 +811,9 @@ public class Main extends android.app.Activity
                   )
                   {
                     final String ProgName = Data.getData().getPath();
-                    final String PickedExt = Data.getStringExtra(Picker.ExtID);
-                    final boolean IsLib = PickedExt.intern() == Persistent.LibExt.intern();
+                    final boolean IsLib = Data.getIntExtra(Picker.AltIndexID, 0) != 0;
+                      /* assumes AltLists array passed to Picker has element 0 for
+                        saved programs and element 1 for libraries */
                     final boolean LoadingMasterLibrary = IsLib && ProgName.intern() == "/";
                   /* It appears onActivityResult is liable to be called before
                     onResume. Therefore I do additional restoring/saving state

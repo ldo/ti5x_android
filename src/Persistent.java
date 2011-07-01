@@ -109,6 +109,12 @@ public class Persistent
         {
             DataDir,
         };
+    public static final String[] LikelyDataExts =
+      /* most likely extensions for import data files */
+        {
+            ".dat",
+            ".txt",
+        };
     public static final String SavedStateName = "state" + StateExt;
       /* for saved state other than loaded library */
     public static final String SavedLibName = "module" + LibExt;

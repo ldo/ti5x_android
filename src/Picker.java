@@ -18,7 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class Picker extends android.app.Activity
   {
-    public static String ExtID = "nz.gen.geek-central.ti5x.PickerExt";
+    public static String AltIndexID = "nz.gen.geek-central.ti5x.PickedIndex";
 
     static boolean Reentered = false; /* sanity check */
     public static Picker Current = null;
@@ -29,7 +29,7 @@ public class Picker extends android.app.Activity
         int RadioButtonID;
         String Prompt;
         String NoneFound;
-        String FileExt;
+        String[] FileExts; /* list of extensions to match, or null to match all files */
         String SpecialItem; /* special item to add to list, null for none */
 
         public PickerAltList
@@ -37,14 +37,14 @@ public class Picker extends android.app.Activity
             int RadioButtonID,
             String Prompt,
             String NoneFound,
-            String FileExt,
+            String[] FileExts,
             String SpecialItem
           )
           {
             this.RadioButtonID = RadioButtonID;
             this.Prompt = Prompt;
             this.NoneFound = NoneFound;
-            this.FileExt = FileExt;
+            this.FileExts = FileExts;
             this.SpecialItem = SpecialItem;
           } /*PickerAltList*/
       } /*PickerAltList*/
@@ -325,7 +325,31 @@ public class Picker extends android.app.Activity
                   {
                     for (java.io.File Item : ThisDir.listFiles())
                       {
-                        if (Item.getName().endsWith(Alt.FileExt))
+                        boolean MatchesExt;
+                        if (Alt.FileExts != null)
+                          {
+                            final String ItemName = Item.getName();
+                            for (int i = 0;;)
+                              {
+                                if (i == Alt.FileExts.length)
+                                  {
+                                    MatchesExt = false;
+                                    break;
+                                  } /*if*/
+                                if (ItemName.endsWith(Alt.FileExts[i]))
+                                  {
+                                    MatchesExt = true;
+                                    break;
+                                  } /*if*/
+                                ++i;
+                              } /*for*/
+                          }
+                        else
+                          {
+                          /* match all files */
+                            MatchesExt = true;
+                          } /*if*/
+                        if (MatchesExt)
                           {
                             PickerList.add(new PickerItem(Item.getAbsolutePath(), null));
                           } /*if*/
@@ -407,7 +431,7 @@ public class Picker extends android.app.Activity
                                           )
                                       )
                                   )
-                                .putExtra(ExtID, AltLists[SelectedAlt].FileExt)
+                                .putExtra(AltIndexID, SelectedAlt)
                           );
                         finish();
                       } /*if*/
