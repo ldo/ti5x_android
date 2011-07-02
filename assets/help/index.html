@@ -56,7 +56,7 @@ TABLE.keycodes > TBODY > TR > TD.unused
 </HEAD>
 <BODY>
 <H1>Help Page for the ti5x app</H1>
-<P>Topics:
+<P><A NAME="Topics"></A>Topics:
 <UL>
 <LI><A HREF="#Intro">Introduction</A>
 <LI><A HREF="#BasicOps">Basic Operation</A>
@@ -114,6 +114,8 @@ mantissa entry after entering exponent.
 automatically supplying any missing closing parentheses.
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="Display"></A>Display Control</H2>
 <UL>
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
@@ -133,6 +135,8 @@ to engineering notation (with exponent that is always a multiple of 3).
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Eng</SPAN> — switch display to default format.
 </UL>
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H2><A NAME="CopyPaste"></A>Copy/Paste</H2>
 <P>If you long-tap the display, a context menu will appear with “Copy” and “Paste”
@@ -191,6 +195,8 @@ May be inserted in program sequences in place of deleted instructions to avoid c
 the positions of following instructions.
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="Memories"></A>Memories</H2>
 <P>There are 100 memory registers available, numbered <B>00</B> to <B>99</B>.
 <UL>
@@ -222,6 +228,8 @@ adds 1 to memory <B>0</B><I>n</I>.
 subtracts 1 from memory <B>0</B><I>n</I>.
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="Trigonometry"></A>Trigonometry</H2>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN> — enter π.
@@ -252,6 +260,8 @@ T register and Y-coordinate in X register.
 — rectangular-to-polar coordinate conversion: input X-coordinate in T register and Y-coordinate in
 X register, output will be angle in X register and magnitude in T register.
 </UL>
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H2><A NAME="Statistics"></A>Statistics Functions</H2>
 <P>Note these accumulate totals in registers <B>01</B> to <B>06</B> as follows:
@@ -294,6 +304,8 @@ estimated <I>x</I> from <I>y</I>: X = (X - (∑y² - <I>m</I> * ∑x) / N) / <I>
 <I>m</I> = (∑xy - ∑x∑y / N) / (∑x² - (∑x)² / N).
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="ProgramEntry"></A>Program Entry</H2>
 <P>Programs are stored as a sequence of 2-digit numbers that (mostly) correspond to the position
 of the keys on the keyboard. There are 960 program locations available for holding a user-entered
@@ -318,7 +330,7 @@ of the operand to specify the register which will supply the value of the operan
 
 <H3><A NAME="ControlTransfer"></A>Transfer of Control</H3>
 
-<P><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN> followed
+<P>Enter <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Lbl</SPAN> followed
 by just about any other key (except the above program-entry functions, the digit keys
 or <SPAN CLASS="alttext">Ind</SPAN>) to use that key to label the current location.
 The same label key can then be specified as the <I>loc</I> operand to any of the branch/call/loop
@@ -342,6 +354,8 @@ from the last subroutine entered.
 in library program <I>nn</I> (or the library program given by the contents of register <I>nn</I>)
 rather than the current program.
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H3><A NAME="Comparisons"></A>Comparisons</H3>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">x=t</SPAN> <I>loc</I> —
@@ -354,6 +368,8 @@ if X is greater than or equal to T, branch to location <I>loc</I>.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">CP</SPAN> — when executed
 in a program, this just clears the T-register. It does <I>not</I> clear the program.
 </UL>
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H3><A NAME="Flags"></A>Flags</H3>
 <P>There are 10 flags (numbered 0 to 9), each of which may be set, unset, or tested.</P>
@@ -385,6 +401,8 @@ execution immediately stops.
 <P>Trace execution: if flag 9 is set, the result of each calculation step will be printed
 on the printer.
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H3><A NAME="Looping"></A>Looping</H3>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Dsz</SPAN> <I>n</I> <I>loc</I> —
@@ -395,6 +413,8 @@ decrement register <B>0</B><I>n</I>, and branch to <I>loc</I> if its new value i
 otherwise continue with the following instruction.
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H3><A NAME="OtherControl"></A>Other Control</H3>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Pause</SPAN> — pauses execution
@@ -403,6 +423,8 @@ of the program just long enough for the user to see the displayed value before c
 execution stops. The user may resume from that point by pressing
 <SPAN CLASS="brownbutton">R/S</SPAN>.
 </UL>
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H3><A NAME="UserDefinedKeys"></A>User-Defined Keys</H3>
 <P>The keys <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>,
@@ -419,6 +441,8 @@ may be used as labels just like most other keys. They are special in that
 they can be invoked as subroutines without being prefixed with
 <SPAN CLASS="brownbutton">SBR</SPAN>. They are intended to behave as user-definable
 function keys.
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H3><A NAME="KeyCodes"></A>Key Codes</H3>
 <P>Note that some codes represent <I>merged</I> keystrokes. This not only saves
@@ -579,6 +603,8 @@ while <SPAN CLASS="yellowbutton">2nd</SPAN> is not.
 
 </TABLE>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="ProgramExecution"></A>Program Execution</H2>
 <UL>
 <LI><SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>, <SPAN CLASS="yellowbutton">2nd</SPAN>
@@ -603,6 +629,8 @@ close the current data-import and data-export files.
 key to slow down execution and see intermediate results appearing in the display. Release
 to resume full-speed execution.
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="LibraryPrograms"></A>Library Programs</H2>
 <P>It is possible to load external library modules into the calculator. One module,
 the “Master Library”, comes preloaded with the calculator. A library module can provide
@@ -624,6 +652,8 @@ number is selected will display the contents of the selected program, rather tha
 user-program-entry area. The program number additionally appears to the left of the program
 location number. Library programs cannot be edited.
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="Import"></A>Importing Data</H2>
 <P>You can read numbers from a data file, instead of having to enter them manually.
 You choose a file to open from the “Import Data...” item in the
@@ -635,6 +665,8 @@ the keyboard or in a program). An attempt to read past the last number will set 
 and leave the display unchanged. If a number was successfully read, flag 7 will be cleared.
 <P>The import file can also be immediately closed by <SPAN CLASS="brownbutton">INV</SPAN>
 <SPAN CLASS="brownbutton">RST</SPAN>.
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H2><A NAME="Printer"></A>Printer Emulation</H2>
 <P>The app also includes emulation for a connected PC-100<I>x</I> dot-matrix printer
@@ -671,6 +703,8 @@ set flag 7 to indicate that a printer is attached.
 the paper by 1 line.
 </UL>
 
+<P><A HREF="#Topics">Back to Topics</A>
+
 <H2><A NAME="Export"></A>Exporting Data</H2>
 <P>Calculation results can also be exported, in either of two ways:
 <OL>
@@ -694,6 +728,8 @@ This file format can be re-imported by ti5x, and should also be readable by othe
 <SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
 <SPAN CLASS="alttext">Adv</SPAN>. It is also closed by <SPAN CLASS="brownbutton">INV</SPAN>
 <SPAN CLASS="brownbutton">RST</SPAN>.
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H2><A NAME="OptionsMenu"></A>Options Menu</H2>
 <P>Pressing the Android Menu button brings up a menu with the following options:
@@ -720,6 +756,8 @@ to write exported data to. The file is saved in the “Download” directory.
 program and memory contents.</B> The next time the app is started, it will initialize
 as though freshly installed.
 </UL>
+
+<P><A HREF="#Topics">Back to Topics</A>
 
 <H2><A NAME="Additional"></A>Additional Information</H2>
 <P>Copies of the user manuals for the original products can be found at
