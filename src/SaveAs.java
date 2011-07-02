@@ -128,16 +128,28 @@ public class SaveAs extends android.app.Activity
                         as they are entered into SaveAsText. So I filter illegal characters
                         here instead. */
                         StringBuilder Clean = new StringBuilder();
+                        boolean HadFunnies = false;
                         for (int i = 0; i < TheOrigText.length(); ++i)
                           {
                             char c = TheOrigText.charAt(i);
-                            if (c != '/' && (c != '.' || i != 0))
+                            if (c == '.' && i == 0)
                               {
+                                HadFunnies = true;
+                              }
+                            else
+                              {
+                                if (c == '/')
+                                  {
+                                  /* replace *nix path separator with harmless lookalike */
+                                    c = '\u2215';
+                                      /* u+2215 division slash looks closer to u+002f solidus
+                                        than u+2044 fraction slash  */
+                                  } /*if*/
                                 Clean.append(c);
                               } /*if*/
                           } /*for*/
                         TheCleanedText = Clean.toString();
-                        if (TheCleanedText.equals(TheOrigText))
+                        if (!HadFunnies)
                           {
                             if (TheCleanedText.length() != 0)
                               {
