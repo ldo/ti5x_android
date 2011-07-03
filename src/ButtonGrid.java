@@ -308,7 +308,14 @@ public class ButtonGrid extends android.view.View
                     case android.view.MotionEvent.ACTION_CANCEL:
                         if (SelectedButton != -1)
                           {
-                            if (SelectedButton == 61 && Global.Calc != null && Global.Calc.ProgRunning)
+                            if
+                              (
+                                    SelectedButton == 61
+                                &&
+                                    Global.Calc != null
+                                &&
+                                    Global.Calc.TaskRunning
+                              )
                               {
                                 Global.Calc.SetSlowExecution(false);
                               } /*if*/
@@ -594,7 +601,7 @@ public class ButtonGrid extends android.view.View
               {
                 ButtonCode = SelectedButton;
               } /*if*/
-            if (Calc.ProgRunning)
+            if (Calc.TaskRunning)
               {
                 switch (ButtonCode)
                   {

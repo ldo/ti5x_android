@@ -637,7 +637,7 @@ public class Main extends android.app.Activity
         android.view.ContextMenu.ContextMenuInfo TheMenuInfo
       )
       {
-        if (!Global.Calc.ProgMode && !Global.Calc.ProgRunning)
+        if (!Global.Calc.ProgMode && !Global.Calc.TaskRunning)
           {
             ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
             ContextMenu.put

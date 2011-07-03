@@ -113,6 +113,112 @@ public class Printer
             {0x1f, 0x02, 0x04, 0x08, 0x04, 0x02, 0x1f}, /*77*/
         };
 
+    public static final String[] PrintMnemonics =
+        {
+        /* all are 3 characters */
+            /*01*/ " 01",
+            /*02*/ " 02",
+            /*03*/ " 03",
+            /*04*/ " 04",
+            /*05*/ " 05",
+            /*06*/ " 06",
+            /*07*/ " 07",
+            /*08*/ " 08",
+            /*09*/ " 09",
+            /*00*/ " 00",
+          /* TBD perhaps treat above specially */
+            /*11*/ " A ",
+            /*12*/ " B ",
+            /*13*/ " C ",
+            /*14*/ " D ",
+            /*15*/ " E ",
+            /*16*/ "A' ",
+            /*17*/ "B' ",
+            /*18*/ "C' ",
+            /*19*/ "D' ",
+            /*10*/ "E' ",
+            /*21*/ "2ND",
+            /*22*/ "INV",
+            /*23*/ "LNX",
+            /*24*/ "CE ",
+            /*25*/ "CLR",
+            /*26*/ "2ND",
+            /*27*/ "INV", /* guess */
+            /*28*/ "LOG",
+            /*29*/ "CP ",
+            /*20*/ "CLR", /* guess */
+            /*31*/ "LRN",
+            /*32*/ "X⇌T",
+            /*33*/ "X² ",
+            /*34*/ "√X ",
+            /*35*/ "1/X",
+            /*36*/ "PGM",
+            /*37*/ "P/R",
+            /*38*/ "SIN",
+            /*39*/ "COS",
+            /*30*/ "TAN",
+            /*41*/ "SST",
+            /*42*/ "STO",
+            /*43*/ "RCL",
+            /*44*/ "SUM",
+            /*45*/ "Yⓧ ", /* standing in for y-superscript-x */
+            /*46*/ "INS", /* guess */
+            /*47*/ "CMS",
+            /*48*/ "EXC",
+            /*49*/ "PRD",
+            /*40*/ "IND",
+            /*51*/ "BST",
+            /*52*/ "EE ",
+            /*53*/ " ( ",
+            /*54*/ " ) ",
+            /*55*/ " ÷ ",
+            /*56*/ "DEL", /* guess */
+            /*57*/ "ENG",
+            /*58*/ "FIX",
+            /*59*/ "INT",
+            /*50*/ "I×I",
+            /*61*/ "GTO",
+            /*62*/ "PG*",
+            /*63*/ "EX*",
+            /*64*/ "PD*",
+            /*65*/ " × ",
+            /*66*/ "PAU",
+            /*67*/ " EQ",
+            /*68*/ "NOP",
+            /*69*/ "OP ",
+            /*60*/ "DEG",
+            /*71*/ "SBR",
+            /*72*/ "ST*",
+            /*73*/ "RC*",
+            /*74*/ "SM*",
+            /*75*/ " - ",
+            /*76*/ "LBL",
+            /*77*/ " GE",
+            /*78*/ "S+ ", /* guess */
+            /*79*/ " ẍ ", /* closest I can get in Unicode to an x with a bar over it */
+            /*70*/ "RAD",
+            /*81*/ "RST",
+            /*82*/ "HIR",
+            /*83*/ "GO*",
+            /*84*/ "OP*",
+            /*85*/ " + ",
+            /*86*/ "STF",
+            /*87*/ "IFF",
+            /*88*/ "DMS",
+            /*89*/ "PI ", /* guess */
+            /*80*/ "GRD",
+            /*91*/ "R/S",
+            /*92*/ "RTN",
+            /*93*/ " . ",
+            /*94*/ "+/-",
+            /*95*/ " = ",
+            /*96*/ "WRT",
+            /*97*/ "DSZ",
+            /*98*/ "ADV",
+            /*99*/ "PRT",
+            /*90*/ "LST",
+        };
+
     public Printer
       (
         android.content.Context ctx
@@ -346,7 +452,10 @@ public class Printer
               {
                 glyph = 61;
               }
-          /* 62 -- double-arrow? */
+            else if (ch == '⇌')
+              {
+                glyph = 62;
+              }
             else if (ch == '/')
               {
                 glyph = 63;
@@ -359,8 +468,14 @@ public class Printer
               {
                 glyph = 65;
               }
-          /* 66 -- superscript x? */
-          /* 67 -- xbar? */
+            else if (ch == 'ⓧ') /* standing in for superscript x */
+              {
+                glyph = 66;
+              }
+            else if (ch == 'ẍ') /* closest I can get in Unicode to an x with a bar over it */
+              {
+                glyph = 67;
+              }
             else if (ch == '²')
               {
                 glyph = 70;
@@ -488,7 +603,10 @@ public class Printer
               {
                 ch = '%';
               }
-          /* 62 -- double-arrow? */
+            else if (b == 62) /* double arrow */
+              {
+                ch = '⇌';
+              }
             else if (b == 63) /* '/' */
               {
                 ch = '/';
@@ -501,8 +619,14 @@ public class Printer
               {
                 ch = '\'';
               }
-          /* 66 -- superscript x? */
-          /* 67 -- xbar? */
+            else if (b == 66)
+              {
+                ch = 'ⓧ'; /* standing in for superscript x */
+              }
+            else if (b == 67)
+              {
+                ch = 'ẍ'; /* closest I can get in Unicode to an x with a bar over it */
+              }
             else if (b == 70) /* '²' */
               {
                 ch = '²';

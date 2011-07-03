@@ -87,7 +87,8 @@ public class State
     String CurDisplay; /* current number display */
     android.os.Handler BGTask;
     Runnable DelayTask = null;
-    Runnable ExecuteTask = null;
+    Runnable ExecuteTask;
+    Runnable RunProg = null;
     public Runnable OnStop = null;
 
     public static class ImportEOFException extends RuntimeException
@@ -215,9 +216,10 @@ public class State
     public final static int FLAG_TRACE_PRINT = 9; /* if set, calculation is traced on printer */
 
     public int PC, RunPC, CurBank, RunBank, NextBank;
-    public boolean ProgRunning; /* program currently executing */
-    public boolean ProgRunningSlowly; /* executing program pauses to show intermediate result */
-    public boolean SaveRunningSlowly; /* for one-off pauses */
+    public boolean TaskRunning; /* program currently executing */
+    boolean ProgRunningSlowly; /* executing program pauses to show intermediate result */
+    boolean AllowRunningSlowly;
+    boolean SaveRunningSlowly; /* for one-off pauses */
 
   /* use of memories for stats operations */
     public static final int STATSREG_SIGMAY = 1;
@@ -271,8 +273,9 @@ public class State
         CurBank = 0;
         ReturnLast = -1;
         ClearImport();
-        ProgRunning = false;
+        TaskRunning = false;
         ProgRunningSlowly = false;
+        AllowRunningSlowly = false;
         ResetLabels();
         for (int i = 0; i < MaxFlags; ++i)
           {
@@ -330,6 +333,7 @@ public class State
         Bank[0] = new ProgBank(Program, null, null);
         Flag = new boolean[MaxFlags];
         BGTask = new android.os.Handler();
+        ExecuteTask = new TaskRunner();
         ReturnStack = new ReturnStackEntry[MaxReturnStack];
         PrintRegister = new byte[Printer.CharColumns];
         Reset(true);
@@ -358,7 +362,7 @@ public class State
       {
         ClearDelayedStep();
         LastShowing = ToDisplay;
-        if (!ProgRunning || ProgRunningSlowly)
+        if (!TaskRunning || ProgRunningSlowly)
           {
             if (InErrorState())
               {
@@ -424,7 +428,7 @@ public class State
     public void SetErrorState()
       {
         ClearDelayedStep();
-        if (!ProgRunning || ProgRunningSlowly)
+        if (!TaskRunning || ProgRunningSlowly)
           {
             Global.Disp.SetShowingError(LastShowing);
           } /*if*/
@@ -1242,7 +1246,7 @@ public class State
                 if (ProgNr >= MaxBanks || Bank[ProgNr] == null)
                     break;
                 FillInLabels(ProgNr); /* if not done already */
-                if (ProgRunning)
+                if (TaskRunning)
                   {
                     NextBank = ProgNr;
                   }
@@ -1450,9 +1454,15 @@ public class State
                       } /*if*/
                     OK = true;
                 break;
-              /* 8 TBD */
+                case 8:
+                    if (!TaskRunning)
+                      {
+                        StartLabelListing();
+                      } /*if*/
+                    OK = true;
+                break;
                 case 9:
-                    if (!ProgRunning && CurBank > 0)
+                    if (!TaskRunning && CurBank > 0)
                       {
                         final ProgBank Bank = this.Bank[CurBank];
                         if
@@ -1848,30 +1858,31 @@ public class State
 
     public void StepProgram()
       {
-        SetProgramStarted();
+        SetProgramStarted(false);
         Interpret(true);
-        StopProgram();
+        PC = RunPC;
+        SetProgramStopped();
       /* fixme: if I just executed a Pgm nn instruction, this setting
         of NextBank will not be properly passed to the next instruction */
       /* fixme: should single-stepping to a subroutine call cause execution
         of the complete subroutine, stopping when it returns? */
       } /*StepProgram*/
 
-    class ProgRunner implements Runnable
+    class TaskRunner implements Runnable
       {
         public void run()
           {
-            if (ProgRunning)
+            if (TaskRunning && RunProg != null)
               {
-                Interpret(true);
-                ContinueProgRunner();
+                RunProg.run();
+                ContinueTaskRunner();
               } /*if*/
           } /*run*/
-      } /*ProgRunner*/
+      } /*TaskRunner*/
 
-    void ContinueProgRunner()
+    void ContinueTaskRunner()
       {
-        if (ProgRunning)
+        if (TaskRunning)
           {
             if (ProgRunningSlowly)
               {
@@ -1884,49 +1895,135 @@ public class State
                 BGTask.post(ExecuteTask);
               } /*if*/
           } /*if*/
-      } /*ContinueProgRunner*/
+      } /*ContinueTaskRunner*/
+
+    class ProgRunner implements Runnable
+      {
+        public void run()
+          {
+            Interpret(true);
+          } /*run*/
+      } /*ProgRunner*/
+
+    class LabelLister implements Runnable
+      {
+        class LabelDef
+          {
+            int Code;
+            int Loc;
+
+            public LabelDef
+              (
+                int Code,
+                int Loc
+              )
+              {
+                this.Code = Code;
+                this.Loc = Loc;
+              } /*LabelDef*/
+
+          } /*LabelDef*/
+
+        final LabelDef[] SortedLabels;
+        int Index;
+
+        public LabelLister()
+          {
+            super();
+            final java.util.TreeSet<LabelDef> SortedLabelsTemp =
+                new java.util.TreeSet<LabelDef>
+                  (
+                    new java.util.Comparator<LabelDef>()
+                      {
+                        @Override
+                        public int compare
+                          (
+                            LabelDef Label1,
+                            LabelDef Label2
+                          )
+                          {
+                            return
+                                new Integer(Label1.Loc).compareTo(Label2.Loc);
+                          } /*compare*/
+                      } /*Comparator*/
+                  );
+            for (java.util.Map.Entry<Integer, Integer> ThisLabel : Bank[0].Labels.entrySet())
+              {
+                if (ThisLabel.getValue() >= PC + 2)
+                  {
+                    SortedLabelsTemp.add(new LabelDef(ThisLabel.getKey(), ThisLabel.getValue()));
+                  } /*if*/
+              } /*for*/
+            SortedLabels = new LabelDef[SortedLabelsTemp.size()];
+            int i = 0;
+            for (LabelDef ThisLabel : SortedLabelsTemp)
+              {
+                SortedLabels[i++] = ThisLabel;
+              } /*for*/
+            Index = 0;
+          } /*LabelLister*/
+
+        public void run()
+          {
+            if (Index < SortedLabels.length)
+              {
+                final LabelDef ThisLabel = SortedLabels[Index];
+                final byte[] Translated = new byte[Printer.CharColumns];
+                final int CodeIndex =
+                        ThisLabel.Code / 10 * 10
+                    +
+                        (ThisLabel.Code % 10 == 0 ? 9 : ThisLabel.Code % 10 - 1);
+                Global.Print.Translate
+                  (
+                    String.format
+                      (
+                        Global.StdLocale,
+                        "      %03d  %02d %3s",
+                        ThisLabel.Loc,
+                          /* note this points after label (location of "Lbl" + 2),
+                            I think original pointed at label symbol (location of "Lbl" + 1) */
+                        ThisLabel.Code,
+                        Printer.PrintMnemonics[CodeIndex]
+                      ),
+                    Translated
+                  );
+                Global.Print.Render(Translated);
+                ++Index;
+              } /*if*/
+            if (Index == SortedLabels.length)
+              {
+                StopTask();
+              } /*if*/
+          } /*run*/
+
+      } /*LabelLister*/
 
     void SetShowingRunning()
       {
         Global.Disp.SetShowingRunning(Import != null || Global.Export.IsOpen() ? 'c' : 'C');
       } /*SetShowingRunning*/
 
-    void SetProgramStarted()
+    void SetProgramStarted
+      (
+        boolean AllowRunningSlowly
+      )
       {
         ClearDelayedStep();
         FillInLabels(CurBank);
         ProgRunningSlowly = false; /* just in case */
+        this.AllowRunningSlowly = AllowRunningSlowly;
         SaveRunningSlowly = false;
-        ProgRunning = true;
+        TaskRunning = true;
         SetShowingRunning();
         RunPC = PC;
         RunBank = CurBank;
         NextBank = RunBank;
       } /*SetProgramStarted*/
 
-    public void StartProgram()
+    void SetProgramStopped()
       {
-        if (ExecuteTask == null)
-          {
-            ExecuteTask = new ProgRunner();
-          } /*if*/
-        SetProgramStarted();
-        ContinueProgRunner();
-      } /*StartProgram*/
-
-    public void StopProgram()
-      {
-        if (ProgRunning && OnStop != null)
-          {
-            OnStop.run();
-          } /*if*/
-        ProgRunning = false;
+        TaskRunning = false;
         ClearDelayedStep();
-        if (ExecuteTask != null)
-          {
-            BGTask.removeCallbacks(ExecuteTask);
-          } /*if*/
-        PC = RunPC;
         RunBank = CurBank;
         if (InErrorState())
           {
@@ -1936,14 +2033,53 @@ public class State
           {
             Global.Disp.SetShowing(LastShowing);
           } /*if*/
+      } /*SetProgramStopped*/
+
+    void StartTask
+      (
+        Runnable TheTask,
+        boolean AllowRunningSlowly
+      )
+      {
+        RunProg = TheTask;
+        SetProgramStarted(AllowRunningSlowly);
+        ContinueTaskRunner();
+      } /*StartTask*/
+
+    void StopTask()
+      {
+        SetProgramStopped();
+        BGTask.removeCallbacks(ExecuteTask);
+        RunProg = null;
+      } /*StopTask*/
+
+    public void StartProgram()
+      {
+        StartTask(new ProgRunner(), true);
+      } /*StartProgram*/
+
+    public void StopProgram()
+      {
+        if (TaskRunning && OnStop != null)
+          {
+            OnStop.run();
+          } /*if*/
+        PC = RunPC;
+        StopTask();
       } /*StopProgram*/
+
+    void StartLabelListing()
+      {
+        FillInLabels(0); /* because that's the one I list */
+        StartTask(new LabelLister(), false);
+      } /*StartLabelListing*/
 
     public void SetSlowExecution
       (
         boolean Slow
       )
       {
-        if (ProgRunningSlowly != Slow)
+        if (AllowRunningSlowly && ProgRunningSlowly != Slow)
           {
             ProgRunningSlowly = Slow;
             SaveRunningSlowly = Slow;
@@ -1997,7 +2133,7 @@ public class State
               {
                 Flag[i] = false;
               } /*for*/
-            if (ProgRunning)
+            if (TaskRunning)
               {
                 RunPC = 0;
               }
@@ -2188,7 +2324,7 @@ public class State
                         ReturnStack[++ReturnLast] =
                             new ReturnStackEntry(RunBank, RunPC, Type == TRANSFER_TYPE_INTERACTIVE_CALL);
                       } /*if*/
-                    if (ProgRunning)
+                    if (TaskRunning)
                       {
                         RunBank = BankNr;
                         RunPC = Loc;
@@ -2233,7 +2369,7 @@ public class State
                     ReturnTo.Addr >= Bank[ReturnTo.BankNr].Program.length
               )
                 break;
-            if (ProgRunning)
+            if (TaskRunning)
               {
                 RunBank = ReturnTo.BankNr;
                 RunPC = ReturnTo.Addr;
