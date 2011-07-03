@@ -1979,9 +1979,9 @@ public class State
                       (
                         Global.StdLocale,
                         "      %03d  %02d %3s",
-                        ThisLabel.Loc,
-                          /* note this points after label (location of "Lbl" + 2),
-                            I think original pointed at label symbol (location of "Lbl" + 1) */
+                        ThisLabel.Loc - 1,
+                          /* seems to match original, pointing at label symbol
+                            (location of "Lbl" + 1) */
                         ThisLabel.Code,
                         Printer.PrintMnemonics[CodeIndex]
                       ),

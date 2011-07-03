@@ -1,5 +1,8 @@
 Feature highlights:
 
+15158.4, 2011 July 3
+    implement Op 08
+
 15156.5, 2011 July 2
     allow restriction of data file selection to “likely” ones
     (ending in .dat or .txt) for import and export-append
