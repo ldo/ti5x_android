@@ -2614,6 +2614,7 @@ public class State
                     T = 0.0;
                 break;
               /* 20 same as 25 */
+              /* 31 invalid */
                 case 32:
                     SwapT();
                 break;
@@ -2642,6 +2643,7 @@ public class State
                 case 30:
                     Tan();
                 break;
+              /* 41 invalid */
                 case 42:
                     MemoryOp(MEMOP_STO, GetProg(true), false);
                 break;
@@ -2654,6 +2656,7 @@ public class State
                 case 45:
                     Operator(STACKOP_EXP);
                 break;
+              /* 46 invalid */
                 case 47:
                     ClearMemories();
                 break;
@@ -2663,6 +2666,7 @@ public class State
                 case 49:
                     MemoryOp(MEMOP_MUL, GetProg(true), false);
                 break;
+              /* 51 invalid */
                 case 52:
                     EnterExponent();
                 break;
@@ -2675,6 +2679,7 @@ public class State
                 case 55:
                     Operator(STACKOP_DIV);
                 break;
+              /* 56 invalid */
                 case 57:
                     SetDisplayMode
                       (
@@ -2778,6 +2783,7 @@ public class State
                 case 81:
                     ResetProg();
                 break;
+              /* 82 invalid */
                 case 83: /*GTO Ind*/
                     Transfer
                       (
@@ -2870,8 +2876,8 @@ public class State
                         PrintDisplay(false);
                       } /*if*/
                 break;
-                case 90:
-                  /* TBD */
+                case 90: /*List*/
+                  /* no-op in program? */
                 break;
                 default:
                     SetErrorState();
