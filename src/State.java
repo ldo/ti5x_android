@@ -541,7 +541,7 @@ public class State
           } /*CurState*/
       } /*DecimalPoint*/
 
-    int FormatToUse
+    static int FormatToUse
       (
         double X,
         int OrigFormat
@@ -569,7 +569,7 @@ public class State
             UseFormat;
       } /*FormatToUse*/
 
-    int ScaleExp
+    static int ScaleExp
       (
         double X,
         int UsingFormat
@@ -638,6 +638,87 @@ public class State
           } /*switch*/
       } /*EnterExponent*/
 
+    static String FormatNumber
+      (
+        double X,
+        int UseFormat,
+        int NrDecimals,
+        boolean ExponentPad /* leave spaces if exponent is omitted */
+      )
+      /* formats X for display according to the specified settings. */
+      {
+        String Result = null;
+        UseFormat = FormatToUse(X, UseFormat);
+        final int Exp = ScaleExp(X, UseFormat);
+        final int BeforeDecimal = Arith.FiguresBeforeDecimal(X, Exp);
+        switch (UseFormat)
+          {
+        case FORMAT_FLOAT:
+        case FORMAT_ENG:
+            Result = String.format
+              (
+                Global.StdLocale,
+                String.format(Global.StdLocale, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
+                X / Math.pow(10.0, Exp)
+              );
+          /* assume there will always be a decimal point? */
+            Result += (Exp < 0 ? "-" : " ") + String.format(Global.StdLocale, "%02d", Math.abs(Exp));
+        break;
+        case FORMAT_FIXED:
+            if (NrDecimals >= 0)
+              {
+                Result = String.format
+                  (
+                    Global.StdLocale,
+                    String.format
+                      (
+                        Global.StdLocale,
+                        "%%.%df",
+                        Math.max(Math.min(NrDecimals, 10 - BeforeDecimal), 0)
+                      ),
+                    X
+                  );
+              }
+            else
+              {
+                final int UseNrDecimals = Math.max(10 - BeforeDecimal, 0);
+                Result = String.format
+                  (
+                    Global.StdLocale,
+                    String.format(Global.StdLocale, "%%.%df", UseNrDecimals),
+                    X
+                  );
+                if (UseNrDecimals > 0)
+                  {
+                    while
+                      (
+                            Result.length() != 0
+                        &&
+                            Result.charAt(Result.length() - 1) == '0'
+                      )
+                      {
+                        Result = Result.substring(0, Result.length() - 1);
+                      } /*while*/
+                  }
+                else
+                  {
+                    Result += ".";
+                  } /*if*/
+              } /*if*/
+            if (Result.length() == 0)
+              {
+                Result = "0.";
+              } /*if*/
+            if (ExponentPad)
+              {
+                Result += "   ";
+              } /*if*/
+        break;
+          } /*switch*/
+        return
+            Result;
+      } /*FormatNumber*/
+
     public void SetX
       (
         double NewX
@@ -651,72 +732,7 @@ public class State
         X = NewX;
         if (!Double.isNaN(X) && !Double.isInfinite(X))
           {
-            final int UseFormat = FormatToUse(X, CurFormat);
-            final int Exp = ScaleExp(X, UseFormat);
-            final int BeforeDecimal = Arith.FiguresBeforeDecimal(X, Exp);
-            switch (UseFormat)
-              {
-            case FORMAT_FLOAT:
-            case FORMAT_ENG:
-                CurDisplay = String.format
-                  (
-                    Global.StdLocale,
-                    String.format(Global.StdLocale, "%%.%df", Math.max(8 - BeforeDecimal, 0)),
-                    X / Math.pow(10.0, Exp)
-                  );
-            break;
-            case FORMAT_FIXED:
-                if (CurNrDecimals >= 0)
-                  {
-                    CurDisplay = String.format
-                      (
-                        Global.StdLocale,
-                        String.format
-                          (
-                            Global.StdLocale,
-                            "%%.%df",
-                            Math.max(Math.min(CurNrDecimals, 10 - BeforeDecimal), 0)
-                          ),
-                        X
-                      );
-                  }
-                else
-                  {
-                    final int NrDecimals = Math.max(10 - BeforeDecimal, 0);
-                    CurDisplay = String.format
-                      (
-                        Global.StdLocale,
-                        String.format(Global.StdLocale, "%%.%df", NrDecimals),
-                        X
-                      );
-                    if (NrDecimals > 0)
-                      {
-                        while
-                          (
-                                CurDisplay.length() != 0
-                            &&
-                                CurDisplay.charAt(CurDisplay.length() - 1) == '0'
-                          )
-                          {
-                            CurDisplay = CurDisplay.substring(0, CurDisplay.length() - 1);
-                          } /*while*/
-                      }
-                    else
-                      {
-                        CurDisplay += ".";
-                      } /*if*/
-                  } /*if*/
-            break;
-              } /*switch*/
-            if (CurDisplay.length() == 0)
-              {
-                CurDisplay = "0.";
-              } /*if*/
-          /* assume there will always be a decimal point? */
-            if (UseFormat != FORMAT_FIXED)
-              {
-                CurDisplay += (Exp < 0 ? "-" : " ") + String.format(Global.StdLocale, "%02d", Math.abs(Exp));
-              } /*if*/
+            CurDisplay = FormatNumber(X, CurFormat, CurNrDecimals, false);
             SetShowing(CurDisplay);
           }
         else
@@ -1998,6 +2014,54 @@ public class State
 
       } /*LabelLister*/
 
+    class RegisterLister implements Runnable
+      {
+        int CurReg;
+
+        public RegisterLister
+          (
+            int StartReg
+          )
+          {
+            CurReg = StartReg;
+          } /*RegisterLister*/
+
+        public void run()
+          {
+            if (CurReg < Memory.length)
+              {
+                final byte[] Translated = new byte[Printer.CharColumns];
+                Global.Print.Translate
+                  (
+                    String.format
+                      (
+                        Global.StdLocale,
+                        "%16s  %02d",
+                        FormatNumber(Memory[CurReg], FORMAT_FIXED, -1, true),
+                        CurReg
+                      ),
+                    Translated
+                  );
+                Global.Print.Render(Translated);
+                ++CurReg;
+              } /*if*/
+            if (CurReg == Memory.length)
+              {
+                StopTask();
+              } /*if*/
+          } /*run*/
+
+      } /*RegisterLister*/
+
+    class ProgramLister implements Runnable
+      {
+        public void run()
+          {
+          /* more TBD */
+            StopTask();
+          } /*run*/
+      } /*ProgramLister*/
+
     void SetShowingRunning()
       {
         Global.Disp.SetShowingRunning(Import != null || Global.Export.IsOpen() ? 'c' : 'C');
@@ -2073,6 +2137,17 @@ public class State
         FillInLabels(0); /* because that's the one I list */
         StartTask(new LabelLister(), false);
       } /*StartLabelListing*/
+
+    public void StartRegisterListing()
+      {
+        Enter();
+        StartTask(new RegisterLister((int)X), false);
+      } /*StartRegisterListing*/
+
+    public void StartProgramListing()
+      {
+        StartTask(new ProgramLister(), false);
+      } /*StartProgramListing*/
 
     public void SetSlowExecution
       (

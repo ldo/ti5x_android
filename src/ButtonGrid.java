@@ -1451,7 +1451,14 @@ public class ButtonGrid extends android.view.View
                     case 90: /*List*/
                         if (Global.Print != null)
                           {
-                          /* TBD List program or data registers, depending on InvState */
+                            if (Calc.InvState)
+                              {
+                                Calc.StartRegisterListing();
+                              }
+                            else
+                              {
+                                Calc.StartProgramListing();
+                              } /*if*/
                           } /*if*/
                     break;
                       } /*switch*/
