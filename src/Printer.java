@@ -205,7 +205,7 @@ public class Printer
             /*86*/ "STF",
             /*87*/ "IFF",
             /*88*/ "DMS",
-            /*89*/ "PI ", /* guess */
+            /*89*/ " π ", /* guess */
             /*80*/ "GRD",
             /*91*/ "R/S",
             /*92*/ "RTN",
@@ -218,6 +218,20 @@ public class Printer
             /*99*/ "PRT",
             /*90*/ "LST",
         };
+
+    public static String KeyCodeSym
+      (
+        int KeyCode
+      )
+      /* returns the PrintMnemonics symbol for the specified keycode (assumed in [00 .. 99]). */
+      {
+        final int CodeIndex =
+                KeyCode / 10 * 10
+            +
+                (KeyCode % 10 == 0 ? 9 : KeyCode % 10 - 1);
+        return
+            PrintMnemonics[CodeIndex];
+      } /*KeyCodeSym*/
 
     public Printer
       (

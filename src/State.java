@@ -1985,10 +1985,6 @@ public class State
               {
                 final LabelDef ThisLabel = SortedLabels[Index];
                 final byte[] Translated = new byte[Printer.CharColumns];
-                final int CodeIndex =
-                        ThisLabel.Code / 10 * 10
-                    +
-                        (ThisLabel.Code % 10 == 0 ? 9 : ThisLabel.Code % 10 - 1);
                 Global.Print.Translate
                   (
                     String.format
@@ -1999,7 +1995,7 @@ public class State
                           /* seems to match original, pointing at label symbol
                             (location of "Lbl" + 1) */
                         ThisLabel.Code,
-                        Printer.PrintMnemonics[CodeIndex]
+                        Printer.KeyCodeSym(ThisLabel.Code)
                       ),
                     Translated
                   );
@@ -2055,11 +2051,170 @@ public class State
 
     class ProgramLister implements Runnable
       {
+        int ListPC, EndPC;
+        int Expecting;
+        boolean InvState;
+      /* following original, state machine is somewhat simpler than full interpreter/disassembler */
+        final int ExpectOpcode = 0;
+        final int ExpectTwoDigits = 1;
+        final int ExpectLoc = 2;
+        final int ExpectRegFlag = 3;
+        final int ExpectTwoDigitsPlusLoc = 4;
+        final int ExpectRegPlusLoc = 5;
+        final int ExpectSym = 6;
+
+        public ProgramLister()
+          {
+            ListPC = PC;
+            EndPC = MaxProgram;
+            for (;;) /* omit trailing zero bytes */
+              {
+                if (EndPC == 0)
+                    break;
+                --EndPC;
+                if (Program[EndPC] != 0)
+                    break;
+              } /*for*/
+            Expecting = ExpectOpcode;
+            InvState = false;
+          } /*ProgramLister*/
+
         public void run()
           {
-          /* more TBD */
-            StopTask();
+            if (ListPC <= EndPC)
+              {
+                final int Val = Program[ListPC];
+                String Symbol = Printer.KeyCodeSym(Val);
+                int NextExpecting = ExpectOpcode;
+                boolean WasModifier = false;
+                switch (Expecting)
+                  {
+                case ExpectOpcode:
+                    if (Val < 10)
+                      {
+                      /* digit entry */
+                        Symbol = String.format(Global.StdLocale, " %1d ", Val);
+                      } /*if*/
+                    switch (Val)
+                      {
+                    case 22: /*INV*/
+                  /* case 27: */ /*?*/
+                        InvState = !InvState;
+                        WasModifier = true;
+                    break;
+                    case 36: /*Pgm*/
+                    case 42: /*STO*/
+                    case 43: /*RCL*/
+                    case 44: /*SUM*/
+                    case 48: /*Exc*/
+                    case 49: /*Prd*/
+                    case 62: /*Pgm Ind*/
+                    case 63: /*Exc Ind*/
+                    case 64: /*Prd Ind*/
+                    case 69: /*Op*/
+                    case 72: /*STO Ind*/
+                    case 73: /*RCL Ind*/
+                    case 74: /*SUM Ind*/
+                    case 83: /*GTO Ind*/
+                    case 84: /*Op Ind*/
+                        NextExpecting = ExpectTwoDigits;
+                    break;
+                    case 57: /*Fix*/
+                        if (!InvState)
+                          {
+                            NextExpecting = ExpectRegFlag;
+                          } /*if*/
+                    break;
+                    case 61: /*GTO*/
+                        NextExpecting = ExpectLoc;
+                    break;
+                    case 71: /*SBR*/
+                        if (!InvState)
+                          {
+                            NextExpecting = ExpectLoc;
+                          } /*if*/
+                    break;
+                    case 67: /*x=t*/
+                    case 77: /*x≥t*/
+                        NextExpecting = ExpectLoc;
+                    break;
+                    case 76: /*Lbl*/
+                        NextExpecting = ExpectSym;
+                    break;
+                    case 86: /*St flg*/
+                        NextExpecting = ExpectRegFlag;
+                    break;
+                    case 87: /*If flg*/
+                    case 97: /*Dsz*/
+                        NextExpecting = ExpectRegPlusLoc;
+                    break;
+                      } /*switch*/
+                break;
+                case ExpectTwoDigits:
+                    Symbol = String.format(Global.StdLocale, " %02d", Val);
+                break;
+                case ExpectLoc:
+                    if (Val < 10 || Val == 40)
+                      {
+                        NextExpecting = ExpectTwoDigits;
+                      } /*if*/
+                break;
+                case ExpectRegFlag:
+                    if (Val == 40)
+                      {
+                        NextExpecting = ExpectTwoDigits;
+                      }
+                    else
+                      {
+                        Symbol = String.format(Global.StdLocale, " %02d", Val);
+                      } /*if*/
+                break;
+                case ExpectTwoDigitsPlusLoc:
+                    Symbol = String.format(Global.StdLocale, " %02d", Val);
+                    NextExpecting = ExpectLoc;
+                break;
+                case ExpectRegPlusLoc:
+                    if (Val == 40)
+                      {
+                        NextExpecting = ExpectTwoDigitsPlusLoc;
+                      }
+                    else
+                      {
+                        Symbol = String.format(Global.StdLocale, " %02d", Val);
+                        NextExpecting = ExpectLoc;
+                      } /*if*/
+                break;
+                case ExpectSym:
+                    Symbol = Printer.KeyCodeSym(Val);
+                break;
+                  } /*switch*/
+                if (!WasModifier)
+                  {
+                    InvState = false;
+                  } /*if*/
+                final byte[] Translated = new byte[Printer.CharColumns];
+                Global.Print.Translate
+                  (
+                    String.format
+                      (
+                        Global.StdLocale,
+                        "       %03d  %02d %3s  ",
+                        ListPC,
+                        Val,
+                        Symbol
+                      ),
+                    Translated
+                  );
+                Global.Print.Render(Translated);
+                Expecting = NextExpecting;
+                ++ListPC;
+              } /*if*/
+            if (ListPC > EndPC)
+              {
+                StopTask();
+              } /*if*/
           } /*run*/
+
       } /*ProgramLister*/
 
     void SetShowingRunning()
@@ -2755,7 +2910,7 @@ public class State
                     Operator(STACKOP_DIV);
                 break;
               /* 56 invalid */
-                case 57:
+                case 57: /*Fix*/
                     SetDisplayMode
                       (
                         InvState ? FORMAT_FIXED : FORMAT_ENG,
@@ -2991,6 +3146,12 @@ public class State
                 case 84: /*Op Ind*/
                   /* one byte following */
                     GetProg(false);
+                break;
+                case 57: /*Fix*/
+                    if (!InvState)
+                      {
+                        GetUnitOp(false, false);
+                      } /*if*/
                 break;
                 case 61: /*GTO*/
                     GetLoc(false, RunBank /* irrelevant */);
