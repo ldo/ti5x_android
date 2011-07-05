@@ -2081,7 +2081,7 @@ public class State
 
         public void run()
           {
-            if (ListPC <= EndPC)
+            if (ListPC < MaxProgram)
               {
                 final int Val = Program[ListPC];
                 String Symbol = Printer.KeyCodeSym(Val);
@@ -2209,7 +2209,7 @@ public class State
                 Expecting = NextExpecting;
                 ++ListPC;
               } /*if*/
-            if (ListPC > EndPC)
+            if (ListPC == MaxProgram || ListPC >= EndPC && Expecting == ExpectOpcode)
               {
                 StopTask();
               } /*if*/
