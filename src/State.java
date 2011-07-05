@@ -2388,10 +2388,10 @@ public class State
           }
         else
           {
-            RunPC = 0;
             Result = -1;
             if (Executing)
               {
+                RunPC = 0;
                 StopProgram();
               } /*if*/
           } /*if*/
