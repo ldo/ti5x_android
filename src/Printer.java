@@ -126,7 +126,7 @@ public class Printer
             /*08*/ " 08",
             /*09*/ " 09",
             /*00*/ " 00",
-          /* TBD perhaps treat above specially */
+          /* note ones above need to be treated specially */
             /*11*/ " A ",
             /*12*/ " B ",
             /*13*/ " C ",
