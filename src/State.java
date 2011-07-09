@@ -145,8 +145,9 @@ public class State
     public final static int STACKOP_SUB = 2;
     public final static int STACKOP_MUL = 3;
     public final static int STACKOP_DIV = 4;
-    public final static int STACKOP_EXP = 5;
-    public final static int STACKOP_ROOT = 6;
+    public final static int STACKOP_MOD = 5;
+    public final static int STACKOP_EXP = 6;
+    public final static int STACKOP_ROOT = 7;
 
     public static class OpStackEntry
       {
@@ -805,6 +806,9 @@ public class State
         case STACKOP_DIV:
             X = ThisOp.Operand / X;
         break;
+        case STACKOP_MOD:
+            X = Math.IEEEremainder(ThisOp.Operand, X);
+        break;
         case STACKOP_EXP:
             X = Math.pow(ThisOp.Operand, X);
         break;
@@ -829,6 +833,7 @@ public class State
         break;
         case STACKOP_MUL:
         case STACKOP_DIV:
+        case STACKOP_MOD:
             Result = 2;
         break;
         case STACKOP_EXP:
@@ -2907,7 +2912,14 @@ public class State
                     RParen();
                 break;
                 case 55:
-                    Operator(STACKOP_DIV);
+                    if (InvState) /* extension! */
+                      {
+                        Operator(STACKOP_MOD);
+                      }
+                    else
+                      {
+                        Operator(STACKOP_DIV);
+                      } /*if*/
                 break;
               /* 56 invalid */
                 case 57: /*Fix*/

@@ -1,5 +1,8 @@
 Feature highlights:
 
+15164.6, 2011 July 10
+    implement inverse-divide to compute remainder on division
+
 15159.9, 2011 July 5
     implement program and register listing functions
 

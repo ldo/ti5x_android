@@ -1291,7 +1291,14 @@ public class ButtonGrid extends android.view.View
                         Calc.RParen();
                     break;
                     case 55:
-                        Calc.Operator(Calc.STACKOP_DIV);
+                        if (Calc.InvState) /* extension! */
+                          {
+                            Calc.Operator(Calc.STACKOP_MOD);
+                          }
+                        else
+                          {
+                            Calc.Operator(Calc.STACKOP_DIV);
+                          } /*if*/
                     break;
                     case 56:
                       /* ignore */

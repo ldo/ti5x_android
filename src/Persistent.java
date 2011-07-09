@@ -544,6 +544,9 @@ public class Persistent
                         case State.STACKOP_DIV:
                             OpName = "div";
                         break;
+                        case State.STACKOP_MOD:
+                            OpName = "mod";
+                        break;
                         case State.STACKOP_EXP:
                             OpName = "exp";
                         break;
@@ -1052,6 +1055,10 @@ public class Persistent
                     else if (OpName == "div")
                       {
                         Op = State.STACKOP_DIV;
+                      }
+                    else if (OpName == "mod")
+                      {
+                        Op = State.STACKOP_MOD;
                       }
                     else if (OpName == "exp")
                       {
