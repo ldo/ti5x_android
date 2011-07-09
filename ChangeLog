@@ -2,6 +2,7 @@ Feature highlights:
 
 15164.6, 2011 July 10
     implement inverse-divide to compute remainder on division
+    implement op 52/53, get/set register offset
 
 15159.9, 2011 July 5
     implement program and register listing functions

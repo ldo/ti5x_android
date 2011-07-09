@@ -217,6 +217,7 @@ public class State
     public final static int FLAG_TRACE_PRINT = 9; /* if set, calculation is traced on printer */
 
     public int PC, RunPC, CurBank, RunBank, NextBank;
+    public int RegOffset;
     public boolean TaskRunning; /* program currently executing */
     boolean ProgRunningSlowly; /* executing program pauses to show intermediate result */
     boolean AllowRunningSlowly;
@@ -272,6 +273,7 @@ public class State
         PC = 0;
         RunPC = 0;
         CurBank = 0;
+        RegOffset = 0;
         ReturnLast = -1;
         ClearImport();
         TaskRunning = false;
@@ -1258,6 +1260,7 @@ public class State
               {
                 if (Indirect)
                   {
+                    ProgNr = (ProgNr + RegOffset) % 100;
                     if (ProgNr >= MaxMemories)
                         break;
                     ProgNr = (int)Memory[ProgNr];
@@ -1323,11 +1326,12 @@ public class State
             boolean OK = false; /* to begin with */
             do /*once*/
               {
+                RegNr = (RegNr + RegOffset) % 100;
                 if (RegNr >= MaxMemories)
                     break;
                 if (Indirect)
                   {
-                    RegNr = (int)Math.round(Memory[RegNr]);
+                    RegNr = ((int)Math.round(Memory[RegNr]) + RegOffset) % 100;
                     if (RegNr < 0 || RegNr >= MaxMemories)
                         break;
                   } /*if*/
@@ -1399,6 +1403,7 @@ public class State
               {
                 if (Indirect)
                   {
+                    OpNr = (OpNr + RegOffset) % 100;
                     if (OpNr >= MaxMemories)
                         break;
                     OpNr = (int)Math.round(Memory[OpNr]);
@@ -1651,6 +1656,20 @@ public class State
                           );
                       }
                     OK = true;
+                break;
+                case 52: /* extension! */
+                    SetX(RegOffset);
+                    OK = true;
+                break;
+                case 53: /* extension! */
+                      {
+                        final int NewRegOffset = (int)Math.round(X);
+                        if (NewRegOffset >= 0 && NewRegOffset < 100)
+                          {
+                            RegOffset = NewRegOffset;
+                            OK = true;
+                          } /*if*/
+                      }
                 break;
                   } /*switch*/
               }
@@ -2427,7 +2446,7 @@ public class State
               }
             else if (NextByte == 40) /*Ind*/
               {
-                final int Reg = GetProg(Executing);
+                final int Reg = (GetProg(Executing) + RegOffset) % 100;
                 if (Reg >= 0 && Reg < MaxMemories)
                   {
                     Result = (int)Memory[Reg];
@@ -2471,7 +2490,7 @@ public class State
             boolean OK;
             if (NextByte == 40)
               {
-                final int Reg = GetProg(Executing);
+                final int Reg = (GetProg(Executing) + RegOffset) % 100;
                 if (Reg >= 0 && Reg < MaxMemories)
                   {
                     Result = (int)Memory[Reg];
@@ -2533,6 +2552,7 @@ public class State
               {
                 if (LocType == TRANSFER_LOC_INDIRECT)
                   {
+                    Loc = (Loc + RegOffset) % 100;
                     if (Loc >= MaxMemories)
                         break;
                     Loc = (int)Memory[Loc];
@@ -2640,6 +2660,7 @@ public class State
           {
             if (Ind)
               {
+                FlagNr = (FlagNr + RegOffset) % 100;
                 if (FlagNr < MaxMemories)
                   {
                     FlagNr = (int)Memory[FlagNr];
@@ -2674,6 +2695,7 @@ public class State
           {
             if (FlagNrInd)
               {
+                FlagNr = (FlagNr + RegOffset) % 100;
                 if (FlagNr < MaxMemories)
                   {
                     FlagNr = (int)Memory[FlagNr];
@@ -2751,11 +2773,12 @@ public class State
       {
         if (Reg >= 0 && Target >= 0)
           {
+            Reg = (Reg + RegOffset) % 100;
             if (RegInd)
               {
                 if (Reg < MaxMemories)
                   {
-                    Reg = (int)Memory[Reg];
+                    Reg = ((int)Memory[Reg] + RegOffset) % 100;
                   }
                 else
                   {

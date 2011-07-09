@@ -610,6 +610,7 @@ public class Persistent
                     POut.print("\n        </flags>\n");
                     SaveInt(POut, "PC", Calc.PC, 8);
                     SaveInt(POut, "bank", Calc.CurBank, 8);
+                    SaveInt(POut, "regoffset", Calc.RegOffset, 8);
                     POut.println("        <retstack>");
                     for (int i = 0; i <= Calc.ReturnLast; ++i)
                       {
@@ -969,6 +970,10 @@ public class Persistent
                     else if (Name == "bank")
                       {
                         Calc.CurBank = GetInt(Value);
+                      }
+                    else if (Name == "regoffset")
+                      {
+                        Calc.RegOffset = GetInt(Value);
                       }
                     else
                       {
