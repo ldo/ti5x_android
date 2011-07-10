@@ -2151,19 +2151,28 @@ public class State
 
     class RegisterLister implements Runnable
       {
-        int CurReg; /* TBD should also be affected by RegOffset */
+        int CurReg;
+        final int EndReg;
+        boolean Wrapped;
 
         public RegisterLister
           (
             int StartReg
           )
           {
-            CurReg = StartReg;
+            CurReg = (StartReg + RegOffset) % 100;
+            EndReg = (RegOffset + MaxMemories) % 100;
+            Wrapped = CurReg < EndReg;
           } /*RegisterLister*/
 
         public void run()
           {
-            if (CurReg < Memory.length)
+            if (CurReg == MaxMemories && !Wrapped)
+              {
+                CurReg = 0;
+                Wrapped = true;
+              } /*if*/
+            if (CurReg < (Wrapped ? EndReg : MaxMemories))
               {
                 final byte[] Translated = new byte[Printer.CharColumns];
                 Global.Print.Translate
@@ -2173,14 +2182,14 @@ public class State
                         Global.StdLocale,
                         "%16s  %02d",
                         FormatNumber(Memory[CurReg], FORMAT_FIXED, -1, true),
-                        CurReg
+                        CurReg /* post-RegOffset number */
                       ),
                     Translated
                   );
                 Global.Print.Render(Translated);
                 ++CurReg;
               } /*if*/
-            if (CurReg == Memory.length)
+            if (Wrapped && CurReg >= EndReg)
               {
                 StopTask();
               } /*if*/
