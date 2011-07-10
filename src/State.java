@@ -1396,23 +1396,23 @@ public class State
           {
             Result =
                     (
-                        Memory[RegOffset + STATSREG_SIGMAXY]
+                        Memory[(RegOffset + STATSREG_SIGMAXY) % 100]
                     -
-                            Memory[RegOffset + STATSREG_SIGMAX]
+                            Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                         *
-                            Memory[RegOffset + STATSREG_SIGMAY]
+                            Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                         /
-                            Memory[RegOffset + STATSREG_N]
+                            Memory[(RegOffset + STATSREG_N) % 100]
                     )
                 /
                     (
-                        Memory[RegOffset + STATSREG_SIGMAX2]
+                        Memory[(RegOffset + STATSREG_SIGMAX2) % 100]
                     -
-                            Memory[RegOffset + STATSREG_SIGMAX]
+                            Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                         *
-                            Memory[RegOffset + STATSREG_SIGMAX]
+                            Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                         /
-                            Memory[RegOffset + STATSREG_N]
+                            Memory[(RegOffset + STATSREG_N) % 100]
                     );
           }
         else
@@ -1561,33 +1561,33 @@ public class State
                     if (StatsRegsAvailable())
                       {
                         T =
-                                    Memory[RegOffset + STATSREG_SIGMAX2]
+                                    Memory[(RegOffset + STATSREG_SIGMAX2) % 100]
                                 /
-                                    Memory[RegOffset + STATSREG_N]
+                                    Memory[(RegOffset + STATSREG_N) % 100]
                             -
-                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                    Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                 *
-                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                    Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                 /
                                     (
-                                        Memory[RegOffset + STATSREG_N]
+                                        Memory[(RegOffset + STATSREG_N) % 100]
                                     *
-                                        Memory[RegOffset + STATSREG_N]
+                                        Memory[(RegOffset + STATSREG_N) % 100]
                                     );
                         SetX
                           (
-                                    Memory[RegOffset + STATSREG_SIGMAY2]
+                                    Memory[(RegOffset + STATSREG_SIGMAY2) % 100]
                                 /
-                                    Memory[RegOffset + STATSREG_N]
+                                    Memory[(RegOffset + STATSREG_N) % 100]
                             -
-                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                    Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                 *
-                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                    Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                 /
                                     (
-                                        Memory[RegOffset + STATSREG_N]
+                                        Memory[(RegOffset + STATSREG_N) % 100]
                                     *
-                                        Memory[RegOffset + STATSREG_N]
+                                        Memory[(RegOffset + STATSREG_N) % 100]
                                     )
                           );
                         OK = true;
@@ -1602,12 +1602,12 @@ public class State
                         SetX
                           (
                                 (
-                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                    Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                 -
-                                    m * Memory[RegOffset + STATSREG_SIGMAX]
+                                    m * Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                 )
                             /
-                                Memory[RegOffset + STATSREG_N]
+                                Memory[(RegOffset + STATSREG_N) % 100]
                           );
                         OK = true;
                       } /*if*/
@@ -1622,24 +1622,24 @@ public class State
                             *
                                 Math.sqrt
                                   (
-                                        Memory[RegOffset + STATSREG_SIGMAX2]
+                                        Memory[(RegOffset + STATSREG_SIGMAX2) % 100]
                                     -
-                                            Memory[RegOffset + STATSREG_SIGMAX]
+                                            Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                         *
-                                            Memory[RegOffset + STATSREG_SIGMAX]
+                                            Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                         /
-                                            Memory[RegOffset + STATSREG_N]
+                                            Memory[(RegOffset + STATSREG_N) % 100]
                                   )
                             /
                                 Math.sqrt
                                   (
-                                        Memory[RegOffset + STATSREG_SIGMAY2]
+                                        Memory[(RegOffset + STATSREG_SIGMAY2) % 100]
                                     -
-                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                            Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                         *
-                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                            Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                         /
-                                            Memory[RegOffset + STATSREG_N]
+                                            Memory[(RegOffset + STATSREG_N) % 100]
                                   )
                           );
                         OK = true;
@@ -1655,12 +1655,12 @@ public class State
                                 m * X
                             +
                                     (
-                                        Memory[RegOffset + STATSREG_SIGMAY]
+                                        Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                     -
-                                        m * Memory[RegOffset + STATSREG_SIGMAX]
+                                        m * Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                     )
                                 /
-                                    Memory[RegOffset + STATSREG_N]
+                                    Memory[(RegOffset + STATSREG_N) % 100]
                           );
                         OK = true;
                       } /*if*/
@@ -1676,12 +1676,12 @@ public class State
                                     X
                                 -
                                         (
-                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                            Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                         -
-                                            m * Memory[RegOffset + STATSREG_SIGMAX]
+                                            m * Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                         )
                                     /
-                                        Memory[RegOffset + STATSREG_N]
+                                        Memory[(RegOffset + STATSREG_N) % 100]
                                 )
                             /
                                 m
@@ -1775,26 +1775,26 @@ public class State
             if (InvState)
               {
               /* remove sample */
-                Memory[RegOffset + STATSREG_SIGMAY] -= X;
-                Memory[RegOffset + STATSREG_SIGMAY2] -= X * X;
-                Memory[RegOffset + STATSREG_N] -= 1.0;
-                Memory[RegOffset + STATSREG_SIGMAX] -= T;
-                Memory[RegOffset + STATSREG_SIGMAX2] -= T * T;
-                Memory[RegOffset + STATSREG_SIGMAXY] -= X * T;
+                Memory[(RegOffset + STATSREG_SIGMAY) % 100] -= X;
+                Memory[(RegOffset + STATSREG_SIGMAY2) % 100] -= X * X;
+                Memory[(RegOffset + STATSREG_N) % 100] -= 1.0;
+                Memory[(RegOffset + STATSREG_SIGMAX) % 100] -= T;
+                Memory[(RegOffset + STATSREG_SIGMAX2) % 100] -= T * T;
+                Memory[(RegOffset + STATSREG_SIGMAXY) % 100] -= X * T;
                 T -= 1.0;
               }
             else
               {
               /* accumulate sample */
-                Memory[RegOffset + STATSREG_SIGMAY] += X;
-                Memory[RegOffset + STATSREG_SIGMAY2] += X * X;
-                Memory[RegOffset + STATSREG_N] += 1.0;
-                Memory[RegOffset + STATSREG_SIGMAX] += T;
-                Memory[RegOffset + STATSREG_SIGMAX2] += T * T;
-                Memory[RegOffset + STATSREG_SIGMAXY] += X * T;
+                Memory[(RegOffset + STATSREG_SIGMAY) % 100] += X;
+                Memory[(RegOffset + STATSREG_SIGMAY2) % 100] += X * X;
+                Memory[(RegOffset + STATSREG_N) % 100] += 1.0;
+                Memory[(RegOffset + STATSREG_SIGMAX) % 100] += T;
+                Memory[(RegOffset + STATSREG_SIGMAX2) % 100] += T * T;
+                Memory[(RegOffset + STATSREG_SIGMAXY) % 100] += X * T;
                 T += 1.0;
               } /*if*/
-            SetX(Memory[RegOffset + STATSREG_N]);
+            SetX(Memory[(RegOffset + STATSREG_N) % 100]);
           }
         else
           {
@@ -1813,40 +1813,48 @@ public class State
                     Math.sqrt
                         (
                             (
-                                Memory[RegOffset + STATSREG_SIGMAX2]
+                                Memory[(RegOffset + STATSREG_SIGMAX2) % 100]
                             -
-                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                    Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                 *
-                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                    Memory[(RegOffset + STATSREG_SIGMAX) % 100]
                                 /
-                                    Memory[RegOffset + STATSREG_N]
+                                    Memory[(RegOffset + STATSREG_N) % 100]
                             )
                         /
-                            (Memory[RegOffset + STATSREG_N] - 1.0)
+                            (Memory[(RegOffset + STATSREG_N) % 100] - 1.0)
                         );
                 SetX
                   (
                     Math.sqrt
                         (
                             (
-                                Memory[RegOffset + STATSREG_SIGMAY2]
+                                Memory[(RegOffset + STATSREG_SIGMAY2) % 100]
                             -
-                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                    Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                 *
-                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                    Memory[(RegOffset + STATSREG_SIGMAY) % 100]
                                 /
-                                    Memory[RegOffset + STATSREG_N]
+                                    Memory[(RegOffset + STATSREG_N) % 100]
                             )
                         /
-                            (Memory[RegOffset + STATSREG_N] - 1.0)
+                            (Memory[(RegOffset + STATSREG_N) % 100] - 1.0)
                         )
                   );
               }
             else
               {
               /* sample mean */
-                T = Memory[RegOffset + STATSREG_SIGMAX] / Memory[RegOffset + STATSREG_N];
-                SetX(Memory[RegOffset + STATSREG_SIGMAY] / Memory[RegOffset + STATSREG_N]);
+                T =
+                        Memory[(RegOffset + STATSREG_SIGMAX) % 100]
+                    /
+                        Memory[(RegOffset + STATSREG_N) % 100];
+                SetX
+                  (
+                        Memory[(RegOffset + STATSREG_SIGMAY) % 100]
+                    /
+                        Memory[(RegOffset + STATSREG_N) % 100]
+                  );
               } /*if*/
           }
         else
