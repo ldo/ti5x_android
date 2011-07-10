@@ -232,7 +232,46 @@ the actual register to operate on.
 adds 1 to memory <B>0</B><I>n</I>.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>3</B><I>n</I> —
 subtracts 1 from memory <B>0</B><I>n</I>.
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>52</B> —
+<B>extension:</B> returns the current <I>register offset</I> as <I>nn</I>
+(<I>nn</I> ∈ <B>00</B> .. <B>99</B>).
+<LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN> <B>53</B> —
+<B>extension:</B> sets the register offset to the current number <I>nn</I>
+(<I>nn</I> ∈ <B>00</B> .. <B>99</B>).
 </UL>
+<P>The register offset is an adjustment to the numbering of all the memory registers:
+when the offset is set to <I>nn</I>, all references to register <I>ii</I> actually become
+references to register <I>ii</I> + <I>nn</I> (modulo 100). The purpose of this is to
+minimize register conflicts when one program calls another. For example, you might want
+to call two library programs that both use registers <B>01</B> .. <B>06</B>; rather than
+move the registers one by one into different registers and then back again, simply change
+the register offset before calling one or both of them, to cause them to use different registers.
+You can also use this to give yourself more convenient numbering for your own register usage;
+thus, if you want to use 10 registers, but want to call a library routine that will
+use registers from <B>00</B> onwards, simply add 10 to the register offset before calling
+that routine, then subtract 10 back after it returns. That way your own code can use
+the register numbers <B>00</B> .. <B>09</B> without conflict.
+<P>The preferred way to make adjustments to the register offset is to always <I>add</I>
+to or <I>subtract</I> from the current value, never unconditionally <I>set</I> it to
+a new value. In the previous example, you might use a key sequence like
+<SPAN CLASS="brownbutton">&nbsp;(&nbsp;</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Op</SPAN> <SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN> <SPAN CLASS="yellowbutton">&nbsp;+&nbsp;</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN> <SPAN CLASS="whitebutton">&nbsp;0&nbsp;</SPAN>
+<SPAN CLASS="brownbutton">&nbsp;)&nbsp;</SPAN>
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN> <SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN>
+before invoking the routine, and
+<SPAN CLASS="brownbutton">&nbsp;(&nbsp;</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN>
+<SPAN CLASS="alttext">Op</SPAN> <SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;2&nbsp;</SPAN> <SPAN CLASS="yellowbutton">&nbsp;-&nbsp;</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;1&nbsp;</SPAN> <SPAN CLASS="whitebutton">&nbsp;0&nbsp;</SPAN>
+<SPAN CLASS="brownbutton">&nbsp;)&nbsp;</SPAN>
+<SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Op</SPAN>
+<SPAN CLASS="whitebutton">&nbsp;5&nbsp;</SPAN> <SPAN CLASS="whitebutton">&nbsp;3&nbsp;</SPAN>
+to restore the previous offset afterwards. The reason for this is to allow the same trick
+to be pulled on your routine to relocate its register usage by some other routine that
+wants to call it.
 
 <P><A HREF="#Topics">Back to Topics</A>
 
