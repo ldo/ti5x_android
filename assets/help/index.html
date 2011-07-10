@@ -240,7 +240,11 @@ subtracts 1 from memory <B>0</B><I>n</I>.
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN> — enter π.
 <LI><SPAN CLASS="brownbutton">INV</SPAN> <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">π</SPAN> — <B>extension:</B> enter the equivalent of 1 radian in the current angle units
-(1 if in radians, 180 ÷ π if in degrees, 200 ÷ π if in gradians).
+(1 if in radians, 180 ÷ π if in degrees, 200 ÷ π if in gradians). Dividing an angle in the
+current angle units by this number converts it to radians; multiplying a value in radians
+by this number converts it to the current angle units. Many algorithms are easiest to express
+if all angles are in radians; at the same time, you can make your program more user-friendly
+if it accepts inputs and displays results in the current angle units.
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Deg</SPAN> — switches angle units
 to degrees (default).
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Rad</SPAN> — switches angle units
