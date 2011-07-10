@@ -630,7 +630,7 @@ public class ButtonGrid extends android.view.View
                     else if (NextLiteral)
                       {
                       /* note I can't use Ind as label because I can't goto/gosub it */
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                       }
                     else
                       {
@@ -648,7 +648,7 @@ public class ButtonGrid extends android.view.View
                 case 64: /*digit 9*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                       }
                     else
                       {
@@ -660,7 +660,7 @@ public class ButtonGrid extends android.view.View
                 case 74: /*digit 6*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                       }
                     else
                       {
@@ -672,7 +672,7 @@ public class ButtonGrid extends android.view.View
                 case 84: /*digit 3*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                       }
                     else
                       {
@@ -682,7 +682,7 @@ public class ButtonGrid extends android.view.View
                 case 92: /*digit 0*/
                     if (NextLiteral)
                       {
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                       }
                     else
                       {
@@ -978,7 +978,7 @@ public class ButtonGrid extends android.view.View
                       }
                     else
                       {
-                        Calc.SetErrorState();
+                        Calc.SetErrorState(true);
                         Handled = true;
                       } /*if*/
                     if (Finished)

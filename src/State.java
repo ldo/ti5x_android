@@ -230,6 +230,8 @@ public class State
     public static final int STATSREG_SIGMAX = 4;
     public static final int STATSREG_SIGMAX2 = 5;
     public static final int STATSREG_SIGMAXY = 6;
+    public static final int STATSREG_FIRST = 1; /* lowest-numbered memory used for stats */
+    public static final int STATSREG_LAST = 6; /* highest-numbered memory used for stats */
 
     public static class ReturnStackEntry
       {
@@ -428,7 +430,10 @@ public class State
           } /*if*/
       } /*Enter*/
 
-    public void SetErrorState()
+    public void SetErrorState
+      (
+        boolean AlsoStopProgram
+      )
       {
         ClearDelayedStep();
         if (!TaskRunning || ProgRunningSlowly)
@@ -436,7 +441,7 @@ public class State
             Global.Disp.SetShowingError(LastShowing);
           } /*if*/
         CurState = ErrorState;
-        if (Flag[FLAG_STOP_ON_ERROR])
+        if (AlsoStopProgram || Flag[FLAG_STOP_ON_ERROR])
           {
             StopProgram();
           } /*if*/
@@ -740,7 +745,7 @@ public class State
           }
         else
           {
-            SetErrorState();
+            SetErrorState(false);
           } /*if*/
         if (Flag[FLAG_TRACE_PRINT] && Global.Print != null)
           {
@@ -855,7 +860,7 @@ public class State
         if (OpStackNext == MaxOpStack)
           {
           /* overflow! */
-            SetErrorState();
+            SetErrorState(false);
           }
         else
           {
@@ -1288,7 +1293,7 @@ public class State
             while (false);
             if (!OK)
               {
-                SetErrorState();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*SelectProgram*/
@@ -1367,26 +1372,56 @@ public class State
             while (false);
             if (!OK)
               {
-                SetErrorState();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*MemoryOp*/
 
+    boolean StatsRegsAvailable()
+      /* ensures the statistics registers are accessible with the current
+        partition/offset setting. */
+      {
+        return
+          /* sufficient to check that first & last reg are within accessible range */
+                (RegOffset + STATSREG_FIRST) % 100 < MaxMemories
+            &&
+                (RegOffset + STATSREG_LAST) % 100 < MaxMemories;
+      } /*StatsRegsAvailable*/
+
     double StatsSlope()
       /* estimated slope from linear regression, used in a lot of other results. */
       {
+        double Result;
+        if (StatsRegsAvailable())
+          {
+            Result =
+                    (
+                        Memory[RegOffset + STATSREG_SIGMAXY]
+                    -
+                            Memory[RegOffset + STATSREG_SIGMAX]
+                        *
+                            Memory[RegOffset + STATSREG_SIGMAY]
+                        /
+                            Memory[RegOffset + STATSREG_N]
+                    )
+                /
+                    (
+                        Memory[RegOffset + STATSREG_SIGMAX2]
+                    -
+                            Memory[RegOffset + STATSREG_SIGMAX]
+                        *
+                            Memory[RegOffset + STATSREG_SIGMAX]
+                        /
+                            Memory[RegOffset + STATSREG_N]
+                    );
+          }
+        else
+          {
+            SetErrorState(true);
+            Result = Double.NaN;
+          } /*if*/
         return
-                (
-                    Memory[STATSREG_SIGMAXY]
-                -
-                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
-                )
-            /
-                (
-                    Memory[STATSREG_SIGMAX2]
-                -
-                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
-                );
+            Result;
       } /*StatsSlope*/
 
     public void SpecialOp
@@ -1475,7 +1510,7 @@ public class State
                           }
                         else
                           {
-                            SetErrorState();
+                            SetErrorState(false);
                           } /*if*/
                       } /*if*/
                     OK = true;
@@ -1512,7 +1547,7 @@ public class State
                           }
                         else
                           {
-                            SetErrorState();
+                            SetErrorState(true);
                           } /*if*/
                       } /*if*/
                     OK = true;
@@ -1523,71 +1558,116 @@ public class State
                 break;
                 case 11:
                   /* sample variance */
-                    T =
-                            Memory[STATSREG_SIGMAX2] / Memory[STATSREG_N]
-                        -
-                                Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX]
-                            /
-                                (Memory[STATSREG_N] * Memory[STATSREG_N]);
-                    SetX
-                      (
-                            Memory[STATSREG_SIGMAY2] / Memory[STATSREG_N]
-                        -
-                                Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY]
-                            /
-                                (Memory[STATSREG_N] * Memory[STATSREG_N])
-                      );
-                    OK = true;
+                    if (StatsRegsAvailable())
+                      {
+                        T =
+                                    Memory[RegOffset + STATSREG_SIGMAX2]
+                                /
+                                    Memory[RegOffset + STATSREG_N]
+                            -
+                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                *
+                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                /
+                                    (
+                                        Memory[RegOffset + STATSREG_N]
+                                    *
+                                        Memory[RegOffset + STATSREG_N]
+                                    );
+                        SetX
+                          (
+                                    Memory[RegOffset + STATSREG_SIGMAY2]
+                                /
+                                    Memory[RegOffset + STATSREG_N]
+                            -
+                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                *
+                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                /
+                                    (
+                                        Memory[RegOffset + STATSREG_N]
+                                    *
+                                        Memory[RegOffset + STATSREG_N]
+                                    )
+                          );
+                        OK = true;
+                      } /*if*/
                 break;
                 case 12:
                   /* slope and intercept */
+                    if (StatsRegsAvailable())
                       {
                         final double m = StatsSlope();
                         T = m;
                         SetX
                           (
-                            (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
+                                (
+                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                -
+                                    m * Memory[RegOffset + STATSREG_SIGMAX]
+                                )
+                            /
+                                Memory[RegOffset + STATSREG_N]
                           );
                         OK = true;
-                      }
+                      } /*if*/
                 break;
                 case 13:
                   /* correlation coefficient */
-                    SetX
-                      (
-                            StatsSlope()
-                        *
-                            Math.sqrt
-                              (
-                                    Memory[STATSREG_SIGMAX2]
-                                -
-                                    Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
-                              )
-                        /
-                            Math.sqrt
-                              (
-                                    Memory[STATSREG_SIGMAY2]
-                                -
-                                    Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
-                              )
-                      );
-                    OK = true;
+                    if (StatsRegsAvailable())
+                      {
+                        SetX
+                          (
+                                StatsSlope()
+                            *
+                                Math.sqrt
+                                  (
+                                        Memory[RegOffset + STATSREG_SIGMAX2]
+                                    -
+                                            Memory[RegOffset + STATSREG_SIGMAX]
+                                        *
+                                            Memory[RegOffset + STATSREG_SIGMAX]
+                                        /
+                                            Memory[RegOffset + STATSREG_N]
+                                  )
+                            /
+                                Math.sqrt
+                                  (
+                                        Memory[RegOffset + STATSREG_SIGMAY2]
+                                    -
+                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                        *
+                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                        /
+                                            Memory[RegOffset + STATSREG_N]
+                                  )
+                          );
+                        OK = true;
+                      } /*if*/
                 break;
                 case 14:
                   /* estimated y from x */
+                    if (StatsRegsAvailable())
                       {
                         final double m = StatsSlope();
                         SetX
                           (
                                 m * X
                             +
-                                (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
+                                    (
+                                        Memory[RegOffset + STATSREG_SIGMAY]
+                                    -
+                                        m * Memory[RegOffset + STATSREG_SIGMAX]
+                                    )
+                                /
+                                    Memory[RegOffset + STATSREG_N]
                           );
-                      }
-                    OK = true;
+                        OK = true;
+                      } /*if*/
                 break;
                 case 15:
                   /* estimated x from y */
+                    if (StatsRegsAvailable())
                       {
                         final double m = StatsSlope();
                         SetX
@@ -1595,13 +1675,19 @@ public class State
                                 (
                                     X
                                 -
-                                    (Memory[STATSREG_SIGMAY] - m * Memory[STATSREG_SIGMAX]) / Memory[STATSREG_N]
+                                        (
+                                            Memory[RegOffset + STATSREG_SIGMAY]
+                                        -
+                                            m * Memory[RegOffset + STATSREG_SIGMAX]
+                                        )
+                                    /
+                                        Memory[RegOffset + STATSREG_N]
                                 )
                             /
                                 m
                           );
-                      }
-                    OK = true;
+                        OK = true;
+                      } /*if*/
                 break;
                 case 17:
                   /* not implemented, fall through */
@@ -1676,8 +1762,7 @@ public class State
             while (false);
             if (!OK)
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*SpecialOp*/
@@ -1685,66 +1770,88 @@ public class State
     public void StatsSum()
       {
         Enter();
-        if (InvState)
+        if (StatsRegsAvailable())
           {
-          /* remove sample */
-            Memory[STATSREG_SIGMAY] -= X;
-            Memory[STATSREG_SIGMAY2] -= X * X;
-            Memory[STATSREG_N] -= 1.0;
-            Memory[STATSREG_SIGMAX] -= T;
-            Memory[STATSREG_SIGMAX2] -= T * T;
-            Memory[STATSREG_SIGMAXY] -= X * T;
-            T -= 1.0;
+            if (InvState)
+              {
+              /* remove sample */
+                Memory[RegOffset + STATSREG_SIGMAY] -= X;
+                Memory[RegOffset + STATSREG_SIGMAY2] -= X * X;
+                Memory[RegOffset + STATSREG_N] -= 1.0;
+                Memory[RegOffset + STATSREG_SIGMAX] -= T;
+                Memory[RegOffset + STATSREG_SIGMAX2] -= T * T;
+                Memory[RegOffset + STATSREG_SIGMAXY] -= X * T;
+                T -= 1.0;
+              }
+            else
+              {
+              /* accumulate sample */
+                Memory[RegOffset + STATSREG_SIGMAY] += X;
+                Memory[RegOffset + STATSREG_SIGMAY2] += X * X;
+                Memory[RegOffset + STATSREG_N] += 1.0;
+                Memory[RegOffset + STATSREG_SIGMAX] += T;
+                Memory[RegOffset + STATSREG_SIGMAX2] += T * T;
+                Memory[RegOffset + STATSREG_SIGMAXY] += X * T;
+                T += 1.0;
+              } /*if*/
+            SetX(Memory[RegOffset + STATSREG_N]);
           }
         else
           {
-          /* accumulate sample */
-            Memory[STATSREG_SIGMAY] += X;
-            Memory[STATSREG_SIGMAY2] += X * X;
-            Memory[STATSREG_N] += 1.0;
-            Memory[STATSREG_SIGMAX] += T;
-            Memory[STATSREG_SIGMAX2] += T * T;
-            Memory[STATSREG_SIGMAXY] += X * T;
-            T += 1.0;
+            SetErrorState(true);
           } /*if*/
-        SetX(Memory[STATSREG_N]);
       } /*StatsSum*/
 
     public void StatsResult()
       {
-        if (InvState)
+        if (StatsRegsAvailable())
           {
-          /* estimated population standard deviation */
-            T =
-                Math.sqrt
-                    (
+            if (InvState)
+              {
+              /* estimated population standard deviation */
+                T =
+                    Math.sqrt
                         (
-                            Memory[STATSREG_SIGMAX2]
-                        -
-                            Memory[STATSREG_SIGMAX] * Memory[STATSREG_SIGMAX] / Memory[STATSREG_N]
-                        )
-                    /
-                        (Memory[STATSREG_N] - 1.0)
-                    );
-            SetX
-              (
-                Math.sqrt
-                    (
+                            (
+                                Memory[RegOffset + STATSREG_SIGMAX2]
+                            -
+                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                *
+                                    Memory[RegOffset + STATSREG_SIGMAX]
+                                /
+                                    Memory[RegOffset + STATSREG_N]
+                            )
+                        /
+                            (Memory[RegOffset + STATSREG_N] - 1.0)
+                        );
+                SetX
+                  (
+                    Math.sqrt
                         (
-                            Memory[STATSREG_SIGMAY2]
-                        -
-                            Memory[STATSREG_SIGMAY] * Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]
+                            (
+                                Memory[RegOffset + STATSREG_SIGMAY2]
+                            -
+                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                *
+                                    Memory[RegOffset + STATSREG_SIGMAY]
+                                /
+                                    Memory[RegOffset + STATSREG_N]
+                            )
+                        /
+                            (Memory[RegOffset + STATSREG_N] - 1.0)
                         )
-                    /
-                        (Memory[STATSREG_N] - 1.0)
-                    )
-              );
+                  );
+              }
+            else
+              {
+              /* sample mean */
+                T = Memory[RegOffset + STATSREG_SIGMAX] / Memory[RegOffset + STATSREG_N];
+                SetX(Memory[RegOffset + STATSREG_SIGMAY] / Memory[RegOffset + STATSREG_N]);
+              } /*if*/
           }
         else
           {
-          /* sample mean */
-            T = Memory[STATSREG_SIGMAX] / Memory[STATSREG_N];
-            SetX(Memory[STATSREG_SIGMAY] / Memory[STATSREG_N]);
+            SetErrorState(true);
           } /*if*/
       } /*StatsResult*/
 
@@ -1793,7 +1900,7 @@ public class State
         Flag[FLAG_ERROR_COND] = EOF;
         if (!OK)
           {
-            SetErrorState();
+            SetErrorState(true);
           } /*if*/
       } /*GetNextImport*/
 
@@ -1870,7 +1977,7 @@ public class State
           }
         else
           {
-            SetErrorState();
+            SetErrorState(true);
           } /*if*/
       } /*StorePrevInstr*/
 
@@ -2036,7 +2143,7 @@ public class State
 
     class RegisterLister implements Runnable
       {
-        int CurReg;
+        int CurReg; /* TBD should also be affected by RegOffset */
 
         public RegisterLister
           (
@@ -2466,8 +2573,7 @@ public class State
           } /*if*/
         if (Executing && Result < 0)
           {
-            SetErrorState();
-            StopProgram();
+            SetErrorState(true);
           } /*if*/
         return
             Result;
@@ -2516,8 +2622,7 @@ public class State
               } /*if*/
             if (Executing && !OK)
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
         return
@@ -2600,8 +2705,7 @@ public class State
             while (false);
             if (!OK)
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*Transfer*/
@@ -2644,8 +2748,7 @@ public class State
         while (false);
         if (!OK)
           {
-            SetErrorState();
-            StopProgram();
+            SetErrorState(true);
           } /*if*/
       } /*Return*/
 
@@ -2676,8 +2779,7 @@ public class State
               }
             else
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*SetFlag*/
@@ -2720,8 +2822,7 @@ public class State
               }
             else
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*BranchIfFlag*/
@@ -2801,8 +2902,7 @@ public class State
               }
             else
               {
-                SetErrorState();
-                StopProgram();
+                SetErrorState(true);
               } /*if*/
           } /*if*/
       } /*DecrementSkip*/
@@ -3145,8 +3245,7 @@ public class State
                   /* no-op in program? */
                 break;
                 default:
-                    SetErrorState();
-                    StopProgram();
+                    SetErrorState(true);
                 break;
                   } /*switch*/
                 if (!BankSet)
