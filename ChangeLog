@@ -1,5 +1,8 @@
 Feature highlights:
 
+15169.3, 2011 July 14
+    typo! “∑x” corrected to “∑+” throughout
+
 15164.6, 2011 July 10
     implement inverse-divide to compute remainder on division
     implement op 52/53, get/set register offset
