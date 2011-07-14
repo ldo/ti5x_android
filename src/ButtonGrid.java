@@ -127,7 +127,7 @@ public class ButtonGrid extends android.view.View
                     {
                         new ButtonDef("SBR", "Lbl", White, ButtonBrown),
                         new ButtonDef("4", "x≥t", "STO Ind", Dark, White),
-                        new ButtonDef("5", "∑x", "RCL Ind", Dark, White),
+                        new ButtonDef("5", "∑+", "RCL Ind", Dark, White),
                         new ButtonDef("6", "mean(x)", "SUM Ind", Dark, White),
                         new ButtonDef("-", "Rad", Dark, ButtonYellow),
                     },

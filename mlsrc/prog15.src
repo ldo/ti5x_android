@@ -32,14 +32,14 @@ lbl B
 lbl C
 ; generate uniformly-distributed random variable
     ( op 51 * ( rcl 11 - rcl 10 ) + rcl 10 ) sto 09
-    ∑x ; accumulate statistics
+    ∑+ ; accumulate statistics
     rcl 09
     inv sbr
 
 lbl C´
 ; generate normally-distributed random variable
     ( ( op 51 lnx × 2 +/- ) sqrt × ( op 51 × 1 inv sin × 4 ) cos × rcl 11 + rcl 10 ) sto 09
-    ∑x ; accumulate statistics
+    ∑+ ; accumulate statistics
     rcl 09
     inv sbr
 

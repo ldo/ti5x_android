@@ -36,9 +36,9 @@ lbl B
     6 x<>t rcl 01 inv x=t |x| ; reached start?
     ( rcl 02 + 6 ) sto 01 ; wraparound if so
 lbl |x|
-    rcl 02 x<>t rcl 03 x=t ∑x ; branch if already got n numbers
+    rcl 02 x<>t rcl 03 x=t ∑+ ; branch if already got n numbers
     op 23 ; else increase count
-lbl ∑x
+lbl ∑+
 ; compute and return new average
     rcl 03 sto 04
     ( rcl 02 + 6 ) sto 05

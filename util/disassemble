@@ -124,7 +124,7 @@ codes = \
         75 : simple("-"),
         76 : {"sym" : "Lbl", "expect" : "label"},
         77 : locop("x≥t"),
-        78 : simple("∑x"),
+        78 : simple("∑+"),
         79 : simple("mean(x)"),
         70 : simple("Rad"),
         81 : simple("RST"),

@@ -43,11 +43,11 @@ lbl D
     ( rcl 02 + 1 ) sto 04
     1
     gto x²
-lbl ∑x
+lbl ∑+
     ( ce × rcl 03 )
     op 33
 lbl x²
-    dsz 4 ∑x
+    dsz 4 ∑+
     inv sbr
 
 lbl E
