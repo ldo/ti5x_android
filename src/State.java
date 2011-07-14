@@ -2357,7 +2357,7 @@ public class State
                 Expecting = NextExpecting;
                 ++ListPC;
               } /*if*/
-            if (ListPC == MaxProgram || ListPC >= EndPC && Expecting == ExpectOpcode)
+            if (ListPC == MaxProgram || ListPC > EndPC && Expecting == ExpectOpcode)
               {
                 StopTask();
               } /*if*/
