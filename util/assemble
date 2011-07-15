@@ -204,7 +204,6 @@ symbols["eq"] = symbols["x=t"]
 symbols["ge"] = symbols["x≥t"]
 symbols["x>=t"] = symbols["x≥t"]
 symbols["∑+"] = symbols["sigma"]
-symbols["∑x"] = symbols["sigma"] # actually my mistake
 symbols["s+"] = symbols["sigma"]
 symbols["sta"] = symbols["sigma"]
 symbols["iff"] = symbols["ifflg"]
