@@ -1,12 +1,156 @@
 #!/usr/bin/python3
 #+
-# This script generates integer bitmask repesentations of the printer
+# This script generates various representations of the printer
 # characters.
 #
 # Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #-
 
 import sys
+import array
+import ctypes as ct
+
+#+
+# libpng access via ctypes
+#-
+
+def load_png() :
+    global png
+    png = ct.cdll.LoadLibrary("libpng.so")
+    png.png_create_write_struct.restype = ct.c_void_p
+    png.png_create_info_struct.restype = ct.c_void_p
+#end load_png
+
+class PNG :
+    """constants and types copied from png.h"""
+
+    COLOR_MASK_PALETTE = 1
+    COLOR_MASK_COLOR = 2
+    COLOR_MASK_ALPHA = 4
+    # color types.  Note that not all combinations are legal
+    COLOR_TYPE_GRAY = 0
+    COLOR_TYPE_PALETTE = COLOR_MASK_COLOR | COLOR_MASK_PALETTE
+    COLOR_TYPE_RGB = COLOR_MASK_COLOR
+    COLOR_TYPE_RGB_ALPHA = COLOR_MASK_COLOR | COLOR_MASK_ALPHA
+    COLOR_TYPE_GRAY_ALPHA = COLOR_MASK_ALPHA
+    # aliases
+    COLOR_TYPE_RGBA = COLOR_TYPE_RGB_ALPHA
+    COLOR_TYPE_GA = COLOR_TYPE_GRAY_ALPHA
+
+    INTERLACE_NONE = 0 # Non-interlaced image
+    INTERLACE_ADAM7 = 1 # Adam7 interlacing
+
+    COMPRESSION_TYPE_BASE = 0 # Deflate method 8, 32K window
+    COMPRESSION_TYPE_DEFAULT = COMPRESSION_TYPE_BASE
+
+    FILTER_TYPE_BASE = 0 # Single row per-byte filtering
+    INTRAPIXEL_DIFFERENCING = 64 # Used only in MNG datastreams
+    FILTER_TYPE_DEFAULT = FILTER_TYPE_BASE
+
+    class color(ct.Structure) :
+        _fields_ = \
+            [
+                ("red", ct.c_ubyte),
+                ("green", ct.c_ubyte),
+                ("blue", ct.c_ubyte),
+            ]
+    #end color
+
+#end PNG
+
+def write_bilevel_png(pixels, width, height, stride, backcolor, forecolor, tofile) :
+
+    def write_data(png_ptr, data, datalen) :
+        data = ct.cast(data, ct.POINTER(ct.c_ubyte))
+        tofile.write(bytes(data[:datalen]))
+    #end write_data
+    cb_write_data = ct.CFUNCTYPE(None, ct.c_void_p, ct.c_void_p, ct.c_size_t)(write_data)
+      # need to keep a reference to this to stop it being garbage-collected
+
+    def flush_write(png_ptr) :
+        tofile.flush()
+    #end flush_write
+    cb_flush_write = ct.CFUNCTYPE(None, ct.c_void_p)(flush_write)
+      # need to keep a reference to this to stop it being garbage-collected
+
+#begin write_bilevel_png
+    write_struct = png.png_create_write_struct(b"1.2.31", None, None, None)
+    infop = png.png_create_info_struct(write_struct)
+    png.png_set_write_fn \
+      (
+        write_struct,
+        None,
+        cb_write_data,
+        cb_flush_write
+      )
+
+    png.png_set_IHDR \
+      (
+        write_struct,
+        infop,
+        width,
+        height,
+        1, # bit_depth
+        PNG.COLOR_TYPE_PALETTE, # color_type
+        PNG.INTERLACE_NONE, # interlace_type
+        PNG.COMPRESSION_TYPE_DEFAULT, # compression_type
+        PNG.FILTER_TYPE_DEFAULT # filter_method
+      )
+    png.png_set_PLTE \
+      (
+        write_struct,
+        infop,
+        (PNG.color * 2)
+            (
+                PNG.color(*backcolor),
+                PNG.color(*forecolor),
+            ),
+        2 # num_palette
+      )
+    if False :
+        png.png_set_tRNS \
+          (
+            write_struct,
+            infop,
+            (ct.c_byte * 1)(0), # trans
+            1, # num_trans
+            None # trans_values
+          )
+    #end if
+    png.png_write_info(write_struct, infop)
+    rowlen = (width + 7) // 8
+    imagebuf = ct.create_string_buffer(height * rowlen)
+    for i in range(0, height) :
+        j = 0
+        k = 0
+        mask = 128
+        b = 0
+        while True :
+            if j == width or mask == 0 :
+                imagebuf[i * rowlen + k] = b
+                if j == width :
+                    break
+                #end if
+                mask = 128
+                b = 0
+                k += 1
+            #end if
+            b |= (0, mask)[ct.cast(pixels.buffer_info()[0] + i * stride + j, ct.POINTER(ct.c_ubyte))[0] != 0]
+            mask >>= 1
+            j += 1
+        #end while
+    #end for
+    imagearr = \
+        (ct.c_void_p * height) \
+            (*(ct.addressof(imagebuf) + rowlen * i for i in range(0, height)))
+    png.png_write_image(write_struct, ct.addressof(imagearr))
+    png.png_write_end(write_struct, infop)
+    png.png_destroy_write_struct(ct.byref(ct.c_void_p(write_struct)), ct.byref(ct.c_void_p(infop)))
+#end write_bilevel_png
+
+#+
+# The print matrix
+#-
 
 bits = \
     {
@@ -652,26 +796,111 @@ bits = \
             ),
     }
 
-sys.stdout.write("{\n")
-for row in range(0, 8) :
-    for col in range(0, 8) :
-        glyph = bits[row * 10 + col]
-        sys.stdout.write("    {")
-        for line in range(0, 7) :
-            if line != 0 :
-                sys.stdout.write(", ")
-            #end if
-            mask = 1
-            val = 0
-            for bit in glyph[line] :
-                if bit != " " :
-                    val |= mask
+#+
+# Output routines
+#-
+
+def bitmask() :
+    """outputs bitmasks in Java-compatible syntax."""
+    sys.stdout.write("{\n")
+    for row in range(0, 8) :
+        for col in range(0, 8) :
+            glyph = bits[row * 10 + col]
+            sys.stdout.write("    {")
+            for line in range(0, 7) :
+                if line != 0 :
+                    sys.stdout.write(", ")
                 #end if
-                mask <<= 1
+                mask = 1
+                val = 0
+                for bit in glyph[line] :
+                    if bit != " " :
+                        val |= mask
+                    #end if
+                    mask <<= 1
+                #end for
+                sys.stdout.write("0x%02x" % val)
             #end for
-            sys.stdout.write("0x%02x" % val)
+            sys.stdout.write("}, /*%02d*/\n" % (row * 10 + col))
         #end for
-        sys.stdout.write("}, /*%02d*/\n" % (row * 10 + col))
     #end for
-#end for
-sys.stdout.write("}\n")
+    sys.stdout.write("}\n")
+#end bitmask
+
+def png() :
+    """outputs a PNG image suitable for inclusion in documentation."""
+    load_png()
+    DotSize = 2
+    DotGap = 1
+    CharWidth = 5
+    CharHeight = 7
+    CharHorGap = 1
+    CharVertGap = 1
+    ImageWidth = (8 * CharWidth + (8 + 1) * CharHorGap) * (DotSize + DotGap)
+    ImageHeight = (8 * CharHeight + (8 + 1) * CharVertGap) * (DotSize + DotGap)
+    PaperColor = (0xe8, 0xe8, 0xe8) # not fully white
+    InkColor = (0x65, 0x65, 0x65) # not fully black
+    Pixels = array.array("B")
+    for row in range(0, 8) :
+        Pixels.extend((0,) * ImageWidth * CharVertGap * (DotSize + DotGap))
+        for pixrow in range(0, CharHeight) :
+            Pixels.extend((0,) * ImageWidth * DotGap)
+            for i in range(0, DotSize) :
+                PrevLen = len(Pixels)
+                for col in range(0, 8) :
+                    Pixels.extend((0,) * CharHorGap * (DotSize + DotGap))
+                    for bit in bits[row * 10 + col][pixrow] :
+                        Pixels.extend((0,) * DotGap + ((0, 1)[bit != " "],) * DotSize)
+                    #end for
+                #end for
+                Pixels.extend((0,) * CharHorGap * (DotSize + DotGap))
+                AddedPixels = Pixels[PrevLen:]
+            #end for
+        #end for
+    #end for
+    Pixels.extend((0,) * ImageWidth * CharVertGap * (DotSize + DotGap))
+    if len(Pixels) != ImageWidth * ImageHeight :
+        raise RuntimeError \
+          (
+                "Pixels len should be %d * %d = %d, not %d"
+            %
+                (ImageWidth, ImageHeight, ImageWidth * ImageHeight, len(Pixels))
+          )
+    #end if
+    png_out = sys.stdout.detach()
+    sys.stdout = None # avoid Python returning "has been detached" error
+    write_bilevel_png \
+      (
+        pixels = Pixels,
+        width = ImageWidth,
+        height = ImageHeight,
+        stride = ImageWidth,
+        backcolor = PaperColor,
+        forecolor = InkColor,
+        tofile = png_out
+      )
+#end png
+
+types = \
+    {
+        "bitmask" : bitmask,
+        "png" : png,
+    }
+
+#+
+# Mainline
+#-
+
+if len(sys.argv) != 2 :
+    raise RuntimeError("expecting 1 arg, the type of output to generate")
+#end if
+wanttype = sys.argv[1]
+if wanttype not in types :
+    raise RuntimeError \
+      (
+            "invalid output type %s, valid types are %s"
+        %
+            (repr(wanttype), ", ".join(sorted(types.keys())))
+      )
+#end if
+types[wanttype]()
