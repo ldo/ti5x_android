@@ -721,6 +721,41 @@ and leave the display unchanged. If a number was successfully read, flag 7 will 
 <P>The app also includes emulation for a connected PC-100<I>x</I> dot-matrix printer
 capable of printing 20 text columns per line, from a limited character set. The printer
 output can be viewed by selecting the “Printer” item from the options menu.
+<TABLE>
+<TR>
+<TD>Alphanumeric text is output via the <I>print register</I>, which is set up
+using <SPAN CLASS="alttext">Op</SPAN> <B>00</B>&nbsp;..&nbsp;<B>04</B> (below). Each character
+is represented by a two-digit code <I>nn</I>, where each digit <I>n</I> ∈ 0 .. 7.
+This table shows the available character set; the first digit is
+given by the row, and the second digit by the column.</TD><TD>
+<TABLE>
+<TR><TD>&nbsp;</TD><TD><I>x</I>0</TD><TD><I>x</I>1</TD><TD><I>x</I>2</TD><TD><I>x</I>3</TD><TD><I>x</I>4</TD><TD><I>x</I>5</TD><TD><I>x</I>6</TD><TD><I>x</I>7</TD></TR>
+<TR STYLE="height : 1.63em"><TD>0<I>x</I></TD><TD ROWSPAN="8" COLSPAN="8">
+<IMG SRC="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAADeAQMAAACe4KlsAAAABlBMVEXo6OhlZWU/UcYXAAACnklE
+QVRYhdWYvY3DMAyFaRhQJfcCsoQrz+P08Q6qbp5UrgV4CQNe5khKSZxEj0npvMr5wKNEkdTPEf2A
+mpmaSFNsL0Sj20ZaLQzkKXWxpT40sR0dkTMxdsJDUs8DBx6SPyxsOukiXSiNPPVhtbDphO2auEn8
+fWthywlbBPkb9+zkHQNxGrprO101DbSRWy18bDXzqvPmqjpd6CS5HDaIoQKv4OhyVSX57i0MlPbW
+dLcGuC6naZg5DTxvtdaqAhiol4KgtyEBNp30r8EDDJ3IvKVdn9IA8A+omxM3CcfPTeKl00wM5GX7
+Y2tpe68fFjac0N067J1UcE3cJN0s1tM1Wye1BtieyVCfSQV/XpNUX5P01Zpwk2gaTrIPlqoC+Nji
+k4m7a+Kel/Nykx1Zd7Y6Rk6u69MW5mQdIUZO/kIXn6xJndQxduJ7sZ4iW+u8i5MaNtbE6ZAUznEh
+KuHUsbmw2VoDeDipYNMJp4G4T2QfLOHU8S/ouSA4Eyb+xskjDQB/cNJ6CrKXvTh5wdiJZ9Ned0MK
+dN8KqviDEx4yj5csXNVQLmdeL6x0axKAoZN8dT7HbF3SAPBviM+YLO++wG/iTmv+ZGfPR8KtpABG
+6pNeaPKbRAvCwkBOjn8uhZIGqSoDf5jJOZ6mnTXA1ppcxDqU4B3GpnTIcpvZHboAH1lOXmjy2BO1
+9+MfYKCB35ypueaY25EWE9fFR53c42VUyeXIuZR3GsA4nLzuvvxeyAWMoRMdj0uBh5SfuU8Ahk74
+0JVL/IMEjHE4Lt3SoNLgAT66ZDvW/cuXFdzG/BqtYqiU/ynAnabpXEq7AlyXHjBEO+vHufOOQTgy
+V5rmvXWAGK5JupVmPi/zkACb0oLIx/8+eICrKkNyGhbP1rc0AHwI/QPXE5iOEoqlNAAAAABJRU5E
+rkJggg==" ALT="Printer Character Set">
+</TD></TR>
+<TR STYLE="height : 1.63em"><TD>1<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>2<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>3<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>4<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>5<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>6<I>x</I></TD></TR>
+<TR STYLE="height : 1.63em"><TD>7<I>x</I></TD></TR>
+</TABLE>
+</TD></TR>
+</TABLE>
 <UL>
 <LI><SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="alttext">Prt</SPAN> — print
 the number currently being displayed.
