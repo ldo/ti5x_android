@@ -834,8 +834,8 @@ def png() :
     DotGap = 1
     CharWidth = 5
     CharHeight = 7
-    CharHorGap = 1
-    CharVertGap = 1
+    CharHorGap = 2
+    CharVertGap = 2
     ImageWidth = (8 * CharWidth + (8 + 1) * CharHorGap) * (DotSize + DotGap)
     ImageHeight = (8 * CharHeight + (8 + 1) * CharVertGap) * (DotSize + DotGap)
     PaperColor = (0xe8, 0xe8, 0xe8) # not fully white
