@@ -194,7 +194,7 @@ public class Printer
             /*75*/ " - ",
             /*76*/ "LBL",
             /*77*/ " GE",
-            /*78*/ "S+ ", /* guess */
+            /*78*/ "∑+ ", /* guess */
             /*79*/ " ẍ ", /* closest I can get in Unicode to an x with a bar over it */
             /*70*/ "RAD",
             /*81*/ "RST",
