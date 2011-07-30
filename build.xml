@@ -57,16 +57,16 @@
     <target name="signed" depends="-package-release">
         <signjar
             keystore="${keystore.path}" alias="${keystore.alias}" storepass="${keystore.password}"
-            jar="bin/${out.projname}-unsigned.apk"
-            signedjar="bin/${out.projname}-unaligned.apk"
+            jar="bin/${ant.project.name}-unsigned.apk"
+            signedjar="bin/${ant.project.name}-unaligned.apk"
             verbose="true"
         />
         <exec executable="${sdk.dir}/tools/zipalign">
             <arg value="-f"/>
             <arg value="-v"/>
             <arg value="4"/>
-            <arg value="bin/${out.projname}-unaligned.apk"/>
-            <arg value="bin/${out.projname}.apk"/>
+            <arg value="bin/${ant.project.name}-unaligned.apk"/>
+            <arg value="bin/${ant.project.name}.apk"/>
         </exec>
     </target>
 
@@ -74,7 +74,7 @@
         <exec executable="${sdk.dir}/platform-tools/adb">
             <arg value="install"/>
             <arg value="-r"/>
-            <arg value="bin/${out.projname}.apk"/>
+            <arg value="bin/${ant.project.name}.apk"/>
         </exec>
     </target>
 
