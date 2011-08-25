@@ -196,7 +196,7 @@ public class LabelCard extends android.view.View
             final android.graphics.Matrix ImageMap = new android.graphics.Matrix();
             ImageMap.setRectToRect
               (
-                /*src =*/ new android.graphics.RectF
+                /*src =*/ new RectF
                   (
                     0,
                     0,
@@ -204,7 +204,7 @@ public class LabelCard extends android.view.View
                       /* right-hand edge of card disappears in entry slot */
                     CardImage.getHeight()
                   ),
-                /*dst =*/ new android.graphics.RectF(0, 0, CardSize.x, CardSize.y),
+                /*dst =*/ new RectF(0, 0, CardSize.x, CardSize.y),
                 /*stf =*/ android.graphics.Matrix.ScaleToFit.CENTER
               );
             final android.graphics.Paint DrawBits = new android.graphics.Paint();
