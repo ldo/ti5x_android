@@ -17,13 +17,11 @@ package nz.gen.geek_central.ti5x;
 */
 
 import android.graphics.RectF;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 
 public class LabelCard extends android.view.View
   {
     final android.content.Context TheContext;
-    Bitmap CardImage, NewCardImage;
+    android.graphics.Bitmap CardImage, NewCardImage;
     byte[] Help;
     final int Dark, LEDOff;
 
@@ -160,7 +158,7 @@ public class LabelCard extends android.view.View
 
     public void SetHelp
       (
-        Bitmap NewCardImage,
+        android.graphics.Bitmap NewCardImage,
         byte[] NewHelp
       )
       {
@@ -177,12 +175,13 @@ public class LabelCard extends android.view.View
       /* invalidate(); */ /* leave it to animation */
       } /*SetHelp*/
 
-    void DrawCommon
+    @Override
+    public void onDraw
       (
-        Canvas Draw,
-        Bitmap CardImage
+        android.graphics.Canvas Draw
       )
       {
+        super.onDraw(Draw);
         final android.graphics.PointF CardSize =
             new android.graphics.PointF(getWidth(), getHeight());
         Draw.drawRect
@@ -222,34 +221,6 @@ public class LabelCard extends android.view.View
                 requires clipChildren=false in parent layout */
             GraphicsUseful.FillWithColor(LEDOff)
           );
-      } /*DrawCommon*/
-
-    @Override
-    public void onDraw
-      (
-        Canvas Draw
-      )
-      {
-        super.onDraw(Draw);
-        DrawCommon(Draw, CardImage);
       } /*onDraw*/
-
-    @Override
-    protected void onSizeChanged
-      (
-        int NewWidth,
-        int NewHeight,
-        int OldWidth,
-        int OldHeight
-      )
-      {
-      /* set a view background showing red overlap with no label card, for more
-        consistent appearance during card-sliding animation */
-        final android.graphics.Picture Background = new android.graphics.Picture();
-        final Canvas DrawTemp = Background.beginRecording(NewWidth, NewHeight);
-        DrawCommon(DrawTemp, null);
-        Background.endRecording();
-        setBackgroundDrawable(new android.graphics.drawable.PictureDrawable(Background));
-      } /*onSizeChanged*/
 
   } /*LabelCard*/
