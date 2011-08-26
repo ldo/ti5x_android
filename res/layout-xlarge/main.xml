@@ -3,6 +3,7 @@
     android:orientation="vertical"
     android:layout_width="342dp"
     android:layout_height="570dp"
+    android:clipChildren="false"
 >
     <nz.gen.geek_central.ti5x.Display
         android:id="@+id/display"

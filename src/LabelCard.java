@@ -17,11 +17,13 @@ package nz.gen.geek_central.ti5x;
 */
 
 import android.graphics.RectF;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
 public class LabelCard extends android.view.View
   {
     final android.content.Context TheContext;
-    android.graphics.Bitmap CardImage, NewCardImage;
+    Bitmap CardImage, NewCardImage;
     byte[] Help;
     final int Dark, LEDOff;
 
@@ -86,8 +88,6 @@ public class LabelCard extends android.view.View
               }
           );
       } /*LabelCard*/
-
-  /* fixme: red overlap doesn't correctly appear next to card as it slides in or out */
 
     void SlideInNewCard()
       {
@@ -160,7 +160,7 @@ public class LabelCard extends android.view.View
 
     public void SetHelp
       (
-        android.graphics.Bitmap NewCardImage,
+        Bitmap NewCardImage,
         byte[] NewHelp
       )
       {
@@ -177,13 +177,12 @@ public class LabelCard extends android.view.View
       /* invalidate(); */ /* leave it to animation */
       } /*SetHelp*/
 
-    @Override
-    public void onDraw
+    void DrawCommon
       (
-        android.graphics.Canvas Draw
+        Canvas Draw,
+        Bitmap CardImage
       )
       {
-        super.onDraw(Draw);
         final android.graphics.PointF CardSize =
             new android.graphics.PointF(getWidth(), getHeight());
         Draw.drawRect
@@ -218,9 +217,39 @@ public class LabelCard extends android.view.View
           } /*if*/
         Draw.drawRect /* on top of CardImage */
           (
-            new RectF(0.0f, 0.0f, CardSize.x, CardSize.y * 0.25f),
+            new RectF(- CardSize.x, 0.0f, CardSize.x, CardSize.y * 0.25f),
+              /* extend red overlap for slide animation--note this also
+                requires clipChildren=false in parent layout */
             GraphicsUseful.FillWithColor(LEDOff)
           );
+      } /*DrawCommon*/
+
+    @Override
+    public void onDraw
+      (
+        Canvas Draw
+      )
+      {
+        super.onDraw(Draw);
+        DrawCommon(Draw, CardImage);
       } /*onDraw*/
+
+    @Override
+    protected void onSizeChanged
+      (
+        int NewWidth,
+        int NewHeight,
+        int OldWidth,
+        int OldHeight
+      )
+      {
+      /* set a view background showing red overlap with no label card, for more
+        consistent appearance during card-sliding animation */
+        final android.graphics.Picture Background = new android.graphics.Picture();
+        final Canvas DrawTemp = Background.beginRecording(NewWidth, NewHeight);
+        DrawCommon(DrawTemp, null);
+        Background.endRecording();
+        setBackgroundDrawable(new android.graphics.drawable.PictureDrawable(Background));
+      } /*onSizeChanged*/
 
   } /*LabelCard*/
