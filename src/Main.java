@@ -157,7 +157,7 @@ public class Main extends android.app.Activity
           )
           {
             Global.Buttons.SetFeedbackType(TheButtons.getCheckedRadioButtonId());
-          } /*onClick*/
+          } /*onDismiss*/
 
       } /*FeedbackDialog*/
 
