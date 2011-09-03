@@ -7,18 +7,18 @@
 >
     <nz.gen.geek_central.ti5x.Display
         android:id="@+id/display"
-        android:layout_width="fill_parent" 
-        android:layout_height="50dp" 
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
     />
     <nz.gen.geek_central.ti5x.LabelCard
         android:id="@+id/help_card"
-        android:layout_width="fill_parent" 
-        android:layout_height="80dp" 
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
     />
     <nz.gen.geek_central.ti5x.ButtonGrid
         android:id="@+id/buttons"
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:paddingLeft="12dp"
         android:paddingBottom="12dp"
     />
