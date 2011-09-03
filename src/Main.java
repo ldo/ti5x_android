@@ -1194,4 +1194,21 @@ public class Main extends android.app.Activity
           } /*if*/
       } /*onResume*/
 
+    @Override
+    public void onConfigurationChanged
+      (
+        android.content.res.Configuration NewConfig
+      )
+      {
+        super.onConfigurationChanged(NewConfig);
+        final android.view.Display MainDisplay = getWindowManager().getDefaultDisplay();
+        final android.util.DisplayMetrics MainMetrics = new android.util.DisplayMetrics();
+        MainDisplay.getMetrics(MainMetrics);
+        if (MainMetrics.heightPixels / MainMetrics.densityDpi * 160.0f <= 640.0f)
+          {
+          /* lock to portrait orientation on phone-sized screens */
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+          } /*if*/
+      } /*onConfigurationChanged*/
+
   } /*Main*/
