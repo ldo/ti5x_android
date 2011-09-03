@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" 
+    android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:stretchColumns="0"
 >
     <TableRow>
         <TextView
             android:id="@+id/picker_prompt"
-            android:layout_width="fill_parent" 
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text=""
         />
@@ -15,19 +15,19 @@
     <TableRow>
         <ListView
             android:id="@+id/prog_list"
-            android:layout_width="fill_parent" 
+            android:layout_width="fill_parent"
             android:layout_height="270dp"
         />
     </TableRow>
     <!-- <TableRow
         android:id="@+id/picker_extra"
-        android:layout_width="fill_parent" 
+        android:layout_width="fill_parent"
         android:layout_height="300dp"
     /> doesn't work; things added here don't show up -->
     <TableRow>
         <Button
             android:id="@+id/prog_select"
-            android:layout_width="fill_parent" 
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text=""
         />
