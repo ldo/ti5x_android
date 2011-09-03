@@ -1206,7 +1206,8 @@ public class Main extends android.app.Activity
         MainDisplay.getMetrics(MainMetrics);
         if (MainMetrics.heightPixels / MainMetrics.densityDpi * 160.0f <= 640.0f)
           {
-          /* lock to portrait orientation on phone-sized screens */
+          /* Lock to portrait orientation on phone-sized screens. Note once I do this,
+            I stop getting further notifications of orientation change. */
             setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
           } /*if*/
       } /*onConfigurationChanged*/
