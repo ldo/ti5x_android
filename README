@@ -20,7 +20,7 @@ Contents:
         calculator programs and building the Master Library.
     mlsrc/ -- the source of my (partial) recreation of the
         Master Library.
-    art/ -- not a lot of use as yet.
+    art/ -- artwork for diagrams, higher-res scan for icon
     README -- this file
     INSTALL -- build/installation instructions
     COPYING -- licence (GPLv3)
