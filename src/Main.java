@@ -577,6 +577,7 @@ public class Main extends android.app.Activity
                           {
                             ReadAbout = getAssets().open("help/about.html");
                             AboutRaw = Persistent.ReadAll(ReadAbout);
+                              /* sync read on UI thread, but should be fast */
                           }
                         catch (java.io.IOException Failed)
                           {
@@ -637,7 +638,7 @@ public class Main extends android.app.Activity
         android.view.ContextMenu.ContextMenuInfo TheMenuInfo
       )
       {
-        if (!Global.Calc.ProgMode && !Global.Calc.TaskRunning)
+        if (!Global.BGTaskInProgress() && !Global.Calc.ProgMode && !Global.Calc.TaskRunning)
           {
             ContextMenu = new java.util.HashMap<android.view.MenuItem, Runnable>();
             ContextMenu.put
@@ -821,66 +822,125 @@ public class Main extends android.app.Activity
                     program/library. */
                     if (!StateLoaded)
                       {
-                        Persistent.RestoreState(Main.this); /* if not already done */
-                        StateLoaded = true;
-                      } /*if*/
-                    try
-                      {
-                        if (LoadingMasterLibrary)
-                          {
-                            Persistent.LoadMasterLibrary(Main.this);
-                          }
-                        else
-                          {
-                            Persistent.Load
-                              (
-                                /*FromFile =*/ ProgName,
-                                /*Libs =*/ IsLib,
-                                /*CalcState =*/ false,
-                                /*Disp =*/ Global.Disp,
-                                /*Label =*/ Global.Label,
-                                /*Buttons =*/ Global.Buttons,
-                                /*Calc =*/ Global.Calc
-                              );
-                          } /*if*/
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/
-                                String.format
-                                  (
-                                    Global.StdLocale,
-                                    getString
-                                      (
-                                        IsLib ?
-                                            R.string.library_loaded
-                                        :
-                                            R.string.program_loaded
-                                      ),
-                                    LoadingMasterLibrary ?
-                                        getString(R.string.master_library)
-                                    :
-                                        new java.io.File(ProgName).getName()
-                                  ),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                          ).show();
+                        Global.Calc.Reset(true); /* needs to be done on UI thread */
                       }
-                    catch (Persistent.DataFormatException Failed)
+                    else if (IsLib)
                       {
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/
-                                String.format
+                        Global.Calc.ResetLibs(); /* needs to be done on UI thread */
+                      } /*if*/
+                    Global.StartBGTask
+                      (
+                        /*RunWhat =*/
+                            new Global.Task()
+                              {
+                                public void BGRun()
+                                  {
+                                    if (!StateLoaded)
+                                      {
+                                        Persistent.RestoreState(Main.this); /* if not already done */
+                                        StateLoaded = true;
+                                      } /*if*/
+                                    try
+                                      {
+                                        if (LoadingMasterLibrary)
+                                          {
+                                            Persistent.LoadMasterLibrary(Main.this);
+                                          }
+                                        else
+                                          {
+                                            Persistent.Load
+                                              (
+                                                /*FromFile =*/ ProgName,
+                                                /*Libs =*/ IsLib,
+                                                /*CalcState =*/ false,
+                                                /*Disp =*/ Global.Disp,
+                                                /*Buttons =*/ Global.Buttons,
+                                                /*Calc =*/ Global.Calc
+                                              );
+                                          } /*if*/
+                                      }
+                                    catch (Persistent.DataFormatException Failed)
+                                      {
+                                        Global.SetTaskStatus(this, -1, Failed);
+                                      } /*try*/
+                                  } /*BGRun*/
+
+                                public void PostRun
                                   (
-                                    Global.StdLocale,
-                                    getString(R.string.file_load_error),
-                                    Failed.toString()
-                                  ),
-                            /*duration =*/ android.widget.Toast.LENGTH_LONG
-                          ).show();
-                      } /*try*/
-                    Persistent.SaveState(Main.this, IsLib);
+                                    int TaskStatus,
+                                    Throwable Failed
+                                  )
+                                  {
+                                    if (TaskStatus == 0)
+                                      {
+                                        Persistent.PostLoad
+                                          (
+                                            /*CalcState =*/ false,
+                                            /*Disp =*/ Global.Disp,
+                                            /*Buttons =*/ Global.Buttons,
+                                            /*Calc =*/ Global.Calc
+                                          );
+                                        android.widget.Toast.makeText
+                                          (
+                                            /*context =*/ Main.this,
+                                            /*text =*/
+                                                String.format
+                                                  (
+                                                    Global.StdLocale,
+                                                    getString
+                                                      (
+                                                        IsLib ?
+                                                            R.string.library_loaded
+                                                        :
+                                                            R.string.program_loaded
+                                                      ),
+                                                    LoadingMasterLibrary ?
+                                                        getString(R.string.master_library)
+                                                    :
+                                                        new java.io.File(ProgName).getName()
+                                                  ),
+                                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                          ).show();
+                                        Global.StartBGTask
+                                          (
+                                            /*RunWhat =*/
+                                                new Global.Task()
+                                                  {
+                                                    public void BGRun()
+                                                      {
+                                                        Persistent.SaveState(Main.this, IsLib);
+                                                      } /*BGRun*/
+
+                                                    public void PostRun
+                                                      (
+                                                        int TaskStatus,
+                                                        Throwable Failed
+                                                      )
+                                                      {
+                                                      } /*PostRun*/
+                                                  } /*Task*/,
+                                            /*ProgressMessage =*/ getString(R.string.loading)
+                                          );
+                                      }
+                                    else
+                                      {
+                                        android.widget.Toast.makeText
+                                          (
+                                            /*context =*/ Main.this,
+                                            /*text =*/
+                                                String.format
+                                                  (
+                                                    Global.StdLocale,
+                                                    getString(R.string.file_load_error),
+                                                    Failed.toString()
+                                                  ),
+                                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                                          ).show();
+                                      } /*if*/
+                                  } /*PostRun*/
+                              } /*Task*/,
+                        /*ProgressMessage =*/ getString(R.string.loading)
+                      );
                   } /*Run*/
               } /*RequestResponseAction*/
           );
@@ -899,51 +959,77 @@ public class Main extends android.app.Activity
                             Data.getData().getPath().substring(1) /* ignoring leading slash */
                         +
                             Persistent.ProgExt;
-                    try
-                      {
-                        final String SaveDir =
-                                android.os.Environment.getExternalStorageDirectory()
-                                    .getAbsolutePath()
-                            +
-                                "/"
-                            +
-                                Persistent.ProgramsDir;
-                        new java.io.File(SaveDir).mkdirs();
-                        Persistent.Save
-                          (
-                            /*Buttons =*/ Global.Buttons,
-                            /*Calc =*/ Global.Calc,
-                            /*Libs =*/ false,
-                            /*CalcState =*/ false,
-                            /*ToFile =*/ SaveDir + "/" + TheName
-                          );
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/ String.format
-                              (
-                                Global.StdLocale,
-                                getString(R.string.program_saved),
-                                TheName
-                              ),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                          ).show();
-                      }
-                    catch (RuntimeException Failed)
-                      {
-                        android.widget.Toast.makeText
-                          (
-                            /*context =*/ Main.this,
-                            /*text =*/
-                                String.format
+                    final String SaveDir =
+                            android.os.Environment.getExternalStorageDirectory()
+                                .getAbsolutePath()
+                        +
+                            "/"
+                        +
+                            Persistent.ProgramsDir;
+                    Global.StartBGTask
+                      (
+                        /*RunWhat =*/
+                            new Global.Task()
+                              {
+                                public void BGRun()
+                                  {
+                                    try
+                                      {
+                                        new java.io.File(SaveDir).mkdirs();
+                                        Persistent.Save
+                                          (
+                                            /*Buttons =*/ Global.Buttons,
+                                            /*Calc =*/ Global.Calc,
+                                            /*Libs =*/ false,
+                                            /*CalcState =*/ false,
+                                            /*ToFile =*/ SaveDir + "/" + TheName
+                                          );
+                                      }
+                                    catch (RuntimeException Failed)
+                                      {
+                                        Global.SetTaskStatus(this, -1, Failed);
+                                      } /*try*/
+                                  } /*BGRun*/
+
+                                public void PostRun
                                   (
-                                    Global.StdLocale,
-                                    getString(R.string.program_save_error),
-                                    Failed.toString()
-                                  ),
-                            /*duration =*/ android.widget.Toast.LENGTH_LONG
-                          ).show();
-                      } /*try*/
+                                    int TaskStatus,
+                                    Throwable Failed
+                                  )
+                                  {
+                                    if (TaskStatus == 0)
+                                      {
+                                        android.widget.Toast.makeText
+                                          (
+                                            /*context =*/ Main.this,
+                                            /*text =*/ String.format
+                                              (
+                                                Global.StdLocale,
+                                                getString(R.string.program_saved),
+                                                TheName
+                                              ),
+                                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                          ).show();
+                                      }
+                                    else
+                                      {
+                                        android.widget.Toast.makeText
+                                          (
+                                            /*context =*/ Main.this,
+                                            /*text =*/
+                                                String.format
+                                                  (
+                                                    Global.StdLocale,
+                                                    getString(R.string.program_save_error),
+                                                    Failed.toString()
+                                                  ),
+                                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                                          ).show();
+                                      } /*if*/
+                                  } /*PostRun*/
+                              } /*Task*/,
+                        /*ProgressMessage =*/ getString(R.string.saving)
+                      );
                   } /*Run*/
               } /*RequestResponseAction*/
           );
@@ -1131,6 +1217,10 @@ public class Main extends android.app.Activity
         Global.Disp = (Display)findViewById(R.id.display);
         Global.Label = (LabelCard)findViewById(R.id.help_card);
         Global.Buttons = (ButtonGrid)findViewById(R.id.buttons);
+        Global.ProgressWidgets = findViewById(R.id.progress);
+        Global.ProgressMessage =
+            (android.widget.TextView)Global.ProgressWidgets.findViewById(R.id.progress_message);
+        Global.UIRun = new android.os.Handler();
         Global.Print = new Printer(this);
         Global.Calc = new State(this);
         Global.Import = new Importer();
@@ -1179,6 +1269,7 @@ public class Main extends android.app.Activity
         if (!ShuttingDown)
           {
             Persistent.SaveState(this, false);
+              /* don't bother making async, because I'm going to background anyway */
           } /*if*/
       } /*onPause*/
 
@@ -1189,8 +1280,36 @@ public class Main extends android.app.Activity
         Notiman.cancel(NotifyProgramDone);
         if (!StateLoaded)
           {
-            Persistent.RestoreState(this);
-            StateLoaded = true;
+            Global.Buttons.Reset(); /* needs to be done on UI thread */
+            Global.Calc.Reset(true); /* ditto */
+            Global.StartBGTask
+              (
+                /*RunWhat =*/
+                    new Global.Task()
+                      {
+                        public void BGRun()
+                          {
+                            Persistent.RestoreState(Main.this);
+                          } /*BGRun*/
+
+                        public void PostRun
+                          (
+                            int TaskStatus,
+                            Throwable Failed
+                          )
+                          {
+                            Persistent.PostLoad
+                              (
+                                /*CalcState =*/ true,
+                                /*Disp =*/ Global.Disp,
+                                /*Buttons =*/ Global.Buttons,
+                                /*Calc =*/ Global.Calc
+                              );
+                            StateLoaded = true;
+                          } /*PostRun*/
+                      } /*Task*/,
+                /*ProgressMessage =*/ getString(R.string.loading)
+              );
           } /*if*/
       } /*onResume*/
 
@@ -1211,5 +1330,32 @@ public class Main extends android.app.Activity
             setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
           } /*if*/
       } /*onConfigurationChanged*/
+
+    @Override
+    public boolean dispatchKeyEvent
+      (
+        android.view.KeyEvent TheEvent
+      )
+      {
+        boolean Handled = false;
+        if
+          (
+                TheEvent.getAction() == android.view.KeyEvent.ACTION_UP
+            &&
+                TheEvent.getKeyCode() == android.view.KeyEvent.KEYCODE_MENU
+            &&
+                Global.BGTaskInProgress()
+          )
+          {
+          /* ignore attempt to bring up menu while save/load in progress */
+            Handled = true;
+          } /*if*/
+        if (!Handled)
+          {
+            Handled = super.dispatchKeyEvent(TheEvent);
+          } /*if*/
+        return
+            Handled;
+      } /*dispatchKeyEvent*/
 
   } /*Main*/

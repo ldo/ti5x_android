@@ -53,6 +53,8 @@
     <string name="button_feedback">Button feedback:</string>
 
   <!-- messages -->
+    <string name="loading">Loading...</string>
+    <string name="saving">Saving...</string>
     <string name="prog_done">ti5x program has finished running.</string>
     <string name="paste_nan">The Clipboard does not contain a valid number</string>
     <string name="no_prog_help">Sorry, no help available for this program</string>

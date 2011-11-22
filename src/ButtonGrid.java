@@ -233,98 +233,101 @@ public class ButtonGrid extends android.view.View
                   )
                   {
                     boolean Handled = false;
-                    final ButtonGrid TheButtons = (ButtonGrid)TheView;
-                    switch (TheEvent.getAction())
+                    if (!Global.BGTaskInProgress())
                       {
-                    case android.view.MotionEvent.ACTION_DOWN:
-                    case android.view.MotionEvent.ACTION_MOVE:
-                        final long ThisClick = java.lang.System.currentTimeMillis();
-                        if (ThisClick - LastClick > 100) /* debounce */
+                        final ButtonGrid TheButtons = (ButtonGrid)TheView;
+                        switch (TheEvent.getAction())
                           {
-                            final RectF GridBounds =
-                                new RectF(0.0f, 0.0f, TheView.getWidth(), TheView.getHeight());
-                            android.graphics.PointF ClickWhere =
-                                new android.graphics.PointF(TheEvent.getX(), TheEvent.getY());
-                            final float CellWidth = (float)TheView.getWidth() / NrButtonCols;
-                            final float CellHeight = (float)TheView.getHeight() / NrButtonRows;
-                            final android.graphics.Point ClickedCell =
-                                new android.graphics.Point
+                        case android.view.MotionEvent.ACTION_DOWN:
+                        case android.view.MotionEvent.ACTION_MOVE:
+                            final long ThisClick = java.lang.System.currentTimeMillis();
+                            if (ThisClick - LastClick > 100) /* debounce */
+                              {
+                                final RectF GridBounds =
+                                    new RectF(0.0f, 0.0f, TheView.getWidth(), TheView.getHeight());
+                                android.graphics.PointF ClickWhere =
+                                    new android.graphics.PointF(TheEvent.getX(), TheEvent.getY());
+                                final float CellWidth = (float)TheView.getWidth() / NrButtonCols;
+                                final float CellHeight = (float)TheView.getHeight() / NrButtonRows;
+                                final android.graphics.Point ClickedCell =
+                                    new android.graphics.Point
+                                      (
+                                        Math.max(0, Math.min((int)Math.floor(ClickWhere.x / CellWidth), NrButtonCols - 1)),
+                                        Math.max(0, Math.min((int)Math.floor(ClickWhere.y / CellHeight), NrButtonRows - 1))
+                                      );
+                                final RectF CellBounds = new RectF
                                   (
-                                    Math.max(0, Math.min((int)Math.floor(ClickWhere.x / CellWidth), NrButtonCols - 1)),
-                                    Math.max(0, Math.min((int)Math.floor(ClickWhere.y / CellHeight), NrButtonRows - 1))
+                                    GridBounds.left + CellWidth * ClickedCell.x,
+                                    GridBounds.top + CellHeight * ClickedCell.y,
+                                    GridBounds.left + CellWidth * (ClickedCell.x + 1),
+                                    GridBounds.top + CellHeight * (ClickedCell.y + 1)
                                   );
-                            final RectF CellBounds = new RectF
-                              (
-                                GridBounds.left + CellWidth * ClickedCell.x,
-                                GridBounds.top + CellHeight * ClickedCell.y,
-                                GridBounds.left + CellWidth * (ClickedCell.x + 1),
-                                GridBounds.top + CellHeight * (ClickedCell.y + 1)
-                              );
-                            final RectF ButtonBounds = new RectF
-                              (
-                                CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelMargins.left,
-                                CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top,
-                                CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelMargins.right,
-                                CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelMargins.bottom
-                              );
-                            int NewSelectedButton;
-                            if (ButtonBounds.contains(ClickWhere.x, ClickWhere.y))
-                              {
-                                NewSelectedButton = ButtonDefs[ClickedCell.y][ClickedCell.x].BaseCode;
-                              }
-                            else
-                              {
-                                NewSelectedButton = -1;
-                              } /*if*/
-                            if (SelectedButton != NewSelectedButton)
-                              {
-                                SelectedButton = NewSelectedButton;
-                                if (SelectedButton != -1)
+                                final RectF ButtonBounds = new RectF
+                                  (
+                                    CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelMargins.left,
+                                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top,
+                                    CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelMargins.right,
+                                    CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelMargins.bottom
+                                  );
+                                int NewSelectedButton;
+                                if (ButtonBounds.contains(ClickWhere.x, ClickWhere.y))
                                   {
-                                    switch (FeedbackType)
-                                      {
-                                    case FEEDBACK_CLICK:
-                                        if (MakeNoise != null && ButtonDown != 0)
-                                          {
-                                            MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
-                                          } /*if*/
-                                    break;
-                                    case FEEDBACK_VIBRATE:
-                                        if (Vibrate != null)
-                                          {
-                                            Vibrate.vibrate(50);
-                                          } /*if*/
-                                    break;
-                                      } /*switch*/
-                                    Invoke();
+                                    NewSelectedButton = ButtonDefs[ClickedCell.y][ClickedCell.x].BaseCode;
+                                  }
+                                else
+                                  {
+                                    NewSelectedButton = -1;
                                   } /*if*/
+                                if (SelectedButton != NewSelectedButton)
+                                  {
+                                    SelectedButton = NewSelectedButton;
+                                    if (SelectedButton != -1)
+                                      {
+                                        switch (FeedbackType)
+                                          {
+                                        case FEEDBACK_CLICK:
+                                            if (MakeNoise != null && ButtonDown != 0)
+                                              {
+                                                MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
+                                              } /*if*/
+                                        break;
+                                        case FEEDBACK_VIBRATE:
+                                            if (Vibrate != null)
+                                              {
+                                                Vibrate.vibrate(50);
+                                              } /*if*/
+                                        break;
+                                          } /*switch*/
+                                        Invoke();
+                                      } /*if*/
+                                    TheView.invalidate();
+                                  } /*if*/
+                                Handled = true;
+                                LastClick = ThisClick;
+                              } /*if*/
+                        break;
+                        case android.view.MotionEvent.ACTION_UP:
+                        case android.view.MotionEvent.ACTION_CANCEL:
+                            if (SelectedButton != -1)
+                              {
+                                if
+                                  (
+                                        SelectedButton == 61
+                                    &&
+                                        Global.Calc != null
+                                    &&
+                                        Global.Calc.TaskRunning
+                                  )
+                                  {
+                                    Global.Calc.SetSlowExecution(false);
+                                  } /*if*/
+                                SelectedButton = -1;
                                 TheView.invalidate();
                               } /*if*/
                             Handled = true;
-                            LastClick = ThisClick;
-                          } /*if*/
-                    break;
-                    case android.view.MotionEvent.ACTION_UP:
-                    case android.view.MotionEvent.ACTION_CANCEL:
-                        if (SelectedButton != -1)
-                          {
-                            if
-                              (
-                                    SelectedButton == 61
-                                &&
-                                    Global.Calc != null
-                                &&
-                                    Global.Calc.TaskRunning
-                              )
-                              {
-                                Global.Calc.SetSlowExecution(false);
-                              } /*if*/
-                            SelectedButton = -1;
-                            TheView.invalidate();
-                          } /*if*/
-                        Handled = true;
-                    break;
-                      } /*switch*/
+                        break;
+                          } /*switch*/
+                      } /*if*/
                     return
                         Handled;
                   } /*onClick*/

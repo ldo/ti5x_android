@@ -1,5 +1,8 @@
 Feature highlights:
 
+15300.1, 2011 November 22
+    make (nearly) all I/O async to avoid blocking UI thread
+
 15220.5, 2011 September 4
     allow orientation change on tablet-sized screens
 

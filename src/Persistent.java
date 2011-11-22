@@ -1405,7 +1405,6 @@ public class Persistent
         boolean Libs, /* true to load nonzero program banks, false to load bank 0 */
         boolean CalcState, /* true to load all state (including all available program banks) */
         Display Disp,
-        LabelCard Label,
         ButtonGrid Buttons,
         State Calc
       )
@@ -1442,12 +1441,14 @@ public class Persistent
               } /*if*/
             if (CalcState)
               {
-                Buttons.Reset();
-                Calc.Reset(Libs);
+              /* these need to be done on UI thread */
+              /* Buttons.Reset(); */
+              /* Calc.Reset(Libs); */
               }
             else if (Libs)
               {
-                Calc.ResetLibs();
+              /* also needs to be done on UI thread */
+              /* Calc.ResetLibs(); */
               }
             else
               {
@@ -1535,33 +1536,41 @@ public class Persistent
           {
             throw new DataFormatException("I/O error: " + IOError.toString());
           } /*try*/
-        if (OK)
-          {
-          /* ensure all state is properly in sync */
-            if (Calc != null)
-              {
-                Calc.SelectProgram(Calc.CurBank, false);
-                switch (Calc.CurState)
-                  {
-                case State.ResultState:
-                    Calc.SetX(Calc.X);
-                break;
-                case State.ErrorState:
-                    Disp.SetShowingError(Calc.CurDisplay);
-                break;
-                  } /*switch*/
-                Calc.SetProgMode(Calc.ProgMode);
-              } /*if*/
-            if (Buttons != null)
-              {
-                if (CalcState)
-                  {
-                    Buttons.SetFeedbackType(Buttons.FeedbackType);
-                  } /*if*/
-                Buttons.invalidate();
-              } /*if*/
-          } /*if*/
       } /*Load*/
+
+    public static void PostLoad
+      (
+        boolean CalcState, /* true to load all state (including all available program banks) */
+        Display Disp,
+        ButtonGrid Buttons,
+        State Calc
+      )
+      /* needs to be called from UI thread after successful invocation of Load, to
+        ensure all state is properly in sync. */
+      {
+        if (Calc != null)
+          {
+            Calc.SelectProgram(Calc.CurBank, false);
+            switch (Calc.CurState)
+              {
+            case State.ResultState:
+                Calc.SetX(Calc.X);
+            break;
+            case State.ErrorState:
+                Disp.SetShowingError(Calc.CurDisplay);
+            break;
+              } /*switch*/
+            Calc.SetProgMode(Calc.ProgMode);
+          } /*if*/
+        if (Buttons != null)
+          {
+            if (CalcState)
+              {
+                Buttons.SetFeedbackType(Buttons.FeedbackType);
+              } /*if*/
+            Buttons.invalidate();
+          } /*if*/
+      } /*PostLoad*/
 
     public static void LoadMasterLibrary
       (
@@ -1605,7 +1614,6 @@ public class Persistent
             /*Libs =*/ true,
             /*CalcState =*/ false,
             /*Disp =*/ Global.Disp,
-            /*Label =*/ Global.Label,
             /*Buttons =*/ Global.Buttons,
             /*Calc =*/ Global.Calc
           );
@@ -1688,7 +1696,6 @@ public class Persistent
                         /*Libs =*/ LoadingLib,
                         /*CalcState =*/ !LoadingLib,
                         /*Disp =*/ Global.Disp,
-                        /*Label =*/ Global.Label,
                         /*Buttons =*/ Global.Buttons,
                         /*Calc =*/ Global.Calc
                       );
