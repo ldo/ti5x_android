@@ -1399,225 +1399,280 @@ public class Persistent
 
       } /*CalcStateLoader*/
 
-    public static void Load
-      (
-        String FromFile,
-        boolean Libs, /* true to load nonzero program banks, false to load bank 0 */
-        boolean CalcState, /* true to load all state (including all available program banks) */
-        Display Disp,
-        ButtonGrid Buttons,
-        State Calc
-      )
-    throws DataFormatException
+    public static class Load extends Global.Task
       {
-        boolean OK = false;
-        try
+        private final String FromFile;
+        private final boolean Libs;
+        private final boolean CalcState;
+        private final Display Disp;
+        private final ButtonGrid Buttons;
+        private final State Calc;
+
+        public Load
+          (
+            String FromFile,
+            boolean Libs, /* true to load nonzero program banks, false to load bank 0 */
+            boolean CalcState, /* true to load all state (including all available program banks) */
+            Display Disp,
+            ButtonGrid Buttons,
+            State Calc
+          )
           {
-            final java.util.zip.ZipFile In = new java.util.zip.ZipFile
-              (
-                new java.io.File(FromFile),
-                java.util.zip.ZipFile.OPEN_READ
-              );
-            final ZipEntry MimeType = In.getEntry("mimetype");
-            if (MimeType == null)
-              {
-                throw new DataFormatException
-                  (
-                    "missing mandatory archive component: mimetype"
-                  );
-              } /*if*/
-            if
-              (
-                    In.entries().nextElement().getName().intern() != "mimetype"
-                ||
-                    MimeType.getMethod() != ZipEntry.STORED
-              )
-              {
-                throw new DataFormatException("mimetype must be uncompressed and first in archive");
-              } /*if*/
-            if (new String(ReadAll(In.getInputStream(MimeType))).intern() != CalcMimeType)
-              {
-                throw new DataFormatException("wrong MIME type");
-              } /*if*/
+            this.FromFile = FromFile;
+            this.Libs = Libs;
+            this.CalcState = CalcState;
+            this.Disp = Disp;
+            this.Buttons = Buttons;
+            this.Calc = Calc;
+          } /*Load*/
+
+        @Override
+        public boolean PreRun()
+          {
             if (CalcState)
               {
-              /* these need to be done on UI thread */
-              /* Buttons.Reset(); */
-              /* Calc.Reset(Libs); */
+                Buttons.Reset();
+                Calc.Reset(Libs);
               }
             else if (Libs)
               {
-              /* also needs to be done on UI thread */
-              /* Calc.ResetLibs(); */
+                Calc.ResetLibs();
               }
             else
               {
                 Calc.ResetLabels(); /* at least */
               } /*if*/
-            if (Libs)
+            return
+                true;
+          } /*PreRun*/
+
+        @Override
+        public void BGRun()
+          {
+            try
               {
-                final ZipEntry LibHelpEntry = In.getEntry("help");
-                if (LibHelpEntry != null)
+                boolean OK = false;
+                try
                   {
-                    Calc.ModuleHelp = ReadAll(In.getInputStream(LibHelpEntry));
-                  } /*if*/
-              } /*if*/
-            for (int BankNr = 0;;)
-              {
-                if (BankNr == Calc.MaxBanks)
-                    break;
-                if (BankNr != 0 ? Libs : !Libs || CalcState)
-                  {
-                    final ZipEntry StateEntry =
-                        In.getEntry(String.format(Global.StdLocale, "prog%02d", BankNr));
-                    if (StateEntry != null)
-                      {
-                        final ZipEntry CardEntry =
-                            In.getEntry(String.format(Global.StdLocale, "card%02d", BankNr));
-                        final ZipEntry HelpEntry =
-                            In.getEntry(String.format(Global.StdLocale, "help%02d", BankNr));
-                        android.graphics.Bitmap CardImage = null;
-                        byte[] BankHelp = null;
-                        if (CardEntry != null)
-                          {
-                            CardImage = android.graphics.BitmapFactory.decodeStream
-                              (
-                                In.getInputStream(CardEntry)
-                              );
-                          } /*if*/
-                        if (HelpEntry != null)
-                          {
-                            BankHelp = ReadAll(In.getInputStream(HelpEntry));
-                          } /*if*/
-                        if (BankNr != 0)
-                          {
-                            Calc.Bank[BankNr] =
-                                new State.ProgBank(null /* filled in below */, CardImage, BankHelp);
-                          }
-                        else
-                          {
-                          /* don't overwrite Calc.Bank[0].Program */
-                            Calc.Bank[0].Card = CardImage;
-                            Calc.Bank[0].Help = BankHelp;
-                          } /*if*/
-                        try
-                          {
-                            javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
-                              (
-                                In.getInputStream(StateEntry),
-                                new CalcStateLoader(Disp, Buttons, Calc, BankNr, CalcState)
-                              );
-                          }
-                        catch (javax.xml.parsers.ParserConfigurationException Bug)
-                          {
-                            throw new RuntimeException("SAX parser error: " + Bug.toString());
-                          }
-                        catch (org.xml.sax.SAXException Bad)
-                          {
-                            throw new DataFormatException("SAX parser error: " + Bad.toString());
-                          } /*try*/
-                      }
-                    else if (BankNr == 0)
+                    final java.util.zip.ZipFile In = new java.util.zip.ZipFile
+                      (
+                        new java.io.File(FromFile),
+                        java.util.zip.ZipFile.OPEN_READ
+                      );
+                    final ZipEntry MimeType = In.getEntry("mimetype");
+                    if (MimeType == null)
                       {
                         throw new DataFormatException
                           (
-                            "missing mandatory archive component: prog00"
+                            "missing mandatory archive component: mimetype"
                           );
                       } /*if*/
-                  } /*if*/
-                if (!Libs) /* only bank 0 for programs */
-                    break;
-                ++BankNr;
-              } /*for*/
-          /* all successfully done */
-            OK = true;
-          }
-        catch (java.io.IOException IOError)
+                    if
+                      (
+                            In.entries().nextElement().getName().intern() != "mimetype"
+                        ||
+                            MimeType.getMethod() != ZipEntry.STORED
+                      )
+                      {
+                        throw new DataFormatException("mimetype must be uncompressed and first in archive");
+                      } /*if*/
+                    if (new String(ReadAll(In.getInputStream(MimeType))).intern() != CalcMimeType)
+                      {
+                        throw new DataFormatException("wrong MIME type");
+                      } /*if*/
+                    if (Libs)
+                      {
+                        final ZipEntry LibHelpEntry = In.getEntry("help");
+                        if (LibHelpEntry != null)
+                          {
+                            Calc.ModuleHelp = ReadAll(In.getInputStream(LibHelpEntry));
+                          } /*if*/
+                      } /*if*/
+                    for (int BankNr = 0;;)
+                      {
+                        if (BankNr == Calc.MaxBanks)
+                            break;
+                        if (BankNr != 0 ? Libs : !Libs || CalcState)
+                          {
+                            final ZipEntry StateEntry =
+                                In.getEntry(String.format(Global.StdLocale, "prog%02d", BankNr));
+                            if (StateEntry != null)
+                              {
+                                final ZipEntry CardEntry =
+                                    In.getEntry(String.format(Global.StdLocale, "card%02d", BankNr));
+                                final ZipEntry HelpEntry =
+                                    In.getEntry(String.format(Global.StdLocale, "help%02d", BankNr));
+                                android.graphics.Bitmap CardImage = null;
+                                byte[] BankHelp = null;
+                                if (CardEntry != null)
+                                  {
+                                    CardImage = android.graphics.BitmapFactory.decodeStream
+                                      (
+                                        In.getInputStream(CardEntry)
+                                      );
+                                  } /*if*/
+                                if (HelpEntry != null)
+                                  {
+                                    BankHelp = ReadAll(In.getInputStream(HelpEntry));
+                                  } /*if*/
+                                if (BankNr != 0)
+                                  {
+                                    Calc.Bank[BankNr] =
+                                        new State.ProgBank(null /* filled in below */, CardImage, BankHelp);
+                                  }
+                                else
+                                  {
+                                  /* don't overwrite Calc.Bank[0].Program */
+                                    Calc.Bank[0].Card = CardImage;
+                                    Calc.Bank[0].Help = BankHelp;
+                                  } /*if*/
+                                try
+                                  {
+                                    javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().parse
+                                      (
+                                        In.getInputStream(StateEntry),
+                                        new CalcStateLoader(Disp, Buttons, Calc, BankNr, CalcState)
+                                      );
+                                  }
+                                catch (javax.xml.parsers.ParserConfigurationException Bug)
+                                  {
+                                    throw new RuntimeException("SAX parser error: " + Bug.toString());
+                                  }
+                                catch (org.xml.sax.SAXException Bad)
+                                  {
+                                    throw new DataFormatException("SAX parser error: " + Bad.toString());
+                                  } /*try*/
+                              }
+                            else if (BankNr == 0)
+                              {
+                                throw new DataFormatException
+                                  (
+                                    "missing mandatory archive component: prog00"
+                                  );
+                              } /*if*/
+                          } /*if*/
+                        if (!Libs) /* only bank 0 for programs */
+                            break;
+                        ++BankNr;
+                      } /*for*/
+                  /* all successfully done */
+                    OK = true;
+                  }
+                catch (java.io.IOException IOError)
+                  {
+                    throw new DataFormatException("I/O error: " + IOError.toString());
+                  } /*try*/
+              }
+            catch (DataFormatException Failure)
+              {
+                SetStatus(-1, Failure);
+              } /*try*/
+          } /*Run*/
+
+        @Override
+        public void PostRun()
           {
-            throw new DataFormatException("I/O error: " + IOError.toString());
-          } /*try*/
+            if (TaskFailure == null)
+              {
+                if (Calc != null)
+                  {
+                    Calc.SelectProgram(Calc.CurBank, false);
+                    switch (Calc.CurState)
+                      {
+                    case State.ResultState:
+                        Calc.SetX(Calc.X);
+                    break;
+                    case State.ErrorState:
+                        Disp.SetShowingError(Calc.CurDisplay);
+                    break;
+                      } /*switch*/
+                    Calc.SetProgMode(Calc.ProgMode);
+                  } /*if*/
+                if (Buttons != null)
+                  {
+                    if (CalcState)
+                      {
+                        Buttons.SetFeedbackType(Buttons.FeedbackType);
+                      } /*if*/
+                    Buttons.invalidate();
+                  } /*if*/
+              } /*if*/
+          } /*PostRun*/
       } /*Load*/
 
-    public static void PostLoad
-      (
-        boolean CalcState, /* true to load all state (including all available program banks) */
-        Display Disp,
-        ButtonGrid Buttons,
-        State Calc
-      )
-      /* needs to be called from UI thread after successful invocation of Load, to
-        ensure all state is properly in sync. */
-      {
-        if (Calc != null)
-          {
-            Calc.SelectProgram(Calc.CurBank, false);
-            switch (Calc.CurState)
-              {
-            case State.ResultState:
-                Calc.SetX(Calc.X);
-            break;
-            case State.ErrorState:
-                Disp.SetShowingError(Calc.CurDisplay);
-            break;
-              } /*switch*/
-            Calc.SetProgMode(Calc.ProgMode);
-          } /*if*/
-        if (Buttons != null)
-          {
-            if (CalcState)
-              {
-                Buttons.SetFeedbackType(Buttons.FeedbackType);
-              } /*if*/
-            Buttons.invalidate();
-          } /*if*/
-      } /*PostLoad*/
-
-    public static void LoadMasterLibrary
-      (
-        android.content.Context ctx
-      )
+    public static class LoadMasterLibrary extends Global.Task
       /* loads the included Master Library module into the calculator state. */
       {
+        private final Load DoLoad;
+        private final android.content.Context ctx;
       /* Unfortunately java.util.zip.ZipFile can't read from an arbitrary InputStream,
         so I need to make a temporary copy of the master library out of my raw resources. */
-        final String TempLibName = "temp.ti5x"; /* name for temporary copy */
-        final String TempLibFile = ctx.getFilesDir().getAbsolutePath() + "/" + TempLibName;
-        try
-          {
-            final java.io.InputStream LibFile = ctx.getResources().openRawResource(R.raw.ml);
-            final java.io.OutputStream TempLib =
-                ctx.openFileOutput(TempLibName, ctx.MODE_WORLD_READABLE);
-              {
-                byte[] Buffer = new byte[2048]; /* some convenient size */
-                for (;;)
-                  {
-                    final int NrBytes = LibFile.read(Buffer);
-                    if (NrBytes <= 0)
-                        break;
-                    TempLib.write(Buffer, 0, NrBytes);
-                  } /*for*/
-              }
-            TempLib.flush();
-            TempLib.close();
-          }
-        catch (java.io.FileNotFoundException Failed)
-          {
-            throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-          }
-        catch (java.io.IOException Failed)
-          {
-            throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
-          } /*try*/
-        Load
+        private final String TempLibName = "temp.ti5x"; /* name for temporary copy */
+
+        public LoadMasterLibrary
           (
-            /*FromFile =*/ TempLibFile,
-            /*Libs =*/ true,
-            /*CalcState =*/ false,
-            /*Disp =*/ Global.Disp,
-            /*Buttons =*/ Global.Buttons,
-            /*Calc =*/ Global.Calc
-          );
-        ctx.deleteFile(TempLibName);
+            android.content.Context ctx
+          )
+          {
+            this.ctx = ctx;
+            final String TempLibFile = ctx.getFilesDir().getAbsolutePath() + "/" + TempLibName;
+            DoLoad = new Load
+              (
+                /*FromFile =*/ TempLibFile,
+                /*Libs =*/ true,
+                /*CalcState =*/ false,
+                /*Disp =*/ Global.Disp,
+                /*Buttons =*/ Global.Buttons,
+                /*Calc =*/ Global.Calc
+              );
+          } /*LoadMasterLibrary*/
+
+        @Override
+        public boolean PreRun()
+          {
+            return
+                DoLoad.PreRun();
+          } /*PreRun*/
+
+        @Override
+        public void BGRun()
+          {
+            try
+              {
+                final java.io.InputStream LibFile = ctx.getResources().openRawResource(R.raw.ml);
+                final java.io.OutputStream TempLib =
+                    ctx.openFileOutput(TempLibName, ctx.MODE_WORLD_READABLE);
+                  {
+                    byte[] Buffer = new byte[2048]; /* some convenient size */
+                    for (;;)
+                      {
+                        final int NrBytes = LibFile.read(Buffer);
+                        if (NrBytes <= 0)
+                            break;
+                        TempLib.write(Buffer, 0, NrBytes);
+                      } /*for*/
+                  }
+                TempLib.flush();
+                TempLib.close();
+              }
+            catch (java.io.FileNotFoundException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              }
+            catch (java.io.IOException Failed)
+              {
+                throw new RuntimeException("ti5x Master Library load failed: " + Failed.toString());
+              } /*try*/
+            DoLoad.BGRun();
+            ctx.deleteFile(TempLibName);
+          } /*BGRun*/
+
+        @Override
+        public void PostRun()
+          {
+            DoLoad.PostRun();
+          } /*PostRun*/
+
       } /*LoadMasterLibrary*/
 
     public static void SaveState
@@ -1664,66 +1719,141 @@ public class Persistent
           } /*try*/
       } /*SaveState*/
 
-    public static void RestoreState
-      (
-        android.content.Context ctx
-      )
+    public static class RestoreState extends Global.Task
       /* restores the entire calculator state, using the previously-saved
         state if available, otherwise (re)initializes to default state. */
       {
-        boolean RestoredLib = false;
-        for (boolean LoadingLib = true;;)
-          /* load library before rest of state, otherwise Calc.SelectProgram(Calc.CurBank)
-            call (above) will trigger error on nonexistent bank */
+        private final android.content.Context ctx;
+
+        private static final int LOAD_LIB = 0;
+        private static final int LOAD_STATE = 1;
+        private static final int LOAD_MASTER = 2;
+        private static final int SAVE_STATE = 3;
+        private static final int RESTORE_DONE = 4;
+        private int Restoring;
+
+        private boolean RestoredLib;
+        String StateFile = null;
+        private Global.Task Subtask;
+
+        private RestoreState
+          (
+            android.content.Context ctx,
+            int Restoring,
+            boolean RestoredLib
+          )
           {
-            final String StateFile =
-                    ctx.getFilesDir().getAbsolutePath()
-                +
-                    "/"
-                +
-                    (LoadingLib ?
-                        SavedLibName
-                    :
-                        SavedStateName
-                    );
-            if (new java.io.File(StateFile).exists())
+            this.ctx = ctx;
+            this.Restoring = Restoring;
+            this.RestoredLib = RestoredLib;
+            Subtask = null;
+          } /*RestoreState*/
+
+        public RestoreState
+          (
+            android.content.Context ctx
+          )
+          {
+            this(ctx, LOAD_LIB, false);
+          } /*RestoreState*/
+
+        @Override
+        public boolean PreRun()
+          {
+            for (;;)
               {
-                try
+                switch (Restoring)
                   {
-                    Load
-                      (
-                        /*FromFile =*/ StateFile,
-                        /*Libs =*/ LoadingLib,
-                        /*CalcState =*/ !LoadingLib,
-                        /*Disp =*/ Global.Disp,
-                        /*Buttons =*/ Global.Buttons,
-                        /*Calc =*/ Global.Calc
-                      );
-                    if (LoadingLib)
+                case LOAD_LIB:
+                case LOAD_STATE:
+                  /* load library before rest of state, otherwise Calc.SelectProgram(Calc.CurBank)
+                    call (above) will trigger error on nonexistent bank */
+                    final boolean LoadingLib = Restoring == LOAD_LIB;
+                    StateFile =
+                            ctx.getFilesDir().getAbsolutePath()
+                        +
+                            "/"
+                        +
+                            (LoadingLib ?
+                                SavedLibName
+                            :
+                                SavedStateName
+                            );
+                    if (new java.io.File(StateFile).exists())
                       {
-                        RestoredLib = true;
+                        Subtask = new Load
+                          (
+                            /*FromFile =*/ StateFile,
+                            /*Libs =*/ LoadingLib,
+                            /*CalcState =*/ !LoadingLib,
+                            /*Disp =*/ Global.Disp,
+                            /*Buttons =*/ Global.Buttons,
+                            /*Calc =*/ Global.Calc
+                          );
                       } /*if*/
-                  }
-                catch (DataFormatException Bad)
+                break;
+                case LOAD_MASTER:
+                    if (!RestoredLib)
+                      {
+                      /* initialize state to include Master Library */
+                        Subtask = new LoadMasterLibrary(ctx);
+                      } /*if*/
+                break;
+                case SAVE_STATE:
+                  /* save newly-initialized state */
+                    Subtask = new Global.Task()
+                      {
+                        @Override
+                        public void BGRun()
+                          {
+                            SaveState(ctx, true);
+                          } /*BGRun*/
+                      } /*Global.Task*/;
+                break;
+                  } /*switch*/
+                if (Subtask != null || Restoring >= LOAD_MASTER)
+                    break;
+                ++Restoring;
+              } /*for*/
+            return
+                Subtask != null && Subtask.PreRun();
+          } /*PreRun*/
+
+        @Override
+        public void BGRun()
+          {
+            if (Subtask != null)
+              {
+                Subtask.BGRun();
+                if (Subtask.TaskFailure == null && Restoring == LOAD_LIB)
+                  {
+                    RestoredLib = true;
+                  } /*if*/
+              } /*if*/
+          } /*BGRun*/
+
+        @Override
+        public void PostRun()
+          {
+            if (Subtask != null)
+              {
+                if (Subtask.TaskFailure != null && StateFile != null)
                   {
                     System.err.printf
                       (
                         "ti5x failure to reload state from file \"%s\": %s\n",
                         StateFile,
-                        Bad.toString()
+                        Subtask.TaskFailure.toString()
                       ); /* debug  */
-                  } /*try*/
+                  } /*if*/
+                Subtask.PostRun();
+                if (Restoring != RESTORE_DONE)
+                  {
+                  /* run the next stage */
+                    Global.StartBGTask(new RestoreState(ctx, Restoring + 1, RestoredLib), null);
+                  } /*if*/
               } /*if*/
-            if (!LoadingLib)
-                break;
-            LoadingLib = false;
-          } /*for*/
-        if (!RestoredLib)
-          {
-          /* initialize state to include Master Library */
-            LoadMasterLibrary(ctx);
-            SaveState(ctx, true);
-          } /*if*/
+          } /*PostRun*/
       } /*RestoreState*/
 
     public static void ResetState

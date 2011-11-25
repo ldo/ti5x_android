@@ -50,8 +50,12 @@ public class Global
             TaskFailure = NewFailure;
           } /*SetStatus*/
 
-        public void PreRun() {}
-          /* to be run before BGRun in calling thread */
+        public boolean PreRun()
+          /* to be run before BGRun in calling thread, return false to abort */
+          {
+            return
+                true;
+          } /*PreRun*/
 
         public void BGRun() {}
           /* to be run in a background thread */
@@ -79,15 +83,18 @@ public class Global
             RunWhat.BGRun();
             if (CurrentBGTask == this)
               {
-                CurrentBGTask = null;
                 UIRun.post
                   (
                     new Runnable()
                       {
                         public void run()
                           {
-                            ProgressWidgets.setVisibility(android.view.View.INVISIBLE);
+                            CurrentBGTask = null;
                             RunWhat.PostRun();
+                            if (CurrentBGTask == null)
+                              {
+                                ProgressWidgets.setVisibility(android.view.View.INVISIBLE);
+                              } /*if*/
                           } /*run*/
                       } /*Runnable*/
                   );
@@ -105,31 +112,43 @@ public class Global
     public static void StartBGTask
       (
         Task RunWhat,
-        String ProgressMessage
+        String ProgressMessage /* null to leave unchanged */
       )
       {
         if (CurrentBGTask == null)
           {
-            Global.ProgressMessage.setText(ProgressMessage);
+            if (ProgressMessage != null)
+              {
+                Global.ProgressMessage.setText(ProgressMessage);
+              } /*if*/
             CurrentBGTask = new BGTask(RunWhat);
-            RunWhat.PreRun();
-          /* short delay before making progress widget visible so that user
-            doesn't see anything if task finishes quickly enough */
-            UIRun.postDelayed
-              (
-                new Runnable()
+            if (RunWhat.PreRun())
+              {
+                if (ProgressWidgets.getVisibility() != android.view.View.VISIBLE)
                   {
-                    public void run()
-                      {
-                        if (CurrentBGTask != null)
+                  /* short delay before making progress widget visible so that user
+                    doesn't see anything if task finishes quickly enough */
+                    UIRun.postDelayed
+                      (
+                        new Runnable()
                           {
-                            ProgressWidgets.setVisibility(android.view.View.VISIBLE);
-                          } /*if*/
-                      } /*run*/
-                  } /*Runnable*/,
-                1000
-              );
-            CurrentBGTask.start();
+                            public void run()
+                              {
+                                if (CurrentBGTask != null)
+                                  {
+                                    ProgressWidgets.setVisibility(android.view.View.VISIBLE);
+                                  } /*if*/
+                              } /*run*/
+                          } /*Runnable*/,
+                        1000
+                      );
+                  } /*if*/
+                CurrentBGTask.start();
+              }
+            else
+              {
+                CurrentBGTask = null;
+              } /*if*/
           }
         else
           {

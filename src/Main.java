@@ -820,69 +820,113 @@ public class Main extends android.app.Activity
                     onResume. Therefore I do additional restoring/saving state
                     here to ensure the saved state includes the newly-loaded
                     program/library. */
-                    Global.StartBGTask
-                      (
-                        /*RunWhat =*/
-                            new Global.Task()
-                              {
-                                @Override
-                                public void PreRun()
-                                  {
-                                    if (!StateLoaded)
-                                      {
-                                        Global.Calc.Reset(true);
-                                      }
-                                    else if (IsLib)
-                                      {
-                                        Global.Calc.ResetLibs();
-                                      } /*if*/
-                                  } /*PreRun*/
+                    class LoadProgram extends Global.Task
+                      {
+                        private static final int LOAD_STATE = 0;
+                        private static final int LOAD_MASTER_LIBRARY = 1;
+                        private static final int LOAD_PROG = 2;
+                        private static final int LOAD_DONE = 3;
+                        private int Step;
+                        private Global.Task Subtask;
 
-                                @Override
-                                public void BGRun()
+                        private LoadProgram
+                          (
+                            int Step
+                          )
+                          {
+                            this.Step = Step;
+                            Subtask = null;
+                          } /*LoadProgram*/
+
+                        public LoadProgram()
+                          {
+                            this
+                              (
+                                StateLoaded ?
+                                    LoadingMasterLibrary ? LOAD_MASTER_LIBRARY : LOAD_PROG
+                                :
+                                    LOAD_STATE
+                              );
+                          } /*LoadProgram*/
+
+                        @Override
+                        public boolean PreRun()
+                          {
+                            switch (Step)
+                              {
+                            case LOAD_STATE:
+                                Subtask = new Persistent.RestoreState(Main.this);
+                                  /* if not already done */
+                            break;
+                            case LOAD_MASTER_LIBRARY:
+                                Subtask = new Persistent.LoadMasterLibrary(Main.this);
+                            break;
+                            case LOAD_PROG:
+                                Subtask = new Persistent.Load
+                                  (
+                                    /*FromFile =*/ ProgName,
+                                    /*Libs =*/ IsLib,
+                                    /*CalcState =*/ false,
+                                    /*Disp =*/ Global.Disp,
+                                    /*Buttons =*/ Global.Buttons,
+                                    /*Calc =*/ Global.Calc
+                                  );
+                            break;
+                              } /*switch*/
+                            return
+                                Subtask != null && Subtask.PreRun();
+                          } /*PreRun*/
+
+                        @Override
+                        public void BGRun()
+                          {
+                            if (Subtask != null)
+                              {
+                                if (Step == LOAD_STATE)
                                   {
-                                    if (!StateLoaded)
-                                      {
-                                        Persistent.RestoreState(Main.this); /* if not already done */
-                                        StateLoaded = true;
-                                      } /*if*/
+                                    Subtask.BGRun();
+                                  }
+                                else
+                                  {
                                     try
                                       {
-                                        if (LoadingMasterLibrary)
-                                          {
-                                            Persistent.LoadMasterLibrary(Main.this);
-                                          }
-                                        else
-                                          {
-                                            Persistent.Load
-                                              (
-                                                /*FromFile =*/ ProgName,
-                                                /*Libs =*/ IsLib,
-                                                /*CalcState =*/ false,
-                                                /*Disp =*/ Global.Disp,
-                                                /*Buttons =*/ Global.Buttons,
-                                                /*Calc =*/ Global.Calc
-                                              );
-                                          } /*if*/
+                                        Subtask.BGRun();
                                       }
-                                    catch (Persistent.DataFormatException Failed)
+                                    catch(Persistent.DataFormatException Failed)
                                       {
                                         SetStatus(-1, Failed);
                                       } /*try*/
-                                  } /*BGRun*/
+                                  } /*if*/
+                              } /*if*/
+                          } /*BGRun*/
 
-                                @Override
-                                public void PostRun()
+                        @Override
+                        public void PostRun()
+                          {
+                            if (Subtask != null)
+                              {
+                                Subtask.PostRun();
+                                switch (Step)
                                   {
-                                    if (TaskStatus == 0)
+                                case LOAD_STATE:
+                                    StateLoaded = true;
+                                    Global.StartBGTask
+                                      (
+                                        /*RunWhat =*/
+                                            new LoadProgram
+                                              (
+                                                LoadingMasterLibrary ?
+                                                    LOAD_MASTER_LIBRARY
+                                                :
+                                                    LOAD_PROG
+                                              ),
+                                        /*ProgressMessage =*/ null
+                                      );
+                                break;
+                                case LOAD_MASTER_LIBRARY:
+                                case LOAD_PROG:
+                                    if (TaskFailure == null)
                                       {
-                                        Persistent.PostLoad
-                                          (
-                                            /*CalcState =*/ false,
-                                            /*Disp =*/ Global.Disp,
-                                            /*Buttons =*/ Global.Buttons,
-                                            /*Calc =*/ Global.Calc
-                                          );
                                         android.widget.Toast.makeText
                                           (
                                             /*context =*/ Main.this,
@@ -915,7 +959,7 @@ public class Main extends android.app.Activity
                                                         Persistent.SaveState(Main.this, IsLib);
                                                       } /*BGRun*/
                                                   } /*Task*/,
-                                            /*ProgressMessage =*/ getString(R.string.loading)
+                                            /*ProgressMessage =*/ getString(R.string.saving)
                                           );
                                       }
                                     else
@@ -933,8 +977,15 @@ public class Main extends android.app.Activity
                                             /*duration =*/ android.widget.Toast.LENGTH_LONG
                                           ).show();
                                       } /*if*/
-                                  } /*PostRun*/
-                              } /*Task*/,
+                                break;
+                                  } /*switch*/
+                              } /*if*/
+                          } /*PostRun*/
+
+                      } /*LoadProgram*/;
+                    Global.StartBGTask
+                      (
+                        /*RunWhat =*/ new LoadProgram(),
                         /*ProgressMessage =*/ getString(R.string.loading)
                       );
                   } /*Run*/
@@ -1284,34 +1335,15 @@ public class Main extends android.app.Activity
             Global.StartBGTask
               (
                 /*RunWhat =*/
-                    new Global.Task()
+                    new Persistent.RestoreState(Main.this)
                       {
-                        @Override
-                        public void PreRun()
-                          {
-                            Global.Buttons.Reset();
-                            Global.Calc.Reset(true);
-                          } /*PreRun*/
-
-                        @Override
-                        public void BGRun()
-                          {
-                            Persistent.RestoreState(Main.this);
-                          } /*BGRun*/
-
                         @Override
                         public void PostRun()
                           {
-                            Persistent.PostLoad
-                              (
-                                /*CalcState =*/ true,
-                                /*Disp =*/ Global.Disp,
-                                /*Buttons =*/ Global.Buttons,
-                                /*Calc =*/ Global.Calc
-                              );
+                            super.PostRun();
                             StateLoaded = true;
                           } /*PostRun*/
-                      } /*Task*/,
+                      } /*Persistent.RestoreState*/,
                 /*ProgressMessage =*/ getString(R.string.loading)
               );
           } /*if*/
