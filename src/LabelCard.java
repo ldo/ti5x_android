@@ -51,35 +51,38 @@ public class LabelCard extends android.view.View
                   )
                   {
                     boolean Handled = false;
-                    switch (TheEvent.getAction())
+                    if (!Global.BGTaskInProgress())
                       {
-                    case android.view.MotionEvent.ACTION_DOWN:
-                    case android.view.MotionEvent.ACTION_MOVE:
-                        if (Help != null)
+                        switch (TheEvent.getAction())
                           {
-                            final android.content.Intent ShowHelp =
-                                new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                            ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Help);
-                            ShowHelp.setClass(LabelCard.this.TheContext, Help.class);
-                            LabelCard.this.TheContext.startActivity(ShowHelp);
-                          }
-                        else
-                          {
-                            android.widget.Toast.makeText
-                              (
-                                /*context =*/ LabelCard.this.TheContext,
-                                /*text =*/ LabelCard.this.TheContext.getString(R.string.no_prog_help),
-                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
-                              ).show();
-                          } /*if*/
-                        Handled = true;
-                    break;
-                    case android.view.MotionEvent.ACTION_UP:
-                    case android.view.MotionEvent.ACTION_CANCEL:
-                      /* ignore */
-                        Handled = true;
-                    break;
-                      } /*switch*/
+                        case android.view.MotionEvent.ACTION_DOWN:
+                        case android.view.MotionEvent.ACTION_MOVE:
+                            if (Help != null)
+                              {
+                                final android.content.Intent ShowHelp =
+                                    new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                                ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Help);
+                                ShowHelp.setClass(LabelCard.this.TheContext, Help.class);
+                                LabelCard.this.TheContext.startActivity(ShowHelp);
+                              }
+                            else
+                              {
+                                android.widget.Toast.makeText
+                                  (
+                                    /*context =*/ LabelCard.this.TheContext,
+                                    /*text =*/ LabelCard.this.TheContext.getString(R.string.no_prog_help),
+                                    /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                  ).show();
+                              } /*if*/
+                            Handled = true;
+                        break;
+                        case android.view.MotionEvent.ACTION_UP:
+                        case android.view.MotionEvent.ACTION_CANCEL:
+                          /* ignore */
+                            Handled = true;
+                        break;
+                          } /*switch*/
+                      } /*if*/
                     return
                         Handled;
                   } /*onClick*/
