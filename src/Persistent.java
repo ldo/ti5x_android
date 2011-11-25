@@ -1451,7 +1451,6 @@ public class Persistent
           {
             try
               {
-                boolean OK = false;
                 try
                   {
                     final java.util.zip.ZipFile In = new java.util.zip.ZipFile
@@ -1555,8 +1554,6 @@ public class Persistent
                             break;
                         ++BankNr;
                       } /*for*/
-                  /* all successfully done */
-                    OK = true;
                   }
                 catch (java.io.IOException IOError)
                   {

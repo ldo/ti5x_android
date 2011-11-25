@@ -891,6 +891,10 @@ public class Main extends android.app.Activity
                                     try
                                       {
                                         Subtask.BGRun();
+                                        if (Subtask.TaskFailure != null)
+                                          {
+                                            SetStatus(-1, Subtask.TaskFailure);
+                                          } /*if*/
                                       }
                                     catch(Persistent.DataFormatException Failed)
                                       {
