@@ -820,19 +820,25 @@ public class Main extends android.app.Activity
                     onResume. Therefore I do additional restoring/saving state
                     here to ensure the saved state includes the newly-loaded
                     program/library. */
-                    if (!StateLoaded)
-                      {
-                        Global.Calc.Reset(true); /* needs to be done on UI thread */
-                      }
-                    else if (IsLib)
-                      {
-                        Global.Calc.ResetLibs(); /* needs to be done on UI thread */
-                      } /*if*/
                     Global.StartBGTask
                       (
                         /*RunWhat =*/
                             new Global.Task()
                               {
+                                @Override
+                                public void PreRun()
+                                  {
+                                    if (!StateLoaded)
+                                      {
+                                        Global.Calc.Reset(true);
+                                      }
+                                    else if (IsLib)
+                                      {
+                                        Global.Calc.ResetLibs();
+                                      } /*if*/
+                                  } /*PreRun*/
+
+                                @Override
                                 public void BGRun()
                                   {
                                     if (!StateLoaded)
@@ -861,15 +867,12 @@ public class Main extends android.app.Activity
                                       }
                                     catch (Persistent.DataFormatException Failed)
                                       {
-                                        Global.SetTaskStatus(this, -1, Failed);
+                                        SetStatus(-1, Failed);
                                       } /*try*/
                                   } /*BGRun*/
 
-                                public void PostRun
-                                  (
-                                    int TaskStatus,
-                                    Throwable Failed
-                                  )
+                                @Override
+                                public void PostRun()
                                   {
                                     if (TaskStatus == 0)
                                       {
@@ -906,18 +909,11 @@ public class Main extends android.app.Activity
                                             /*RunWhat =*/
                                                 new Global.Task()
                                                   {
+                                                    @Override
                                                     public void BGRun()
                                                       {
                                                         Persistent.SaveState(Main.this, IsLib);
                                                       } /*BGRun*/
-
-                                                    public void PostRun
-                                                      (
-                                                        int TaskStatus,
-                                                        Throwable Failed
-                                                      )
-                                                      {
-                                                      } /*PostRun*/
                                                   } /*Task*/,
                                             /*ProgressMessage =*/ getString(R.string.loading)
                                           );
@@ -932,7 +928,7 @@ public class Main extends android.app.Activity
                                                   (
                                                     Global.StdLocale,
                                                     getString(R.string.file_load_error),
-                                                    Failed.toString()
+                                                    TaskFailure.toString()
                                                   ),
                                             /*duration =*/ android.widget.Toast.LENGTH_LONG
                                           ).show();
@@ -971,6 +967,7 @@ public class Main extends android.app.Activity
                         /*RunWhat =*/
                             new Global.Task()
                               {
+                                @Override
                                 public void BGRun()
                                   {
                                     try
@@ -987,15 +984,12 @@ public class Main extends android.app.Activity
                                       }
                                     catch (RuntimeException Failed)
                                       {
-                                        Global.SetTaskStatus(this, -1, Failed);
+                                        SetStatus(-1, Failed);
                                       } /*try*/
                                   } /*BGRun*/
 
-                                public void PostRun
-                                  (
-                                    int TaskStatus,
-                                    Throwable Failed
-                                  )
+                                @Override
+                                public void PostRun()
                                   {
                                     if (TaskStatus == 0)
                                       {
@@ -1021,7 +1015,7 @@ public class Main extends android.app.Activity
                                                   (
                                                     Global.StdLocale,
                                                     getString(R.string.program_save_error),
-                                                    Failed.toString()
+                                                    TaskFailure.toString()
                                                   ),
                                             /*duration =*/ android.widget.Toast.LENGTH_LONG
                                           ).show();
@@ -1263,6 +1257,13 @@ public class Main extends android.app.Activity
       } /*onCreate*/
 
     @Override
+    public void onDestroy()
+      {
+        Global.KillBGTask();
+        super.onDestroy();
+      } /*onDestroy*/
+
+    @Override
     public void onPause()
       {
         super.onPause();
@@ -1280,23 +1281,26 @@ public class Main extends android.app.Activity
         Notiman.cancel(NotifyProgramDone);
         if (!StateLoaded)
           {
-            Global.Buttons.Reset(); /* needs to be done on UI thread */
-            Global.Calc.Reset(true); /* ditto */
             Global.StartBGTask
               (
                 /*RunWhat =*/
                     new Global.Task()
                       {
+                        @Override
+                        public void PreRun()
+                          {
+                            Global.Buttons.Reset();
+                            Global.Calc.Reset(true);
+                          } /*PreRun*/
+
+                        @Override
                         public void BGRun()
                           {
                             Persistent.RestoreState(Main.this);
                           } /*BGRun*/
 
-                        public void PostRun
-                          (
-                            int TaskStatus,
-                            Throwable Failed
-                          )
+                        @Override
+                        public void PostRun()
                           {
                             Persistent.PostLoad
                               (

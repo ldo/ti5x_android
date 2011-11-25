@@ -35,24 +35,35 @@ public class Global
     public static android.widget.TextView ProgressMessage;
     public static android.os.Handler UIRun;
 
-    public interface Task
+    public static class Task
       {
-        public void BGRun();
+        public int TaskStatus = 0;
+        public Throwable TaskFailure = null;
+
+        public void SetStatus
+          (
+            int NewStatus,
+            Throwable NewFailure
+          )
+          {
+            TaskStatus = NewStatus;
+            TaskFailure = NewFailure;
+          } /*SetStatus*/
+
+        public void PreRun() {}
+          /* to be run before BGRun in calling thread */
+
+        public void BGRun() {}
           /* to be run in a background thread */
 
-        public void PostRun
-          (
-            int TaskStatus,
-            Throwable TaskFailure
-          );
+        public void PostRun() {}
           /* to be run on UI thread after BGRun has finished */
+
       } /*Task*/
 
     private static class BGTask extends Thread
       {
         private final Task RunWhat;
-        private int TaskStatus;
-        private Throwable TaskFailure;
 
         public BGTask
           (
@@ -61,7 +72,6 @@ public class Global
           {
             super();
             this.RunWhat = RunWhat;
-            TaskStatus = 0; /* to begin with */
           } /*BGTask*/
 
         public void run()
@@ -70,22 +80,22 @@ public class Global
             if (CurrentBGTask == this)
               {
                 CurrentBGTask = null;
+                UIRun.post
+                  (
+                    new Runnable()
+                      {
+                        public void run()
+                          {
+                            ProgressWidgets.setVisibility(android.view.View.INVISIBLE);
+                            RunWhat.PostRun();
+                          } /*run*/
+                      } /*Runnable*/
+                  );
               }
             else
               {
-                throw new RuntimeException("Trying to stop wrong background task");
+              /* I've been orphaned! */
               } /*if*/
-            UIRun.post
-              (
-                new Runnable()
-                  {
-                    public void run()
-                      {
-                        ProgressWidgets.setVisibility(android.view.View.INVISIBLE);
-                        RunWhat.PostRun(TaskStatus, TaskFailure);
-                      } /*run*/
-                  } /*Runnable*/
-              );
           } /*run*/
 
       } /*BGTask*/
@@ -102,6 +112,7 @@ public class Global
           {
             Global.ProgressMessage.setText(ProgressMessage);
             CurrentBGTask = new BGTask(RunWhat);
+            RunWhat.PreRun();
           /* short delay before making progress widget visible so that user
             doesn't see anything if task finishes quickly enough */
             UIRun.postDelayed
@@ -126,28 +137,15 @@ public class Global
           } /*if*/
       } /*StartingBGTask*/
 
-    public static void SetTaskStatus
-      (
-        Task Me,
-        int NewStatus,
-        Throwable Failure
-      )
-      {
-        if (CurrentBGTask != null && Me == CurrentBGTask.RunWhat)
-          {
-            CurrentBGTask.TaskStatus = NewStatus;
-            CurrentBGTask.TaskFailure = Failure;
-          }
-        else
-          {
-            throw new RuntimeException("SetTaskStatus called from wrong task");
-          } /*if*/
-      } /*SetTaskStatus*/
-
     public static boolean BGTaskInProgress()
       {
         return
             CurrentBGTask != null;
       } /*BGTaskInProgress*/
+
+    public static void KillBGTask()
+      {
+        CurrentBGTask = null; /* can't actually kill it, just orphan it */
+      } /*KilLBGTask*/
 
   } /*Global*/
