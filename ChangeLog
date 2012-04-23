@@ -1,5 +1,8 @@
 Feature highlights:
 
+15453.4, 2012 April 23:
+    help page now shows on Android 4.0.
+
 15300.1, 2011 November 22
     make (nearly) all I/O async to avoid blocking UI thread
 

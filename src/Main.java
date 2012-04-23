@@ -2,7 +2,7 @@ package nz.gen.geek_central.ti5x;
 /*
     ti5x calculator emulator -- mainline
 
-    Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -49,6 +49,52 @@ public class Main extends android.app.Activity
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
     static final int NotifyProgramDone = 1; /* arbitrary notification ID */
+
+    public void ShowHelp
+      (
+        String Path,
+        String[] FormatArgs
+      )
+      /* launches the Help activity, displaying the page in my resources with
+        the specified Path. */
+      {
+        final android.content.Intent LaunchHelp =
+            new android.content.Intent(android.content.Intent.ACTION_VIEW);
+      /* must always load the page contents, can no longer pass a file:///android_asset/
+        URL with Android 4.0. */
+        byte[] HelpRaw;
+          {
+            java.io.InputStream ReadHelp;
+            try
+              {
+                ReadHelp = getAssets().open(Path);
+                HelpRaw = Persistent.ReadAll(ReadHelp);
+              }
+            catch (java.io.IOException Failed)
+              {
+                throw new RuntimeException("can't read help page: " + Failed);
+              } /*try*/
+            try
+              {
+                ReadHelp.close();
+              }
+            catch (java.io.IOException WhoCares)
+              {
+              /* I mean, really? */
+              } /*try*/
+          }
+        LaunchHelp.putExtra
+          (
+            nz.gen.geek_central.ti5x.Help.ContentID,
+            FormatArgs != null ?
+                String.format(Global.StdLocale, new String(HelpRaw), FormatArgs)
+                    .getBytes()
+            :
+                HelpRaw
+          );
+        LaunchHelp.setClass(this, Help.class);
+        startActivity(LaunchHelp);
+      } /*ShowHelp*/
 
     class ReplaceConfirm
         extends android.app.AlertDialog
@@ -353,19 +399,7 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
-                    startActivity
-                      (
-                        new android.content.Intent
-                          (
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.fromParts
-                              (
-                                "file",
-                                "/android_asset/help/index.html",
-                                null
-                              )
-                          ).setClass(Main.this, Help.class)
-                      );
+                    ShowHelp("help/index.html", null);
                   } /*run*/
               } /*Runnable*/
           );
@@ -568,30 +602,6 @@ public class Main extends android.app.Activity
               {
                 public void run()
                   {
-                    final android.content.Intent ShowAbout =
-                        new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                    byte[] AboutRaw;
-                      {
-                        java.io.InputStream ReadAbout;
-                        try
-                          {
-                            ReadAbout = getAssets().open("help/about.html");
-                            AboutRaw = Persistent.ReadAll(ReadAbout);
-                              /* sync read on UI thread, but should be fast */
-                          }
-                        catch (java.io.IOException Failed)
-                          {
-                            throw new RuntimeException("can't read about page: " + Failed);
-                          } /*try*/
-                        try
-                          {
-                            ReadAbout.close();
-                          }
-                        catch (java.io.IOException WhoCares)
-                          {
-                          /* I mean, really? */
-                          } /*try*/
-                      }
                     String VersionName;
                     try
                       {
@@ -602,14 +612,7 @@ public class Main extends android.app.Activity
                       {
                         VersionName = "CANTFINDME"; /*!*/
                       } /*catch*/
-                    ShowAbout.putExtra
-                      (
-                        nz.gen.geek_central.ti5x.Help.ContentID,
-                        String.format(Global.StdLocale, new String(AboutRaw), VersionName)
-                            .getBytes()
-                      );
-                    ShowAbout.setClass(Main.this, Help.class);
-                    startActivity(ShowAbout);
+                    ShowHelp("help/about.html", new String[] {VersionName});
                   } /*run*/
               } /*Runnable*/
           );
