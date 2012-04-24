@@ -1265,6 +1265,7 @@ public class Main extends android.app.Activity
       )
       {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(android.view.Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.main);
         Global.Disp = (Display)findViewById(R.id.display);
         Global.Label = (LabelCard)findViewById(R.id.help_card);
@@ -1313,6 +1314,33 @@ public class Main extends android.app.Activity
               } /*run*/
           } /*Runnable*/;
       } /*onCreate*/
+
+    @Override
+    public void onPostCreate
+      (
+        android.os.Bundle SavedInstanceState
+      )
+      {
+        super.onPostCreate(SavedInstanceState);
+        getWindow().setFeatureInt
+          (
+            android.view.Window.FEATURE_CUSTOM_TITLE,
+            R.layout.title_bar
+          );
+        ((android.widget.Button)findViewById(R.id.action_help)).setOnClickListener
+          (
+            new android.view.View.OnClickListener()
+              {
+                public void onClick
+                  (
+                    android.view.View ButtonView
+                  )
+                  {
+                    ShowHelp("help/index.html", null);
+                  } /*onClick*/
+              } /*OnClickListener*/
+          );
+      } /*onPostCreate*/
 
     @Override
     public void onDestroy()
