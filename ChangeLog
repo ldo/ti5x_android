@@ -1,5 +1,9 @@
 Feature highlights:
 
+15457.0, 2012 April 27:
+    scale layout on phone-sized screens while centring on
+    tablet-sized screens
+
 15454.1, 2012 April 24:
     add help icon to title bar.
     add description of menu items to help page.
