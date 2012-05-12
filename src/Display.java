@@ -2,7 +2,7 @@ package nz.gen.geek_central.ti5x;
 /*
     Calculator display area
 
-    Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -26,6 +26,7 @@ public class Display extends android.view.View
     static final float SegmentHalfWidth = 0.05f; /* as fraction of size */
     static final float SegmentMargin = 0.025f; /* as fraction of size */
     static final float Slant = 0.1f; /* tangent of slant angle to right from vertical */
+    static final float DotScale = 1.5f; /* make dot bigger than line thickness */
     static final int NrDigits = 12;
     final int LEDLight, LEDDim, LEDOff;
     int[] Showing;
@@ -332,10 +333,10 @@ public class Display extends android.view.View
           {
             final PointF Where = ControlPoint[6];
             final Path p = new Path();
-            p.moveTo(Where.x - Bevel, Where.y);
-            p.lineTo(Where.x + XOffset1, Where.y - Bevel);
-            p.lineTo(Where.x + Bevel, Where.y);
-            p.lineTo(Where.x - XOffset1, Where.y + Bevel);
+            p.moveTo(Where.x - DotScale * Bevel, Where.y);
+            p.lineTo(Where.x + XOffset1, Where.y - DotScale * Bevel);
+            p.lineTo(Where.x + DotScale * Bevel, Where.y);
+            p.lineTo(Where.x - XOffset1, Where.y + DotScale * Bevel);
             p.close();
             Draw.drawPath(p, UsePaint);
           } /*if*/
