@@ -2,7 +2,7 @@ package nz.gen.geek_central.ti5x;
 /*
     The calculation state, number entry and programs.
 
-    Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -469,7 +469,15 @@ public class State
       {
         if (CurState != ResultState)
           {
-            ResetEntry();
+            if (CurState == ErrorState)
+              {
+                CurState = ResultState;
+                SetX(X);
+              }
+            else
+              {
+                ResetEntry();
+              } /*if*/
           } /*if*/
       } /*ClearEntry*/
 
@@ -737,9 +745,9 @@ public class State
           {
             CurState = ResultState;
           } /*if*/
-        X = NewX;
-        if (!Double.isNaN(X) && !Double.isInfinite(X))
+        if (!Double.isNaN(NewX) && !Double.isInfinite(NewX))
           {
+            X = NewX;
             CurDisplay = FormatNumber(X, CurFormat, CurNrDecimals, false);
             SetShowing(CurDisplay);
           }
