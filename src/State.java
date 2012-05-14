@@ -755,7 +755,7 @@ public class State
           {
             SetErrorState(false);
           } /*if*/
-        if (Flag[FLAG_TRACE_PRINT] && Global.Print != null)
+        if (Flag[FLAG_TRACE_PRINT] && Global.Print != null) /* fixme: there are some cases where I don't want to trigger this */
           {
             PrintDisplay(false);
           } /*if*/
