@@ -1162,6 +1162,7 @@ public class Persistent
                 if (localName == "state")
                   {
                     ParseState = AtTopLevel;
+                    DoneState = true;
                   } /*if*/
             break;
             case DoingButtons:

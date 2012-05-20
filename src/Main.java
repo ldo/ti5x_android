@@ -85,7 +85,7 @@ public class Main extends android.app.Activity
           }
         LaunchHelp.putExtra
           (
-            nz.gen.geek_central.ti5x.Help.ContentID,
+            Help.ContentID,
             FormatArgs != null ?
                 String.format(Global.StdLocale, new String(HelpRaw), FormatArgs)
                     .getBytes()
@@ -429,7 +429,7 @@ public class Main extends android.app.Activity
                       {
                         final android.content.Intent ShowHelp =
                             new android.content.Intent(android.content.Intent.ACTION_VIEW);
-                        ShowHelp.putExtra(nz.gen.geek_central.ti5x.Help.ContentID, Global.Calc.ModuleHelp);
+                        ShowHelp.putExtra(Help.ContentID, Global.Calc.ModuleHelp);
                         ShowHelp.setClass(Main.this, Help.class);
                         startActivity(ShowHelp);
                       }
