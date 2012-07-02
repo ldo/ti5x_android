@@ -1,10 +1,6 @@
 To build the ti5x app for Android, you will need the Android SDK,
 available from <http://developer.android.com/>, along with its
-prerequisites, including the Sun JDK and Ant. Don't forget to
-point the JAVA_HOME environment variable to where the JDK is
-installed, e.g.
-
-    export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre
+prerequisites, including the Sun JDK and Ant.
 
 The scripts in the util directory require Python 3.1 or later.
 The rendercard script requires GhostScript to do the rendering.
