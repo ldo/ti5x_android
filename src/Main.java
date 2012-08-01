@@ -1395,6 +1395,12 @@ public class Main extends android.app.Activity
     public void onDestroy()
       {
         Global.KillBGTask();
+        if (Global.Calc != null)
+          {
+            Global.Calc.ResetLibs();
+              /* because new Global.Calc will be created in onCreate, so hopefully
+                this will avoid "bitmap allocation exceeds budget" crashes */
+          } /*if*/
         super.onDestroy();
       } /*onDestroy*/
 
