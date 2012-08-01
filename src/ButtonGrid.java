@@ -200,6 +200,25 @@ public class ButtonGrid extends android.view.View
       /* everything else has to be set up in constructor which has access to Context object */
       } /*SetFeedbackType*/
 
+    public void DoFeedback()
+      {
+        switch (FeedbackType)
+          {
+        case FEEDBACK_CLICK:
+            if (MakeNoise != null && ButtonDown != 0)
+              {
+                MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
+              } /*if*/
+        break;
+        case FEEDBACK_VIBRATE:
+            if (Vibrate != null)
+              {
+                Vibrate.vibrate(50);
+              } /*if*/
+        break;
+          } /*switch*/
+      } /*DoFeedback*/
+
     public ButtonGrid
       (
         android.content.Context TheContext,
@@ -283,21 +302,7 @@ public class ButtonGrid extends android.view.View
                                     SelectedButton = NewSelectedButton;
                                     if (SelectedButton != -1)
                                       {
-                                        switch (FeedbackType)
-                                          {
-                                        case FEEDBACK_CLICK:
-                                            if (MakeNoise != null && ButtonDown != 0)
-                                              {
-                                                MakeNoise.play(ButtonDown, 1.0f, 1.0f, 0, 0, 1.0f);
-                                              } /*if*/
-                                        break;
-                                        case FEEDBACK_VIBRATE:
-                                            if (Vibrate != null)
-                                              {
-                                                Vibrate.vibrate(50);
-                                              } /*if*/
-                                        break;
-                                          } /*switch*/
+                                        DoFeedback();
                                         Invoke();
                                       } /*if*/
                                     TheView.invalidate();
@@ -331,7 +336,7 @@ public class ButtonGrid extends android.view.View
                     return
                         Handled;
                   } /*onClick*/
-              }
+              } /*View.OnTouchListener*/
           );
         Reset();
       } /*ButtonGrid*/

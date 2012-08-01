@@ -1,5 +1,9 @@
 Feature highlights:
 
+15553.4, 2012 August 1:
+    allow use of volume-control buttons to change button-feedback
+    setting
+
 15472.3, 2012 May 13:
     make decimal point slightly bigger
     CE in error state now clears error state without clearing display
