@@ -1343,55 +1343,6 @@ public class Main extends android.app.Activity
       } /*onPostCreate*/
 
     @Override
-    public boolean onKeyDown
-      (
-        int KeyCode,
-        android.view.KeyEvent TheEvent
-      )
-      {
-        boolean Handled = false;
-        switch (KeyCode)
-          {
-        case android.view.KeyEvent.KEYCODE_VOLUME_DOWN:
-            if (Global.Buttons.FeedbackType != Global.Buttons.FEEDBACK_NONE)
-              {
-                Global.Buttons.SetFeedbackType
-                  (
-                    Global.Buttons.FeedbackType == Global.Buttons.FEEDBACK_CLICK ?
-                        Global.Buttons.FEEDBACK_VIBRATE
-                    :
-                        Global.Buttons.FEEDBACK_NONE
-                  );
-                Global.Buttons.DoFeedback();
-                Handled = true;
-              } /*if*/
-        break;
-        case android.view.KeyEvent.KEYCODE_VOLUME_UP:
-            if (Global.Buttons.FeedbackType != Global.Buttons.FEEDBACK_CLICK)
-              {
-                Global.Buttons.SetFeedbackType
-                  (
-                    Global.Buttons.FeedbackType == Global.Buttons.FEEDBACK_NONE ?
-                        Global.Buttons.FEEDBACK_VIBRATE
-                    :
-                        Global.Buttons.FEEDBACK_CLICK
-                  );
-                Global.Buttons.DoFeedback();
-                Handled = true;
-              } /*if*/
-        break;
-        case android.view.KeyEvent.KEYCODE_BACK:
-          /* just having an onKey handler seems to mean I have to handle this myself,
-            passing Handled = false isn't enough! */
-            finish();
-            Handled = true;
-        break;
-          } /*switch*/
-        return
-            Handled;
-      } /*onKeyDown*/
-
-    @Override
     public void onDestroy()
       {
         Global.KillBGTask();

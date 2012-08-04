@@ -338,6 +338,71 @@ public class ButtonGrid extends android.view.View
                   } /*onClick*/
               } /*View.OnTouchListener*/
           );
+      /* need to set myself focusable because volume up/down buttons are keys */
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        setOnKeyListener
+          (
+            new android.view.View.OnKeyListener()
+              {
+                public boolean onKey
+                  (
+                    android.view.View TheView,
+                    int KeyCode,
+                    android.view.KeyEvent TheEvent
+                  )
+                  {
+                    boolean Handled = false;
+                    switch (TheEvent.getAction())
+                      {
+                    case android.view.KeyEvent.ACTION_DOWN:
+                        switch (KeyCode)
+                          {
+                        case android.view.KeyEvent.KEYCODE_VOLUME_DOWN:
+                            if (FeedbackType != FEEDBACK_NONE)
+                              {
+                                SetFeedbackType
+                                  (
+                                    FeedbackType == FEEDBACK_CLICK ?
+                                        FEEDBACK_VIBRATE
+                                    :
+                                        FEEDBACK_NONE
+                                  );
+                                DoFeedback();
+                                Handled = true;
+                              } /*if*/
+                        break;
+                        case android.view.KeyEvent.KEYCODE_VOLUME_UP:
+                            if (FeedbackType != FEEDBACK_CLICK)
+                              {
+                                SetFeedbackType
+                                  (
+                                    FeedbackType == FEEDBACK_NONE ?
+                                        FEEDBACK_VIBRATE
+                                    :
+                                        FEEDBACK_CLICK
+                                  );
+                                DoFeedback();
+                                Handled = true;
+                              } /*if*/
+                        break;
+                          } /*switch*/
+                    break;
+                    case android.view.KeyEvent.ACTION_UP:
+                        switch (KeyCode)
+                          {
+                        case android.view.KeyEvent.KEYCODE_VOLUME_DOWN:
+                        case android.view.KeyEvent.KEYCODE_VOLUME_UP:
+                            Handled = true;
+                        break;
+                          } /*switch*/
+                    break;
+                      } /*switch*/
+                    return
+                        Handled;
+                  } /*onKey*/
+              } /*View.OnKeyListener*/
+          );
         Reset();
       } /*ButtonGrid*/
 
