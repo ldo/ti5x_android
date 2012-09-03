@@ -31,7 +31,11 @@
         />
         <activity
             android:name="Help"
+            android:launchMode="singleTask"
         />
+            <!-- launchMode = singleTask needed to stop multiple Help activities being
+                launched if user leaves finger on label card - FLAG_ACTIVITY_CLEAR_TOP
+                in the Intent should be enough according to docs, but it's not -->
         <activity
             android:name="Picker"
             android:screenOrientation="portrait"

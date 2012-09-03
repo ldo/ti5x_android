@@ -59,7 +59,8 @@ public class Main extends android.app.Activity
         the specified Path. */
       {
         final android.content.Intent LaunchHelp =
-            new android.content.Intent(android.content.Intent.ACTION_VIEW);
+            new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
       /* must always load the page contents, can no longer pass a file:///android_asset/
         URL with Android 4.0. */
         byte[] HelpRaw;
@@ -1304,7 +1305,7 @@ public class Main extends android.app.Activity
                         /*context =*/ Main.this,
                         /*requestCode =*/ 0,
                         /*intent =*/ new android.content.Intent()
-                            .setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             .setClass(Main.this, Main.class),
                         /*flags =*/ 0
                       );
