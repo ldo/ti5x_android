@@ -1,5 +1,10 @@
 Feature highlights:
 
+15586.1, 2012 September 3:
+    reduce maximum screen size limit for scaling
+    stop multiple-launching of Help activity
+    make printer paper width consistent across different pixel densities
+
 15553.4, 2012 August 1:
     allow use of volume-control buttons to change button-feedback
     setting
