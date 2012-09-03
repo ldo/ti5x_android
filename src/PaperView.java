@@ -2,7 +2,7 @@ package nz.gen.geek_central.ti5x;
 /*
     ti5x calculator emulator -- virtual printer display
 
-    Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -18,8 +18,7 @@ package nz.gen.geek_central.ti5x;
 
 public class PaperView extends android.view.View
   {
-    final int TargetWidth = 400;
-      /* have to specify this explicitly, can't seem to make layout width automatic */
+    final int TargetWidth;
 
     public PaperView
       (
@@ -28,6 +27,7 @@ public class PaperView extends android.view.View
       )
       {
         super(TheContext, TheAttributes);
+        TargetWidth = (int)TheContext.getResources().getDimension(R.dimen.paper_width);
       } /*PaperView*/
 
     public int GetViewHeight()
