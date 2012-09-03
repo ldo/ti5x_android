@@ -8,6 +8,7 @@
         android:id="@+id/paper_scroll"
         android:layout_width="280dp"
         android:layout_height="fill_parent"
+        android:layout_gravity="center"
     >
         <nz.gen.geek_central.ti5x.PaperView
             android:id="@+id/paper"
