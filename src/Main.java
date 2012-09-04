@@ -1260,6 +1260,44 @@ public class Main extends android.app.Activity
           } /*if*/
       } /*onActivityResult*/
 
+    void PostNotification
+      (
+        int MsgID,
+        boolean Ongoing
+      )
+      {
+        final android.app.Notification NotifyDone = new android.app.Notification
+          (
+            /*icon =*/ R.drawable.icon,
+            /*tickerText =*/ getString(R.string.app_name),
+            /*when =*/ System.currentTimeMillis()
+          );
+        NotifyDone.contentView = new android.widget.RemoteViews
+          (
+            "nz.gen.geek_central.ti5x",
+            R.layout.prog_status
+          );
+        NotifyDone.contentView.setTextViewText(R.id.notify_prog_status, getString(MsgID));
+        NotifyDone.contentIntent = android.app.PendingIntent.getActivity
+          (
+            /*context =*/ Main.this,
+            /*requestCode =*/ 0,
+            /*intent =*/ new Intent()
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .setClass(Main.this, Main.class),
+            /*flags =*/ 0
+          );
+        if (Ongoing)
+          {
+            NotifyDone.flags = NotifyDone.FLAG_ONGOING_EVENT;
+          }
+        else
+          {
+            NotifyDone.flags = NotifyDone.FLAG_AUTO_CANCEL;
+          } /*if*/
+        Notiman.notify(NotifyProgramDone, NotifyDone);
+      } /*PostNotification*/
+
     @Override
     public void onCreate
       (
@@ -1290,28 +1328,7 @@ public class Main extends android.app.Activity
               {
                 if (!hasWindowFocus())
                   {
-                    final android.app.Notification NotifyDone = new android.app.Notification
-                      (
-                        /*icon =*/ R.drawable.icon,
-                        /*tickerText =*/ getString(R.string.app_name),
-                        /*when =*/ System.currentTimeMillis()
-                      );
-                    NotifyDone.contentView = new android.widget.RemoteViews
-                      (
-                        "nz.gen.geek_central.ti5x",
-                        R.layout.prog_done
-                      );
-                    NotifyDone.contentIntent = android.app.PendingIntent.getActivity
-                      (
-                        /*context =*/ Main.this,
-                        /*requestCode =*/ 0,
-                        /*intent =*/ new Intent()
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            .setClass(Main.this, Main.class),
-                        /*flags =*/ 0
-                      );
-                    NotifyDone.flags = NotifyDone.FLAG_AUTO_CANCEL;
-                    Notiman.notify(NotifyProgramDone, NotifyDone);
+                    PostNotification(R.string.prog_done, false);
                   } /*if*/
               } /*run*/
           } /*Runnable*/;
@@ -1365,6 +1382,10 @@ public class Main extends android.app.Activity
           {
             Persistent.SaveState(this, false);
               /* don't bother making async, because I'm going to background anyway */
+            if (Global.Calc.TaskRunning)
+              {
+                PostNotification(R.string.prog_running, true);
+              } /*if*/
           } /*if*/
       } /*onPause*/
 

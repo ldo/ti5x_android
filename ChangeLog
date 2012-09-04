@@ -1,5 +1,9 @@
 Feature highlights:
 
+15587.1, 2012 September 4:
+    notification status now appears while program is running in background,
+    not just when it stops
+
 15586.1, 2012 September 3:
     reduce maximum screen size limit for scaling
     stop multiple-launching of Help activity
