@@ -16,6 +16,13 @@ package nz.gen.geek_central.ti5x;
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import android.content.Intent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.Toast;
+import android.content.DialogInterface;
+
 public class Main extends android.app.Activity
   {
     android.text.ClipboardManager Clipboard;
@@ -28,7 +35,7 @@ public class Main extends android.app.Activity
         public void Run
           (
             int ResultCode,
-            android.content.Intent Data
+            Intent Data
           );
       } /*RequestResponseAction*/
 
@@ -44,7 +51,7 @@ public class Main extends android.app.Activity
     static final int SwitchAppend = android.app.Activity.RESULT_FIRST_USER + 1;
     boolean ExportAppend, ExportNumbersOnly;
 
-    android.view.ViewGroup PickerExtra, SaveAsExtra;
+    ViewGroup PickerExtra, SaveAsExtra;
     boolean ShuttingDown = false;
     boolean StateLoaded = false; /* will be reset to false every time activity is killed and restarted */
 
@@ -58,9 +65,8 @@ public class Main extends android.app.Activity
       /* launches the Help activity, displaying the page in my resources with
         the specified Path. */
       {
-        final android.content.Intent LaunchHelp =
-            new android.content.Intent(android.content.Intent.ACTION_VIEW)
-                .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        final Intent LaunchHelp = new Intent(Intent.ACTION_VIEW)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
       /* must always load the page contents, can no longer pass a file:///android_asset/
         URL with Android 4.0. */
         byte[] HelpRaw;
@@ -99,7 +105,7 @@ public class Main extends android.app.Activity
 
     class ReplaceConfirm
         extends android.app.AlertDialog
-        implements android.content.DialogInterface.OnClickListener
+        implements DialogInterface.OnClickListener
       {
         final Runnable LaunchWhat;
 
@@ -115,13 +121,13 @@ public class Main extends android.app.Activity
             setMessage(ctx.getString(MsgID));
             setButton
               (
-                android.content.DialogInterface.BUTTON_POSITIVE,
+                DialogInterface.BUTTON_POSITIVE,
                 ctx.getString(R.string.replace),
                 this
               );
             setButton
               (
-                android.content.DialogInterface.BUTTON_NEGATIVE,
+                DialogInterface.BUTTON_NEGATIVE,
                 ctx.getString(R.string.cancel),
                 this
               );
@@ -130,11 +136,11 @@ public class Main extends android.app.Activity
         @Override
         public void onClick
           (
-            android.content.DialogInterface TheDialog,
+            DialogInterface TheDialog,
             int WhichButton
           )
           {
-            if (WhichButton == android.content.DialogInterface.BUTTON_POSITIVE)
+            if (WhichButton == DialogInterface.BUTTON_POSITIVE)
               {
                 LaunchWhat.run();
               } /*if*/
@@ -145,7 +151,7 @@ public class Main extends android.app.Activity
 
     class FeedbackDialog
         extends android.app.Dialog
-        implements android.content.DialogInterface.OnDismissListener
+        implements DialogInterface.OnDismissListener
       {
         final android.content.Context ctx;
         android.widget.RadioGroup TheButtons;
@@ -170,22 +176,20 @@ public class Main extends android.app.Activity
             MainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
             setContentView(MainLayout);
             TheButtons = new android.widget.RadioGroup(ctx);
-            final android.view.ViewGroup.LayoutParams ButtonLayout =
-                new android.view.ViewGroup.LayoutParams
+            final ViewGroup.LayoutParams ButtonLayout =
+                new ViewGroup.LayoutParams
                   (
-                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
                   );
               {
-                final android.widget.RadioButton FeedbackClick =
-                    new android.widget.RadioButton(ctx);
+                final RadioButton FeedbackClick = new RadioButton(ctx);
                 FeedbackClick.setText(R.string.click);
                 FeedbackClick.setId(ButtonGrid.FEEDBACK_CLICK);
-                final android.widget.RadioButton FeedbackVibrate =
-                    new android.widget.RadioButton(ctx);
+                final RadioButton FeedbackVibrate = new RadioButton(ctx);
                 FeedbackVibrate.setText(R.string.vibrate);
                 FeedbackVibrate.setId(ButtonGrid.FEEDBACK_VIBRATE);
-                final android.widget.RadioButton FeedbackNone = new android.widget.RadioButton(ctx);
+                final RadioButton FeedbackNone = new RadioButton(ctx);
                 FeedbackNone.setText(R.string.none);
                 FeedbackNone.setId(ButtonGrid.FEEDBACK_NONE);
                 TheButtons.addView(FeedbackClick, 0, ButtonLayout);
@@ -200,7 +204,7 @@ public class Main extends android.app.Activity
         @Override
         public void onDismiss
           (
-            android.content.DialogInterface TheDialog
+            DialogInterface TheDialog
           )
           {
             Global.Buttons.SetFeedbackType(TheButtons.getCheckedRadioButtonId());
@@ -229,8 +233,7 @@ public class Main extends android.app.Activity
                     /*SpecialItem =*/ null
                   ),
             };
-        PickerExtra = (android.view.ViewGroup)
-            getLayoutInflater().inflate(R.layout.import_type, null);
+        PickerExtra = (ViewGroup)getLayoutInflater().inflate(R.layout.import_type, null);
         Picker.Launch
           (
             /*Acting =*/ Main.this,
@@ -245,24 +248,24 @@ public class Main extends android.app.Activity
     void LaunchExportPicker()
       {
         final android.view.LayoutInflater Inflater = getLayoutInflater();
-        final android.view.ViewGroup[] ExportExtra = new android.view.ViewGroup[2];
+        final ViewGroup[] ExportExtra = new ViewGroup[2];
           /* need two copies */
         for (int i = 0; i < 2; ++i)
           {
-            ExportExtra[i] = (android.view.ViewGroup)Inflater.inflate(R.layout.export_type, null);
-            final android.widget.RadioButton NumbersOnly =
-                (android.widget.RadioButton)ExportExtra[i].findViewById(R.id.select_numbers_only);
-            final android.widget.RadioButton AllPrintout =
-                (android.widget.RadioButton)ExportExtra[i].findViewById(R.id.select_all_printout);
+            ExportExtra[i] = (ViewGroup)Inflater.inflate(R.layout.export_type, null);
+            final RadioButton NumbersOnly =
+                (RadioButton)ExportExtra[i].findViewById(R.id.select_numbers_only);
+            final RadioButton AllPrintout =
+                (RadioButton)ExportExtra[i].findViewById(R.id.select_all_printout);
             NumbersOnly.setChecked(ExportNumbersOnly);
             AllPrintout.setChecked(!ExportNumbersOnly);
             NumbersOnly.setOnClickListener
               (
-                new android.view.View.OnClickListener()
+                new View.OnClickListener()
                   {
                     public void onClick
                       (
-                        android.view.View TheView
+                        View TheView
                       )
                       {
                         ExportNumbersOnly = true;
@@ -271,11 +274,11 @@ public class Main extends android.app.Activity
                 );
             AllPrintout.setOnClickListener
               (
-                new android.view.View.OnClickListener()
+                new View.OnClickListener()
                   {
                     public void onClick
                       (
-                        android.view.View TheView
+                        View TheView
                       )
                       {
                         ExportNumbersOnly = false;
@@ -283,23 +286,23 @@ public class Main extends android.app.Activity
                   } /*OnClickListener*/
                 );
           } /*for*/
-        SaveAsExtra = (android.view.ViewGroup)Inflater.inflate(R.layout.save_append, null);
+        SaveAsExtra = (ViewGroup)Inflater.inflate(R.layout.save_append, null);
         SaveAsExtra.addView
           (
             ExportExtra[0],
-            new android.view.ViewGroup.LayoutParams
+            new ViewGroup.LayoutParams
               (
-                android.view.ViewGroup.LayoutParams.FILL_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
               )
           );
         SaveAsExtra.findViewById(R.id.switch_append).setOnClickListener
           (
-            new android.view.View.OnClickListener()
+            new View.OnClickListener()
               {
                 public void onClick
                   (
-                    android.view.View TheView
+                    View TheView
                   )
                   {
                     SaveAs.Current.setResult(SwitchAppend);
@@ -307,23 +310,23 @@ public class Main extends android.app.Activity
                   } /*onClick*/
               } /*OnClickListener*/
           );
-        PickerExtra = (android.view.ViewGroup)Inflater.inflate(R.layout.save_new, null);
+        PickerExtra = (ViewGroup)Inflater.inflate(R.layout.save_new, null);
         PickerExtra.addView
           (
             ExportExtra[1],
-            new android.view.ViewGroup.LayoutParams
+            new ViewGroup.LayoutParams
               (
-                android.view.ViewGroup.LayoutParams.FILL_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
               )
           );
         PickerExtra.findViewById(R.id.switch_new).setOnClickListener
           (
-            new android.view.View.OnClickListener()
+            new View.OnClickListener()
               {
                 public void onClick
                   (
-                    android.view.View TheView
+                    View TheView
                   )
                   {
                     Picker.Current.setResult(SwitchSaveAs);
@@ -336,10 +339,10 @@ public class Main extends android.app.Activity
             ExportExtra[1].addView
               (
                 getLayoutInflater().inflate(R.layout.import_type, null),
-                new android.view.ViewGroup.LayoutParams
+                new ViewGroup.LayoutParams
                   (
-                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
                   )
               );
             final Picker.PickerAltList[] AltLists =
@@ -428,19 +431,18 @@ public class Main extends android.app.Activity
                   {
                     if (Global.Calc != null && Global.Calc.ModuleHelp != null)
                       {
-                        final android.content.Intent ShowHelp =
-                            new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                        final Intent ShowHelp = new Intent(Intent.ACTION_VIEW);
                         ShowHelp.putExtra(Help.ContentID, Global.Calc.ModuleHelp);
                         ShowHelp.setClass(Main.this, Help.class);
                         startActivity(ShowHelp);
                       }
                     else
                       {
-                        android.widget.Toast.makeText
+                        Toast.makeText
                           (
                             /*context =*/ Main.this,
                             /*text =*/ getString(R.string.no_module_help),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                            /*duration =*/ Toast.LENGTH_SHORT
                           ).show();
                       } /*if*/
                   } /*run*/
@@ -455,7 +457,7 @@ public class Main extends android.app.Activity
                   {
                     startActivity
                       (
-                        new android.content.Intent(android.content.Intent.ACTION_VIEW)
+                        new Intent(Intent.ACTION_VIEW)
                             .setClass(Main.this, PrinterView.class)
                       );
                   } /*run*/
@@ -490,8 +492,7 @@ public class Main extends android.app.Activity
                                   /* item representing selection of built-in Master Library */
                               ),
                         };
-                    PickerExtra = (android.view.ViewGroup)
-                        getLayoutInflater().inflate(R.layout.prog_type, null);
+                    PickerExtra = (ViewGroup)getLayoutInflater().inflate(R.layout.prog_type, null);
                     Picker.Launch
                       (
                         /*Acting =*/ Main.this,
@@ -638,7 +639,7 @@ public class Main extends android.app.Activity
     public void onCreateContextMenu
       (
         android.view.ContextMenu TheMenu,
-        android.view.View TheView,
+        View TheView,
         android.view.ContextMenu.ContextMenuInfo TheMenuInfo
       )
       {
@@ -784,11 +785,11 @@ public class Main extends android.app.Activity
                         while (false);
                         if (!OK)
                           {
-                            android.widget.Toast.makeText
+                            Toast.makeText
                               (
                                 /*context =*/ Main.this,
                                 /*text =*/ getString(R.string.paste_nan),
-                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                /*duration =*/ Toast.LENGTH_SHORT
                               ).show();
                           } /*if*/
                       } /*run*/
@@ -812,7 +813,7 @@ public class Main extends android.app.Activity
                 public void Run
                   (
                     int ResultCode,
-                    android.content.Intent Data
+                    Intent Data
                   )
                   {
                     final String ProgName = Data.getData().getPath();
@@ -935,7 +936,7 @@ public class Main extends android.app.Activity
                                 case LOAD_PROG:
                                     if (TaskFailure == null)
                                       {
-                                        android.widget.Toast.makeText
+                                        Toast.makeText
                                           (
                                             /*context =*/ Main.this,
                                             /*text =*/
@@ -954,7 +955,7 @@ public class Main extends android.app.Activity
                                                     :
                                                         new java.io.File(ProgName).getName()
                                                   ),
-                                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                            /*duration =*/ Toast.LENGTH_SHORT
                                           ).show();
                                         Global.StartBGTask
                                           (
@@ -972,7 +973,7 @@ public class Main extends android.app.Activity
                                       }
                                     else
                                       {
-                                        android.widget.Toast.makeText
+                                        Toast.makeText
                                           (
                                             /*context =*/ Main.this,
                                             /*text =*/
@@ -982,7 +983,7 @@ public class Main extends android.app.Activity
                                                     getString(R.string.file_load_error),
                                                     TaskFailure.toString()
                                                   ),
-                                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                                            /*duration =*/ Toast.LENGTH_LONG
                                           ).show();
                                       } /*if*/
                                 break;
@@ -1007,7 +1008,7 @@ public class Main extends android.app.Activity
                 public void Run
                   (
                     int ResultCode,
-                    android.content.Intent Data
+                    Intent Data
                   )
                   {
                     final String TheName =
@@ -1052,7 +1053,7 @@ public class Main extends android.app.Activity
                                   {
                                     if (TaskStatus == 0)
                                       {
-                                        android.widget.Toast.makeText
+                                        Toast.makeText
                                           (
                                             /*context =*/ Main.this,
                                             /*text =*/ String.format
@@ -1061,12 +1062,12 @@ public class Main extends android.app.Activity
                                                 getString(R.string.program_saved),
                                                 TheName
                                               ),
-                                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                            /*duration =*/ Toast.LENGTH_SHORT
                                           ).show();
                                       }
                                     else
                                       {
-                                        android.widget.Toast.makeText
+                                        Toast.makeText
                                           (
                                             /*context =*/ Main.this,
                                             /*text =*/
@@ -1076,7 +1077,7 @@ public class Main extends android.app.Activity
                                                     getString(R.string.program_save_error),
                                                     TaskFailure.toString()
                                                   ),
-                                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                                            /*duration =*/ Toast.LENGTH_LONG
                                           ).show();
                                       } /*if*/
                                   } /*PostRun*/
@@ -1094,7 +1095,7 @@ public class Main extends android.app.Activity
                 public void Run
                   (
                     int ResultCode,
-                    android.content.Intent Data
+                    Intent Data
                   )
                   {
                     final String FileName = Data.getData().getPath();
@@ -1102,7 +1103,7 @@ public class Main extends android.app.Activity
                       {
                         Global.Calc.ClearImport();
                         Global.Import.ImportData(FileName);
-                        android.widget.Toast.makeText
+                        Toast.makeText
                           (
                             /*context =*/ Main.this,
                             /*text =*/ String.format
@@ -1111,13 +1112,13 @@ public class Main extends android.app.Activity
                                 getString(R.string.import_started),
                                 FileName
                               ),
-                            /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                            /*duration =*/ Toast.LENGTH_SHORT
                           ).show();
                         
                       }
                     catch (Persistent.DataFormatException Failed)
                       {
-                        android.widget.Toast.makeText
+                        Toast.makeText
                           (
                             /*context =*/ Main.this,
                             /*text =*/ String.format
@@ -1126,7 +1127,7 @@ public class Main extends android.app.Activity
                                 getString(R.string.file_load_error),
                                 Failed.toString()
                               ),
-                            /*duration =*/ android.widget.Toast.LENGTH_LONG
+                            /*duration =*/ Toast.LENGTH_LONG
                           ).show();
                       } /*try*/
                   } /*Run*/
@@ -1140,7 +1141,7 @@ public class Main extends android.app.Activity
                 public void Run
                   (
                     int ResultCode,
-                    android.content.Intent Data
+                    Intent Data
                   )
                   {
                     switch (ResultCode)
@@ -1164,7 +1165,7 @@ public class Main extends android.app.Activity
                                   /* note FileName will have leading slash */
                               } /*if*/
                             Global.Export.Open(FileName, ExportAppend, ExportNumbersOnly);
-                            android.widget.Toast.makeText
+                            Toast.makeText
                               (
                                 /*context =*/ Main.this,
                                 /*text =*/ String.format
@@ -1173,12 +1174,12 @@ public class Main extends android.app.Activity
                                     getString(R.string.export_started),
                                     FileName
                                   ),
-                                /*duration =*/ android.widget.Toast.LENGTH_SHORT
+                                /*duration =*/ Toast.LENGTH_SHORT
                               ).show();
                           }
                         catch (RuntimeException Failed)
                           {
-                            android.widget.Toast.makeText
+                            Toast.makeText
                               (
                                 /*context =*/ Main.this,
                                 /*text =*/
@@ -1188,7 +1189,7 @@ public class Main extends android.app.Activity
                                         getString(R.string.export_error),
                                         Failed.toString()
                                       ),
-                                /*duration =*/ android.widget.Toast.LENGTH_LONG
+                                /*duration =*/ Toast.LENGTH_LONG
                               ).show();
                           } /*try*/
                     break;
@@ -1242,7 +1243,7 @@ public class Main extends android.app.Activity
       (
         int RequestCode,
         int ResultCode,
-        android.content.Intent Data
+        Intent Data
       )
       {
         Picker.Cleanup();
@@ -1304,8 +1305,8 @@ public class Main extends android.app.Activity
                       (
                         /*context =*/ Main.this,
                         /*requestCode =*/ 0,
-                        /*intent =*/ new android.content.Intent()
-                            .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        /*intent =*/ new Intent()
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             .setClass(Main.this, Main.class),
                         /*flags =*/ 0
                       );
@@ -1330,11 +1331,11 @@ public class Main extends android.app.Activity
           );
         ((android.widget.Button)findViewById(R.id.action_help)).setOnClickListener
           (
-            new android.view.View.OnClickListener()
+            new View.OnClickListener()
               {
                 public void onClick
                   (
-                    android.view.View ButtonView
+                    View ButtonView
                   )
                   {
                     ShowHelp("help/index.html", null);
