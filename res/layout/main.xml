@@ -4,6 +4,12 @@
     android:layout_height="fill_parent"
     android:clipChildren="false"
 >
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/dark"
+        android:layout_gravity="fill"
+    />
     <nz.gen.geek_central.ti5x.Display
         android:id="@+id/display"
         android:layout_width="fill_parent"
