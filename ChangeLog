@@ -1,5 +1,9 @@
 Feature highlights:
 
+15597.9, 2012 September 15:
+    increase size of tappable button area to see if that reduces complaints
+    about unresponsive buttons
+
 15587.1, 2012 September 4:
     notification status now appears while program is running in background,
     not just when it stops
