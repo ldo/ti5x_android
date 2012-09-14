@@ -281,15 +281,8 @@ public class ButtonGrid extends android.view.View
                                     GridBounds.left + CellWidth * (ClickedCell.x + 1),
                                     GridBounds.top + CellHeight * (ClickedCell.y + 1)
                                   );
-                                final RectF ButtonBounds = new RectF
-                                  (
-                                    CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelMargins.left,
-                                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top,
-                                    CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelMargins.right,
-                                    CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelMargins.bottom
-                                  );
                                 int NewSelectedButton;
-                                if (ButtonBounds.contains(ClickWhere.x, ClickWhere.y))
+                                if (CellBounds.contains(ClickWhere.x, ClickWhere.y))
                                   {
                                     NewSelectedButton = ButtonDefs[ClickedCell.y][ClickedCell.x].BaseCode;
                                   }
