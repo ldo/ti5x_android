@@ -164,8 +164,10 @@ public class ButtonGrid extends android.view.View
 
     public boolean OverlayVisible;
 
-    final RectF ButtonRelMargins = new RectF(0.175f, 0.5f, 0.175f, 0.05f);
+    final RectF ButtonRelDisplayMargins = new RectF(0.175f, 0.5f, 0.175f, 0.05f);
       /* relative bounds of button within grid cell */
+    final RectF ButtonRelTouchMargins = new RectF(0.0f, 0.25f, 0.0f, 0.0f);
+      /* wider touch-sensitive areas to improve sensitivity */
     final float CornerRoundness = 1.5f;
 
   /* global modifier state */
@@ -281,8 +283,15 @@ public class ButtonGrid extends android.view.View
                                     GridBounds.left + CellWidth * (ClickedCell.x + 1),
                                     GridBounds.top + CellHeight * (ClickedCell.y + 1)
                                   );
+                                final RectF ButtonBounds = new RectF
+                                  (
+                                    CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelTouchMargins.left,
+                                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelTouchMargins.top,
+                                    CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelTouchMargins.right,
+                                    CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelTouchMargins.bottom
+                                  );
                                 int NewSelectedButton;
-                                if (CellBounds.contains(ClickWhere.x, ClickWhere.y))
+                                if (ButtonBounds.contains(ClickWhere.x, ClickWhere.y))
                                   {
                                     NewSelectedButton = ButtonDefs[ClickedCell.y][ClickedCell.x].BaseCode;
                                   }
@@ -423,10 +432,10 @@ public class ButtonGrid extends android.view.View
                   );
                 final RectF ButtonBounds = new RectF
                   (
-                    CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelMargins.left,
-                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top,
-                    CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelMargins.right,
-                    CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelMargins.bottom
+                    CellBounds.left + (CellBounds.right - CellBounds.left) * ButtonRelDisplayMargins.left,
+                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelDisplayMargins.top,
+                    CellBounds.right + (CellBounds.left - CellBounds.right) * ButtonRelDisplayMargins.right,
+                    CellBounds.bottom + (CellBounds.top - CellBounds.bottom) * ButtonRelDisplayMargins.bottom
                   );
                 if (ThisButton.BaseCode == SelectedButton)
                   {
@@ -445,7 +454,7 @@ public class ButtonGrid extends android.view.View
                     Draw,
                     ThisButton.AltText,
                     (CellBounds.left + CellBounds.right) / 2.0f,
-                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelMargins.top / 2.0f,
+                    CellBounds.top + (CellBounds.bottom - CellBounds.top) * ButtonRelDisplayMargins.top / 2.0f,
                     TextPaint
                   );
                   {
