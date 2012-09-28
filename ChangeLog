@@ -1,5 +1,9 @@
 Feature highlights:
 
+15611.5, 2012 September 29:
+    reduce layout size on larger screens to be more consistent with smaller
+    screens
+
 15597.9, 2012 September 15:
     increase size of tappable button area to see if that reduces complaints
     about unresponsive buttons
