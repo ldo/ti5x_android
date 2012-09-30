@@ -1260,6 +1260,21 @@ public class Main extends android.app.Activity
           } /*if*/
       } /*onActivityResult*/
 
+    void CheckDisplayOrientation()
+      /* ensures that landscape orientation is only allowed on screens that
+        are tall enough. */
+      {
+        final android.view.Display MainDisplay = getWindowManager().getDefaultDisplay();
+        final android.util.DisplayMetrics MainMetrics = new android.util.DisplayMetrics();
+        MainDisplay.getMetrics(MainMetrics);
+        if (MainMetrics.heightPixels / MainMetrics.densityDpi * 160.0f <= 640.0f)
+          {
+          /* Lock to portrait orientation on phone-sized screens. Note once I do this,
+            I stop getting further notifications of orientation change. */
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+          } /*if*/
+      } /*CheckDisplayOrientation*/
+
     void PostNotification
       (
         int MsgID,
@@ -1332,6 +1347,7 @@ public class Main extends android.app.Activity
                   } /*if*/
               } /*run*/
           } /*Runnable*/;
+        CheckDisplayOrientation();
       } /*onCreate*/
 
     @Override
@@ -1420,15 +1436,7 @@ public class Main extends android.app.Activity
       )
       {
         super.onConfigurationChanged(NewConfig);
-        final android.view.Display MainDisplay = getWindowManager().getDefaultDisplay();
-        final android.util.DisplayMetrics MainMetrics = new android.util.DisplayMetrics();
-        MainDisplay.getMetrics(MainMetrics);
-        if (MainMetrics.heightPixels / MainMetrics.densityDpi * 160.0f <= 640.0f)
-          {
-          /* Lock to portrait orientation on phone-sized screens. Note once I do this,
-            I stop getting further notifications of orientation change. */
-            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-          } /*if*/
+        CheckDisplayOrientation();
       } /*onConfigurationChanged*/
 
     @Override
