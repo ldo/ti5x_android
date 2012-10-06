@@ -50,13 +50,15 @@
     <target name="clean" description="Removes output files created by other targets.">
         <delete dir="${out.absolute.dir}" verbose="${verbose}" />
         <delete dir="${gen.absolute.dir}" verbose="${verbose}" />
-        <delete file="${resource.absolute.dir}/raw/ml.ti5l" verbose="${verbose}" />
     </target>
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
     <target name="-pre-build">
-        <exec executable="util/mlmake"/>
+        <exec executable="util/mlmake">
+            <arg value="mlsrc"/>
+            <arg value="${out.res.absolute.dir}/raw"/>
+        </exec>
     </target>
 <!--
     <target name="-pre-compile">

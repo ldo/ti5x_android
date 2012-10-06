@@ -2,7 +2,7 @@
 #+
 # This script builds the master library file.
 #
-# Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+# Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,8 +32,8 @@ def mtime_if(filename) :
 #end mtime_if
 
 utildir = os.path.dirname(sys.argv[0])
-srcdir = os.path.join(os.path.dirname(utildir), "mlsrc")
-dstdir = "res/raw"
+srcdir = sys.argv[1]
+dstdir = sys.argv[2]
 dstfile = os.path.join(os.path.dirname(utildir), os.path.join(dstdir, "ml.ti5l"))
 sys.stderr.write("%s => %s\n" % (srcdir, dstfile)) # debug
 libhelpname = "help.html"
