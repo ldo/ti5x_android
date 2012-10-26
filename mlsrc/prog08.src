@@ -47,9 +47,14 @@ lbl clr
     pgm 00 A´ op 10 sto 06 ; evaluate signum of function at lower bound
     cp x=t + ; branch if root
 lbl 2nd clr
+    rcl 04
+    x⇌t rcl 02 x=t r/s ; exit when upper bound reached
     ( rcl 04 + rcl 03 ) sto 05
-    x⇌t rcl 02 inv x≥t r/s ; exit if exceeded upper bound
-    x⇌t cp pgm 00 A´ op 10 ; evaluate function at this point
+    x⇌t rcl 02 x≥t +/- ; set to upper bound
+    sto 05
+lbl +/-
+    rcl 05
+    cp pgm 00 A´ op 10 ; evaluate function at this point
     cp x=t + ; exit if happens to be exactly a root
     x⇌t rcl 06 inv x=t = ; exit if sign has changed
     rcl 05 sto 04
