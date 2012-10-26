@@ -76,13 +76,13 @@ lbl ÷
     gto = ; continue bisecting
 lbl -
 ; bisection found another root
-    rcl 07 r/s ; show user
     rcl 05 sto 01 ; bisection upper bound becomes new lower bound to continue search
+    rcl 07 r/s ; show user
     gto clr ; look for next one
 lbl +
 ; stepped right onto another root
-    rcl 05 r/s ; show user
     ( ce + rcl 03 ) sto 01 ; step lower bound to avoid finding same root again
+    rcl 05 r/s ; show user
     gto clr ; look for next one
 lbl r/s
 ; no more roots
