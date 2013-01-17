@@ -1,0 +1,89 @@
+This is an overview of the file formats used for saved programs and
+library modules by ti5x. A similar format is also used for the internal
+saved-state file used for quitting and resuming calculator operation.
+
+The format is a ZIP archive. The first archive member must have the
+name “mimetype”, with as its contents the string
+“application/vnd.nz.gen.geek_central.ti5x”, which must be stored
+uncompressed. This is the same convention as that used for ODF files,
+or ISO/IEC 26300 <http://en.wikipedia.org/wiki/OpenDocument> (apart
+from the actual mimetype string), and allows for file-format sniffers
+to identify the format by finding the string “mimetype” at exactly 30
+bytes from the start of the file, and the actual mimetype immediately
+following.
+
+The rest of the archive components are of any of 3 common types,
+though how these actually occur depends on whether the file represents
+a user program, a library module, or the saved calculator state. The
+components are named “prognn”, “cardnn” and “helpnn”, where the “nn”
+represent two decimal digits [00 .. 99] identifying the program bank
+(00 for a user program, 01 .. 99 for a library program). The “prognn”
+component contains the actual program code (and possible additional
+calculator state information), the “cardnn” contains the PNG-format
+graphic to display in the label-card area when the program is selected
+by the user, and the “helpnn” contains an HTML page to be displayed as
+the help for the program.
+
+Program Component Format
+========================
+
+The contents of the “prognn” component is in XML format. At the top
+level there is a <state> tag, within which is a single <calc> tag, and
+within that a single <prog> tag. The contents of the <prog> tag are a
+sequence of 2-digit decimal integers (separated by whitespace)
+representing the contents of consecutive program-memory locations
+(program steps) starting from 000. For nn = 00, the maximum number of
+program steps is 960 (the value of the “MaxProgram” constant in
+src/State.java); for nn ≠ 00, the maximum program size is 1000 steps.
+
+Within a saved-state file, there will be additional XML tags
+representing other parts of the calculator state. For details
+on these, see src/Persistent.java.
+
+User Program
+============
+
+A user-program file contains a “prog00” component (required),
+and optionally “card00” and/or “help00” components. Its file
+extension must be “.ti5p”.
+
+Library Module
+==============
+
+A library-program file contains one or more “prognn” components where
+the “nn” values are in [01 .. 99] (they need not be
+contiguously-numbered). To select a program “nn” in the currently-loaded
+library module, the user types the key sequence “2nd Pgm nn”. If the
+module contains no such program, the calculator goes into the error state
+with a flashing display.
+
+Each “prognn” may be accompanied by “cardnn” and/or “helpnn”
+components giving information about the corresponding program with the
+same value for “nn”. In addition, the library can contain a component
+just called “help” with no numeric suffix; this contains an HTML page
+giving overall help for the library module. The library file
+extension must be “.ti5l”.
+
+Saved State
+===========
+
+This has the same components as a user-program file. The “prog00”
+component contains additional elements representing the saved
+calculator state. The file name is “state.ti5s”. This is saved in the
+per-application data area under Android when the user quits
+the app, and is found and reloaded when the app is (re)started,
+allowing for seamless continuation of most operations (including
+allowing for resumption of partial data entry) from where the user
+left off.
+
+Example Code
+============
+
+For examples of code for reading and writing these files, see the ti5x
+source tree. The util/makeprog Python script (used during the build process)
+knows how to write both user-program and library-module files, while
+the Java file src/Persistent.java knows how to read them, as well as
+write user-program and read and write saved-state files.
+
+Lawrence D'Oliveiro <ldo@geek-central.gen.nz>
+2013 January 17
