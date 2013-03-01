@@ -119,7 +119,8 @@ label_slots = \
     {
     # key is slot name, value is dict with keys:
     #     row -- row number [2 .. 4] (top row reserved for fixed text)
-    #     cell -- cell number [1 .. 5] if row is divided into cells, or 0 if entire row is one cell
+    #     cells -- cell column number(s) in range [1 .. 5], either single integer or
+    #         set of integers for cell spanning multiple (contiguous) columns
     #     align -- alignment of label text within cell
         "titleleft" : {"row" : 2, "cells" : fullrow, "align" : "left"},
         "titleright" : {"row" : 2, "cells" : fullrow, "align" : "right"},
