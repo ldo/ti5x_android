@@ -12,7 +12,6 @@
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
-        android:debuggable="true"
     >
         <activity
             android:name="Main"
