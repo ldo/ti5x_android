@@ -1170,6 +1170,7 @@ public class Persistent
                   {
                     ParseState = DoingState;
                   } /*if*/
+            break;
             case DoingCalc:
                 if (localName == "calc")
                   {

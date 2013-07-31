@@ -94,7 +94,7 @@ public class Main extends android.app.Activity
           (
             Help.ContentID,
             FormatArgs != null ?
-                String.format(Global.StdLocale, new String(HelpRaw), FormatArgs)
+                String.format(Global.StdLocale, new String(HelpRaw), (Object[])FormatArgs)
                     .getBytes()
             :
                 HelpRaw

@@ -250,7 +250,7 @@ public class Picker extends android.app.Activity
               {
                 TheView = TemplateInflater.inflate(ResID, null);
               } /*if*/
-            final PickerItem ThisItem = (PickerItem)this.getItem(Position);
+            final PickerItem ThisItem = this.getItem(Position);
             ((android.widget.TextView)TheView.findViewById(R.id.select_file_name))
                 .setText(ThisItem.toString());
             android.widget.RadioButton ThisChecked =
