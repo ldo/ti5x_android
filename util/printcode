@@ -4,11 +4,13 @@
 #
 #     printcode -e <string>
 #
-# where <string> cannot exceed 20 characters. To decode digit codes:
+# where <string> cannot exceed 20 characters. The encoding will be written to standard
+# output, in groups of 10 digits at a time. To decode digit codes:
 #
 #     printcode -d <digits> ...
 #
-# where each <digits> cannot exceed 10 digits.
+# where each <digits> cannot exceed 10 digits. The decoding of each <digits> will
+# be written on a separate line to standard output.
 #
 # Copyright 2013 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
