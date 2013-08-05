@@ -1120,7 +1120,7 @@ public class State
         double NewX, NewY;
         if (InvState)
           {
-            NewX = Math.sqrt(X * X + T * T);
+            NewX = Math.hypot(X, T);
             NewY = Math.atan2(X, T) * Scale;
           }
         else
