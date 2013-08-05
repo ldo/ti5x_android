@@ -1,6 +1,14 @@
 #!/usr/bin/python3
 #+
-# Utility to generate or decode printer character codes.
+# Utility to generate or decode printer character codes. To encode a string:
+#
+#     printcode -e <string>
+#
+# where <string> cannot exceed 20 characters. To decode digit codes:
+#
+#     printcode -d <digits> ...
+#
+# where each <digits> cannot exceed 10 digits.
 #
 # Copyright 2013 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
