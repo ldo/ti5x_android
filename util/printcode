@@ -1,0 +1,138 @@
+#!/usr/bin/python3
+#+
+# Utility to generate or decode printer character codes.
+#
+# Copyright 2013 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#-
+
+import sys
+import getopt
+
+decode = \
+    {
+        0 : " ",
+        20 : "-",
+        40 : ".",
+        47 : "+",
+        50 : "×",
+        51 : "*",
+        52 : "√",
+        53 : "π",
+        54 : "e",
+        55 : "(",
+        56 : ")",
+        57 : ",",
+        60 : "↑",
+        61 : "%",
+        62 : "⇌",
+        63 : "/",
+        64 : "=",
+        65 : "'",
+        66 : "ⓧ", # standing in for superscript x
+        67 : "ẍ", # closest I can get in Unicode to an x with a bar over it
+        70 : "²",
+        71 : "?",
+        72 : "÷",
+        73 : "!", # ?
+        74 : "♊", # Gemini! -- looks like pi with extra bar across bottom
+        75 : chr(0xFE3F), # “presentation form for vertical left angle bracket” -- bottom triangle symbol?
+        76 : "Π",
+        77 : "∑",
+    }
+encode = {}
+for c in range(ord("A"), ord("E") + 1) :
+    decode[c + 13 - ord("A")] = chr(c)
+#end for
+for c in range(ord("F"), ord("L") + 1) :
+    decode[c + 21 - ord("F")] = chr(c)
+#end for
+for c in range(ord("M"), ord("T") + 1) :
+    decode[c + 30 - ord("M")] = chr(c)
+#end for
+for c in range(ord("U"), ord("Z") + 1) :
+    decode[c + 41 - ord("U")] = chr(c)
+#end for
+for c in range(ord("0"), ord("6") + 1) :
+    decode[c + 1 - ord("0")] = chr(c)
+#end for
+for  c in range(ord("7"), ord("9") + 1) :
+    decode[c + 10 - ord("7")] = chr(c)
+#end for
+for k in decode :
+    encode[decode[k]] = k
+#end for
+
+#+
+# Mainline
+#-
+
+opts, args = getopt.getopt \
+  (
+    sys.argv[1:],
+    "de",
+    ["decode", "encode"],
+  )
+
+encoding = None
+for keyword, value in opts :
+    if keyword == "-d" or keyword == "--decode" :
+        encoding = False
+    elif keyword == "-e" or keyword == "--encode" :
+        encoding = True
+    #end if
+#end for
+if encoding == None :
+    raise getopt.GetoptError("must specify either -d/--decode or -e/--encode")
+#end if
+
+if encoding :
+    if len(args) != 1 :
+        raise getopt.GetoptError("must specify exactly one string to encode")
+    #end if
+    arg = args[0]
+    if len(arg) > 20 :
+        raise getopt.GetoptError("cannot encode more than 20 chars in one line")
+    #end if
+    arg += " " * (20 - len(arg))
+    for i in range(0, 4) :
+        if i != 0 :
+            sys.stdout.write(" ")
+        #end if
+        for c in arg[i * 5 : (i + 1) * 5] :
+            if not c in encode :
+                raise RuntimeError("no encoding for character “%s”" % c)
+            #end if
+            sys.stdout.write("%02d" % encode[c])
+        #end for
+    #end for
+    sys.stdout.write("\n")
+else :
+    if len(args) == 0 :
+        raise getopt.GetoptError("no args specified to decode")
+    #end if
+    for arg in args :
+        if len(arg) > 10 :
+            raise getopt.GetoptError("no more than 10 digits per group")
+        #end if
+        arg = "0" * (10 - len(arg)) + arg
+        for i in range(0, 5) :
+            c = int(arg[i * 2 : (i + 1) * 2], 10)
+            if not c in decode :
+                raise RuntimeError("no character %02d" % c)
+            #end if
+            sys.stdout.write(decode[c])
+        #end for
+        sys.stdout.write("\n")
+    #end for
+#end if

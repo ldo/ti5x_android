@@ -17,7 +17,8 @@ Contents:
         Google's Android build tools (note that you will have to
         provide a couple more of these--see INSTALL for details)
     util/ -- Python scripts for assembling/disassembling
-        calculator programs and building the Master Library.
+        calculator programs, building the Master Library and
+        other useful tasks.
     mlsrc/ -- the source of my (partial) recreation of the
         Master Library.
     art/ -- artwork for diagrams, higher-res scan for icon
