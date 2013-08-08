@@ -67,4 +67,3 @@ public class PaperView extends android.view.View
       } /*onDraw*/
 
   } /*PaperView*/
-

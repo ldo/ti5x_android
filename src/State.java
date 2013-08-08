@@ -2973,6 +2973,7 @@ public class State
                 case 10:
                     Transfer(TRANSFER_TYPE_CALL, NextBank, Op, TRANSFER_LOC_SYMBOLIC);
                 break;
+              /* 21 invalid */
                 case 22:
                 case 27:
                     InvState = !InvState;
@@ -2988,7 +2989,7 @@ public class State
                 case 20:
                     ClearAll();
                 break;
-              /* 26 same as 21 */
+              /* 26 invalid */
               /* 27 same as 22 */
                 case 28:
                     Log();
@@ -3070,7 +3071,7 @@ public class State
                       } /*if*/
                 break;
               /* 56 invalid */
-                case 57: /*Fix*/
+                case 57: /*Eng*/
                     SetDisplayMode
                       (
                         InvState ? FORMAT_FIXED : FORMAT_ENG,
