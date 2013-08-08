@@ -119,12 +119,24 @@ if encoding :
         if i != 0 :
             sys.stdout.write(" ")
         #end if
+        significant = False
+        fmt = "%d"
         for c in arg[i * 5 : (i + 1) * 5] :
             if not c in encode :
                 raise RuntimeError("no encoding for character “%s”" % c)
             #end if
-            sys.stdout.write("%02d" % encode[c])
+            i = encode[c]
+            if significant or i != 0 :
+                sys.stdout.write(fmt % i)
+            #end if
+            if i != 0 :
+                significant = True
+                fmt = "%02d"
+            #end if
         #end for
+        if not significant :
+            sys.stdout.write("0")
+        #end if
     #end for
     sys.stdout.write("\n")
 else :
