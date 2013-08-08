@@ -56,7 +56,7 @@ decode = \
         72 : "÷",
         73 : "!", # ?
         74 : "♊", # Gemini! -- looks like pi with extra bar across bottom
-        75 : chr(0xFE3F), # “presentation form for vertical left angle bracket” -- bottom triangle symbol?
+        75 : "_", # bottom triangle symbol?
         76 : "Π",
         77 : "∑",
     }
