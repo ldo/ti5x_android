@@ -506,7 +506,10 @@ public class Printer
               {
                 glyph = 74; /* looks like pi with extra bar across bottom */
               }
-          /* 75 -- bottom triangle symbol? */
+            else if (ch == '_')
+              {
+                glyph = 75; /* bottom triangle symbol? */
+              }
             else if (ch == 'Π')
               {
                 glyph = 76;
@@ -661,7 +664,10 @@ public class Printer
               {
                 ch = '♊'; /* Gemini! */
               }
-          /* 75 -- bottom triangle symbol? */
+            else if (b == 75) /* bottom triangle symbol? */
+              {
+                ch = '_';
+              }
             else if (b == 76) /* 'Π' */
               {
                 ch = 'Π';
