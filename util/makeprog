@@ -36,7 +36,7 @@
 # up to prog99/progsrc99, optionally together with corresponding cardnn and helpnn components
 # and a help component.
 #
-# Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+# Copyright 2011, 2013 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -100,17 +100,12 @@ for index in range(0, 100) :
     if index in components :
         component = components[index]
         if "progsrc" in component :
-            child = subprocess.Popen \
+            prog = subprocess.check_output \
               (
                 args = (os.path.join(utildir, "assemble"),),
                 stdin = open(component["progsrc"], "r"),
-                stdout = subprocess.PIPE,
                 close_fds = True
               )
-            prog, _ = child.communicate()
-            if child.returncode != 0 :
-                raise RuntimeError("assemble %s cmd returned %d" % (component["progsrc"], child.returncode))
-            #end if
         elif "prog" in component :
             prog = open(component["prog"], "rb").read()
         else :
@@ -128,17 +123,12 @@ for index in range(0, 100) :
               )
         #end if
         if "cardsrc" in component :
-            child = subprocess.Popen \
+            carddata = subprocess.check_output \
               (
                 args = (os.path.join(utildir, "rendercard"),),
                 stdin = open(component["cardsrc"], "r"),
-                stdout = subprocess.PIPE,
                 close_fds = True
               )
-            carddata, _ = child.communicate()
-            if child.returncode != 0 :
-                raise RuntimeError("rendercard %s cmd returned %d" % (component["cardsrc"], child.returncode))
-            #end if
         elif "card" in component :
             carddata = open(component["card"], "rb").read()
         else :

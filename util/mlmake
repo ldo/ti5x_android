@@ -2,7 +2,7 @@
 #+
 # This script builds the master library file.
 #
-# Copyright 2011, 2012 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+# Copyright 2011-2013 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -81,14 +81,11 @@ if not os.path.isfile(dstfile) or os.path.getmtime(dstfile) < mtime :
         #end if
         args.append("progsrc%02d=%s" % (module["nr"], module["src"]))
     #end for
-    status = subprocess.Popen \
+    subprocess.check_call \
       (
         args = [os.path.join(utildir, "makeprog"), dstfile_new] + args,
         close_fds = True
-      ).wait()
-    if status != 0 :
-        raise RuntimeError("makeprog cmd returned %d" % status)
-    #end if
+      )
     os.rename(dstfile_new, dstfile)
     sys.stderr.write("%s rebuilt\n" % dstfile)
 else :
