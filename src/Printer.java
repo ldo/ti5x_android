@@ -194,7 +194,7 @@ public class Printer
             /*75*/ " - ",
             /*76*/ "LBL",
             /*77*/ " GE",
-            /*78*/ "∑+ ", /* guess */
+            /*78*/ "∑+ ",
             /*79*/ " ẍ ", /* closest I can get in Unicode to an x with a bar over it */
             /*70*/ "RAD",
             /*81*/ "RST",
@@ -205,7 +205,7 @@ public class Printer
             /*86*/ "STF",
             /*87*/ "IFF",
             /*88*/ "DMS",
-            /*89*/ " π ", /* guess */
+            /*89*/ " π ",
             /*80*/ "GRD",
             /*91*/ "R/S",
             /*92*/ "RTN",
