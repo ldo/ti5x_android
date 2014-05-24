@@ -75,7 +75,9 @@
     <target name="signed" depends="-set-release-mode, -package">
         <property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-release-unaligned.apk" />
         <signjar
-            keystore="${keystore.path}" alias="${keystore.alias}" storepass="${keystore.password}"
+            keystore="${keystore.path}" alias="${keystore.alias}"
+            storepass="${keystore.password}"
+            sigalg="MD5withRSA" digestalg="SHA1"
             jar="${out.packaged.file}"
             signedjar="${out.unaligned.file}"
             verbose="true"
