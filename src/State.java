@@ -2050,7 +2050,7 @@ public class State
             if (ProgRunningSlowly)
               {
                 Global.Disp.SetShowing(LastShowing);
-                BGTask.postDelayed(ExecuteTask, 250);
+                BGTask.postDelayed(ExecuteTask, 600);
               }
             else
               {
