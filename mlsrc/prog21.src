@@ -1,0 +1,65 @@
+;+
+; My (partial) recreation of the "Master Library" module
+; that came with the original TI-58C/59 calculators.
+;
+; Written by Pascal Obry <pascal@obry.net>
+;-
+
+;+
+; Register usage:
+;     01 -- M Guess
+;     02 -- Guesses Left
+;     03 -- Machine's No.
+;     04 -- No. Guesses
+;     05 -- User's Guess
+;_
+
+
+lbl A
+; no need to initialize a seed as we use op 51 in pgm 15
+    rtn
+
+lbl A'
+; initialize machine guess
+    9 sto 02
+    512 ; start with 512 (middle of 0 .. 1023)
+    rtn
+
+lbl B
+; generate a secret number using the pgm 15
+    ( pgm 15 sbr dms × 1023 + 1 )
+    int sto 03 ; take integer part and store into 03
+    0 sto 04   ; clear guesses count
+    rtn
+
+lbl C'
+; machine guess too high
+    +/-                   ; will take middle of lower range, see below
+
+lbl B'
+; machine guess too low
+    x⇌t
+    1 inv sum 02          ; decrement left guess
+    ( 2 yx rcl 02 + x⇌t ) ; new guess (middle of upper range)
+    |x|
+    rtn
+
+lbl C
+; human guess
+    x⇌t
+    1 sum 04
+    ( x⇌t - rcl 03 )
+    sto 05
+    ( 1/x |x| × rcl 05 )
+    rtn
+
+lbl D
+; display score
+    ce
+    rcl 04
+    rtn
+
+lbl D'
+; machine guess
+    ( 10 - rcl 02 )
+    rtn
