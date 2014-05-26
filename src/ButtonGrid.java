@@ -2,7 +2,7 @@ package nz.gen.geek_central.ti5x;
 /*
     Display and interaction with calculator buttons
 
-    Copyright 2011 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011, 2014 Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,7 @@ package nz.gen.geek_central.ti5x;
 */
 
 import android.graphics.RectF;
+import android.view.MotionEvent;
 
 public class ButtonGrid extends android.view.View
   {
@@ -174,6 +175,7 @@ public class ButtonGrid extends android.view.View
     public boolean AltState;
 
     public int SelectedButton = -1;
+    public boolean SecondPress = false;
 
     public int DigitsNeeded;
     public boolean AcceptSymbolic, AcceptInd, NextLiteral;
@@ -250,24 +252,55 @@ public class ButtonGrid extends android.view.View
                 public boolean onTouch
                   (
                     android.view.View TheView,
-                    android.view.MotionEvent TheEvent
+                    MotionEvent TheEvent
                   )
                   {
                     boolean Handled = false;
                     if (!Global.BGTaskInProgress())
                       {
                         final ButtonGrid TheButtons = (ButtonGrid)TheView;
-                        switch (TheEvent.getAction())
+                        final int EventAction = TheEvent.getAction() & (1 << MotionEvent.ACTION_POINTER_ID_SHIFT) - 1;
+                        switch (EventAction)
                           {
-                        case android.view.MotionEvent.ACTION_DOWN:
-                        case android.view.MotionEvent.ACTION_MOVE:
+                        case MotionEvent.ACTION_DOWN:
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                        case MotionEvent.ACTION_MOVE:
                             final long ThisClick = java.lang.System.currentTimeMillis();
-                            if (ThisClick - LastClick > 100) /* debounce */
+                            if
+                              (
+                                    (
+                                        ThisClick - LastClick > 100 /* debounce */
+                                    ||
+                                        !SecondPress && EventAction == MotionEvent.ACTION_POINTER_DOWN
+                                          /* no need to debounce second touch */
+                                    )
+                                &&
+                                    (EventAction != MotionEvent.ACTION_MOVE || !SecondPress)
+                                      /* ignore move events once second finger goes down */
+                              )
                               {
+                                if (EventAction == MotionEvent.ACTION_POINTER_DOWN)
+                                  {
+                                    SecondPress = true;
+                                  } /*if*/
                                 final RectF GridBounds =
                                     new RectF(0.0f, 0.0f, TheView.getWidth(), TheView.getHeight());
+                                final int PointerIndex =
+                                    EventAction == MotionEvent.ACTION_POINTER_DOWN ?
+                                            (TheEvent.getAction() & MotionEvent.ACTION_POINTER_ID_MASK)
+                                        >>
+                                            MotionEvent.ACTION_POINTER_ID_SHIFT
+                                    :
+                                        -1;
                                 android.graphics.PointF ClickWhere =
-                                    new android.graphics.PointF(TheEvent.getX(), TheEvent.getY());
+                                    EventAction == MotionEvent.ACTION_POINTER_DOWN ?
+                                        new android.graphics.PointF
+                                          (
+                                            TheEvent.getX(PointerIndex),
+                                            TheEvent.getY(PointerIndex)
+                                          )
+                                    :
+                                        new android.graphics.PointF(TheEvent.getX(), TheEvent.getY());
                                 final float CellWidth = (float)TheView.getWidth() / NrButtonCols;
                                 final float CellHeight = (float)TheView.getHeight() / NrButtonRows;
                                 final android.graphics.Point ClickedCell =
@@ -306,6 +339,10 @@ public class ButtonGrid extends android.view.View
                                       {
                                         DoFeedback();
                                         Invoke();
+                                      }
+                                    else
+                                      {
+                                        SecondPress = false;
                                       } /*if*/
                                     TheView.invalidate();
                                   } /*if*/
@@ -313,8 +350,8 @@ public class ButtonGrid extends android.view.View
                                 LastClick = ThisClick;
                               } /*if*/
                         break;
-                        case android.view.MotionEvent.ACTION_UP:
-                        case android.view.MotionEvent.ACTION_CANCEL:
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
                             if (SelectedButton != -1)
                               {
                                 if
@@ -329,6 +366,7 @@ public class ButtonGrid extends android.view.View
                                     Global.Calc.SetSlowExecution(false);
                                   } /*if*/
                                 SelectedButton = -1;
+                                SecondPress = false;
                                 TheView.invalidate();
                               } /*if*/
                             Handled = true;
