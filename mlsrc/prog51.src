@@ -1,0 +1,84 @@
+;+
+; My extensions to the "Master Library" module that came with the
+; original TI-58C/59 calculators: this one adds the Gamma/Factorial
+; functions (MU-11) from the "Math Utilities" module.
+;
+; Written by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+;-
+
+;+
+; Register usage (doesn’t quite match up with original):
+; r08 -- adjustment for small operands to increase accuracy
+; r09 -- used to store operand
+; r10 -- temporary use
+;-
+
+lbl A
+; compute Γ(x)
+A' inv lnx
+inv sbr
+
+lbl A'
+; compute ln Γ(x)
+; This routine does the bulk of the work
+sto 09 ; save x
+1 sto 08 ; initial adjustment + 1
+16 ; approximation loses accuracy for arguments smaller than this
+x⇌t rcl 09 x≥t |x| ; skip if argument is large enough
+( x⇌t - rcl 09 int ) sum 08 ; increase adjustment
+sum 09 ; so I compute approximation for large enough operand
+lbl |x|
+(
+    ( rcl 09 - 0.5 ) × rcl 09 lnx
+-
+    rcl 09
++
+    0.5 × ( 2 × π ) lnx
++
+    1 ÷ 6 ÷ 1 sbr 1/x
+-
+    1 ÷ 30 ÷ 2 sbr 1/x
++
+    1 ÷ 42 ÷ 3 sbr 1/x
+-
+    1 ÷ 30 ÷ 4 sbr 1/x
++
+    5 ÷ 66 ÷ 5 sbr 1/x
+)
+sto 10
+gto int
+lbl fix
+; compute actual answer for actual operand, by
+; dividing out decrements of adjusted operand
+op 39
+rcl 09 lnx inv sum 10
+lbl int
+dsz 8 fix
+cp ; zap what I put in t-reg
+rcl 10
+inv sbr
+
+lbl B
+; compute x!
+( + 1 ) gto A
+
+lbl B'
+; compute ln x!
+( + 1 ) gto A'
+
+lbl C
+; compute n! (non-negative integer n only)
+sto 09
+1 sto 10 ; answer accumulated here
+lbl y**x
+rcl 09 prd 10
+dsz 9 y**x
+rcl 10
+inv sbr
+
+lbl 1/x
+; computes a denominator for the main summation
+; enter with m in x-reg and operand in reg 09
+sto 10 ; save m
+( 2 * rcl 10 * ( 2 * rcl 10 - 1 ) * rcl 09 ** ( 2 * rcl 10 - 1 ) )
+inv sbr

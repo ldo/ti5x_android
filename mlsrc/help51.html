@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+
+TABLE.functions
+  {
+    border-collapse : collapse;
+  }
+TABLE.functions > TBODY > TR > TD, TABLE.functions > TBODY > TR > TH
+  {
+    border : 1px solid;
+    border-color : #C0C0C0;
+    padding : 0.25em;
+  }
+TABLE.functions > TBODY > TR > TD.unused
+  {
+    background : #D5D5D5;
+  }
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-51 — Gamma/Factorial</H1>
+
+<P>The <I>gamma function</I> Γ(<I>x</I>) is a generalization of the factorial function <I>x</I>!
+to non-integer <I>x</I>. For integer <I>x</I>, the equality holds:
+<BLOCKQUOTE><P>Γ(<I>x</I>) = (<I>x</I> - 1)!
+</BLOCKQUOTE>
+<P>for the usual definition of the factorial function:
+<BLOCKQUOTE><P>0! = 1
+<P><I>x</I>! = (<I>x</I> - 1)! × <I>x</I> for integer <I>x</I> &gt; 0
+</BLOCKQUOTE>
+<P>Gamma and factorial both increase vary rapidly for modest increases in <I>x</I>; thus,
+it is often useful to work with the logarithm of the gamma and factorial functions, to
+allow for larger operands before numerical overflow sets in.
+
+<P>This program will compute Γ(<I>x</I>), ln Γ(<I>x</I>), <I>x</I>! and ln <I>x</I>!
+for real <I>x</I>. The valid domains for <I>x</I> are as follows (upper bounds are approximate):
+<TABLE CLASS="functions">
+<TR><TH>Function</TH><TH>Domain</TH></TR>
+<TR><TD>Γ(<I>x</I>)</TD><TD><I>x</I> ∈ 1 .. 171</TD></TR>
+<TR><TD>ln Γ(<I>x</I>)</TD><TD><I>x</I> ∈ 1 .. 10<SUP>305</SUP</TD></TR>
+<TR><TD><I>x</I>!</TD><TD><I>x</I> ∈ 0 .. 170</TD></TR>
+<TR><TD>ln <I>x</I>!</TD><TD><I>x</I> ∈ 0 .. 10<SUP>305</SUP></TD></TR>
+</TABLE>
+
+<P>In each case, first key in the number <I>x</I>, then press the button corresponding
+to the function desired, as follows:
+<DL class="deflist">
+<DT><SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+    <DD>Compute Γ(<I>x</I>).
+<DT><SPAN CLASS="brownbutton">&nbsp;A´&nbsp;</SPAN>
+    <DD>Compute ln Γ(<I>x</I>).
+<DT><SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+    <DD>Compute <I>x</I>!.
+<DT><SPAN CLASS="brownbutton">&nbsp;B´&nbsp;</SPAN>
+    <DD>Compute ln <I>x</I>!.
+<DT><SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+    <DD>Compute exact <I>x</I>! for integer <I>x</I> only.
+</DL>
+
+<H3>Formulas Used</H3>
+<P>ln Γ(<I>x</I>) is computed from the following approximation:
+<BLOCKQUOTE><P>ln Γ(<I>x</I>) ≅ (<I>x</I> - ½) ln <I>x</I> - <I>x</I> + ½ ln (2<I>π</I>) + Σ<SUB>(<I>m</I> = 1 .. 5)</SUB> (<I>B</I><SUB>2<I>m</I></SUB> ÷ (2<I>m</I>(2<I>m</I> - 1)<I>x</I><SUP>2<I>m</I> - 1</SUP>))
+</BLOCKQUOTE>
+
+<P>where the first five <I>B</I><SUB>2<I>m</I></SUB> (Bernoulli numbers) are as follows:
+<BLOCKQUOTE><P><I>B</I><SUB>2</SUB> = 1/6<BR>
+<I>B</I><SUB>4</SUB> = -1/30<BR>
+<I>B</I><SUB>6</SUB> = 1/42<BR>
+<I>B</I><SUB>8</SUB> = -1/30<BR>
+<I>B</I><SUB>10</SUB> = 5/66<BR>
+</BLOCKQUOTE>
+
+<P>This approximation on its own only guarantees an error of about
+691 ÷ (360360<I>x</I><SUP>11</SUP>), but the code applies an adjustment for smaller <I>x</I>
+to prevent this error growing too large.
+
+<P>The other functions of real <I>x</I> are derived from this in the obvious ways.
+
+<P>Registers used: 08-10.
+
+</BODY>

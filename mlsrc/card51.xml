@@ -1,0 +1,9 @@
+<carddef style="system">
+<label slot="titleleft">GAMMA/FACTORIAL</label>
+<label slot="titleright">ML-51</label>
+<label slot="aprime">ln <Gamma/>(x)</label>
+<label slot="bprime">ln x!</label>
+<label slot="a"><Gamma/>(x)</label>
+<label slot="b">x!</label>
+<label slot="c">n!</label>
+</carddef>
