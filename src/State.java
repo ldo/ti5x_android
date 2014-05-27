@@ -1477,8 +1477,11 @@ public class State
                 case 3:
                 case 4:
                       {
+                        final int MaxPrec = 15; /* fudge for roundoff caused by binary versus decimal arithmetic */
                         final int ColStart = (OpNr - 1) * 5;
-                        long Contents = (long)X;
+                        final double IntPart = Math.floor(Math.abs(Arith.RoundTo(X, MaxPrec)));
+                        long Contents = (long)IntPart;
+
                         SetX(Contents); /* manual says integer part of display is discarded as a side-effect */
                         for (int i = 5;;)
                           {
