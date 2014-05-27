@@ -1385,6 +1385,85 @@ public class State
           } /*if*/
       } /*MemoryOp*/
 
+    public static final int HIROP_STO = 0;
+    public static final int HIROP_RCL = 1;
+    public static final int HIROP_ADD = 3;
+    public static final int HIROP_MUL = 4;
+    public static final int HIROP_SUB = 5;
+    public static final int HIROP_DIV = 6;
+
+    public void HirOp
+      (
+        int Code
+      )
+      {
+        if (Code >= 0)
+          {
+            Enter();
+            boolean OK = false; /* to begin with */
+            int Op = 0;
+            int RegNr = Code;
+            while (RegNr > 10)
+              {
+                  RegNr = RegNr - 10;
+                  Op++;
+              }
+            // Note that RegNr = 0 must reference X
+            do /*once*/
+              {
+                if (RegNr > MaxOpStack)
+                    break;
+
+                // ensure that we are not referencing a non initilized stack entry
+                if  (RegNr != 0 && OpStack[RegNr - 1] == null)
+                    OpStack[RegNr - 1] = new OpStackEntry(0, Code, 0);
+
+                switch (Op)
+                  {
+                case HIROP_STO:
+                    if (RegNr != 0)
+                      OpStack[RegNr - 1].Operand = X;
+                break;
+                case HIROP_RCL:
+                    if (RegNr != 0)
+                      SetX(OpStack[RegNr - 1].Operand);
+                break;
+                case HIROP_ADD:
+                    if (RegNr == 0)
+                      X = X + X;
+                    else
+                      OpStack[RegNr - 1].Operand += X;
+                break;
+                case HIROP_SUB:
+                    if (RegNr == 0)
+                      X = 0;
+                    else
+                      OpStack[RegNr - 1].Operand -= X;
+                break;
+                case HIROP_MUL:
+                    if (RegNr == 0)
+                      X = X * X;
+                    else
+                      OpStack[RegNr - 1].Operand *= X;
+                break;
+                case HIROP_DIV:
+                    if (RegNr == 0)
+                      X = 1;
+                    else
+                      OpStack[RegNr - 1].Operand /= X;
+                break;
+                  } /*switch*/
+              /* all done */
+                OK = true;
+              }
+            while (false);
+            if (!OK)
+              {
+                SetErrorState(true);
+              } /*if*/
+          } /*if*/
+      } /*HirOp*/
+
     boolean StatsRegsAvailable()
       /* ensures the statistics registers are accessible with the current
         partition/offset setting. */
@@ -3174,7 +3253,9 @@ public class State
                 case 81:
                     ResetProg();
                 break;
-              /* 82 invalid */
+                case 82: /* HIR non documented instructions */
+                    HirOp(GetProg(true));
+                break;
                 case 83: /*GTO Ind*/
                     Transfer
                       (
