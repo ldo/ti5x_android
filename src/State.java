@@ -1457,6 +1457,33 @@ public class State
                 OK = true;
               }
             while (false);
+
+            /* emulate the printer registers HIR 05 is the OP 01 register and so on */
+
+            if (RegNr >= 5 && RegNr <= 8)
+                {
+                    final int MaxPrec = 15; /* fudge for roundoff caused by binary versus decimal arithmetic */
+                    final double OpVal = OpStack[RegNr - 1].Operand;
+                    final double StackVal = OpVal *
+                        (OpVal < 10 ? 100 : (OpVal < 100 ? 10 : (OpVal < 100 ? 1 : 0.1)));
+                    final double IntPart = Math.floor(Math.abs(Arith.RoundTo(StackVal, MaxPrec)));
+                    final double FraPart = Arith.RoundTo
+                        ((Math.abs(StackVal) - IntPart) * Math.signum(StackVal),
+                         Math.max(MaxPrec - Arith.FiguresBeforeDecimal(StackVal, 0), 0));
+                    double Value = Math.floor(Math.abs(Arith.RoundTo(FraPart * 1e10, MaxPrec)));
+
+                    final int ColStart = (RegNr - 5) * 5;
+
+                    for (int i = 5;;)
+                        {
+                            if (i == 0)
+                                break;
+                            --i;
+                            PrintRegister[i + ColStart] = (byte)(Value % 100);
+                            Value /= 100;
+                        } /*for*/
+                }
+
             if (!OK)
               {
                 SetErrorState(true);
@@ -1558,6 +1585,14 @@ public class State
                       {
                         final int ColStart = (OpNr - 1) * 5;
                         long Contents = (long)X;
+
+                        // emulate the HIR register (OP 01 use HIR 05, 02 -> 06, 03 -> 07 and 04 -> 08) */
+
+                          if  (OpStack[OpNr + 3] == null)
+                            OpStack[OpNr + 3] = new OpStackEntry(0, OpNr, 0);
+
+                        OpStack[OpNr + 3].Operand = X / 1e12;
+
                         SetX(Contents); /* manual says integer part of display is discarded as a side-effect */
                         for (int i = 5;;)
                           {
