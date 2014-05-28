@@ -1385,6 +1385,112 @@ public class State
           } /*if*/
       } /*MemoryOp*/
 
+    public static final int HIROP_STO = 0;
+    public static final int HIROP_RCL = 1;
+    public static final int HIROP_ADD = 3;
+    public static final int HIROP_MUL = 4;
+    public static final int HIROP_SUB = 5;
+    public static final int HIROP_DIV = 6;
+
+    public void HirOp
+      (
+        int Code
+      )
+      {
+        if (Code >= 0)
+          {
+            Enter();
+            boolean OK = false; /* to begin with */
+            int Op = 0;
+            int RegNr = Code;
+            while (RegNr > 10)
+              {
+                  RegNr = RegNr - 10;
+                  Op++;
+              }
+            // Note that RegNr = 0 must reference X
+            do /*once*/
+              {
+                if (RegNr > MaxOpStack)
+                    break;
+
+                // ensure that we are not referencing a non initilized stack entry
+                if  (RegNr != 0 && OpStack[RegNr - 1] == null)
+                    OpStack[RegNr - 1] = new OpStackEntry(0, Code, 0);
+
+                switch (Op)
+                  {
+                case HIROP_STO:
+                    if (RegNr != 0)
+                      OpStack[RegNr - 1].Operand = X;
+                break;
+                case HIROP_RCL:
+                    if (RegNr != 0)
+                      SetX(OpStack[RegNr - 1].Operand);
+                break;
+                case HIROP_ADD:
+                    if (RegNr == 0)
+                      X = X + X;
+                    else
+                      OpStack[RegNr - 1].Operand += X;
+                break;
+                case HIROP_SUB:
+                    if (RegNr == 0)
+                      X = 0;
+                    else
+                      OpStack[RegNr - 1].Operand -= X;
+                break;
+                case HIROP_MUL:
+                    if (RegNr == 0)
+                      X = X * X;
+                    else
+                      OpStack[RegNr - 1].Operand *= X;
+                break;
+                case HIROP_DIV:
+                    if (RegNr == 0)
+                      X = 1;
+                    else
+                      OpStack[RegNr - 1].Operand /= X;
+                break;
+                  } /*switch*/
+              /* all done */
+                OK = true;
+              }
+            while (false);
+
+            /* emulate the printer registers HIR 05 is the OP 01 register and so on */
+
+            if (RegNr >= 5 && RegNr <= 8)
+                {
+                    final int MaxPrec = 15; /* fudge for roundoff caused by binary versus decimal arithmetic */
+                    final double OpVal = OpStack[RegNr - 1].Operand;
+                    final double StackVal = OpVal *
+                        (OpVal < 10 ? 100 : (OpVal < 100 ? 10 : (OpVal < 100 ? 1 : 0.1)));
+                    final double IntPart = Math.floor(Math.abs(Arith.RoundTo(StackVal, MaxPrec)));
+                    final double FraPart = Arith.RoundTo
+                        ((Math.abs(StackVal) - IntPart) * Math.signum(StackVal),
+                         Math.max(MaxPrec - Arith.FiguresBeforeDecimal(StackVal, 0), 0));
+                    double Value = Math.floor(Math.abs(Arith.RoundTo(FraPart * 1e10, MaxPrec)));
+
+                    final int ColStart = (RegNr - 5) * 5;
+
+                    for (int i = 5;;)
+                        {
+                            if (i == 0)
+                                break;
+                            --i;
+                            PrintRegister[i + ColStart] = (byte)(Value % 100);
+                            Value /= 100;
+                        } /*for*/
+                }
+
+            if (!OK)
+              {
+                SetErrorState(true);
+              } /*if*/
+          } /*if*/
+      } /*HirOp*/
+
     boolean StatsRegsAvailable()
       /* ensures the statistics registers are accessible with the current
         partition/offset setting. */
@@ -1479,6 +1585,14 @@ public class State
                       {
                         final int ColStart = (OpNr - 1) * 5;
                         long Contents = (long)X;
+
+                        // emulate the HIR register (OP 01 use HIR 05, 02 -> 06, 03 -> 07 and 04 -> 08) */
+
+                          if  (OpStack[OpNr + 3] == null)
+                            OpStack[OpNr + 3] = new OpStackEntry(0, OpNr, 0);
+
+                        OpStack[OpNr + 3].Operand = X / 1e12;
+
                         SetX(Contents); /* manual says integer part of display is discarded as a side-effect */
                         for (int i = 5;;)
                           {
@@ -3174,7 +3288,9 @@ public class State
                 case 81:
                     ResetProg();
                 break;
-              /* 82 invalid */
+                case 82: /* HIR non documented instructions */
+                    HirOp(GetProg(true));
+                break;
                 case 83: /*GTO Ind*/
                     Transfer
                       (
