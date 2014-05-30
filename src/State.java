@@ -1197,7 +1197,9 @@ public class State
               );
             if (Labelled)
               {
-                for (int i = Printer.CharColumns - 5; i < Printer.CharColumns; ++i)
+                /* clear left-most characters of the last column */
+                Translated[Printer.CharColumns - 5] = 0;
+                for (int i = Printer.CharColumns - 4; i < Printer.CharColumns; ++i)
                   {
                     Translated[i] = PrintRegister[i];
                   } /*for*/
