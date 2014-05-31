@@ -67,6 +67,19 @@ class Arith
             BeforeDecimal;
       } /*FiguresBeforeDecimal*/
 
+    public static final int MaxPrec = 15;
+      /* fudge for roundoff caused by binary versus decimal arithmetic */
+
+    public static double AbsIntPart
+      (
+        double X
+      )
+      /* returns the absolute integer part of X. */
+      {
+        return
+            Math.floor(Math.abs(RoundTo(X, MaxPrec)));
+      } /*AbsIntPart*/
+
   } /*Arith*/
 
 public class State
@@ -1079,9 +1092,8 @@ public class State
 
     public void Int()
       {
-        final int MaxPrec = 15; /* fudge for roundoff caused by binary versus decimal arithmetic */
         Enter();
-        final double IntPart = Math.floor(Math.abs(Arith.RoundTo(X, MaxPrec)));
+        final double IntPart = Arith.AbsIntPart(X);
         if (InvState)
           {
             SetX
@@ -1089,7 +1101,7 @@ public class State
                 Arith.RoundTo
                   (
                     (Math.abs(X) - IntPart) * Math.signum(X),
-                    Math.max(MaxPrec - Arith.FiguresBeforeDecimal(X, 0), 0)
+                    Math.max(Arith.MaxPrec - Arith.FiguresBeforeDecimal(X, 0), 0)
                   )
               );
           }
@@ -1478,8 +1490,8 @@ public class State
                 case 4:
                       {
                         final int ColStart = (OpNr - 1) * 5;
-                        long Contents = (long)X;
-                        SetX(Contents); /* manual says integer part of display is discarded as a side-effect */
+                        long Contents = (long)Arith.AbsIntPart(X);
+                        SetX(Contents); /* manual says fractional part of display is discarded as a side-effect */
                         for (int i = 5;;)
                           {
                             if (i == 0)
