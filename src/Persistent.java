@@ -86,7 +86,7 @@ class ZipComponentWriter
         Parent.write(TheData, 0, TheData.length);
         Parent.closeEntry();
       } /*close*/
-  
+
   } /*ZipComponentWriter*/
 
 public class Persistent
@@ -1685,7 +1685,7 @@ public class Persistent
         java.io.FileOutputStream CurSave;
         try
           {
-            final String StateName = 
+            final String StateName =
                 SaveLib ?
                     SavedLibName
                 :

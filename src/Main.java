@@ -800,7 +800,7 @@ public class Main extends android.app.Activity
           {
             ContextMenu = null;
           } /*if*/
-      } /*onCreateContextMenu*/ 
+      } /*onCreateContextMenu*/
 
     void BuildActivityResultActions()
       {
@@ -1114,7 +1114,7 @@ public class Main extends android.app.Activity
                               ),
                             /*duration =*/ Toast.LENGTH_SHORT
                           ).show();
-                        
+
                       }
                     catch (Persistent.DataFormatException Failed)
                       {
