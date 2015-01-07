@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=utf-8">
+<TITLE>ti5x help</TITLE>
+<STYLE TYPE="text/css">
+.yellowbutton
+  {
+    background : #cc9858;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+  } /*.yellowbutton*/
+
+.brownbutton
+  {
+    background : #4e3836;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*.brownbutton*/
+
+.whitebutton
+  {
+    background : #bdaa7d;
+    padding : 1pt;
+    border : 1pt solid black;
+    font-weight : bold;
+    color : #222424;
+  } /*.whitebutton*/
+
+.alttext
+  {
+    background : #222424;
+    padding : 1.5pt;
+    font-weight : bold;
+    color : #bdaa7d;
+  } /*alttext*/
+
+.deflist DT
+  {
+    display : compact;
+    font-weight : bold;
+  } /*.deflist DT*/
+.deflist DD
+  {
+    margin-left : 4em;
+  } /*.deflist DD*/
+</STYLE>
+</HEAD>
+<BODY>
+<H1>ML-21 — HI-LO Game</H1>
+
+<p>The game is to guess a secret number (whole numbers only) form 1 to 1023
+  that has been generated in the calculator. The calculator responds with 1
+  for "too high", -1 for "too low", or 0 if "correct". Your score (number of
+  guesses) is then displayed by the calculator.
+
+<p>You may also challenge the calculator to guess a number you've chosen.
+
+<H2>You guess</H2>
+<UL>
+<LI>Key in number (0 to 199017) <SPAN CLASS="brownbutton">&nbsp;A&nbsp;</SPAN>
+<LI>Generate secret number <SPAN CLASS="brownbutton">&nbsp;B&nbsp;</SPAN>
+<LI>Enter your guess (1 to 1023) <SPAN CLASS="brownbutton">&nbsp;C&nbsp;</SPAN>
+<UL>
+  <LI>Clue: -1. if guess was low
+  <LI>1. if guess was high
+  <LI>flashing 0. if your guess was correct
+</UL>
+<LI>Display score <SPAN CLASS="brownbutton">&nbsp;D&nbsp;</SPAN>
+</UL>
+
+<H2>Calculator Guesses</H2>
+<UL>
+<LI>Select a number (1 to 1023)
+<LI>Display calculator's first guess <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;A'&nbsp;</SPAN>
+<LI>If calculator's guess is Low <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;B'&nbsp;</SPAN>
+<LI>If calculator's guess is High <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;C'&nbsp;</SPAN>
+<LI>If calculator's guess is Correct <SPAN CLASS="yellowbutton">2nd</SPAN> <SPAN CLASS="brownbutton">&nbsp;D'&nbsp;</SPAN>
+</UL>
+
+<P>Registers used: 01-05.
+
+</BODY>
